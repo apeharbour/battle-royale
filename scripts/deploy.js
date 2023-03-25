@@ -9,12 +9,16 @@ const hre = require("hardhat");
 async function main() {
   
   const Map = await hre.ethers.getContractFactory("Map");
-  const map = await Map.deploy();
+  const map = await Map.deploy(1);
 
   await map.deployed();
 
+  const result = await map.hexCells(0-1,0)
+
+  console.log(result)
+
   console.log(
-    `Map deployed to ${lock.address}`
+    `Map deployed to ${map.address}`
   );
 }
 
