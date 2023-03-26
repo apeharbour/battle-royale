@@ -118,26 +118,115 @@ contract Map is IMap {
         return a <= b ? a : b;
     }
 
-    function travel(
-        Cell calldata _startCell,
-        uint8 _direction,
-        uint8 distance
-    ) external pure returns (bool dies, Cell calldata destinationCell) {
-        int q = _startCell.q;
-        int r = _startCell.r;
+    function travel(Cell calldata _startCell, uint8 _direction, uint8 distance) external view returns (bool dies, Cell memory destinationCell){
+        int8 q = _startCell.q;
+        int8 r = _startCell.r;
         bool island = _startCell.island;
-        if (island) {
-            dies = true;
+
+        destinationCell = Cell(q, r, island);
+
+
+        if(_direction == 1){      // NE
+            for(int i = 1; i <= int256(uint256(distance)); i++){
+                if (this.isIsland(destinationCell) == true){
+                    dies = true;
+                    return (dies, destinationCell);
+            } else {
+                destinationCell.q +=  1;
+                destinationCell.r -=  1;
+            }
+            }
+        } else if(_direction == 2){   // E 
+            for(int i = 1; i <= int256(uint256(distance)); i++){
+                if (this.isIsland(destinationCell) == true){
+               dies = true;
+         return (dies, destinationCell);
+            } else {
+                destinationCell.q +=  1;
+            }
+            }          
+        } else if(_direction == 3){   // SE
+            for(int i = 1; i <= int256(uint256(distance)); i++){
+                if (this.isIsland(destinationCell) == true){
+               dies = true;
+              return (dies, destinationCell);
+            } else {
+                destinationCell.r +=  1;
+            }
+            }          
+        } else if(_direction == 4){   // SW
+           for(int i = 1; i <= int256(uint256(distance)); i++){
+                if (this.isIsland(destinationCell) == true){
+                    dies = true;
+                    return (dies, destinationCell);
+            } else {
+                destinationCell.q -=  1;
+                destinationCell.r +=  1;
+            }
+            }
+        } else if(_direction == 5){   // W  
+             for(int i = 1; i <= int256(uint256(distance)); i++){
+                if (this.isIsland(destinationCell) == true){
+                   dies = true;
+                return (dies, destinationCell);
+            } else {
+                destinationCell.q -=  1;
+            }
+            }
+        } else {                     // NW
+            for(int i = 1; i <= int256(uint256(distance)); i++){
+                if (this.isIsland(destinationCell) == true){
+                    dies = true;
+                    return (dies, destinationCell);
+            } else {
+                destinationCell.r -=  1;
+            }
+            }          
         }
-
-        destinationCell = _startCell;
-
-        return (dies, destinationCell);
+    
+       return (dies, destinationCell);
     }
 
-    function deleteCell(Cell memory _cell) external {}
+    function reduceHexGrid() public {
+    // Ensure the grid has a size greater than 0
+    require(size > 0, "Grid size cannot be reduced below 0");
 
-    function isIsland(Cell calldata _cell) external view returns (bool) {
+    int intSize = int(size);
+
+    // Remove cells along the top-right to bottom-right edge
+    for (int q = -intSize + 1; q <= intSize; q++) {
+        delete hexCells[q][intSize - 1];
+    }
+
+    // Remove cells along the bottom-right to bottom-left edge
+    for (int r = intSize - 1; r >= -intSize; r--) {
+        delete hexCells[intSize - 1][r];
+    }
+
+    // Remove cells along the bottom-left to top-left edge
+    for (int q = intSize - 1; q >= -intSize; q--) {
+        delete hexCells[q][-intSize + 1];
+    }
+
+    // Remove cells along the top-left to top-right edge
+    for (int r = -intSize + 1; r <= intSize; r++) {
+        delete hexCells[-intSize + 1][r];
+    }
+
+    // Decrement the size
+    size -= 1;
+}
+
+    function deleteCell(Cell memory _cell) external {
+        delete hexCells[ _cell.q][_cell.r];
+    }
+
+    function isIsland(Cell calldata _cell) external view returns(bool){
+        if(hexCells[_cell.q][_cell.r].island == true){
         return true;
+    }  else {
+        return false;
     }
+
+}
 }

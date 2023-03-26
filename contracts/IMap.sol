@@ -12,7 +12,7 @@ interface IMap {
     // constructor (uint radius)
 
 
-    function travel (Cell calldata _startCell, uint8 _direction, uint8 distance) external view returns (bool dies, Cell calldata destinationCell);
+    function travel (Cell calldata _startCell, uint8 _direction, uint8 distance) external view returns (bool dies, Cell memory destinationCell);
     function deleteCell(Cell memory cell) external;
     function isIsland(Cell calldata cell) external view returns (bool);
     function getCell(int8 q, int8 r) external view returns (int8, int8, bool);
