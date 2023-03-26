@@ -23,6 +23,8 @@ async function main() {
 
   map.getCell(0, 1).then(console.log).catch(console.error)
   map.getCell(1, 1).then(console.log).catch(console.error)
+
+  map.getCell(-5, 5).then(r => {console.log('r:', r, 'type:', typeof(r))}).catch(console.error)
   
   // console.log(`new random value: ${Number(result)}`)
 
