@@ -9,17 +9,23 @@ const hre = require("hardhat");
 async function main() {
   
   const Map = await hre.ethers.getContractFactory("Map");
-  const map = await Map.deploy(1);
+  const map = await Map.deploy(1, '0x6d1eb51dE3D3870CF8AF27cFE95CEd96c68aBF42');
 
   await map.deployed();
+  console.log( `Map deployed to ${map.address}` )
 
-  const result = await map.hexCells(0-1,0)
+  map.getCell(0, -1).then(console.log).catch(console.error)
+  map.getCell(1, -1).then(console.log).catch(console.error)
 
-  console.log(result)
+  map.getCell(-1, 0).then(console.log).catch(console.error)
+  map.getCell(0, 0).then(console.log).catch(console.error)
+  map.getCell(1, 0).then(console.log).catch(console.error)
 
-  console.log(
-    `Map deployed to ${map.address}`
-  );
+  map.getCell(0, 1).then(console.log).catch(console.error)
+  map.getCell(1, 1).then(console.log).catch(console.error)
+  
+  // console.log(`new random value: ${Number(result)}`)
+
 }
 
 // We recommend this pattern to be able to use async/await everywhere
