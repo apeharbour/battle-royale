@@ -4,9 +4,10 @@ pragma solidity ^0.8.9;
 interface IMap {
 
     struct Cell {
-        int8 q;
-        int8 r;
+        uint8 q;
+        uint8 r;
         bool island;
+        bool exists;
     }
 
     // constructor (uint radius)
@@ -15,7 +16,7 @@ interface IMap {
     function travel (Cell calldata _startCell, uint8 _direction, uint8 distance) external view returns (bool dies, Cell memory destinationCell);
     function deleteCell(Cell memory cell) external;
     function isIsland(Cell calldata cell) external view returns (bool);
-    function getCell(int8 q, int8 r) external view returns (int8, int8, bool);
+    function getCell(uint8 q, uint8 r) external view returns (uint8, uint8, bool, bool);
 
 }
 
