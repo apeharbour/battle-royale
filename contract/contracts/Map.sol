@@ -1,15 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
-import "./IMap.sol";
 import "hardhat/console.sol";
+import "./Random.sol";
 
 error MapSizeMustBeInRange(uint suppliedSize, uint maxSize);
 
-contract Map is IMap {
+contract Map {
     uint8 constant MAX_RADIUS = 127;
 
     mapping(Directions => Direction) private directionVectors;
+
+    struct Cell {
+        uint8 q;
+        uint8 r;
+        bool island;
+        bool exists;
+    }
 
     struct Direction {
         int8 q;
@@ -30,31 +37,15 @@ contract Map is IMap {
         SE
     }
 
-    struct RandomGeneration {
-        uint256 seed;
-        uint8 shiftValue;
-        uint8 bitmask;
-        uint8 currentShift;
-    }
-
     // hexCells is the mapping holding all cells. It can be addressed with hexCells[r][q].
     // Note the rows first adressing
     mapping(uint8 => mapping(uint8 => Cell)) public hexCells;
 
-    uint8 immutable public size;
-    RandomGeneration private rnd;
+    uint8 public radius;
+    Random.RandomGeneration private rnd;
 
-    constructor(uint8 _size, uint256 _seed) {
-        if (_size > MAX_RADIUS) {
-            revert MapSizeMustBeInRange(_size, MAX_RADIUS);
-        }
-        size = _size;
-        rnd = RandomGeneration(
-            uint256(keccak256(abi.encode(_seed))),
-            4,
-            255,
-            0
-        );
+    constructor(uint256 _seed) {
+        rnd = Random.init(_seed);
 
         directionVectors[Directions.E] = Direction(1, 0);
         directionVectors[Directions.NE] = Direction(1, -1);
@@ -64,26 +55,11 @@ contract Map is IMap {
         directionVectors[Directions.SE] = Direction(0, 1);
     }
 
-    function getRandomValue(uint8 _maxValue) public returns (uint8) {
-        if (rnd.currentShift >= 31) {
-            rnd.seed = uint256(keccak256(abi.encode(rnd.seed)));
-            rnd.currentShift = 0;
-            // console.log('New seed needs to be generated %s', rnd.seed);
-        }
-
-        uint8 result = uint8(
-            (rnd.seed >> (rnd.shiftValue * rnd.currentShift)) & rnd.bitmask
-        ) % _maxValue;
-        rnd.currentShift++;
-        // console.log('new number with current shift %s, seed %s, Result %s', rnd.currentShift, rnd.seed, result);
-        return result;
-    }
-
     function move(
         Coordinate memory _start,
         Directions _dir,
         uint8 _distance
-    ) private view returns (Coordinate memory) {
+    ) public view returns (Coordinate memory) {
         uint8 q = uint8(
             int8(_start.q) + directionVectors[_dir].q * int8(_distance)
         );
@@ -126,20 +102,25 @@ contract Map is IMap {
         cell.exists = true;
     }
 
-    function initMap() public {
+    function initMap(uint8 _radius) public {
+
+        if (_radius > MAX_RADIUS) {
+            revert MapSizeMustBeInRange(_radius, MAX_RADIUS);
+        }
+        radius = _radius;
+
         // set center cell
-        hexCells[size][size] = Cell({
-            q: size,
-            r: size,
+        hexCells[radius][radius] = Cell({
+            q: radius,
+            r: radius,
             island: false,
             exists: true
         });
 
-        for (uint8 i = 1; i <= size; i++) {
+        for (uint8 i = 1; i <= radius; i++) {
             // create ring of radius i
-            console.log("Creating ring with radius %s", i);
 
-            Coordinate memory center = Coordinate(size, size);
+            Coordinate memory center = Coordinate(radius, radius);
             Coordinate[] memory coordinates = ring(center, i);
 
             for (uint8 c = 0; c < coordinates.length; c++) {
@@ -149,63 +130,67 @@ contract Map is IMap {
     }
 
     function createIslands() public {
-        uint256 gridSize = uint256(1 + 3 * uint256(size) * (uint256(size) + 1));
-        uint256 islandNo = gridSize * 16 / 100;
-        console.log('Gridsize %s, number islands %s', gridSize, islandNo);
+        uint256 gridSize = uint256(1 + 3 * uint256(radius) * (uint256(radius) + 1));
+        uint256 islandNo = (gridSize * 16) / 100;
+        console.log("Gridsize %s, number islands %s", gridSize, islandNo);
         for (uint256 i = 0; i < islandNo; i++) {
             Coordinate memory coord = getRandomCoordinatePair();
-            console.log('new island: (%s,%s)', coord.q, coord.r);
+            console.log("new island: (%s,%s)", coord.q, coord.r);
             hexCells[coord.r][coord.q].island = true;
         }
     }
 
     function getRandomCoordinatePair() public returns (Coordinate memory) {
         Coordinate memory coord = Coordinate(
-            getRandomValue(2 * size),
-            getRandomValue(2 * size)
+            Random.getRandomValue(rnd, 2 * radius),
+            Random.getRandomValue(rnd, 2 * radius)
         );
         Cell memory cell = hexCells[coord.r][coord.q];
 
         while (!cell.exists || cell.island) {
             coord = Coordinate(
-                getRandomValue(2 * size),
-                getRandomValue(2 * size)
+                Random.getRandomValue(rnd, 2 * radius),
+                Random.getRandomValue(rnd, 2 * radius)
             );
             cell = hexCells[coord.r][coord.q];
         }
-        console.log("new island at (%s,%s)", coord.q, coord.r);
 
         return coord;
     }
 
-    function getCell(
-        uint8 q,
-        uint8 r
-    ) external view returns (uint8, uint8, bool, bool) {
-        return (
-            hexCells[r][q].q,
-            hexCells[r][q].r,
-            hexCells[r][q].island,
-            hexCells[r][q].exists
-        );
+    function getCell(Coordinate memory _coord) public view returns (Cell memory) {
+        return hexCells[_coord.r][_coord.q];
     }
 
     function travel(
-        Cell calldata _startCell,
-        uint8 _direction,
-        uint8 distance
-    ) external view returns (bool dies, Cell memory destinationCell) {
+        Coordinate memory _startCell,
+        Directions _direction,
+        uint8 _distance
+    ) external view returns (bool, Coordinate memory) {
         console.log("Called travel");
-        return (true, hexCells[size][size]);
+
+        for (uint8 i=0; i<_distance; i++) {
+            _startCell = neighbor(_startCell, _direction);
+            Cell memory cell = getCell(_startCell);
+
+            if ( cell.island || !cell.exists ) {
+                return (true, _startCell);
+            }
+        }
+        
+        return (false, _startCell);
     }
 
-    function deleteCell(Cell memory cell) external {
+    function deleteCell(Coordinate calldata _coord) external {
         console.log("Called deleteCell");
+        hexCells[_coord.r][_coord.q].exists = false;
     }
 
-    function isIsland(Cell calldata cell) external view returns (bool) {
+    function isIsland(Coordinate memory _coord) public view returns (bool) {
         console.log("Called isIsland");
-        return false;
+        Cell memory c = getCell(_coord);
+
+        return c.island;
     }
 
     // function initializeHexGrid() private {

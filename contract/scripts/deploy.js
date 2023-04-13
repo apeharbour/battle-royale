@@ -10,20 +10,23 @@ async function main() {
 
   const [owner] = await ethers.getSigners();
 
-  const RADIUS = 10
+  const RADIUS = 5
+
+  // Deploy random library
+  // const RandomLib = await hre.ethers.getContractFactory('Random')
+  // const randomLib = await RandomLib.deploy()
   
-  const Map = await hre.ethers.getContractFactory("Map");
-  const map = await Map.deploy(RADIUS, owner.address);
+  const Map = await hre.ethers.getContractFactory('Map');
+  const map = await Map.deploy(owner.address);
 
   await map.deployed();
-  const radius = await map.size()
-  console.log( `Map with radius ${radius} deployed by ${owner.address} to ${map.address}` )
+  console.log( `Map contract deployed by ${owner.address} to ${map.address}` )
 
-  await map.initMap()
-  console.log('Map initialized')
+  // await map.initMap(RADIUS)
+  // console.log(`Map initialized with radius ${await map.radius()}.`)
 
-  await map.createIslands()
-  console.log('Islands created')
+  // await map.createIslands()
+  // console.log('Islands created')
 
   // map.getCell(1, 0).then(c => {console.log('(1,0)', c)}).catch(console.error)
   // map.getCell(2, 0).then(c => {console.log('(2,0)', c)}).catch(console.error)
