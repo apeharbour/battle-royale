@@ -18,9 +18,12 @@ import {
 } from '@mui/material'
 import HexGrid from './HexGrid'
 import MapAbi from './abis/Map.json'
+import GameAbi from './abis/Game.json'
 
-const CONTRACT_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
-const CONTRACT_ABI = MapAbi.abi
+const MAP_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+const MAP_ABI = MapAbi.abi
+const GAME_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
+const GAME_ABI = GameAbi.abi
 
 function App() {
   const [cells, setCells] = React.useState([])
@@ -31,14 +34,17 @@ function App() {
   const [provider, setProvider] = React.useState(null)
   const [direction, setDirection] = React.useState(0)
   const [distance, setDistance] = React.useState(0)
+  const [shotDirection, setShotDirection] = React.useState(0)
+  const [shotDistance, setShotDistance] = React.useState(0)
+  const [destination, setDestination] = React.useState({})
 
   React.useEffect(() => {
     const fetchContract = async () => {
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
       const contract = new ethers.Contract(
-        CONTRACT_ADDRESS,
-        CONTRACT_ABI,
+        GAME_ADDRESS,
+        GAME_ABI,
         signer,
       )
       setContract(contract)
@@ -58,25 +64,24 @@ function App() {
           pathCells.push({q: Number(cell.q), r: Number(cell.r)})
         }
 
+        setDestination(pathCells[pathCells.length-1])
         setPath([...pathCells])
-
       }
-
     }
 
     fetchPath()
-
   }, [distance, direction])
 
   const initMap = async () => {
     console.log('Clicked init Map, using radius', radius)
+    setShip({})
 
     if (contract !== null) {
-      const tx = await contract.initMap(radius)
-      const receipt = await tx.wait()
+      const tx = await contract.initGame(radius)
+      await tx.wait()
       console.log(
         `Created map with radius ${Number(
-          await contract.radius(),
+          await contract.getRadius(),
         )} in block ${await provider.getBlockNumber()}`,
       )
       fetchData()
@@ -98,61 +103,64 @@ function App() {
     }
   }
 
+  const moveShoot = async () => {
+    console.log('Clicked moveShoot')
+  }
+
   const getContractRadius = async () => {
     if (contract !== null) {
-      const rad = Number(await contract.radius())
+      const rad = Number(await contract.getRadius())
       console.log('Radius:', rad)
     }
   }
 
-  const createIslands = async () => {
+  const getMap = async () => {
     if (contract !== null) {
-      const tx = await contract.createIslands()
-      await tx.wait()
-
       fetchData()
     }
   }
 
   const addShip = async () => {
-    const ship = { q: 3, r: 3 }
-    setShip(ship)
+    if (contract !== null) {
+      console.log('Adding ship')
+      await contract.addShip().catch(console.error)
+    }
+    // const ship = { q: 3, r: 3 }
+    // setShip(ship)
     console.log('Added ship')
+    fetchShips()
+  }
+
+  async function fetchShips() {
+    if (contract !== null) {
+      const result = await contract.getShips()
+      console.log(result)
+    }
   }
 
   async function fetchData() {
-    if (contract !== null) {
-      const center = { q: radius, r: radius }
-      const cell = await contract.getCell(center)
+    setCells([{q: 5, r: 5, island: true}, {q: 4, r: 4, island: false}])
+    // if (contract !== null) {
+    //   const center = { q: radius, r: radius }
+    //   const cell = await contract.getCell(center)
 
-      let tempCells = [
-        {
-          q: Number(cell.q),
-          r: Number(cell.r),
-          island: cell.island,
-          exists: cell.exists,
-        },
-      ]
 
-      for (let i = 1; i <= radius; i++) {
-        const ringCoords = await contract.ring(center, i)
-        for (let j = 0; j < ringCoords.length; j++) {
-          const cellCoord = { q: ringCoords[j].q, r: ringCoords[j].r }
-          const { q, r, island, exists } = await contract.getCell(cellCoord)
-          tempCells.push({ q: Number(q), r: Number(r), island, exists })
-        }
-      }
+    //   let tempCoords = await contract.getCells()
+    //   let tempCells = tempCoords.map((c) => {
+    //     return contract.getCell({q: Number(c.q), r: Number(c.r)})
+    //   })
 
-      setCells([...tempCells])
-      console.log(tempCells[0])
-    }
+    //   Promise.all(tempCells).then((values) => {
+    //     setCells([...values])
+    //   }).catch(console.error)
+    // }
   }
 
   return (
     <Container>
       <Grid container spacing={4}>
         <Grid item xs={12}>
-          <Typography variant="h1">Battle Royale</Typography>
+          <Typography variant="h3">Battle Royale</Typography>
         </Grid>
 
         <Grid item xs={4}>
@@ -171,19 +179,15 @@ function App() {
                   Init
                 </Button>
               </Stack>
-            </Stack>
-          </Paper>
-        </Grid>
-
-        <Grid item xs={4}>
-          <Paper sx={{ p: 2 }}>
-            <Stack spacing={4}>
-              <Typography variant="h5">Controls</Typography>
-              <Button variant="outlined" onClick={createIslands}>
-                Create Islands
+                <Typography variant="h5">Controls</Typography>
+              <Button variant="outlined" onClick={getMap}>
+                Get Map
               </Button>
               <Button variant="outlined" onClick={addShip}>
                 Add Ship
+              </Button>
+              <Button variant="outlined" onClick={fetchShips}>
+                Get Ships
               </Button>
             </Stack>
           </Paper>
@@ -196,9 +200,7 @@ function App() {
 
               <Stack spacing={2} direction="row">
                 <FormControl>
-                  <FormLabel id="demo-radio-buttons-group-label">
-                    Direction
-                  </FormLabel>
+                  <FormLabel id="demo-radio-buttons-group-label"> Direction </FormLabel>
                   <RadioGroup
                     aria-labelledby="demo-radio-buttons-group-label"
                     value={direction}
@@ -208,27 +210,11 @@ function App() {
                     name="radio-buttons-group"
                   >
                     <FormControlLabel value="0" control={<Radio />} label="E" />
-                    <FormControlLabel
-                      value="1"
-                      control={<Radio />}
-                      label="NE"
-                    />
-                    <FormControlLabel
-                      value="2"
-                      control={<Radio />}
-                      label="NW"
-                    />
+                    <FormControlLabel value="1" control={<Radio />} label="NE" />
+                    <FormControlLabel value="2" control={<Radio />} label="NW" />
                     <FormControlLabel value="3" control={<Radio />} label="W" />
-                    <FormControlLabel
-                      value="4"
-                      control={<Radio />}
-                      label="SW"
-                    />
-                    <FormControlLabel
-                      value="5"
-                      control={<Radio />}
-                      label="SE"
-                    />
+                    <FormControlLabel value="4" control={<Radio />} label="SW" />
+                    <FormControlLabel value="5" control={<Radio />} label="SE" />
                   </RadioGroup>
                 </FormControl>
 
@@ -252,9 +238,52 @@ function App() {
           </Paper>
         </Grid>
 
+        <Grid item xs={4}>
+          <Paper sx={{ p: 2 }}>
+            <Stack spacing={4}>
+              <Typography variant="h5">Shot</Typography>
+
+              <Stack spacing={2} direction="row">
+                <FormControl>
+                  <FormLabel id="demo-radio-buttons-group-label">Shot Direction</FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    value={shotDirection}
+                    onChange={(event) => { setShotDirection(event.target.value) }}
+                    name="radio-buttons-group"
+                  >
+                    <FormControlLabel value="0" control={<Radio />} label="E" />
+                    <FormControlLabel value="1" control={<Radio />} label="NE" />
+                    <FormControlLabel value="2" control={<Radio />} label="NW" />
+                    <FormControlLabel value="3" control={<Radio />} label="W" />
+                    <FormControlLabel value="4" control={<Radio />} label="SW" />
+                    <FormControlLabel value="5" control={<Radio />} label="SE" />
+                  </RadioGroup>
+                </FormControl>
+
+                <TextField
+                  id="outlined-number"
+                  label="Distance"
+                  type="number"
+                  value={shotDistance}
+                  onChange={(e) => {
+                    setShotDistance(parseInt(e.target.value))
+                  }}
+                  InputLabelProps={{
+                    shrink: true,
+                  }}
+                />
+              </Stack>
+              <Button variant="outlined" onClick={moveShoot}>
+                Move & Shoot
+              </Button>
+            </Stack>
+          </Paper>
+        </Grid>
+
         <Grid item xs={12}>
           <Paper sx={{ p: 2 }}>
-            <HexGrid cells={cells} ship={ship} path={path}/>
+            <HexGrid cells={cells} ship={ship} path={path} destination={destination}/>
           </Paper>
         </Grid>
       </Grid>
