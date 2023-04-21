@@ -10,51 +10,19 @@ async function main() {
 
   const [owner] = await ethers.getSigners();
 
-  const RADIUS = 5
-
   // Deploy random library
   // const RandomLib = await hre.ethers.getContractFactory('Random')
   // const randomLib = await RandomLib.deploy()
   
   const Map = await hre.ethers.getContractFactory('Map');
   const map = await Map.deploy(owner.address);
-
   await map.deployed();
   console.log( `Map contract deployed by ${owner.address} to ${map.address}` )
-
-  // await map.initMap(RADIUS)
-  // console.log(`Map initialized with radius ${await map.radius()}.`)
-
-  // await map.createIslands()
-  // console.log('Islands created')
-
-  // map.getCell(1, 0).then(c => {console.log('(1,0)', c)}).catch(console.error)
-  // map.getCell(2, 0).then(c => {console.log('(2,0)', c)}).catch(console.error)
-
-  // map.getCell(0, 1).then(c => {console.log('(0,1)', c)}).catch(console.error)
-  // map.getCell(1, 1).then(c => {console.log('(1,1)', c)}).catch(console.error)
-  // map.getCell(2, 1).then(c => {console.log('(2,1)', c)}).catch(console.error)
   
-  // map.getCell(0, 2).then(c => {console.log('(0,2)', c)}).catch(console.error)
-  // map.getCell(1, 2).then(c => {console.log('(1,2)', c)}).catch(console.error)
-  
-  // map.getCell(RADIUS, RADIUS).then(c => {console.log(`(${RADIUS},${RADIUS}), ${c}`)}).catch(console.error)
-
-  // const c = await map.getCell(RADIUS, RADIUS)
-  // console.log(`Radius 0: ${c}`)
-  
-  // for (let i=1; i<=RADIUS; i++) {
-  //   console.log('')
-  //   const cells = await map.ring({q: RADIUS, r: RADIUS}, i)
-  //   for (let j=0; j<cells.length; j++) {
-  //     const c = await map.getCell(cells[j].q, cells[j].r)
-  //     console.log(`Radius ${i}: ${c}`)
-  //   }
-  // }
-
-  // map.getCell(-5, 5).then(r => {console.log('r:', r, 'type:', typeof(r))}).catch(console.error)
-  
-  // console.log(`new random value: ${Number(result)}`)
+  const Game = await hre.ethers.getContractFactory('Game')
+  const game = await Game.deploy(map.address)
+  await game.deployed();
+  console.log( `Game contract deployed by ${owner.address} to ${game.address}` )
 
 }
 
