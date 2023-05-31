@@ -34,25 +34,43 @@ contract Game {
     }
 
     function initGame(uint8 _radius) public {
+        // reset ships
+        for (uint256 i = 0; i < players.length; i++) {
+            delete ships[players[i]];
+        }
+        delete players;
+
         map.initMap(_radius);
         map.createIslands();
         gameInProgress = true;
     }
 
     function addShip() public returns (Ship memory) {
-        if (ships[msg.sender].coordinate.q >0 && ships[msg.sender].coordinate.r >0) {
-            revert ShipAlreadyAdded(msg.sender, ships[msg.sender].coordinate.q, ships[msg.sender].coordinate.r);
+        if (
+            ships[msg.sender].coordinate.q > 0 &&
+            ships[msg.sender].coordinate.r > 0
+        ) {
+            revert ShipAlreadyAdded(
+                msg.sender,
+                ships[msg.sender].coordinate.q,
+                ships[msg.sender].coordinate.r
+            );
         }
 
         SharedStructs.Coordinate memory coord;
         bool alreadyTaken = false;
         do {
             coord = map.getRandomCoordinatePair();
-            for (uint8 i=0; i<players.length; i++) {
-              if (ships[players[i]].coordinate.q == coord.q && ships[players[i]].coordinate.r == coord.r) {
-                alreadyTaken = true;
-                break;
-              }
+            console.log("New rnd pair %s, %s", coord.q, coord.r);
+            for (uint8 i = 0; i < players.length; i++) {
+                console.log("in loop %s, address: %s", i, players[i]);
+                if (
+                    ships[players[i]].coordinate.q == coord.q &&
+                    ships[players[i]].coordinate.r == coord.r
+                ) {
+                    alreadyTaken = true;
+                    break;
+                }
             }
         } while (alreadyTaken);
 
@@ -67,6 +85,8 @@ contract Game {
         );
         ships[msg.sender] = ship;
         players.push(msg.sender);
+
+        console.log("New ship at %s, %s", ship.coordinate.q, ship.coordinate.r);
 
         emit PlayerAdded(msg.sender);
 
@@ -100,14 +120,21 @@ contract Game {
     }
 
     function sinkShip(address captain, uint8 index) internal {
+        require (index < players.length, 'Index value out of range');
+
         emit PlayerDefeated(captain);
         delete (ships[captain]);
-        delete (players[index]);
+
+        players[index] = players[players.length - 1];
+        players.pop();
     }
 
     function updateWorld() public {
         // move all ships
-        SharedStructs.Coordinate[] memory newPositions = new SharedStructs.Coordinate[](players.length);
+        SharedStructs.Coordinate[]
+            memory newPositions = new SharedStructs.Coordinate[](
+                players.length
+            );
 
         for (uint8 i = 0; i < players.length; i++) {
             if (ships[players[i]].publishedMove) {
@@ -122,13 +149,16 @@ contract Game {
                 }
 
                 // check if ship collides with another
-                for (uint8 j=0; j<i; i++)
-                if (newPositions[j].q != dest.q && newPositions[j].r != dest.r) {
-                    // existing move
-                    sinkShip(players[j], j);
-                    sinkShip(players[i], i);
-                    break;
-                }
+                for (uint8 j = 0; j < i; i++)
+                    if (
+                        newPositions[j].q != dest.q &&
+                        newPositions[j].r != dest.r
+                    ) {
+                        // existing move
+                        sinkShip(players[j], j);
+                        sinkShip(players[i], i);
+                        break;
+                    }
 
                 newPositions[i] = dest;
             }
@@ -142,6 +172,7 @@ contract Game {
 
     function getShips() public view returns (Ship[] memory) {
         Ship[] memory returnShips = new Ship[](players.length);
+        console.log("Retrieving ships");
 
         for (uint256 i = 0; i < players.length; i++) {
             returnShips[i] = ships[players[i]];
@@ -154,8 +185,33 @@ contract Game {
         return map.radius();
     }
 
-    function getCell(SharedStructs.Coordinate memory _coord) public view returns (SharedStructs.Cell memory) {
+    function getCell(
+        SharedStructs.Coordinate memory _coord
+    ) public view returns (SharedStructs.Cell memory) {
         return map.getCell(_coord);
+    }
+
+    function move(
+        SharedStructs.Coordinate memory _start,
+        SharedStructs.Directions _dir,
+        uint8 _distance
+    ) external view returns (SharedStructs.Coordinate memory) {
+        return map.move(_start, _dir, _distance);
+    }
+
+    function travel(
+        SharedStructs.Coordinate memory _startCell,
+        SharedStructs.Directions _direction,
+        uint8 _distance
+    ) external {
+        (bool dies, SharedStructs.Coordinate memory dest) = map.travel(_startCell, _direction, _distance);
+
+        if (dies) {
+            sinkShip(msg.sender);
+        } else {
+            ships[msg.sender].coordinate.q = dest.q;
+            ships[msg.sender].coordinate.r = dest.r;
+        }
     }
 
     function getCells()

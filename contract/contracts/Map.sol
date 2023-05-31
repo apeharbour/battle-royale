@@ -221,8 +221,6 @@ contract Map {
         SharedStructs.Directions _direction,
         uint8 _distance
     ) external view returns (bool, SharedStructs.Coordinate memory) {
-        console.log("Called travel");
-
         for (uint8 i = 0; i < _distance; i++) {
             _startCell = neighbor(_startCell, _direction);
             SharedStructs.Cell memory cell = getCell(_startCell);

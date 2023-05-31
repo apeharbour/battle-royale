@@ -14,20 +14,29 @@ const pointy_hex_to_pixel = (q, r) => {
   return { x, y }
 }
 
-const HexGrid = ({ cells, ship, path, destination }) => {
+const HexGrid = ({ cells, ships, player, path, destination }) => {
   const hexagons = cells.map(({ q, r, island }) => {
     return <Hexagon key={`${q},${r}`} q={Number(q)} r={Number(r)} island={island} />
   })
+
+  const shipsElements = ships.map((ship) => {
+    return <Ship key={`ship${ship.q},${ship.r}`} q={ship.q} r={ship.r} captain={ship.captain} player={player}/>
+  })
+
+  const myShip = ships.filter(s => s.captain === player)[0]
+
+  console.log('myShip:', myShip)
+  console.log('ships', ships)
 
   const pathCells = path.map(({ q, r }) => {
     return <PathCell key={`path${q},${r}`} q={q} r={r} />
   })
 
   let pathWay = ''
-  if (Object.keys(ship).length !== 0) {
-    const { x: shipX, y: shipY } = pointy_hex_to_pixel(ship.q, ship.r)
+  if (myShip !== undefined) {
+    const { x: myShipX, y: myShipY } = pointy_hex_to_pixel(myShip.q, myShip.r)
 
-    pathWay = `${shipX}, ${shipY} ${path
+    pathWay = `${myShipX}, ${myShipY} ${path
       .map(({ q, r }) => {
         const { x, y } = pointy_hex_to_pixel(q, r)
         return `${x}, ${y}`
@@ -50,9 +59,10 @@ const HexGrid = ({ cells, ship, path, destination }) => {
         </marker>
       </defs>
       {hexagons}
-      {Object.keys(ship).length !== 0 && (
+      {/* {Object.keys(ship).length !== 0 && (
         <Ship key={`ship${ship.q},${ship.r}`} q={ship.q} r={ship.r} />
-      )}
+      )} */}
+      {shipsElements}
       {/* {pathCells} */}
       {path.length > 0 && 
       <polyline

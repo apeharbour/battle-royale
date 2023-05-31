@@ -27,7 +27,7 @@ const GAME_ABI = GameAbi.abi
 
 function App() {
   const [cells, setCells] = React.useState([])
-  const [ship, setShip] = React.useState({})
+  const [ships, setShips] = React.useState([])
   const [path, setPath] = React.useState([])
   const [radius, setRadius] = React.useState(5)
   const [contract, setContract] = React.useState(null)
@@ -37,6 +37,7 @@ function App() {
   const [shotDirection, setShotDirection] = React.useState(0)
   const [shotDistance, setShotDistance] = React.useState(0)
   const [destination, setDestination] = React.useState({})
+  const [player, setPlayer] = React.useState(null)
 
   React.useEffect(() => {
     const fetchContract = async () => {
@@ -49,6 +50,7 @@ function App() {
       )
       setContract(contract)
       setProvider(provider)
+      setPlayer(signer.address)
     }
 
     fetchContract()
@@ -57,27 +59,37 @@ function App() {
   React.useEffect(() => {
     const fetchPath = async () => {
       if (contract !== null) {
+        // get my ship
+        const origin = ships.filter(ship => ship.captain === player).map(s => ({ q: s.q, r: s.r}))[0]
         const pathCells = []
         
-        for (let i=1; i<=distance; i++) {
-          const cell = await contract.move(ship, direction, i)
-          pathCells.push({q: Number(cell.q), r: Number(cell.r)})
-        }
+        if (origin !== undefined) {
 
-        setDestination(pathCells[pathCells.length-1])
-        setPath([...pathCells])
+          for (let i=1; i<=distance; i++) {
+            const cell = await contract.move(origin, direction, i)
+            pathCells.push({q: Number(cell.q), r: Number(cell.r)})
+          }
+          
+          console.log(pathCells)
+          
+          setDestination(pathCells[pathCells.length-1])
+          setPath([...pathCells])
+        }
       }
     }
 
     fetchPath()
-  }, [distance, direction])
+  }, [distance, direction, player])
 
   const initMap = async () => {
     console.log('Clicked init Map, using radius', radius)
-    setShip({})
+    setShips([])
+    console.log('Reset ships')
 
-    if (contract !== null) {
-      const tx = await contract.initGame(radius)
+    if (contract) {
+      console.log('pre init')
+      const tx = await contract.initGame(radius).catch((e) => {console.error('horrible mistake:', e)})
+      console.log(tx)
       await tx.wait()
       console.log(
         `Created map with radius ${Number(
@@ -89,17 +101,28 @@ function App() {
   }
 
   const move = async () => {
-    if (contract != null) {
-      const result = await contract.travel(ship, direction, distance)
-      const {0: dies, 1: cell} = result
-      if (!dies) {
-        setShip({q: Number(cell.q), r: Number(cell.r)})
-        console.log(`Move ship to ${Number(cell.q)},${Number(cell.r)}`)
-        setDistance(0)
-      } else {
-        console.log('ship sinks')
-        setDistance(0)
-      }
+    // get my ship
+    console.log('get my ship:', ships, player)
+    const ship = ships.filter(ship => ship.captain === player).map(s => ({ q: s.q, r: s.r}))[0]
+    console.log('ship', ship)
+    if (ship !== undefined && contract != null) {
+      console.log(ship, direction, distance)
+      const tx = await contract.travel(ship, direction, distance)
+      await tx.wait()
+
+      fetchShips()
+      setDistance(0)
+      setDirection(0)
+      // const {0: dies, 1: cell} = result
+      // if (!dies) {
+
+      //   setShip({q: Number(cell.q), r: Number(cell.r)})
+      //   console.log(`Move ship to ${Number(cell.q)},${Number(cell.r)}`)
+      //   setDistance(0)
+      // } else {
+      //   console.log('ship sinks')
+      //   setDistance(0)
+      // }
     }
   }
 
@@ -123,7 +146,8 @@ function App() {
   const addShip = async () => {
     if (contract !== null) {
       console.log('Adding ship')
-      await contract.addShip().catch(console.error)
+      const tx = await contract.addShip().catch(console.error)
+      await tx.wait()
     }
     // const ship = { q: 3, r: 3 }
     // setShip(ship)
@@ -133,27 +157,51 @@ function App() {
 
   async function fetchShips() {
     if (contract !== null) {
-      const result = await contract.getShips()
-      console.log(result)
+      const result = await contract.getShips().catch(console.error)
+          let shipsTemp = await result.map((ship, index) => {
+            const {0: coordinate, 6: captain} = ship
+            console.log(`Ship ${index}: ${coordinate[0]}, ${coordinate[1]} for ${captain}`)
+            return { q: Number(coordinate[0]), r: Number(coordinate[1]), captain}
+          })
+
+          console.log('Ships')
+          console.log(shipsTemp)
+          console.log(JSON.stringify(shipsTemp))
+          
+          setShips([...shipsTemp])
     }
   }
 
   async function fetchData() {
-    setCells([{q: 5, r: 5, island: true}, {q: 4, r: 4, island: false}])
-    // if (contract !== null) {
-    //   const center = { q: radius, r: radius }
-    //   const cell = await contract.getCell(center)
+    if (contract !== null) {
+      const center = { q: radius, r: radius }
+      const cell = await contract.getCell(center)
+
+      if (!cell.exists) {
+        console.error('Map not initialized yet.')
+        return
+      }
+
+      console.log(cell)
 
 
-    //   let tempCoords = await contract.getCells()
-    //   let tempCells = tempCoords.map((c) => {
-    //     return contract.getCell({q: Number(c.q), r: Number(c.r)})
-    //   })
+      let tempCoords = await contract.getCells()
+      console.log('Coords', tempCoords)
+      let tempCells = tempCoords.map((c) => {
+        return contract.getCell({q: c.q, r: c.r})
+      })
 
-    //   Promise.all(tempCells).then((values) => {
-    //     setCells([...values])
-    //   }).catch(console.error)
-    // }
+      let resolvedTempCells = await Promise.all(tempCells)
+      resolvedTempCells = resolvedTempCells.map((c) => ({ q: Number(c.q), r: Number(c.r), island: c.island, exists: c.exists }))
+
+      console.log('Cells')
+      console.log(resolvedTempCells)
+      console.log(JSON.stringify(resolvedTempCells))
+
+      Promise.all(tempCells).then((values) => {
+        setCells([...values])
+      }).catch(console.error)
+    }
   }
 
   return (
@@ -283,7 +331,7 @@ function App() {
 
         <Grid item xs={12}>
           <Paper sx={{ p: 2 }}>
-            <HexGrid cells={cells} ship={ship} path={path} destination={destination}/>
+            <HexGrid cells={cells} ships={ships} player={player} path={path} destination={destination}/>
           </Paper>
         </Grid>
       </Grid>

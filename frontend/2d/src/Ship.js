@@ -10,12 +10,13 @@ const pointy_hex_to_pixel = (q, r) => {
 }
 
 
-const Ship = ({ q, r }) => {
+const Ship = ({ q, r, captain, player }) => {
   const {x, y} = pointy_hex_to_pixel(q, r)
+  const color = captain === player ? 'red' : 'green'
 
   return (
     <g>
-      <circle cx={x} cy={y} r='10' fill='red' opacity='0.5' />
+      <circle cx={x} cy={y} r='10' fill={color} opacity='0.5' />
     </g>
     );
 }
