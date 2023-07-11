@@ -1,14 +1,16 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
 import logo from './logo.svg'
 import './App.css'
 import {
+  Box,
   Button,
   Container,
   FormControl,
   FormControlLabel,
   FormLabel,
   Grid,
+  Input,
   Paper,
   Radio,
   RadioGroup,
@@ -25,21 +27,26 @@ const MAP_ABI = MapAbi.abi
 const GAME_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
 const GAME_ABI = GameAbi.abi
 
-function App() {
-  const [cells, setCells] = React.useState([])
-  const [ships, setShips] = React.useState([])
-  const [path, setPath] = React.useState([])
-  const [radius, setRadius] = React.useState(5)
-  const [contract, setContract] = React.useState(null)
-  const [provider, setProvider] = React.useState(null)
-  const [direction, setDirection] = React.useState(0)
-  const [distance, setDistance] = React.useState(0)
-  const [shotDirection, setShotDirection] = React.useState(0)
-  const [shotDistance, setShotDistance] = React.useState(0)
-  const [destination, setDestination] = React.useState({})
-  const [player, setPlayer] = React.useState(null)
+const ariaLabel = { 'aria-label': 'description' }
 
-  React.useEffect(() => {
+function App() {
+  const [cells, setCells] = useState([])
+  const [ships, setShips] = useState([])
+  const [path, setPath] = useState([])
+  const [radius, setRadius] = useState(5)
+  const [contract, setContract] = useState(null)
+  const [provider, setProvider] = useState(null)
+  const [direction, setDirection] = useState(0)
+  const [distance, setDistance] = useState(0)
+  const [shotDirection, setShotDirection] = useState(0)
+  const [shotDistance, setShotDistance] = useState(0)
+  const [destination, setDestination] = useState({})
+  const [player, setPlayer] = useState(null)
+  const [playerAddress, setPlayerAddress] = useState("")
+  const [revealMovesData, setRevealMovesData] = useState(false);
+  
+
+  useEffect(() => {
     const fetchContract = async () => {
       const provider = new ethers.BrowserProvider(window.ethereum)
       const signer = await provider.getSigner()
@@ -56,7 +63,7 @@ function App() {
     fetchContract()
   }, [])
 
-  React.useEffect(() => {
+  useEffect(() => {
     const fetchPath = async () => {
       if (contract !== null) {
         // get my ship
@@ -99,6 +106,38 @@ function App() {
       fetchData()
     }
   }
+
+  const submitMoves = async () => {
+    if(contract){
+      const tx = await contract.submitMove(direction, distance, shotDirection, shotDistance)
+      await tx.wait()
+
+      console.log(tx)
+    }
+  }
+
+  const revealMoves = async () => {
+    if(contract){
+      const moves = await contract.getPlayerMove(playerAddress);
+      
+  
+      // moves is a tuple containing [moveDirection, moveDistance, shotDirection, shotDistance]
+      const [moveDirection1, moveDistance1, shotDirection1, shotDistance1] = moves
+
+      const enumDirections = ['E', 'NE', 'NW', 'W', 'SW', 'SE'];
+      fetchShips()  
+      console.log('Move Direction:', enumDirections[Number(moveDirection1)])
+      console.log('Move Distance:', Number(moveDistance1))
+      console.log('Shot Direction:', enumDirections[Number(shotDirection1)])
+      console.log('Shot Distance:', Number(shotDistance1))
+      console.log('Ships Data: ', ships);
+    }
+  }
+
+  const handleRevealMovesData = () => {
+         fetchShips()
+         setRevealMovesData(!revealMovesData);
+ };
 
   const move = async () => {
     // get my ship
@@ -157,11 +196,31 @@ function App() {
 
   async function fetchShips() {
     if (contract !== null) {
+      const enumDirections = ['E', 'NE', 'NW', 'W', 'SW', 'SE'];
       const result = await contract.getShips().catch(console.error)
           let shipsTemp = await result.map((ship, index) => {
-            const {0: coordinate, 6: captain} = ship
+            const { 0: coordinate,
+                    1: travelDirectionIndex,
+                    2: travelDistanceUint,
+                    3: shotDirectionIndex,
+                    4: shotDistanceUint,
+                    5: publishedMove,
+                    6: captain} = ship
+
+             const travelDirection = enumDirections[travelDirectionIndex];
+             const travelDistance = Number(travelDistanceUint)
+             const shotDirection = enumDirections[shotDirectionIndex];  
+             const shotDistance = Number(shotDistanceUint)      
             console.log(`Ship ${index}: ${coordinate[0]}, ${coordinate[1]} for ${captain}`)
-            return { q: Number(coordinate[0]), r: Number(coordinate[1]), captain}
+            return { q: Number(coordinate[0]),
+                     r: Number(coordinate[1]),
+                     travelDirection,
+                     travelDistance,
+                     shotDirection,
+                     shotDistance,
+                     publishedMove,
+                     captain
+                   }
           })
 
           console.log('Ships')
@@ -266,27 +325,85 @@ function App() {
                   </RadioGroup>
                 </FormControl>
 
+                <FormControl>
+                  <FormLabel id="demo-radio-buttons-group-label">Shot Direction</FormLabel>
+                  <RadioGroup
+                    aria-labelledby="demo-radio-buttons-group-label"
+                    value={shotDirection}
+                    onChange={(event) => { setShotDirection(event.target.value) }}
+                    name="radio-buttons-group"
+                  >
+                    <FormControlLabel value="0" control={<Radio />} label="E" />
+                    <FormControlLabel value="1" control={<Radio />} label="NE" />
+                    <FormControlLabel value="2" control={<Radio />} label="NW" />
+                    <FormControlLabel value="3" control={<Radio />} label="W" />
+                    <FormControlLabel value="4" control={<Radio />} label="SW" />
+                    <FormControlLabel value="5" control={<Radio />} label="SE" />
+                  </RadioGroup>
+                </FormControl>
+              </Stack>
+
+              <Stack spacing={2} direction="column">
+              <TextField
+                  required
+                  id="outlined-required"
+                  label="Move Distance"
+                  type='number'
+                  inputProps={{ min: "0", step: "1" }}
+                  onChange={(event) => {
+                    let newValue = event.target.value;
+                    if (newValue === "" || newValue < 0) {
+                      newValue = "0";
+                    }
+                    setDistance(newValue);
+                  }}
+                  value={distance} // set value to handle the label position
+                />
                 <TextField
-                  id="outlined-number"
-                  label="Distance"
-                  type="number"
-                  value={distance}
-                  onChange={(e) => {
-                    setDistance(parseInt(e.target.value))
+                  required
+                  id="outlined-required"
+                  label="Shot Distance"
+                  type='number'
+                  inputProps={{ min: "0", step: "1" }}
+                  onChange={(event) => {
+                    let newValue = event.target.value;
+                    if (newValue === "" || newValue < 0) {
+                      newValue = "0";
+                    }
+                    setShotDistance(newValue);
                   }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
+                  value={shotDistance} // set value to handle the label position
                 />
               </Stack>
-              <Button variant="outlined" onClick={move}>
-                Move
+              <Button variant="outlined" onClick={submitMoves}>
+                Submit Move
               </Button>
             </Stack>
           </Paper>
         </Grid>
 
         <Grid item xs={4}>
+        <Paper sx={{ p: 2 }}>
+           <Stack spacing={4}> 
+           <Box>
+              <Typography variant='h5'>Reveal Moves</Typography>
+            </Box>  
+            <Box>
+              <TextField
+          required
+          id="outlined-required"
+          label="Player Address" 
+          onChange={(e) => setPlayerAddress(e.target.value)}       
+        />
+        </Box>
+        
+        <Button variant='outlined' onClick={revealMoves}>Reveal move</Button>
+        <Button variant='contained' onClick={handleRevealMovesData} >Reveal all Moves</Button>
+        </Stack>
+        </Paper>
+        </Grid>
+
+        {/* <Grid item xs={4}>
           <Paper sx={{ p: 2 }}>
             <Stack spacing={4}>
               <Typography variant="h5">Shot</Typography>
@@ -327,13 +444,100 @@ function App() {
               </Button>
             </Stack>
           </Paper>
-        </Grid>
+        </Grid> */}
 
-        <Grid item xs={12}>
+        <Grid container spacing={2} marginTop={10}>
+        <Grid item xs={8}>
           <Paper sx={{ p: 2 }}>
             <HexGrid cells={cells} ships={ships} player={player} path={path} destination={destination}/>
           </Paper>
         </Grid>
+        {/* <Grid item xs={3}>
+          <Box marginTop={5}>
+            <Typography variant='h5'> Submit your moves</Typography>
+          </Box>
+           <Box
+             component="form"
+             sx={{
+                   '& > :not(style)': { m: 1 },
+                 }}
+             noValidate
+             autoComplete="off"
+             marginTop={5}
+            >
+            <TextField
+          required
+          id="outlined-required"
+          label="Move Direction"
+          helperText="E NE NW W SW SE" 
+          onChange={(e) => setDirection(e.target.value)}         
+        />
+         <TextField
+          required
+          id="outlined-required"
+          label="Move Distance"
+          type='number'
+          inputProps={{ min: "0", step: "1" }}
+          onChange={(event) => {
+            const newValue = event.target.value < 0 ? 0 : event.target.value;
+            setDistance(newValue);
+          }}
+        />
+         <TextField
+          required
+          id="outlined-required"
+          label="Shot Direction"
+          helperText="E NE NW W SW SE"
+          onChange={(e) => setShotDirection(e.target.value)}
+        />
+         <TextField
+          required
+          id="outlined-required"
+          label="Shot Distance"
+          type='number'
+          inputProps={{ min: "0", step: "1" }}
+          onChange={(event) => {
+            const newValue = event.target.value < 0 ? 0 : event.target.value;
+            setShotDistance(newValue);
+          }}
+        />
+            </Box>
+            <Box marginTop={2} marginLeft={1}>     
+            <Button variant='contained' size='large' onClick={submitMoves}>Submit move</Button>
+            </Box>
+            <Box>
+            <Box marginTop={5}>
+              <Typography variant='h5'>Reveal Moves</Typography>
+            </Box>  
+            <Box marginTop={2}>
+              <TextField
+          required
+          id="outlined-required"
+          label="Player Address" 
+          onChange={(e) => setPlayerAddress(e.target.value)}       
+        />
+        </Box>
+        <Box marginTop={2}>
+        <Button variant='contained' size='large' onClick={revealMoves}>Reveal move</Button>
+        </Box>
+        </Box>
+         </Grid> */}
+         <Grid item xs={4}>
+          
+
+        {revealMovesData && ships.map((ship, index) => (
+          <Box key={index}>
+            <Typography variant='body1'>Captain: {ship.captain}</Typography>
+            <Typography variant='body1'>Travel Direction: {ship.travelDirection}</Typography>
+            <Typography variant='body1'>Travel Distance: {ship.travelDistance}</Typography>
+            <Typography variant='body1'>Shot Direction: {ship.shotDirection}</Typography>
+            <Typography variant='body1'>Shot Distance: {ship.shotDistance}</Typography>
+            <br />
+          </Box>
+        ))}
+        
+          </Grid>  
+       </Grid>        
       </Grid>
     </Container>
   )
