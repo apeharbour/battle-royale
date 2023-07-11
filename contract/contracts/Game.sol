@@ -15,7 +15,7 @@ contract Game {
     struct Ship {
         SharedStructs.Coordinate coordinate;
         SharedStructs.Directions travelDirection;
-        uint8 travelDistane;
+        uint8 travelDistance;
         SharedStructs.Directions shotDirection;
         uint8 shotDistance;
         bool publishedMove;
@@ -29,8 +29,47 @@ contract Game {
     address[] public players;
     bool public gameInProgress;
 
+    // //To store clear text version of the move submitted by the players
+    // struct PlayerMoves {
+    //     string moveDirection;
+    //     uint8 moveDistance;
+    //     string shotDirection;
+    //     uint8 shotDistance;
+    // }
+
+    // // Mapping of each move submitted w.r.t its players address
+    //  mapping(address => PlayerMoves) public playersmoves;
+
     constructor(address _mapAddress) {
         map = Map(_mapAddress);
+    }
+
+    // Function to set player action
+    function submitMove( 
+        SharedStructs.Directions _travelDirection, 
+        uint8 _travelDistance, 
+        SharedStructs.Directions _shotDirection, 
+        uint8 _shotDistance
+    ) 
+    public {
+         Ship storage ship = ships[msg.sender];
+
+         ship.travelDirection = _travelDirection;
+         ship.travelDistance = _travelDistance;
+         ship.shotDirection = _shotDirection;
+         ship.shotDistance = _shotDistance;
+    }
+
+    // Function to get player action
+    function getPlayerMove(address _player) public view returns (SharedStructs.Directions, uint8, SharedStructs.Directions, uint8) {
+        Ship memory ship = ships[_player];
+
+        return (
+            ship.travelDirection, 
+            ship.travelDistance, 
+            ship.shotDirection, 
+            ship.shotDistance
+        );
     }
 
     function initGame(uint8 _radius) public {
@@ -100,7 +139,7 @@ contract Game {
         uint8 shotDist
     ) public {
         ships[msg.sender].travelDirection = travelDir;
-        ships[msg.sender].travelDistane = travelDist;
+        ships[msg.sender].travelDistance = travelDist;
         ships[msg.sender].shotDirection = shotDir;
         ships[msg.sender].shotDistance = shotDist;
         ships[msg.sender].publishedMove = true;
@@ -141,7 +180,7 @@ contract Game {
                 (bool dies, SharedStructs.Coordinate memory dest) = map.travel(
                     ships[players[i]].coordinate,
                     ships[players[i]].travelDirection,
-                    ships[players[i]].travelDistane
+                    ships[players[i]].travelDistance
                 );
                 if (dies) {
                     sinkShip(players[i], i);
