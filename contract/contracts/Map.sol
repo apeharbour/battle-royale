@@ -233,6 +233,18 @@ contract Map {
         return (false, _startCell);
     }
 
+    function calculateShot(
+        SharedStructs.Coordinate memory _startCell,
+        SharedStructs.Directions _directions,
+        uint8 _distance
+    ) external view returns (SharedStructs.Coordinate memory){
+        for(uint8 i = 0; i < _distance; i++){
+            _startCell = neighbor(_startCell, _directions);
+        }
+
+        return _startCell;
+    }
+
     function deleteCell(SharedStructs.Coordinate calldata _coord) external {
         console.log("Called deleteCell");
         hexCells[_coord.r][_coord.q].exists = false;

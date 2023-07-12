@@ -11,6 +11,7 @@ error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 contract Game {
     event PlayerAdded(address indexed player);
     event PlayerDefeated(address indexed player);
+    event GameUpdated(bool gameStatus, address winnerAddress);
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -53,11 +54,11 @@ contract Game {
     ) 
     public {
          Ship storage ship = ships[msg.sender];
-
          ship.travelDirection = _travelDirection;
          ship.travelDistance = _travelDistance;
          ship.shotDirection = _shotDirection;
          ship.shotDistance = _shotDistance;
+         ship.publishedMove = true;
     }
 
     // Function to get player action
@@ -168,12 +169,32 @@ contract Game {
         players.pop();
     }
 
-    function updateWorld() public {
+    //SinkShip to maintain players order
+//     function sinkShip(address captain, uint8 index) internal {
+//     require (index < players.length, 'Index value out of range');
+
+//     emit PlayerDefeated(captain);
+//     delete (ships[captain]);
+
+//     for (uint8 i = index; i < players.length - 1; i++){
+//         players[i] = players[i + 1];
+//     }
+
+//     players.pop();
+// }
+
+    function updateWorld() public returns (bool, address){
         // move all ships
         SharedStructs.Coordinate[]
             memory newPositions = new SharedStructs.Coordinate[](
                 players.length
             );
+
+        //shot destination positions
+        SharedStructs.Coordinate[]
+            memory shotDestinations = new SharedStructs.Coordinate[](
+                players.length
+            );    
 
         for (uint8 i = 0; i < players.length; i++) {
             if (ships[players[i]].publishedMove) {
@@ -188,26 +209,56 @@ contract Game {
                 }
 
                 // check if ship collides with another
-                for (uint8 j = 0; j < i; i++)
-                    if (
-                        newPositions[j].q != dest.q &&
-                        newPositions[j].r != dest.r
-                    ) {
-                        // existing move
-                        sinkShip(players[j], j);
-                        sinkShip(players[i], i);
-                        break;
-                    }
+                // for (uint8 j = 0; j < i; j++)
+                //     if (
+                //         newPositions[j].q != dest.q &&
+                //         newPositions[j].r != dest.r
+                //     ) {
+                //         // existing move
+                //         sinkShip(players[j], j);
+                //         sinkShip(players[i], i);
+                //         break;
+                //     }
+
+                //Calculate Shot destination
+                // TODO fire shot
+                SharedStructs.Coordinate memory shotDest = map.calculateShot(
+                    ships[players[i]].coordinate,
+                    ships[players[i]].shotDirection,
+                    ships[players[i]].shotDistance
+                    );
 
                 newPositions[i] = dest;
+                shotDestinations[i] = shotDest;
+                ships[players[i]].coordinate = dest;
+
             }
 
-            // TODO fire shot
-            // TODO check if ship has been hit
-            // TODO check for winner
+            
+            
             // TODO unset publishedMove
         }
-    }
+            // TODO check if ship has been hit
+            for (uint8 i = 0; i < players.length; i++){
+                for (uint8 j = 0; j < players.length; j++){
+                    if (i != j && 
+                        shotDestinations[j].q == ships[players[i]].coordinate.q &&
+                        shotDestinations[j].r == ships[players[i]].coordinate.r) {
+                        sinkShip(players[i], i);
+                        break;
+                }
+            }
+         }
+        // TODO check for winner
+         if(players.length == 1){
+            emit GameUpdated(true, players[0]);
+            return (true, players[0]);
+         }
+         else{
+            emit GameUpdated(false, address(0));
+            return (false, address(0));
+         }
+} 
 
     function getShips() public view returns (Ship[] memory) {
         Ship[] memory returnShips = new Ship[](players.length);
