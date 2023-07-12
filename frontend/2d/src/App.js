@@ -43,7 +43,9 @@ function App() {
   const [destination, setDestination] = useState({})
   const [player, setPlayer] = useState(null)
   const [playerAddress, setPlayerAddress] = useState("")
-  const [revealMovesData, setRevealMovesData] = useState(false);
+  const [revealMovesData, setRevealMovesData] = useState(false)
+  const [gameOver, setGameOver] = useState(false)
+  const [winner, setWinner] = useState('')
   
 
   useEffect(() => {
@@ -113,6 +115,8 @@ function App() {
       await tx.wait()
 
       console.log(tx)
+      setDistance(0)
+      setShotDistance(0)
     }
   }
 
@@ -130,14 +134,32 @@ function App() {
       console.log('Move Distance:', Number(moveDistance1))
       console.log('Shot Direction:', enumDirections[Number(shotDirection1)])
       console.log('Shot Distance:', Number(shotDistance1))
-      console.log('Ships Data: ', ships);
+      console.log('Ships Data: ', ships)
     }
   }
 
   const handleRevealMovesData = () => {
          fetchShips()
-         setRevealMovesData(!revealMovesData);
- };
+         setRevealMovesData(!revealMovesData)
+ }
+
+ const updateWorld = async () => {
+  if(contract){
+    const tx = await contract.updateWorld()
+    const receipt = await tx.wait() // Wait for the transaction to be mined
+    const event = receipt.events?.find(e => e.event === 'GameUpdated') // Find the 'GameUpdated' event in the receipt
+
+    if (event) {
+        const [gameStatus, winnerAddress] = event.args // Get the event arguments
+        setGameOver(gameStatus)
+        setWinner(winnerAddress)
+    }
+
+    fetchShips()
+    console.log('Game Status:', gameOver)
+    console.log('Winner: ', winner)
+    }
+ }
 
   const move = async () => {
     // get my ship
@@ -265,6 +287,11 @@ function App() {
 
   return (
     <Container>
+      {gameOver ? (
+        <Typography variant='h3'>
+          Game Over. The winner is: {winner}
+        </Typography>
+      ) : (
       <Grid container spacing={4}>
         <Grid item xs={12}>
           <Typography variant="h3">Battle Royale</Typography>
@@ -399,6 +426,7 @@ function App() {
         
         <Button variant='outlined' onClick={revealMoves}>Reveal move</Button>
         <Button variant='contained' onClick={handleRevealMovesData} >Reveal all Moves</Button>
+        <Button variant='contained' onClick={updateWorld}>Update World</Button>
         </Stack>
         </Paper>
         </Grid>
@@ -528,10 +556,14 @@ function App() {
         {revealMovesData && ships.map((ship, index) => (
           <Box key={index}>
             <Typography variant='body1'>Captain: {ship.captain}</Typography>
+            <Typography variant='body1'>Coordinates: {ship.q}, {ship.r}</Typography>
             <Typography variant='body1'>Travel Direction: {ship.travelDirection}</Typography>
             <Typography variant='body1'>Travel Distance: {ship.travelDistance}</Typography>
             <Typography variant='body1'>Shot Direction: {ship.shotDirection}</Typography>
             <Typography variant='body1'>Shot Distance: {ship.shotDistance}</Typography>
+            { ship.publishedMove !== undefined &&
+            <Typography variant='body1'>Published Move: {ship.publishedMove.toString()}</Typography>
+            }
             <br />
           </Box>
         ))}
@@ -539,6 +571,7 @@ function App() {
           </Grid>  
        </Grid>        
       </Grid>
+      )}
     </Container>
   )
 }
