@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
-import logo from './logo.svg'
 import './App.css'
 import {
   Box,
@@ -27,17 +26,19 @@ const MAP_ABI = MapAbi.abi
 const GAME_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
 const GAME_ABI = GameAbi.abi
 
+
 const ariaLabel = { 'aria-label': 'description' }
 
 function App() {
   const [cells, setCells] = useState([])
   const [ships, setShips] = useState([])
   const [path, setPath] = useState([])
-  const [radius, setRadius] = useState(5)
+  const [radius, setRadius] = useState(4)
   const [contract, setContract] = useState(null)
   const [provider, setProvider] = useState(null)
   const [direction, setDirection] = useState(0)
   const [distance, setDistance] = useState(0)
+  const [secret, setSecret] = useState(0)
   const [shotDirection, setShotDirection] = useState(0)
   const [shotDistance, setShotDistance] = useState(0)
   const [destination, setDestination] = useState({})
@@ -90,6 +91,12 @@ function App() {
     fetchPath()
   }, [distance, direction, player])
 
+  // useEffect(() => {
+  //   if (contract && gameOver) {
+  //     updateGameResult();
+  //   }
+  // }, [contract, gameOver])
+
   const initMap = async () => {
     console.log('Clicked init Map, using radius', radius)
     setShips([])
@@ -109,34 +116,35 @@ function App() {
     }
   }
 
+  const commitMoves = async () => {
+    if(contract){
+      const moveHash = ethers.solidityPackedKeccak256(
+        ['uint8', 'uint8', 'uint8', 'uint8', 'uint256'],
+        [direction, distance, shotDirection, shotDistance, secret]
+    )
+
+     const tx = await contract.commitMove(moveHash)
+     await tx.wait()
+
+    console.log(tx)
+    console.log(moveHash)
+
+    }
+  }
+
   const submitMoves = async () => {
     if(contract){
-      const tx = await contract.submitMove(direction, distance, shotDirection, shotDistance)
+      const tx = await contract.revealMove(direction, distance, shotDirection, shotDistance, secret)
       await tx.wait()
 
       console.log(tx)
       setDistance(0)
       setShotDistance(0)
+      setSecret(0)
     }
   }
 
-  const revealMoves = async () => {
-    if(contract){
-      const moves = await contract.getPlayerMove(playerAddress);
-      
-  
-      // moves is a tuple containing [moveDirection, moveDistance, shotDirection, shotDistance]
-      const [moveDirection1, moveDistance1, shotDirection1, shotDistance1] = moves
 
-      const enumDirections = ['E', 'NE', 'NW', 'W', 'SW', 'SE'];
-      fetchShips()  
-      console.log('Move Direction:', enumDirections[Number(moveDirection1)])
-      console.log('Move Distance:', Number(moveDistance1))
-      console.log('Shot Direction:', enumDirections[Number(shotDirection1)])
-      console.log('Shot Distance:', Number(shotDistance1))
-      console.log('Ships Data: ', ships)
-    }
-  }
 
   const handleRevealMovesData = () => {
          fetchShips()
@@ -145,21 +153,29 @@ function App() {
 
  const updateWorld = async () => {
   if(contract){
+
+    // Define the filter for the events
+    const filterWinner = contract.filters.GameWinner(null);
+
     const tx = await contract.updateWorld()
-    const receipt = await tx.wait() // Wait for the transaction to be mined
-    const event = receipt.events?.find(e => e.event === 'GameUpdated') // Find the 'GameUpdated' event in the receipt
+    const receipt = await tx.wait()  // receipt includes the block number where transaction is mined
 
-    if (event) {
-        const [gameStatus, winnerAddress] = event.args // Get the event arguments
-        setGameOver(gameStatus)
-        setWinner(winnerAddress)
+    // Fetch the events from the mined block to the latest
+    const eventWinnerList = await contract.queryFilter(filterWinner, receipt.blockNumber);
+
+    // // Fetch the events from the current block to the latest
+    // const eventWinnerList = await contract.queryFilter(filterWinner, currentBlock);
+
+    // If there are GameWinner events
+    if(eventWinnerList.length > 0) {
+      const eventWinner = eventWinnerList[eventWinnerList.length - 1]; // Get the latest event
+      const winner = eventWinner.args[0]; // Access the first argument
+      console.log('Game Winner:', winner);
     }
-
     fetchShips()
-    console.log('Game Status:', gameOver)
-    console.log('Winner: ', winner)
     }
  }
+
 
   const move = async () => {
     // get my ship
@@ -218,7 +234,7 @@ function App() {
 
   async function fetchShips() {
     if (contract !== null) {
-      const enumDirections = ['E', 'NE', 'NW', 'W', 'SW', 'SE'];
+      const enumDirections = ['E', 'NE', 'NW', 'W', 'SW', 'SE', 'NO_MOVE'];
       const result = await contract.getShips().catch(console.error)
           let shipsTemp = await result.map((ship, index) => {
             const { 0: coordinate,
@@ -306,7 +322,7 @@ function App() {
                   variant="outlined"
                   value={radius}
                   onChange={(e) => {
-                    setRadius(parseInt(e.target.value))
+                  setRadius(parseInt(e.target.value))
                   }}
                 />
                 <Button variant="outlined" onClick={initMap}>
@@ -401,7 +417,26 @@ function App() {
                   }}
                   value={shotDistance} // set value to handle the label position
                 />
+                  <TextField
+                  required
+                  id="outlined-required"
+                  label="Secret Value"
+                  type='number'
+                  inputProps={{ min: "0", step: "1" }}
+                  onChange={(event) => {
+                    let newValue = event.target.value;
+                    if (newValue === "" || newValue < 0) {
+                      newValue = "0";
+                    }
+                    setSecret(newValue);
+                  }}
+                  value={secret} // set value to handle the label position
+                /> 
+
               </Stack>
+              <Button variant="outlined" onClick={commitMoves}>
+                Commit Move
+              </Button>
               <Button variant="outlined" onClick={submitMoves}>
                 Submit Move
               </Button>
@@ -415,16 +450,6 @@ function App() {
            <Box>
               <Typography variant='h5'>Reveal Moves</Typography>
             </Box>  
-            <Box>
-              <TextField
-          required
-          id="outlined-required"
-          label="Player Address" 
-          onChange={(e) => setPlayerAddress(e.target.value)}       
-        />
-        </Box>
-        
-        <Button variant='outlined' onClick={revealMoves}>Reveal move</Button>
         <Button variant='contained' onClick={handleRevealMovesData} >Reveal all Moves</Button>
         <Button variant='contained' onClick={updateWorld}>Update World</Button>
         </Stack>
