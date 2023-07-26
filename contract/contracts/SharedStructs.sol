@@ -26,7 +26,8 @@ library SharedStructs {
         NW,
         W,
         SW,
-        SE
+        SE,
+        NO_MOVE
     }
 
 }

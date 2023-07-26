@@ -11,7 +11,8 @@ error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 contract Game {
     event PlayerAdded(address indexed player);
     event PlayerDefeated(address indexed player);
-    event GameUpdated(bool gameStatus, address winnerAddress);
+    event GameUpdated(bool indexed gameStatus, address indexed winnerAddress);
+    event GameWinner(string gameWinner);
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -29,49 +30,35 @@ contract Game {
     mapping(address => Ship) public ships;
     address[] public players;
     bool public gameInProgress;
-
-    // //To store clear text version of the move submitted by the players
-    // struct PlayerMoves {
-    //     string moveDirection;
-    //     uint8 moveDistance;
-    //     string shotDirection;
-    //     uint8 shotDistance;
-    // }
-
-    // // Mapping of each move submitted w.r.t its players address
-    //  mapping(address => PlayerMoves) public playersmoves;
+    mapping(address => bytes32) public moveHashes;
 
     constructor(address _mapAddress) {
         map = Map(_mapAddress);
     }
 
-    // Function to set player action
-    function submitMove( 
-        SharedStructs.Directions _travelDirection, 
-        uint8 _travelDistance, 
-        SharedStructs.Directions _shotDirection, 
-        uint8 _shotDistance
-    ) 
-    public {
-         Ship storage ship = ships[msg.sender];
-         ship.travelDirection = _travelDirection;
-         ship.travelDistance = _travelDistance;
-         ship.shotDirection = _shotDirection;
-         ship.shotDistance = _shotDistance;
-         ship.publishedMove = true;
-    }
+    //commit moves
+    function commitMove(bytes32 moveHash) public {
+    moveHashes[msg.sender] = moveHash;
+}
 
-    // Function to get player action
-    function getPlayerMove(address _player) public view returns (SharedStructs.Directions, uint8, SharedStructs.Directions, uint8) {
-        Ship memory ship = ships[_player];
+    function revealMove(
+    SharedStructs.Directions _travelDirection, 
+    uint8 _travelDistance, 
+    SharedStructs.Directions _shotDirection, 
+    uint8 _shotDistance,
+    uint256 nonce
+) public {
+    bytes32 moveHash = keccak256(abi.encodePacked(_travelDirection, _travelDistance, _shotDirection, _shotDistance, nonce));
 
-        return (
-            ship.travelDirection, 
-            ship.travelDistance, 
-            ship.shotDirection, 
-            ship.shotDistance
-        );
+    if(moveHashes[msg.sender] == moveHash){
+    Ship storage ship = ships[msg.sender];
+    ship.travelDirection = _travelDirection;
+    ship.travelDistance = _travelDistance;
+    ship.shotDirection = _shotDirection;
+    ship.shotDistance = _shotDistance;
+    ship.publishedMove = true;
     }
+}
 
     function initGame(uint8 _radius) public {
         // reset ships
@@ -133,18 +120,6 @@ contract Game {
         return ship;
     }
 
-    function revealMove(
-        SharedStructs.Directions travelDir,
-        uint8 travelDist,
-        SharedStructs.Directions shotDir,
-        uint8 shotDist
-    ) public {
-        ships[msg.sender].travelDirection = travelDir;
-        ships[msg.sender].travelDistance = travelDist;
-        ships[msg.sender].shotDirection = shotDir;
-        ships[msg.sender].shotDistance = shotDist;
-        ships[msg.sender].publishedMove = true;
-    }
 
     function sinkShip(address captain) internal {
         // find player index
@@ -159,43 +134,26 @@ contract Game {
         sinkShip(captain, playerIndex);
     }
 
-    function sinkShip(address captain, uint8 index) internal {
+
+  function sinkShip(address captain, uint8 index) internal {
         require (index < players.length, 'Index value out of range');
 
         emit PlayerDefeated(captain);
         delete (ships[captain]);
 
-        players[index] = players[players.length - 1];
-        players.pop();
+        players[index] = address(0);
     }
 
-    //SinkShip to maintain players order
-//     function sinkShip(address captain, uint8 index) internal {
-//     require (index < players.length, 'Index value out of range');
-
-//     emit PlayerDefeated(captain);
-//     delete (ships[captain]);
-
-//     for (uint8 i = index; i < players.length - 1; i++){
-//         players[i] = players[i + 1];
-//     }
-
-//     players.pop();
-// }
-
-    function updateWorld() public returns (bool, address){
+    function updateWorld() public {
         // move all ships
-        SharedStructs.Coordinate[]
-            memory newPositions = new SharedStructs.Coordinate[](
-                players.length
-            );
-
-        //shot destination positions
+        
+        // shot destination positions
         SharedStructs.Coordinate[]
             memory shotDestinations = new SharedStructs.Coordinate[](
                 players.length
             );    
 
+        // moving ships
         for (uint8 i = 0; i < players.length; i++) {
             if (ships[players[i]].publishedMove) {
                 (bool dies, SharedStructs.Coordinate memory dest) = map.travel(
@@ -208,57 +166,103 @@ contract Game {
                     continue;
                 }
 
-                // check if ship collides with another
-                // for (uint8 j = 0; j < i; j++)
-                //     if (
-                //         newPositions[j].q != dest.q &&
-                //         newPositions[j].r != dest.r
-                //     ) {
-                //         // existing move
-                //         sinkShip(players[j], j);
-                //         sinkShip(players[i], i);
-                //         break;
-                //     }
-
                 //Calculate Shot destination
-                // TODO fire shot
-                SharedStructs.Coordinate memory shotDest = map.calculateShot(
+                 SharedStructs.Coordinate memory shotDest = map.calculateShot(
                     ships[players[i]].coordinate,
                     ships[players[i]].shotDirection,
                     ships[players[i]].shotDistance
                     );
 
-                newPositions[i] = dest;
-                shotDestinations[i] = shotDest;
-                ships[players[i]].coordinate = dest;
-
-            }
-
-            
+                 shotDestinations[i] = shotDest;
+                 ships[players[i]].coordinate = dest;
+            }         
             
             // TODO unset publishedMove
         }
-            // TODO check if ship has been hit
+
+            // check if ship collides with another
+           if(players.length > 0) { 
+            bool[] memory collisions = new bool[](players.length); 
+             for (uint8 i = 0; i < players.length; i++){
+                 for (uint8 j = i + 1; j < players.length; j++){
+                    if (i != j && 
+                        ships[players[j]].coordinate.q == ships[players[i]].coordinate.q &&
+                        ships[players[j]].coordinate.r == ships[players[i]].coordinate.r) {
+                        collisions[i] = true;
+                        collisions[j] = true;
+                }
+            }
+        }
+        for (uint8 i = 0; i < players.length; i++) {
+            if(collisions[i]){
+                sinkShip(players[i], i);
+            }
+        }
+    }   
+
+            // Check if ship has been shot
+          if(players.length > 0) {
+            bool[] memory hits = new bool[](players.length);
             for (uint8 i = 0; i < players.length; i++){
                 for (uint8 j = 0; j < players.length; j++){
                     if (i != j && 
                         shotDestinations[j].q == ships[players[i]].coordinate.q &&
                         shotDestinations[j].r == ships[players[i]].coordinate.r) {
-                        sinkShip(players[i], i);
+                        hits[i] = true;
                         break;
                 }
             }
          }
-        // TODO check for winner
-         if(players.length == 1){
-            emit GameUpdated(true, players[0]);
-            return (true, players[0]);
-         }
-         else{
-            emit GameUpdated(false, address(0));
-            return (false, address(0));
-         }
-} 
+          for (uint8 i = 0; i < players.length; i++) {
+            if(hits[i]){
+                sinkShip(players[i], i);
+            }
+        }
+    }  
+
+            // Remove sunk players
+        for (uint8 i = 0; i < players.length; i++) {
+            if (players[i] == address(0)) {
+                players[i] = players[players.length - 1];
+                players.pop();
+                 if (i > 0) {
+                      i--;
+                 }
+            }
+        }
+        // Check for winner, emit events accordingly
+         if (players.length == 0){
+            emit GameWinner("No winner");            
+        } else if(players.length == 1) {
+            emit GameWinner(string(abi.encodePacked("The Game winner is: ", toString(players[0]))));
+        }else{
+            emit GameUpdated(false, players[0]);
+            for (uint8 i = 0; i < players.length; i++) {
+            ships[players[i]].travelDirection = SharedStructs.Directions.NO_MOVE;
+            ships[players[i]].travelDistance = 0;
+            ships[players[i]].shotDirection = SharedStructs.Directions.NO_MOVE;
+            ships[players[i]].shotDistance = 0;
+        }
+     }  
+  }
+
+ function toString(address account) internal pure returns(string memory) {
+    return toString(abi.encodePacked(account));
+}
+
+function toString(bytes memory data) internal pure returns(string memory) {
+    bytes memory alphabet = "0123456789abcdef";
+
+    bytes memory str = new bytes(2 + data.length * 2);
+    str[0] = "0";
+    str[1] = "x";
+    for (uint i = 0; i < data.length; i++) {
+        str[2+i*2] = alphabet[uint(uint8(data[i] >> 4))];
+        str[3+i*2] = alphabet[uint(uint8(data[i] & 0x0f))];
+    }
+    return string(str);
+}
+ 
 
     function getShips() public view returns (Ship[] memory) {
         Ship[] memory returnShips = new Ship[](players.length);
@@ -325,3 +329,6 @@ contract Game {
         return cells;
     }
 }
+
+
+ 
