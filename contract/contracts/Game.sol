@@ -5,10 +5,11 @@ import "hardhat/console.sol";
 import "./Map.sol";
 import "./SharedStructs.sol";
 import "./Random.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 
-contract Game {
+contract Game is Ownable {
     event PlayerAdded(address indexed player);
     event PlayerDefeated(address indexed player);
     event GameUpdated(bool indexed gameStatus, address indexed winnerAddress);
@@ -30,17 +31,33 @@ contract Game {
     mapping(address => Ship) public ships;
     address[] public players;
     bool public gameInProgress;
+    bool public stopAddingShips;
+    bool public letCommitMoves;
+    bool public letSubmitMoves;
     mapping(address => bytes32) public moveHashes;
 
     constructor(address _mapAddress) {
         map = Map(_mapAddress);
     }
 
+    // function to let players commit moves
+     function allowCommitMoves() public onlyOwner {
+        letCommitMoves = true;
+    }
+
+    // function to let players submit moves
+     function allowSubmitMoves() public onlyOwner {
+        letCommitMoves = false;
+        letSubmitMoves = true;
+    }
+
     //commit moves
     function commitMove(bytes32 moveHash) public {
+    require(letCommitMoves == true, 'Commit moves has not started yet!');    
     moveHashes[msg.sender] = moveHash;
 }
 
+    // submit moves
     function revealMove(
     SharedStructs.Directions _travelDirection, 
     uint8 _travelDistance, 
@@ -48,6 +65,8 @@ contract Game {
     uint8 _shotDistance,
     uint256 nonce
 ) public {
+    require(letSubmitMoves == true, 'Submit moves has not started yet!');
+
     bytes32 moveHash = keccak256(abi.encodePacked(_travelDirection, _travelDistance, _shotDirection, _shotDistance, nonce));
 
     if(moveHashes[msg.sender] == moveHash){
@@ -60,7 +79,7 @@ contract Game {
     }
 }
 
-    function initGame(uint8 _radius) public {
+    function initGame(uint8 _radius) public onlyOwner {
         // reset ships
         for (uint256 i = 0; i < players.length; i++) {
             delete ships[players[i]];
@@ -73,6 +92,7 @@ contract Game {
     }
 
     function addShip() public returns (Ship memory) {
+        require(stopAddingShips == false && gameInProgress == true, 'Game has not started yet!');
         if (
             ships[msg.sender].coordinate.q > 0 &&
             ships[msg.sender].coordinate.r > 0
@@ -144,8 +164,7 @@ contract Game {
         players[index] = address(0);
     }
 
-    function updateWorld() public {
-        // move all ships
+    function updateWorld() public onlyOwner {
         
         // shot destination positions
         SharedStructs.Coordinate[]
@@ -177,7 +196,6 @@ contract Game {
                  ships[players[i]].coordinate = dest;
             }         
             
-            // TODO unset publishedMove
         }
 
             // check if ship collides with another
@@ -231,11 +249,16 @@ contract Game {
             }
         }
         // Check for winner, emit events accordingly
+        // unset publishedMove
          if (players.length == 0){
-            emit GameWinner("No winner");            
+            emit GameWinner("No winner"); 
+            gameInProgress = false;
+            stopAddingShips = true;           
         } else if(players.length == 1) {
             emit GameWinner(string(abi.encodePacked("The Game winner is: ", toString(players[0]))));
-        }else{
+            gameInProgress = false;
+            stopAddingShips = true;
+        } else{
             emit GameUpdated(false, players[0]);
             for (uint8 i = 0; i < players.length; i++) {
             ships[players[i]].travelDirection = SharedStructs.Directions.NO_MOVE;
@@ -243,6 +266,8 @@ contract Game {
             ships[players[i]].shotDirection = SharedStructs.Directions.NO_MOVE;
             ships[players[i]].shotDistance = 0;
         }
+        letCommitMoves = false;
+        letSubmitMoves = false;
      }  
   }
 

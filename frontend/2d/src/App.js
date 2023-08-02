@@ -91,12 +91,6 @@ function App() {
     fetchPath()
   }, [distance, direction, player])
 
-  // useEffect(() => {
-  //   if (contract && gameOver) {
-  //     updateGameResult();
-  //   }
-  // }, [contract, gameOver])
-
   const initMap = async () => {
     console.log('Clicked init Map, using radius', radius)
     setShips([])
@@ -144,6 +138,20 @@ function App() {
     }
   }
 
+  const allowCommit = async () => {
+    if(contract) {
+      const tx = await contract.allowCommitMoves().catch(console.error)
+      await tx.wait()
+    }
+  }
+
+  const allowSubmit = async () => {
+    if(contract) {
+      const tx = await contract.allowSubmitMoves().catch(console.error)
+      await tx.wait()
+    }
+  }
+
 
 
   const handleRevealMovesData = () => {
@@ -162,9 +170,6 @@ function App() {
 
     // Fetch the events from the mined block to the latest
     const eventWinnerList = await contract.queryFilter(filterWinner, receipt.blockNumber);
-
-    // // Fetch the events from the current block to the latest
-    // const eventWinnerList = await contract.queryFilter(filterWinner, currentBlock);
 
     // If there are GameWinner events
     if(eventWinnerList.length > 0) {
@@ -451,6 +456,8 @@ function App() {
               <Typography variant='h5'>Reveal Moves</Typography>
             </Box>  
         <Button variant='contained' onClick={handleRevealMovesData} >Reveal all Moves</Button>
+        <Button variant='contained' onClick={allowCommit}>Allow players to commit</Button>
+        <Button variant='contained' onClick={allowSubmit}>Allow players to submit</Button>
         <Button variant='contained' onClick={updateWorld}>Update World</Button>
         </Stack>
         </Paper>
