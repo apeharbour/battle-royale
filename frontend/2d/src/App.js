@@ -21,9 +21,9 @@ import HexGrid from './HexGrid'
 import MapAbi from './abis/Map.json'
 import GameAbi from './abis/Game.json'
 
-const MAP_ADDRESS = '0x5fbdb2315678afecb367f032d93f642f64180aa3'
+const MAP_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
+const GAME_ADDRESS = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0'
 const GAME_ABI = GameAbi.abi
 
 
@@ -47,6 +47,24 @@ function App() {
   const [revealMovesData, setRevealMovesData] = useState(false)
   const [gameOver, setGameOver] = useState(false)
   const [winner, setWinner] = useState('')
+  const [gameId, setGameId] = useState(1)
+  const [toggleGameId, setToggleGameId] = useState(1)
+  const [endGameId, setEndGameId] = useState(0)
+
+
+
+
+  const getYachts = async () => {
+    if(contract) {
+      try {
+        const metadata = await contract.getMetadata('0xCd9680dd8318b0df924f0bD47a407c05B300e36f');
+        console.log("Metadata:", metadata);
+        return metadata; // You can return the metadata if you need it elsewhere
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  }
   
 
   useEffect(() => {
@@ -76,7 +94,7 @@ function App() {
         if (origin !== undefined) {
 
           for (let i=1; i<=distance; i++) {
-            const cell = await contract.move(origin, direction, i)
+            const cell = await contract.move(origin, direction, i, gameId)
             pathCells.push({q: Number(cell.q), r: Number(cell.r)})
           }
           
@@ -91,6 +109,30 @@ function App() {
     fetchPath()
   }, [distance, direction, player])
 
+  useEffect(() => {
+    console.log('Game Id value: ', gameId)
+  },[gameId])
+
+  const startGame = async () => {
+    if(contract){
+      const tx = await contract.startNewGame(gameId).catch(console.error)
+      await tx.wait()
+    }
+  }
+
+  const endGame = async () => {
+    if(contract) {
+      const tx = await contract.endGame(endGameId).catch(console.error)
+      await tx.wait()
+    }
+  }
+  
+  const toggleGameIdValue = () => {
+    setGameId(toggleGameId)
+    console.log('ToggleGameId:', toggleGameId)
+    console.log('GameId:', gameId)
+  }
+
   const initMap = async () => {
     console.log('Clicked init Map, using radius', radius)
     setShips([])
@@ -98,12 +140,12 @@ function App() {
 
     if (contract) {
       console.log('pre init')
-      const tx = await contract.initGame(radius).catch((e) => {console.error('horrible mistake:', e)})
+      const tx = await contract.initGame(radius, gameId).catch((e) => {console.error('horrible mistake:', e)})
       console.log(tx)
       await tx.wait()
       console.log(
         `Created map with radius ${Number(
-          await contract.getRadius(),
+          await contract.getRadius(gameId),
         )} in block ${await provider.getBlockNumber()}`,
       )
       fetchData()
@@ -117,7 +159,7 @@ function App() {
         [direction, distance, shotDirection, shotDistance, secret]
     )
 
-     const tx = await contract.commitMove(moveHash)
+     const tx = await contract.commitMove(moveHash, gameId).catch(console.error)
      await tx.wait()
 
     console.log(tx)
@@ -128,7 +170,7 @@ function App() {
 
   const submitMoves = async () => {
     if(contract){
-      const tx = await contract.revealMove(direction, distance, shotDirection, shotDistance, secret)
+      const tx = await contract.revealMove(direction, distance, shotDirection, shotDistance, secret, gameId).catch(console.error)
       await tx.wait()
 
       console.log(tx)
@@ -140,14 +182,14 @@ function App() {
 
   const allowCommit = async () => {
     if(contract) {
-      const tx = await contract.allowCommitMoves().catch(console.error)
+      const tx = await contract.allowCommitMoves(gameId).catch(console.error)
       await tx.wait()
     }
   }
 
   const allowSubmit = async () => {
     if(contract) {
-      const tx = await contract.allowSubmitMoves().catch(console.error)
+      const tx = await contract.allowSubmitMoves(gameId).catch(console.error)
       await tx.wait()
     }
   }
@@ -165,7 +207,7 @@ function App() {
     // Define the filter for the events
     const filterWinner = contract.filters.GameWinner(null);
 
-    const tx = await contract.updateWorld()
+    const tx = await contract.updateWorld(gameId)
     const receipt = await tx.wait()  // receipt includes the block number where transaction is mined
 
     // Fetch the events from the mined block to the latest
@@ -189,7 +231,7 @@ function App() {
     console.log('ship', ship)
     if (ship !== undefined && contract != null) {
       console.log(ship, direction, distance)
-      const tx = await contract.travel(ship, direction, distance)
+      const tx = await contract.travel(ship, direction, distance, gameId)
       await tx.wait()
 
       fetchShips()
@@ -214,7 +256,7 @@ function App() {
 
   const getContractRadius = async () => {
     if (contract !== null) {
-      const rad = Number(await contract.getRadius())
+      const rad = Number(await contract.getRadius(gameId))
       console.log('Radius:', rad)
     }
   }
@@ -228,7 +270,7 @@ function App() {
   const addShip = async () => {
     if (contract !== null) {
       console.log('Adding ship')
-      const tx = await contract.addShip().catch(console.error)
+      const tx = await contract.addShip(gameId).catch(console.error)
       await tx.wait()
     }
     // const ship = { q: 3, r: 3 }
@@ -240,7 +282,7 @@ function App() {
   async function fetchShips() {
     if (contract !== null) {
       const enumDirections = ['E', 'NE', 'NW', 'W', 'SW', 'SE', 'NO_MOVE'];
-      const result = await contract.getShips().catch(console.error)
+      const result = await contract.getShips(gameId).catch(console.error)
           let shipsTemp = await result.map((ship, index) => {
             const { 0: coordinate,
                     1: travelDirectionIndex,
@@ -277,7 +319,7 @@ function App() {
   async function fetchData() {
     if (contract !== null) {
       const center = { q: radius, r: radius }
-      const cell = await contract.getCell(center)
+      const cell = await contract.getCell(center, gameId)
 
       if (!cell.exists) {
         console.error('Map not initialized yet.')
@@ -287,10 +329,10 @@ function App() {
       console.log(cell)
 
 
-      let tempCoords = await contract.getCells()
+      let tempCoords = await contract.getCells(gameId)
       console.log('Coords', tempCoords)
       let tempCells = tempCoords.map((c) => {
-        return contract.getCell({q: c.q, r: c.r})
+        return contract.getCell({q: c.q, r: c.r}, gameId)
       })
 
       let resolvedTempCells = await Promise.all(tempCells)
@@ -316,6 +358,37 @@ function App() {
       <Grid container spacing={4}>
         <Grid item xs={12}>
           <Typography variant="h3">Battle Royale</Typography>
+        </Grid>
+
+        <Grid container mt={2}>
+        <Grid item xs={4}>
+        <Stack spacing={2} direction="row">
+          <TextField variant='outlined' value={gameId} label="Start Game" onChange={(e) => {
+            setGameId(parseInt(e.target.value))
+          }} />
+          <Button variant='outlined' onClick={startGame}>Start Game</Button>
+          </Stack>
+        </Grid>
+        <Grid item xs={4} >
+          <Stack spacing={2} direction="row">
+          <TextField variant='outlined' value={gameId} label="Toggle Game ID" onChange={(e) => {
+            setGameId(parseInt(e.target.value))
+          }} />
+          {/* <Button variant='outlined' onClick={toggleGameIdValue}>Toggle Game ID</Button> */}
+            </Stack>       
+           </Grid>
+           <Grid item xs={4}>
+            <Stack spacing={2} direction="row">
+            <TextField variant='outlined' value={endGameId} label="End Game" onChange={(e) => {
+            setEndGameId(parseInt(e.target.value))
+          }} />
+          <Button variant='outlined' onClick={endGame}>End Game</Button>
+            </Stack>
+           </Grid>
+        </Grid>
+
+        <Grid item xs={12}>
+          <Typography variant='h4'>Game ID: {gameId}</Typography>
         </Grid>
 
         <Grid item xs={4}>
@@ -459,6 +532,7 @@ function App() {
         <Button variant='contained' onClick={allowCommit}>Allow players to commit</Button>
         <Button variant='contained' onClick={allowSubmit}>Allow players to submit</Button>
         <Button variant='contained' onClick={updateWorld}>Update World</Button>
+        <Button variant='contained' onClick={getYachts}>Pull Yachts</Button>
         </Stack>
         </Paper>
         </Grid>

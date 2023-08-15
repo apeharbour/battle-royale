@@ -41,9 +41,11 @@ contract Map {
 
     // hexCells is the mapping holding all cells. It can be addressed with hexCells[r][q].
     // Note the rows first adressing
-    mapping(uint8 => mapping(uint8 => SharedStructs.Cell)) public hexCells;
+    mapping(uint256 => mapping(uint8 => mapping(uint8 => SharedStructs.Cell))) public gameHexCells;
+    mapping(uint256 => uint8) public gameRadii;
 
-    uint8 public radius;
+
+    // uint8 public radius;
     Random.RandomGeneration private rnd;
 
     constructor(uint256 _seed) {
@@ -139,8 +141,8 @@ contract Map {
         return cells;
     }
 
-    function initCell(SharedStructs.Coordinate memory _coordinate) private {
-        SharedStructs.Cell storage cell = hexCells[_coordinate.r][
+    function initCell(SharedStructs.Coordinate memory _coordinate, uint8 gameId) private {
+        SharedStructs.Cell storage cell = gameHexCells[gameId][_coordinate.r][
             _coordinate.q
         ];
         cell.q = _coordinate.q;
@@ -149,81 +151,85 @@ contract Map {
         cell.exists = true;
     }
 
-    function initMap(uint8 _radius) public {
+    function initMap(uint8 _radius, uint8 gameId) public {
         if (_radius > MAX_RADIUS) {
             revert MapSizeMustBeInRange(_radius, MAX_RADIUS);
         }
-        radius = _radius;
+       gameRadii[gameId] = _radius;
 
         // set center cell
-        hexCells[radius][radius] = SharedStructs.Cell({
-            q: radius,
-            r: radius,
+        gameHexCells[gameId][_radius][_radius] = SharedStructs.Cell({
+            q: _radius,
+            r: _radius,
             island: false,
             exists: true
         });
 
-        for (uint8 i = 1; i <= radius; i++) {
+        for (uint8 i = 1; i <= _radius; i++) {
             // create ring of radius i
 
             SharedStructs.Coordinate memory center = SharedStructs.Coordinate(
-                radius,
-                radius
+                _radius,
+                _radius
             );
             SharedStructs.Coordinate[] memory coordinates = ring(center, i);
 
             for (uint8 c = 0; c < coordinates.length; c++) {
-                initCell(coordinates[c]);
+                initCell(coordinates[c], gameId);
             }
         }
     }
 
-    function createIslands() public {
+    function createIslands(uint8 gameId) public {
+        uint8 gameRadius = gameRadii[gameId];
         uint256 gridSize = uint256(
-            1 + 3 * uint256(radius) * (uint256(radius) + 1)
+            1 + 3 * uint256(gameRadius) * (uint256(gameRadius) + 1)
         );
         uint256 islandNo = (gridSize * 16) / 100;
         for (uint256 i = 0; i < islandNo; i++) {
-            SharedStructs.Coordinate memory coord = getRandomCoordinatePair();
-            hexCells[coord.r][coord.q].island = true;
+            SharedStructs.Coordinate memory coord = getRandomCoordinatePair(gameId);
+            gameHexCells[gameId][coord.r][coord.q].island = true;
         }
     }
 
-    function getRandomCoordinatePair()
+    function getRandomCoordinatePair(uint8 gameId)
         public
         returns (SharedStructs.Coordinate memory)
     {
+         uint8 gameRadius = gameRadii[gameId];
         SharedStructs.Coordinate memory coord = SharedStructs.Coordinate(
-            Random.getRandomValue(rnd, 2 * radius),
-            Random.getRandomValue(rnd, 2 * radius)
+            Random.getRandomValue(rnd, 2 * gameRadius),
+            Random.getRandomValue(rnd, 2 * gameRadius)
         );
-        SharedStructs.Cell memory cell = hexCells[coord.r][coord.q];
+        SharedStructs.Cell memory cell = gameHexCells[gameId][coord.r][coord.q];
 
         while (!cell.exists || cell.island) {
             coord = SharedStructs.Coordinate(
-                Random.getRandomValue(rnd, 2 * radius),
-                Random.getRandomValue(rnd, 2 * radius)
+                Random.getRandomValue(rnd, 2 * gameRadius),
+                Random.getRandomValue(rnd, 2 * gameRadius)
             );
-            cell = hexCells[coord.r][coord.q];
+            cell = gameHexCells[gameId][coord.r][coord.q];
         }
 
         return coord;
     }
 
     function getCell(
-        SharedStructs.Coordinate memory _coord
+        SharedStructs.Coordinate memory _coord,
+        uint8 gameId
     ) public view returns (SharedStructs.Cell memory) {
-        return hexCells[_coord.r][_coord.q];
+        return gameHexCells[gameId][_coord.r][_coord.q];
     }
 
     function travel(
         SharedStructs.Coordinate memory _startCell,
         SharedStructs.Directions _direction,
-        uint8 _distance
+        uint8 _distance, 
+        uint8 gameId
     ) external view returns (bool, SharedStructs.Coordinate memory) {
         for (uint8 i = 0; i < _distance; i++) {
             _startCell = neighbor(_startCell, _direction);
-            SharedStructs.Cell memory cell = getCell(_startCell);
+            SharedStructs.Cell memory cell = getCell(_startCell, gameId);
 
             if (cell.island || !cell.exists) {
                 return (true, _startCell);
@@ -245,16 +251,17 @@ contract Map {
         return _startCell;
     }
 
-    function deleteCell(SharedStructs.Coordinate calldata _coord) external {
+    function deleteCell(SharedStructs.Coordinate calldata _coord, uint8 gameId) external {
         console.log("Called deleteCell");
-        hexCells[_coord.r][_coord.q].exists = false;
+        gameHexCells[gameId][_coord.r][_coord.q].exists = false;
     }
 
     function isIsland(
-        SharedStructs.Coordinate memory _coord
+        SharedStructs.Coordinate memory _coord,
+        uint8 gameId
     ) public view returns (bool) {
         console.log("Called isIsland");
-        SharedStructs.Cell memory c = getCell(_coord);
+        SharedStructs.Cell memory c = getCell(_coord, gameId);
 
         return c.island;
     }
