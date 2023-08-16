@@ -21,9 +21,9 @@ import HexGrid from './HexGrid'
 import MapAbi from './abis/Map.json'
 import GameAbi from './abis/Game.json'
 
-const MAP_ADDRESS = '0x62e246444f8af3BB010d3d6D9E9b17D2330225ca'
+const MAP_ADDRESS = '0xE6017242E5d6FF77E4921D1dc916A8994F5851dC'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xfA284531CD3d7b4c997E82a4cADE4Ff0717112ca'
+const GAME_ADDRESS = '0xeC0EcacAc93Bca5D0018c750AF48d1BEb7482Ff5'
 const GAME_ABI = GameAbi.abi
 
 
