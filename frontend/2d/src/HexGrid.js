@@ -14,7 +14,8 @@ const pointy_hex_to_pixel = (q, r) => {
   return { x, y }
 }
 
-const HexGrid = ({ cells, ships, player, path, destination }) => {
+const HexGrid = ({ cells, ships, player, path, pathShots, destination }) => {
+
   const hexagons = cells.map(({ q, r, island }) => {
     return <Hexagon key={`${q},${r}`} q={Number(q)} r={Number(r)} island={island} />
   })
@@ -44,6 +45,19 @@ const HexGrid = ({ cells, ships, player, path, destination }) => {
       .join(' ')}`
   }
 
+  let pathShotWay = ''
+  if (myShip !== undefined) {
+    const { x: myShipX, y: myShipY } = pointy_hex_to_pixel(myShip.q, myShip.r)
+
+    pathShotWay = `${myShipX}, ${myShipY} ${pathShots
+      .map(({ q, r }) => {
+        const { x, y } = pointy_hex_to_pixel(q, r)
+        return `${x}, ${y}`
+      })
+      .join(' ')}`
+  }
+
+
   return (
     <svg viewBox="0 -100 1000 800" width="100%" height="100%">
       <defs>
@@ -67,7 +81,14 @@ const HexGrid = ({ cells, ships, player, path, destination }) => {
       {path.length > 0 && 
       <polyline
         points={pathWay}
-        stroke="red"
+        stroke='blue'
+        strokeWidth={2}
+        markerEnd="url(#arrowhead)"
+      />}
+       {pathShots.length > 0 && 
+      <polyline
+        points={pathShotWay}
+        stroke='yellow'
         strokeWidth={2}
         markerEnd="url(#arrowhead)"
       />}

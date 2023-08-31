@@ -20,10 +20,12 @@ import {
 import HexGrid from './HexGrid'
 import MapAbi from './abis/Map.json'
 import GameAbi from './abis/Game.json'
+import GenesisYachts from './GenesisYachts'
 
-const MAP_ADDRESS = '0xE6017242E5d6FF77E4921D1dc916A8994F5851dC'
+
+const MAP_ADDRESS = '0x0bE2139b91DFB19703a22142da83187f476C3740'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xeC0EcacAc93Bca5D0018c750AF48d1BEb7482Ff5'
+const GAME_ADDRESS = '0xA2640D3EE8cBe892DF532e42E8aE7d2F7915788B'
 const GAME_ABI = GameAbi.abi
 
 
@@ -33,6 +35,7 @@ function App() {
   const [cells, setCells] = useState([])
   const [ships, setShips] = useState([])
   const [path, setPath] = useState([])
+  const [pathShots, setPathShots] = useState([])
   const [radius, setRadius] = useState(4)
   const [contract, setContract] = useState(null)
   const [provider, setProvider] = useState(null)
@@ -50,21 +53,9 @@ function App() {
   const [gameId, setGameId] = useState(1)
   const [toggleGameId, setToggleGameId] = useState(1)
   const [endGameId, setEndGameId] = useState(0)
+  const [playerData, setPlayerData] = useState(null)
 
-
-
-
-  const getYachts = async () => {
-    if(contract) {
-      try {
-        const metadata = await contract.getMetadata('0xCd9680dd8318b0df924f0bD47a407c05B300e36f');
-        console.log("Metadata:", metadata);
-        return metadata; // You can return the metadata if you need it elsewhere
-      } catch (error) {
-        console.error(error);
-      }
-    }
-  }
+  
   
 
   useEffect(() => {
@@ -79,6 +70,11 @@ function App() {
       setContract(contract)
       setProvider(provider)
       setPlayer(signer.address)
+      const data = {
+        playerAddress: signer.address,
+        contractInstance: contract
+    }
+    setPlayerData(data)
     }
 
     fetchContract()
@@ -90,6 +86,7 @@ function App() {
         // get my ship
         const origin = ships.filter(ship => ship.captain === player).map(s => ({ q: s.q, r: s.r}))[0]
         const pathCells = []
+        const pathShotCells = []
         
         if (origin !== undefined) {
 
@@ -98,16 +95,28 @@ function App() {
             pathCells.push({q: Number(cell.q), r: Number(cell.r)})
           }
           
-          console.log(pathCells)
+          console.log('PathCells',pathCells)
           
-          setDestination(pathCells[pathCells.length-1])
+          //setDestination(pathCells[pathCells.length-1])
           setPath([...pathCells])
+        }
+        if (origin !== undefined) {
+
+          for (let i=1; i<=shotDistance; i++) {
+            const cell = await contract.move(origin, shotDirection, i, gameId)
+            pathShotCells.push({q: Number(cell.q), r: Number(cell.r)})
+          }
+          
+          console.log('PathShotCells',pathShotCells)
+          
+          //setDestination(pathShotCells[pathShotCells.length-1])
+          setPathShots([...pathShotCells])
         }
       }
     }
 
     fetchPath()
-  }, [distance, direction, player])
+  }, [distance, direction, player, shotDistance, shotDirection])
 
   useEffect(() => {
     console.log('Game Id value: ', gameId)
@@ -117,6 +126,7 @@ function App() {
     if(contract){
       const tx = await contract.startNewGame(gameId).catch(console.error)
       await tx.wait()
+      console.log('Start Game:', tx)
     }
   }
 
@@ -124,6 +134,7 @@ function App() {
     if(contract) {
       const tx = await contract.endGame(endGameId).catch(console.error)
       await tx.wait()
+      console.log('End Game:', tx)
     }
   }
   
@@ -532,134 +543,21 @@ function App() {
         <Button variant='contained' onClick={allowCommit}>Allow players to commit</Button>
         <Button variant='contained' onClick={allowSubmit}>Allow players to submit</Button>
         <Button variant='contained' onClick={updateWorld}>Update World</Button>
-        <Button variant='contained' onClick={getYachts}>Pull Yachts</Button>
+        {player && contract && (
+        <GenesisYachts playerData={playerData} />
+        )}
         </Stack>
         </Paper>
         </Grid>
 
-        {/* <Grid item xs={4}>
-          <Paper sx={{ p: 2 }}>
-            <Stack spacing={4}>
-              <Typography variant="h5">Shot</Typography>
-
-              <Stack spacing={2} direction="row">
-                <FormControl>
-                  <FormLabel id="demo-radio-buttons-group-label">Shot Direction</FormLabel>
-                  <RadioGroup
-                    aria-labelledby="demo-radio-buttons-group-label"
-                    value={shotDirection}
-                    onChange={(event) => { setShotDirection(event.target.value) }}
-                    name="radio-buttons-group"
-                  >
-                    <FormControlLabel value="0" control={<Radio />} label="E" />
-                    <FormControlLabel value="1" control={<Radio />} label="NE" />
-                    <FormControlLabel value="2" control={<Radio />} label="NW" />
-                    <FormControlLabel value="3" control={<Radio />} label="W" />
-                    <FormControlLabel value="4" control={<Radio />} label="SW" />
-                    <FormControlLabel value="5" control={<Radio />} label="SE" />
-                  </RadioGroup>
-                </FormControl>
-
-                <TextField
-                  id="outlined-number"
-                  label="Distance"
-                  type="number"
-                  value={shotDistance}
-                  onChange={(e) => {
-                    setShotDistance(parseInt(e.target.value))
-                  }}
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                />
-              </Stack>
-              <Button variant="outlined" onClick={moveShoot}>
-                Move & Shoot
-              </Button>
-            </Stack>
-          </Paper>
-        </Grid> */}
-
         <Grid container spacing={2} marginTop={10}>
         <Grid item xs={8}>
           <Paper sx={{ p: 2 }}>
-            <HexGrid cells={cells} ships={ships} player={player} path={path} destination={destination}/>
-          </Paper>
+            <HexGrid cells={cells} ships={ships} player={player} path={path} pathShots={pathShots} destination={destination} />
+           </Paper>
         </Grid>
-        {/* <Grid item xs={3}>
-          <Box marginTop={5}>
-            <Typography variant='h5'> Submit your moves</Typography>
-          </Box>
-           <Box
-             component="form"
-             sx={{
-                   '& > :not(style)': { m: 1 },
-                 }}
-             noValidate
-             autoComplete="off"
-             marginTop={5}
-            >
-            <TextField
-          required
-          id="outlined-required"
-          label="Move Direction"
-          helperText="E NE NW W SW SE" 
-          onChange={(e) => setDirection(e.target.value)}         
-        />
-         <TextField
-          required
-          id="outlined-required"
-          label="Move Distance"
-          type='number'
-          inputProps={{ min: "0", step: "1" }}
-          onChange={(event) => {
-            const newValue = event.target.value < 0 ? 0 : event.target.value;
-            setDistance(newValue);
-          }}
-        />
-         <TextField
-          required
-          id="outlined-required"
-          label="Shot Direction"
-          helperText="E NE NW W SW SE"
-          onChange={(e) => setShotDirection(e.target.value)}
-        />
-         <TextField
-          required
-          id="outlined-required"
-          label="Shot Distance"
-          type='number'
-          inputProps={{ min: "0", step: "1" }}
-          onChange={(event) => {
-            const newValue = event.target.value < 0 ? 0 : event.target.value;
-            setShotDistance(newValue);
-          }}
-        />
-            </Box>
-            <Box marginTop={2} marginLeft={1}>     
-            <Button variant='contained' size='large' onClick={submitMoves}>Submit move</Button>
-            </Box>
-            <Box>
-            <Box marginTop={5}>
-              <Typography variant='h5'>Reveal Moves</Typography>
-            </Box>  
-            <Box marginTop={2}>
-              <TextField
-          required
-          id="outlined-required"
-          label="Player Address" 
-          onChange={(e) => setPlayerAddress(e.target.value)}       
-        />
-        </Box>
-        <Box marginTop={2}>
-        <Button variant='contained' size='large' onClick={revealMoves}>Reveal move</Button>
-        </Box>
-        </Box>
-         </Grid> */}
-         <Grid item xs={4}>
-          
-
-        {revealMovesData && ships.map((ship, index) => (
+         <Grid item xs={4}>   
+         {revealMovesData && ships.map((ship, index) => (
           <Box key={index}>
             <Typography variant='body1'>Captain: {ship.captain}</Typography>
             <Typography variant='body1'>Coordinates: {ship.q}, {ship.r}</Typography>
@@ -672,8 +570,7 @@ function App() {
             }
             <br />
           </Box>
-        ))}
-        
+        ))}        
           </Grid>  
        </Grid>        
       </Grid>

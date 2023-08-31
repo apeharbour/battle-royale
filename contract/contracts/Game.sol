@@ -1,20 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.12;
 
-import "hardhat/console.sol";
 import "./Map.sol";
 import "./SharedStructs.sol";
 import "./Random.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/ChainlinkRequestInterface.sol";
+import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
-interface Yachts{
-    function tokenOfOwnerByIndex(address owner, uint256 index) external view returns (uint256);
-    function tokenURI(uint256 tokenId) external view returns (string memory);
-}
 
 error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 
-contract Game is Ownable {
+contract Game is ChainlinkClient, Ownable {
+    using Chainlink for Chainlink.Request;
     event PlayerAdded(address indexed player);
     event PlayerDefeated(address indexed player);
     event GameUpdated(bool indexed gameStatus, address indexed winnerAddress);
@@ -41,15 +40,62 @@ contract Game is Ownable {
     mapping(address => bytes32) moveHashes;
 }
 
+    bytes32 public jobId;
+    uint256 private fee;
+   struct NFTData {
+    string tokenId;
+    uint8 speed;
+    uint8 range;
+}
 
     mapping(uint256 => GameInstance) public games;
+    mapping(address => NFTData) public nftDataMapping;
+    mapping(bytes32 => address) public requestAddresses;
     Map immutable map;
-    Yachts public yachts;
 
-    constructor(address _mapAddress, address _yachtsAddress) {
+    constructor(address _mapAddress) {
         map = Map(_mapAddress);
-        yachts = Yachts(_yachtsAddress);
+        setChainlinkToken(0x779877A7B0D9E8603169DdbD7836e478b4624789);
+        setChainlinkOracle(0x1e34a40AC8ed0BC66a02e5509747F69c7387c44f);
+        jobId = "c1d71057168b494388001548ee1f95ea";    
+        fee = 0.1 * 10 ** 18;
     }
+
+    function requestAPIdata(string memory _tokenId, string memory _walletAddress, address walletAddressnonString) public returns (bytes32 requestId) {
+        Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
+        
+        // Set the URL for the API call
+        string memory genesisUrlToken = string.concat("https://m59jtciqre.execute-api.us-east-1.amazonaws.com/getGenesisNftsforBattleRoyale/?tokenId=", _tokenId);
+        string memory genesisUrlAddress = string.concat(genesisUrlToken, "&address=");
+        string memory finalUrl = string.concat(genesisUrlAddress, _walletAddress);
+        request.add("get", finalUrl);
+        
+        // Set the paths to find the desired data in the API response
+        request.add("path_tokenId", "tokenId");
+        request.add("path_speed", "speed");
+        request.add("path_range", "range");
+      
+         requestId = sendChainlinkRequest(request, fee);
+    
+         requestAddresses[requestId] = walletAddressnonString;
+
+         return requestId;
+    }
+
+    function fulfill(bytes32 _requestId, string memory _tokenId, uint8 _speed, uint8 _range) public recordChainlinkFulfillment(_requestId) {
+
+      address walletAddress = requestAddresses[_requestId];
+
+    // Store the data in the mapping
+    nftDataMapping[walletAddress] = NFTData({
+        tokenId: _tokenId,
+        speed: _speed,
+        range: _range
+    });
+      delete requestAddresses[_requestId];
+    }
+
+
 
   function startNewGame(uint8 gameId) public onlyOwner () {
     require(gameId < 255, "Maximum number of games reached");
@@ -63,12 +109,6 @@ contract Game is Ownable {
         games[gameId].gameInProgress = false;        
     }
  
-
-
-    function getMetadata(address ownerAddress) public view returns (string memory) {
-        uint256 tokenId = yachts.tokenOfOwnerByIndex(ownerAddress, 1);
-        return yachts.tokenURI(tokenId);
-    }
 
     // function to let players commit moves
      function allowCommitMoves(uint8 gameId) public onlyOwner {
