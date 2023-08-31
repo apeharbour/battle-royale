@@ -12,7 +12,7 @@ const pointy_hex_to_pixel = (q, r) => {
 
 const Ship = ({ q, r, captain, player }) => {
   const {x, y} = pointy_hex_to_pixel(q, r)
-  const color = captain === player ? 'red' : 'green'
+  const color = captain === player ? 'green' : 'red'
 
   return (
     <g>

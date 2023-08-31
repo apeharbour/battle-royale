@@ -782,7 +782,7 @@ async function main() {
   console.log( `Map contract deployed by ${owner.address} to ${map.address}` )
   
   const Game = await hre.ethers.getContractFactory('Game')
-  const game = await Game.deploy(map.address, yachtsAddress);
+  const game = await Game.deploy(map.address);
   await game.deployed();
   console.log( `Game contract deployed by ${owner.address} to ${game.address}` )
 
