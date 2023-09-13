@@ -4,6 +4,9 @@ import './App.css'
 import {
   Box,
   Button,
+  Card,
+  CardContent,
+  CardMedia,
   Container,
   FormControl,
   FormControlLabel,
@@ -21,11 +24,13 @@ import HexGrid from './HexGrid'
 import MapAbi from './abis/Map.json'
 import GameAbi from './abis/Game.json'
 import GenesisYachts from './GenesisYachts'
+import axios from 'axios'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 
-const MAP_ADDRESS = '0x0bE2139b91DFB19703a22142da83187f476C3740'
+const MAP_ADDRESS = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xA2640D3EE8cBe892DF532e42E8aE7d2F7915788B'
+const GAME_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
 const GAME_ABI = GameAbi.abi
 
 
@@ -36,6 +41,7 @@ function App() {
   const [ships, setShips] = useState([])
   const [path, setPath] = useState([])
   const [pathShots, setPathShots] = useState([])
+  const [travelCell, setTravelCell] = useState()
   const [radius, setRadius] = useState(4)
   const [contract, setContract] = useState(null)
   const [provider, setProvider] = useState(null)
@@ -54,9 +60,25 @@ function App() {
   const [toggleGameId, setToggleGameId] = useState(1)
   const [endGameId, setEndGameId] = useState(0)
   const [playerData, setPlayerData] = useState(null)
+  const [yachts, setYachts] = useState([])
+  const [selectedYacht, setSelectedYacht] = useState(null)
+  const [showYachtSelectError, setShowYachtSelectError] = useState(false)
 
   
-  
+  useEffect(() => {
+    axios.get('https://m59jtciqre.execute-api.us-east-1.amazonaws.com/getGenesisNfts', {
+      params:{ address: player
+      },
+     })
+     .then(({data}) => {
+       // Handle the response data
+       setYachts(data);
+       console.log('Genesis Data:', data)
+     }).catch((error) => {
+       // Handle errors
+       console.error(error);
+     });
+  }, [player])
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -86,12 +108,15 @@ function App() {
         // get my ship
         const origin = ships.filter(ship => ship.captain === player).map(s => ({ q: s.q, r: s.r}))[0]
         const pathCells = []
-        const pathShotCells = []
+       
+        
         
         if (origin !== undefined) {
 
           for (let i=1; i<=distance; i++) {
             const cell = await contract.move(origin, direction, i, gameId)
+            console.log('Travel destination Cell:', cell)
+            console.log('Ship Origin:', origin)
             pathCells.push({q: Number(cell.q), r: Number(cell.r)})
           }
           
@@ -99,24 +124,37 @@ function App() {
           
           //setDestination(pathCells[pathCells.length-1])
           setPath([...pathCells])
-        }
-        if (origin !== undefined) {
 
-          for (let i=1; i<=shotDistance; i++) {
-            const cell = await contract.move(origin, shotDirection, i, gameId)
-            pathShotCells.push({q: Number(cell.q), r: Number(cell.r)})
+          if (pathCells.length > 0) {
+            setTravelCell(pathCells[pathCells.length - 1]);
           }
-          
-          console.log('PathShotCells',pathShotCells)
-          
-          //setDestination(pathShotCells[pathShotCells.length-1])
-          setPathShots([...pathShotCells])
         }
-      }
+     }
     }
 
     fetchPath()
-  }, [distance, direction, player, shotDistance, shotDirection])
+  }, [distance, direction, player])
+
+  useEffect(() => {
+   const fetchShotPath = async () => { 
+    if(contract !== null){
+      if(travelCell){
+        const pathShotCells = []
+        for (let i=1; i<=shotDistance; i++) {
+          const cell = await contract.move(travelCell, shotDirection, i, gameId)
+          console.log('Combat destination Cell:', cell)
+          pathShotCells.push({q: Number(cell.q), r: Number(cell.r)})
+        }
+        
+        console.log('PathShotCells',pathShotCells)
+        
+        //setDestination(pathShotCells[pathShotCells.length-1])
+        setPathShots([...pathShotCells])
+      }
+    }
+  }
+  fetchShotPath()
+  }, [travelCell, shotDistance, shotDirection])
 
   useEffect(() => {
     console.log('Game Id value: ', gameId)
@@ -138,12 +176,6 @@ function App() {
     }
   }
   
-  const toggleGameIdValue = () => {
-    setGameId(toggleGameId)
-    console.log('ToggleGameId:', toggleGameId)
-    console.log('GameId:', gameId)
-  }
-
   const initMap = async () => {
     console.log('Clicked init Map, using radius', radius)
     setShips([])
@@ -278,10 +310,10 @@ function App() {
     }
   }
 
-  const addShip = async () => {
+  const addShip = async ( speed, range ) => {
     if (contract !== null) {
       console.log('Adding ship')
-      const tx = await contract.addShip(gameId).catch(console.error)
+      const tx = await contract.addShip(gameId, speed, range).catch(console.error)
       await tx.wait()
     }
     // const ship = { q: 3, r: 3 }
@@ -422,9 +454,71 @@ function App() {
               <Button variant="outlined" onClick={getMap}>
                 Get Map
               </Button>
-              <Button variant="outlined" onClick={addShip}>
+              {yachts && yachts.map((yacht, index) => {
+                 const ipfsUrl = yacht.metadata && yacht.metadata.image;
+                 const httpUrl = ipfsUrl 
+                     ? ipfsUrl.replace(
+                         "ipfs://", 
+                         "https://apeharbour.mypinata.cloud/ipfs/"
+                       ) + "?pinataGatewayToken=DpUkFkY4XM34Nwun1APLX8jozT9nY5J-DAxq5tK141A-BczLnktEeq7GaPAbwTDF"
+                     : null;
+
+                 return(
+                    <Card  
+                    key={yacht.tokenId} 
+                    sx={{ 
+                        display: 'flex', 
+                        border: selectedYacht === yacht.tokenId ? '2px solid blue' : 'none' 
+                    }}  
+                    onClick={() => {
+                      if (selectedYacht === yacht.tokenId) {
+                          setSelectedYacht(null); // deselect the yacht
+                      } else {
+                          setSelectedYacht(yacht.tokenId); // select the yacht
+                      }
+                  }}
+                >
+                    <CardMedia
+                        component="img"
+                        sx={{ width: 151 }}
+                        image={httpUrl}
+                        alt={yacht.tokenId}
+                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <CardContent sx={{ flex: '1 0 auto' }}>
+                            <Typography component="div" variant="h5">
+                                {yacht.metadata.name}
+                            </Typography>
+                            <Typography variant="subtitle1" color="text.secondary" component="div">
+                                {yacht.tokenId}
+                            </Typography>
+                            {selectedYacht === yacht.tokenId && (                       
+                       <CheckCircleIcon color="#0000FF" />                  
+               )}
+                        </CardContent>
+                    </Box>
+                </Card>
+                
+                 )    
+            })}
+              <Button variant="outlined"   onClick={() => {
+       if (selectedYacht) {
+        // Extract speed and range from the selected yacht's metadata
+        const yachtMetadata = yachts.find(yacht => yacht.tokenId === selectedYacht).metadata;
+        const speed = yachtMetadata.attributes.find(attr => attr.trait_type === 'Speed').value;
+        const range = yachtMetadata.attributes.find(attr => attr.trait_type === 'Range').value;
+
+        addShip(speed, range); // Pass speed and range to the addShip function
+        setShowYachtSelectError(false);
+    } else {
+            setShowYachtSelectError(true)
+        }
+    }}
+    disabled={!selectedYacht}>
                 Add Ship
               </Button>
+              {showYachtSelectError && <Typography variant='body1' style={{ color: 'red' }}>Please select a yacht first!</Typography>}
+
               <Button variant="outlined" onClick={fetchShips}>
                 Get Ships
               </Button>
@@ -553,7 +647,7 @@ function App() {
         <Grid container spacing={2} marginTop={10}>
         <Grid item xs={8}>
           <Paper sx={{ p: 2 }}>
-            <HexGrid cells={cells} ships={ships} player={player} path={path} pathShots={pathShots} destination={destination} />
+            <HexGrid cells={cells} ships={ships} player={player} path={path} pathShots={pathShots} destination={destination} travelCell={travelCell} />
            </Paper>
         </Grid>
          <Grid item xs={4}>   

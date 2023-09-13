@@ -49,6 +49,7 @@ const GenesisYachts = ({ playerData }) => {
 
       return(
         <Fragment>
+            <Typography variant='h6'>Chainlink Integration</Typography>
             {yachts && yachts.map((yacht, index) => {
                  const ipfsUrl = yacht.metadata && yacht.metadata.image;
                  const httpUrl = ipfsUrl 

@@ -14,10 +14,25 @@ error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 
 contract Game is ChainlinkClient, Ownable {
     using Chainlink for Chainlink.Request;
-    event PlayerAdded(address indexed player);
+
+    //Events
+    event PlayerAdded(address indexed player, uint8 gameId);
     event PlayerDefeated(address indexed player);
     event GameUpdated(bool indexed gameStatus, address indexed winnerAddress);
     event GameWinner(string gameWinner);
+    event GameStarted(uint8 gameId);
+    event GameEnded(uint8 gameId);
+    event CommitPhaseStarted(uint8 gameId);
+    event SubmitPhaseStarted(uint8 gameId);
+    event MoveCommitted(address indexed player);
+    event MoveSubmitted(address indexed player);
+    event MapInitialized(uint8 radius, uint8 gameId);
+    event ShipMoved(address indexed captain, uint8 q, uint8 r);
+    event ShipShot(address indexed captain, uint8 shotQ, uint8 shotR);
+    event ShipHit(address indexed victim, address indexed attacker);
+    event ShipCollidedWithIsland(address indexed captain);
+    event ShipSunk(address indexed captain);
+
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -27,6 +42,8 @@ contract Game is ChainlinkClient, Ownable {
         uint8 shotDistance;
         bool publishedMove;
         address captain;
+        uint8 yachtSpeed;
+        uint8 yachtRange;
     }
 
     struct GameInstance {
@@ -61,6 +78,32 @@ contract Game is ChainlinkClient, Ownable {
         fee = 0.1 * 10 ** 18;
     }
 
+    //Generate random number
+    function getRandomNumber() internal view returns (uint256) {
+    return uint256(keccak256(abi.encodePacked(block.number, msg.sender)));
+}
+
+    //Random move distance
+    function calculateMoveDistance(uint8 speed) internal view returns (uint8) {
+    uint256 randomValue = getRandomNumber() % 100; // This gives a value between 0 and 99
+     uint8 distance = uint8(ceil(3 * speed * randomValue, 99));
+    return distance;
+}
+
+    //Random shot distance
+    function calculateShotDistance(uint8 range) internal view returns (uint8) {
+    uint256 randomValue = getRandomNumber() % 100; // This gives a value between 0 and 99
+    uint8 shotDistance = uint8(ceil(3 * range * randomValue, 100));
+    return shotDistance;
+}
+
+
+    //Ceil function
+    function ceil(uint256 a, uint256 m) internal pure returns (uint256) {
+    return ((a + m - 1) / m) * m;
+}
+
+    //Chainlink Integration
     function requestAPIdata(string memory _tokenId, string memory _walletAddress, address walletAddressnonString) public returns (bytes32 requestId) {
         Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
         
@@ -101,40 +144,40 @@ contract Game is ChainlinkClient, Ownable {
     require(gameId < 255, "Maximum number of games reached");
     require(!games[gameId].gameInProgress, "Game with this ID already in progress");
     games[gameId].gameInProgress = true; 
+    emit GameStarted(gameId);
 }
 
-    function endGame(uint gameId) public onlyOwner() {
-         GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
-        games[gameId].gameInProgress = false;        
+    function endGame(uint8 gameId) public onlyOwner() {
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
+        games[gameId].gameInProgress = false;   
+        emit GameEnded(gameId);    
     }
  
 
     // function to let players commit moves
      function allowCommitMoves(uint8 gameId) public onlyOwner {
-        GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
-        game.letCommitMoves = true;
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
+        games[gameId].letCommitMoves = true;
+        emit CommitPhaseStarted(gameId);
     }
 
     // function to let players submit moves
      function allowSubmitMoves(uint8 gameId) public onlyOwner {
-        GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
-        game.letCommitMoves = false;
-        game.letSubmitMoves = true;
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
+        games[gameId].letCommitMoves = false;
+        games[gameId].letSubmitMoves = true;
+        emit SubmitPhaseStarted(gameId);
     }
 
     //commit moves
     function commitMove(bytes32 moveHash, uint8 gameId) public {
-   
-    GameInstance storage game = games[gameId];
-     require(game.letCommitMoves == true, 'Commit moves has not started yet!');
-     game.moveHashes[msg.sender] = moveHash;
+     require(games[gameId].letCommitMoves == true, 'Commit moves has not started yet!');
+     games[gameId].moveHashes[msg.sender] = moveHash;
+     emit MoveCommitted(msg.sender);
 }
 
-    // submit moves
-    function revealMove(
+  //Submit moves
+  function revealMove(
     SharedStructs.Directions _travelDirection, 
     uint8 _travelDistance, 
     SharedStructs.Directions _shotDirection, 
@@ -142,47 +185,56 @@ contract Game is ChainlinkClient, Ownable {
     uint256 secret,
     uint8 gameId
 ) public {
-    GameInstance storage game = games[gameId];
-    require(game.letSubmitMoves == true, 'Submit moves has not started yet!');
-    require(game.gameInProgress == true, 'Game has not started yet!');
+    require(games[gameId].letSubmitMoves == true, 'Submit moves has not started yet!');
+    require(games[gameId].gameInProgress == true, 'Game has not started yet!');
 
     bytes32 moveHash = keccak256(abi.encodePacked(_travelDirection, _travelDistance, _shotDirection, _shotDistance, secret));
 
-    if(game.moveHashes[msg.sender] == moveHash){
-    Ship storage ship = game.ships[msg.sender];
-    ship.travelDirection = _travelDirection;
-    ship.travelDistance = _travelDistance;
-    ship.shotDirection = _shotDirection;
-    ship.shotDistance = _shotDistance;
-    ship.publishedMove = true;
+    if(games[gameId].moveHashes[msg.sender] == moveHash){
+        Ship storage ship = games[gameId].ships[msg.sender];
+        
+        // Calculate dynamic travel distance based on yachtSpeed
+        uint8 calculatedTravelDistance = calculateMoveDistance(ship.yachtSpeed);
+        ship.travelDirection = _travelDirection;
+        ship.travelDistance = calculatedTravelDistance;
+
+        // Calculate dynamic shot distance based on yachtRange
+        uint8 calculatedShotDistance = calculateShotDistance(ship.yachtRange);
+        ship.shotDirection = _shotDirection;
+        ship.shotDistance = calculatedShotDistance;
+
+        ship.publishedMove = true;
     }
+    emit MoveSubmitted(msg.sender);
 }
 
+
+
     function initGame(uint8 _radius, uint8 gameId) public onlyOwner {
-        GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
 
         // reset ships
-        for (uint256 i = 0; i < game.players.length; i++) {
-            delete game.ships[game.players[i]];
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
+            delete games[gameId].ships[games[gameId].players[i]];
         }
-        delete game.players;
+        delete games[gameId].players;
 
         map.initMap(_radius, gameId);
         map.createIslands(gameId);
+
+        emit MapInitialized(_radius,gameId);
     }
 
-    function addShip(uint8 gameId) public returns (Ship memory) {
-        GameInstance storage game = games[gameId];
-        require(game.stopAddingShips == false && game.gameInProgress == true, 'Game has not started yet!');
+    function addShip(uint8 gameId, uint8 _speed, uint8 _range) public returns (Ship memory) {
+                require(games[gameId].stopAddingShips == false && games[gameId].gameInProgress == true, 'Game has not started yet!');
         if (
-            game.ships[msg.sender].coordinate.q > 0 &&
-            game.ships[msg.sender].coordinate.r > 0
+            games[gameId].ships[msg.sender].coordinate.q > 0 &&
+            games[gameId].ships[msg.sender].coordinate.r > 0
         ) {
             revert ShipAlreadyAdded(
                 msg.sender,
-                game.ships[msg.sender].coordinate.q,
-                game.ships[msg.sender].coordinate.r
+                games[gameId].ships[msg.sender].coordinate.q,
+                games[gameId].ships[msg.sender].coordinate.r
             );
         }
 
@@ -191,11 +243,11 @@ contract Game is ChainlinkClient, Ownable {
         do {
             coord = map.getRandomCoordinatePair(gameId);
             console.log("New rnd pair %s, %s", coord.q, coord.r);
-            for (uint8 i = 0; i < game.players.length; i++) {
-                console.log("in loop %s, address: %s", i, game.players[i]);
+            for (uint8 i = 0; i < games[gameId].players.length; i++) {
+                console.log("in loop %s, address: %s", i, games[gameId].players[i]);
                 if (
-                    game.ships[game.players[i]].coordinate.q == coord.q &&
-                    game.ships[game.players[i]].coordinate.r == coord.r
+                    games[gameId].ships[games[gameId].players[i]].coordinate.q == coord.q &&
+                    games[gameId].ships[games[gameId].players[i]].coordinate.r == coord.r
                 ) {
                     alreadyTaken = true;
                     break;
@@ -210,26 +262,27 @@ contract Game is ChainlinkClient, Ownable {
             SharedStructs.Directions.E,
             0,
             false,
-            msg.sender
+            msg.sender,
+            _speed,
+            _range
         );
-        game.ships[msg.sender] = ship;
-        game.players.push(msg.sender);
+        games[gameId].ships[msg.sender] = ship;
+        games[gameId].players.push(msg.sender);
 
         console.log("New ship at %s, %s", ship.coordinate.q, ship.coordinate.r);
 
-        emit PlayerAdded(msg.sender);
+        emit PlayerAdded(msg.sender, gameId);
 
         return ship;
     }
 
 
     function sinkShip(address captain, uint8 gameId) internal {
-        GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         // find player index
         uint8 playerIndex = 0;
-        for (uint8 p = 0; p < game.players.length; p++) {
-            if (game.players[p] == captain) {
+        for (uint8 p = 0; p < games[gameId].players.length; p++) {
+            if (games[gameId].players[p] == captain) {
                 playerIndex = p;
                 break;
             }
@@ -240,85 +293,89 @@ contract Game is ChainlinkClient, Ownable {
 
 
   function sinkShip(address captain, uint8 index, uint8 gameId) internal {
-        GameInstance storage game = games[gameId];
-        require (index < game.players.length, 'Index value out of range');
-        require(game.gameInProgress == true, 'Game has not started yet!');
+        require (index < games[gameId].players.length, 'Index value out of range');
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
 
         emit PlayerDefeated(captain);
-        delete (game.ships[captain]);
+        delete (games[gameId].ships[captain]);
 
-        game.players[index] = address(0);
+        games[gameId].players[index] = address(0);
     }
 
 function updateWorld(uint8 gameId) public onlyOwner {
-    GameInstance storage game = games[gameId];
-    require(game.gameInProgress == true, 'Game has not started yet!');
+    require(games[gameId].gameInProgress == true, 'Game has not started yet!');
 
     // shot destination positions
-    SharedStructs.Coordinate[] memory shotDestinations = new SharedStructs.Coordinate[](game.players.length);
+    SharedStructs.Coordinate[] memory shotDestinations = new SharedStructs.Coordinate[](games[gameId].players.length);
     
     // Flag to check if ship is active
-    bool[] memory isActive = new bool[](game.players.length);   
+    bool[] memory isActive = new bool[](games[gameId].players.length);   
 
     // Initialize all ships as active
-    for (uint8 i = 0; i < game.players.length; i++) {
+    for (uint8 i = 0; i < games[gameId].players.length; i++) {
         isActive[i] = true;
     }    
 
     // Moving ships and handling deaths due to invalid moves
-    for (uint8 i = 0; i < game.players.length; i++) {
-        if (game.ships[game.players[i]].publishedMove) {
+    for (uint8 i = 0; i < games[gameId].players.length; i++) {
+        if (games[gameId].ships[games[gameId].players[i]].publishedMove) {
             (bool dies, SharedStructs.Coordinate memory dest) = map.travel(
-                game.ships[game.players[i]].coordinate,
-                game.ships[game.players[i]].travelDirection,
-                game.ships[game.players[i]].travelDistance,
+                games[gameId].ships[games[gameId].players[i]].coordinate,
+                games[gameId].ships[games[gameId].players[i]].travelDirection,
+                games[gameId].ships[games[gameId].players[i]].travelDistance,
                 gameId
             );
             if (dies) {
-                sinkShip(game.players[i], i, gameId);
+                sinkShip(games[gameId].players[i], i, gameId);
                 isActive[i] = false;
+                emit ShipCollidedWithIsland(games[gameId].players[i]); // Emitting event when ship collides and dies
                 continue;
             }
-            game.ships[game.players[i]].coordinate = dest;
+            games[gameId].ships[games[gameId].players[i]].coordinate = dest;
+            emit ShipMoved(games[gameId].players[i], dest.q, dest.r); // Emitting event after ship moves
         }
     }
 
-     // Calculate Shot destination for active ships
-    for (uint8 i = 0; i < game.players.length; i++) {
+    // Calculate Shot destination for active ships
+    for (uint8 i = 0; i < games[gameId].players.length; i++) {
         if (isActive[i]) {
             SharedStructs.Coordinate memory shotDest = map.calculateShot(
-                game.ships[game.players[i]].coordinate,
-                game.ships[game.players[i]].shotDirection,
-                game.ships[game.players[i]].shotDistance
+                games[gameId].ships[games[gameId].players[i]].coordinate,
+                games[gameId].ships[games[gameId].players[i]].shotDirection,
+                games[gameId].ships[games[gameId].players[i]].shotDistance
             );
             shotDestinations[i] = shotDest;
+            emit ShipShot(games[gameId].players[i], shotDest.q, shotDest.r); // Emitting event after ship shoots
         }
     }  
 
-  // Handle ship collisions and shots
-    for (uint8 i = 0; i < game.players.length; i++) {
-        for (uint8 j = 0; j < game.players.length; j++) {
+    // Handle ship collisions and shots
+    for (uint8 i = 0; i < games[gameId].players.length; i++) {
+        for (uint8 j = 0; j < games[gameId].players.length; j++) {
             if (i != j) {
                 // Check for collisions
-                if (isActive[i] && isActive[j] && game.ships[game.players[j]].coordinate.q == game.ships[game.players[i]].coordinate.q && game.ships[game.players[j]].coordinate.r == game.ships[game.players[i]].coordinate.r) {
+                if (isActive[i] && isActive[j] && games[gameId].ships[games[gameId].players[j]].coordinate.q == games[gameId].ships[games[gameId].players[i]].coordinate.q && games[gameId].ships[games[gameId].players[j]].coordinate.r == games[gameId].ships[games[gameId].players[i]].coordinate.r) {
                     isActive[i] = false;
                     isActive[j] = false;
-                    sinkShip(game.players[i], i, gameId);
-                    sinkShip(game.players[j], j, gameId);
+                    sinkShip(games[gameId].players[i], i, gameId);
+                    sinkShip(games[gameId].players[j], j, gameId);
+                    emit ShipSunk(games[gameId].players[i]); // Emitting event when ship is sunk
+                    emit ShipSunk(games[gameId].players[j]); // Emitting event when ship is sunk
                 }
                 // Check for shots
-                if (isActive[i] && shotDestinations[j].q == game.ships[game.players[i]].coordinate.q && shotDestinations[j].r == game.ships[game.players[i]].coordinate.r) {
-                    sinkShip(game.players[i], i, gameId);
+                if (isActive[i] && shotDestinations[j].q == games[gameId].ships[games[gameId].players[i]].coordinate.q && shotDestinations[j].r == games[gameId].ships[games[gameId].players[i]].coordinate.r) {
+                    sinkShip(games[gameId].players[i], i, gameId);
+                    emit ShipHit(games[gameId].players[i], games[gameId].players[j]); // Emitting event when ship is hit by another ship's shot
                 }
             }
         }
     }
 
     // Remove sunk players
-    for (uint8 i = 0; i < game.players.length; i++) {
-        if (game.players[i] == address(0)) {
-            game.players[i] = game.players[game.players.length - 1];
-            game.players.pop();
+    for (uint8 i = 0; i < games[gameId].players.length; i++) {
+        if (games[gameId].players[i] == address(0)) {
+            games[gameId].players[i] = games[gameId].players[games[gameId].players.length - 1];
+            games[gameId].players.pop();
             if (i > 0) {
                 i--;
             }
@@ -326,22 +383,22 @@ function updateWorld(uint8 gameId) public onlyOwner {
     }
 
     // Check for winner, emit events accordingly
-    if (game.players.length == 0) {
+    if (games[gameId].players.length == 0) {
         emit GameWinner("No winner");
-        game.stopAddingShips = true;           
-    } else if (game.players.length == 1) {
-        emit GameWinner(string(abi.encodePacked("The Game winner is: ", toString(game.players[0]))));
-        game.stopAddingShips = true;
+        games[gameId].stopAddingShips = true;           
+    } else if (games[gameId].players.length == 1) {
+        emit GameWinner(string(abi.encodePacked("The Game winner is: ", toString(games[gameId].players[0]))));
+        games[gameId].stopAddingShips = true;
     } else {
-        emit GameUpdated(false, game.players[0]);
-        for (uint8 i = 0; i < game.players.length; i++) {
-            game.ships[game.players[i]].travelDirection = SharedStructs.Directions.NO_MOVE;
-            game.ships[game.players[i]].travelDistance = 0;
-            game.ships[game.players[i]].shotDirection = SharedStructs.Directions.NO_MOVE;
-            game.ships[game.players[i]].shotDistance = 0;
+        emit GameUpdated(false, games[gameId].players[0]);
+        for (uint8 i = 0; i < games[gameId].players.length; i++) {
+            games[gameId].ships[games[gameId].players[i]].travelDirection = SharedStructs.Directions.NO_MOVE;
+            games[gameId].ships[games[gameId].players[i]].travelDistance = 0;
+            games[gameId].ships[games[gameId].players[i]].shotDirection = SharedStructs.Directions.NO_MOVE;
+            games[gameId].ships[games[gameId].players[i]].shotDistance = 0;
         }
-        game.letCommitMoves = false;
-        game.letSubmitMoves = false;
+        games[gameId].letCommitMoves = false;
+        games[gameId].letSubmitMoves = false;
     }
 }
 
@@ -365,21 +422,19 @@ function toString(bytes memory data) internal pure returns(string memory) {
  
 
     function getShips(uint8 gameId) public view returns (Ship[] memory) {
-        GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
-        Ship[] memory returnShips = new Ship[](game.players.length);
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
+        Ship[] memory returnShips = new Ship[](games[gameId].players.length);
         console.log("Retrieving ships");
 
-        for (uint256 i = 0; i < game.players.length; i++) {
-            returnShips[i] = game.ships[game.players[i]];
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
+            returnShips[i] = games[gameId].ships[games[gameId].players[i]];
         }
 
         return returnShips;
     }
 
     function getRadius(uint8 gameId) public view returns (uint8) {
-        GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         return map.gameRadii(gameId);
     }
 
@@ -387,8 +442,7 @@ function toString(bytes memory data) internal pure returns(string memory) {
         SharedStructs.Coordinate memory _coord,
         uint8 gameId
     ) public view returns (SharedStructs.Cell memory) {
-        GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         return map.getCell(_coord, gameId);
     }
 
@@ -398,8 +452,7 @@ function toString(bytes memory data) internal pure returns(string memory) {
         uint8 _distance,
         uint8 gameId
     ) external view returns (SharedStructs.Coordinate memory) {
-       GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         return map.move(_start, _dir, _distance);
     }
 
@@ -409,15 +462,14 @@ function toString(bytes memory data) internal pure returns(string memory) {
         uint8 _distance,
         uint8 gameId
     ) external {
-        GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         (bool dies, SharedStructs.Coordinate memory dest) = map.travel(_startCell, _direction, _distance, gameId);
 
         if (dies) {
             sinkShip(msg.sender, gameId);
         } else {
-            game.ships[msg.sender].coordinate.q = dest.q;
-            game.ships[msg.sender].coordinate.r = dest.r;
+            games[gameId].ships[msg.sender].coordinate.q = dest.q;
+            games[gameId].ships[msg.sender].coordinate.r = dest.r;
         }
     }
 
@@ -426,8 +478,7 @@ function toString(bytes memory data) internal pure returns(string memory) {
         view
         returns (SharedStructs.Coordinate[] memory)
     {
-         GameInstance storage game = games[gameId];
-        require(game.gameInProgress == true, 'Game has not started yet!');
+         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         uint8 radius = map.gameRadii(gameId);
         uint256 numberOfCells = 1 + 3 * radius * (radius + 1);
         SharedStructs.Coordinate[]
