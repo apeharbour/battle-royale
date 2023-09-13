@@ -28,9 +28,9 @@ import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 
-const MAP_ADDRESS = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+const MAP_ADDRESS = '0x08fB3975b8D2D53a3b444Eb8518C956a5beC2408'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
+const GAME_ADDRESS = '0x3e83F9334DF50c6Cd915Fd17610bc121280Bf541'
 const GAME_ABI = GameAbi.abi
 
 
