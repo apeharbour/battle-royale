@@ -14,7 +14,7 @@ const pointy_hex_to_pixel = (q, r) => {
   return { x, y }
 }
 
-const HexGrid = ({ cells, ships, player, path, pathShots, destination }) => {
+const HexGrid = ({ cells, ships, player, path, pathShots, destination, travelCell }) => {
 
   const hexagons = cells.map(({ q, r, island }) => {
     return <Hexagon key={`${q},${r}`} q={Number(q)} r={Number(r)} island={island} />
@@ -28,6 +28,7 @@ const HexGrid = ({ cells, ships, player, path, pathShots, destination }) => {
 
   console.log('myShip:', myShip)
   console.log('ships', ships)
+  console.log('TravelCell', travelCell)
 
   const pathCells = path.map(({ q, r }) => {
     return <PathCell key={`path${q},${r}`} q={q} r={r} />
@@ -46,8 +47,8 @@ const HexGrid = ({ cells, ships, player, path, pathShots, destination }) => {
   }
 
   let pathShotWay = ''
-  if (myShip !== undefined) {
-    const { x: myShipX, y: myShipY } = pointy_hex_to_pixel(myShip.q, myShip.r)
+  if (travelCell !== undefined) {
+    const { x: myShipX, y: myShipY } = pointy_hex_to_pixel(travelCell.q, travelCell.r)
 
     pathShotWay = `${myShipX}, ${myShipY} ${pathShots
       .map(({ q, r }) => {
