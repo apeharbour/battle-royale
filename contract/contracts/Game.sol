@@ -78,29 +78,34 @@ contract Game is ChainlinkClient, Ownable {
         fee = 0.1 * 10 ** 18;
     }
 
-    //Generate random number
-    function getRandomNumber() internal view returns (uint256) {
-    return uint256(keccak256(abi.encodePacked(block.number, msg.sender)));
+// Generate a random number between 0 and 10^18 (to represent 0 to 1 in 18 decimal places)
+function getRandomNumber() internal view returns (uint256) {
+    return uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % (10**18);
 }
 
-    //Random move distance
-    function calculateMoveDistance(uint8 speed) internal view returns (uint8) {
-    uint256 randomValue = getRandomNumber() % 100; // This gives a value between 0 and 99
-     uint8 distance = uint8(ceil(3 * speed * randomValue, 99));
-    return distance;
+// This ceil function will round up the result of division of a by m
+function ceil(uint256 a, uint256 m) internal pure returns (uint256) {
+    return (a + m - 1) / m;
 }
 
-    //Random shot distance
-    function calculateShotDistance(uint8 range) internal view returns (uint8) {
-    uint256 randomValue = getRandomNumber() % 100; // This gives a value between 0 and 99
-    uint8 shotDistance = uint8(ceil(3 * range * randomValue, 100));
-    return shotDistance;
+// Random move distance based on formula: d = ceil(3 * (s / 99) * p)
+function calculateMoveDistance(uint8 speed) internal view returns (uint8) {
+    uint256 randomValue = getRandomNumber(); 
+    uint256 distance = ceil(3 * speed * randomValue, 99 * (10**18));
+    if (distance > 3) {
+        distance = 3;
+    }
+    return uint8(distance);
 }
 
-
-    //Ceil function
-    function ceil(uint256 a, uint256 m) internal pure returns (uint256) {
-    return ((a + m - 1) / m) * m;
+// Random shot distance based on formula: c = ceil(3 * (r / 100) * p)
+function calculateShotDistance(uint8 range) internal view returns (uint8) {
+    uint256 randomValue = getRandomNumber(); 
+    uint256 shotDistance = ceil(3 * range * randomValue, 100 * (10**18));
+    if (shotDistance > 3) {
+        shotDistance = 3;
+    }
+    return uint8(shotDistance);
 }
 
     //Chainlink Integration

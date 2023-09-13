@@ -28,9 +28,9 @@ import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 
-const MAP_ADDRESS = '0x08fB3975b8D2D53a3b444Eb8518C956a5beC2408'
+const MAP_ADDRESS = '0xA46c61c2c0831CF666A7df4e15b360E531bB0d77'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0x3e83F9334DF50c6Cd915Fd17610bc121280Bf541'
+const GAME_ADDRESS = '0x3b25Bef00db973cEBbC43e59Df973d678F78d0E0'
 const GAME_ABI = GameAbi.abi
 
 
@@ -322,6 +322,16 @@ function App() {
     fetchShips()
   }
 
+  const addShipWoYacht = async () => {
+    if(contract !== null) {
+      console.log('Adding Ship w/o yacht')
+      const tx = await contract.addShip(gameId, 50, 50).catch(console.error)
+      await tx.wait()
+    }
+    console.log('Added ship')
+    fetchShips()
+  }
+
   async function fetchShips() {
     if (contract !== null) {
       const enumDirections = ['E', 'NE', 'NW', 'W', 'SW', 'SE', 'NO_MOVE'];
@@ -518,6 +528,9 @@ function App() {
                 Add Ship
               </Button>
               {showYachtSelectError && <Typography variant='body1' style={{ color: 'red' }}>Please select a yacht first!</Typography>}
+
+              {yachts.length === 0 && 
+              <Button variant='outlined' onClick={addShipWoYacht}>Add Ship w/o Yacht</Button>}
 
               <Button variant="outlined" onClick={fetchShips}>
                 Get Ships
