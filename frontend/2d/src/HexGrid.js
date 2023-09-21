@@ -46,18 +46,18 @@ const HexGrid = ({ cells, ships, player, path, pathShots, destination, travelCel
       .join(' ')}`
   }
 
-  let pathShotWay = ''
-  if (travelCell !== undefined) {
-    const { x: myShipX, y: myShipY } = pointy_hex_to_pixel(travelCell.q, travelCell.r)
-
-    pathShotWay = `${myShipX}, ${myShipY} ${pathShots
+  let pathShotWay = '';
+  const startingPointForShot = travelCell || ships.filter(s => s.captain === player)[0];
+  if (startingPointForShot !== undefined) {
+    const { x: startingX, y: startingY } = pointy_hex_to_pixel(startingPointForShot.q, startingPointForShot.r);
+  
+    pathShotWay = `${startingX}, ${startingY} ${pathShots
       .map(({ q, r }) => {
-        const { x, y } = pointy_hex_to_pixel(q, r)
-        return `${x}, ${y}`
+        const { x, y } = pointy_hex_to_pixel(q, r);
+        return `${x}, ${y}`;
       })
-      .join(' ')}`
+      .join(' ')}`;
   }
-
 
   return (
     <svg viewBox="0 -100 1000 800" width="100%" height="100%">
