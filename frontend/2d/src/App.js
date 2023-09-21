@@ -129,23 +129,24 @@ function App() {
   useEffect(() => {
     const fetchShotPath = async () => {
       if (contract !== null) {
-        if (travelCell) {
-          const pathShotCells = []
+        // If travelCell is not defined, use the ship's current position as the starting point
+        const startingPoint = travelCell || ships.filter(ship => ship.captain === player).map(s => ({ q: s.q, r: s.r }))[0];
+        if (startingPoint) {
+          const pathShotCells = [];
           for (let i = 1; i <= shotDistance; i++) {
-            const cell = await contract.move(travelCell, shotDirection, i, gameId)
-            console.log('Combat destination Cell:', cell)
-            pathShotCells.push({ q: Number(cell.q), r: Number(cell.r) })
+            const cell = await contract.move(startingPoint, shotDirection, i, gameId);
+            console.log('Combat destination Cell:', cell);
+            pathShotCells.push({ q: Number(cell.q), r: Number(cell.r) });
           }
-
-          console.log('PathShotCells', pathShotCells)
-
-          //setDestination(pathShotCells[pathShotCells.length-1])
-          setPathShots([...pathShotCells])
+  
+          console.log('PathShotCells', pathShotCells);
+          setPathShots([...pathShotCells]);
         }
       }
     }
-    fetchShotPath()
-  }, [travelCell, shotDistance, shotDirection])
+    fetchShotPath();
+  }, [travelCell, shotDistance, shotDirection, player, ships, contract, gameId]);
+  
 
   useEffect(() => {
     console.log('Game Id value: ', gameId)
