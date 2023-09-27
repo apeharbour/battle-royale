@@ -26,9 +26,9 @@ import GameAbi from './abis/GameNP.json'
 import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
-const MAP_ADDRESS = '0x77f28712F9a71b517E5Bdd59B281F822671C3479'
+const MAP_ADDRESS = '0xF2b42b1c148bee2864399826ce30Ed66eE57c3F2'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0x4C283BeB5054f04E5E89f6306C9A8Ea72bFfd6FE'
+const GAME_ADDRESS = '0xA3696FD658e639C117cA3aC0a47f816B863Cbec0'
 const GAME_ABI = GameAbi.abi
 
 function GameMode3() {
@@ -261,7 +261,7 @@ function GameMode3() {
     console.log('ship', ship)
     if (ship !== undefined && contract != null) {
       console.log(ship, direction, distance)
-      const tx = await contract.travel(ship, direction, distance, gameId)
+      const tx = await contract.travel(ship, direction, distance, maxAllowedDistance, gameId)
       await tx.wait()
 
       fetchShips()
@@ -300,7 +300,9 @@ function GameMode3() {
   const addShip = async (speed, range) => {
     if (contract !== null) {
       console.log('Adding ship')
-      const tx = await contract.addShip(gameId, speed, range).catch(console.error)
+      const maxMove = Math.ceil(speed/10)
+      console.log('MaxAllowedMove= ', maxMove)
+      const tx = await contract.addShip(gameId, speed, range, maxMove).catch(console.error)
       await tx.wait()
     }
     // const ship = { q: 3, r: 3 }
@@ -313,7 +315,7 @@ function GameMode3() {
   const addShipWoYacht = async () => {
     if (contract !== null) {
       console.log('Adding Ship w/o yacht')
-      const tx = await contract.addShip(gameId, 50, 50).catch(console.error)
+      const tx = await contract.addShip(gameId, 50, 50, 5).catch(console.error)
       await tx.wait()
     }
     console.log('Added ship')
