@@ -27,9 +27,9 @@ import GameAbi from './abis/GameWT.json'
 import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
-const MAP_ADDRESS = '0x5B71f57bDb4B2eCaE67719192E21CC1d9E676eEF'
+const MAP_ADDRESS = '0x8D22C2c5B35E6c2Bf2Ea7145A9bA0853FfEb5974'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xBE7918eb49ed03F7031f84EEBEB2642A5Df1BCf1'
+const GAME_ADDRESS = '0x51C2B38ef5dA64a34DeD873519494949930FBc45'
 const GAME_ABI = GameAbi.abi
 
 const ariaLabel = { 'aria-label': 'description' }

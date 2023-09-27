@@ -222,45 +222,59 @@ contract MapNP {
         return gameHexCells[gameId][_coord.r][_coord.q];
     }
 
-    function travel(
-        SharedStructs.Coordinate memory _startCell,
-        SharedStructs.Directions _direction,
-        uint8 _distance, 
-        uint8 gameId
-    ) external view returns (bool, SharedStructs.Coordinate memory) {
-        uint8 newDistance = calculateNewDistance(_distance);
+   function travel(
+    SharedStructs.Coordinate memory _startCell,
+    SharedStructs.Directions _direction,
+    uint8 _distance,
+    uint8 _maxAllowedMove, 
+    uint8 gameId
+) external view returns (bool, SharedStructs.Coordinate memory) {
+    uint8 newDistance = calculateNewDistance(_distance, _maxAllowedMove);
 
-        for (uint8 i = 0; i < newDistance; i++) {
-            _startCell = neighbor(_startCell, _direction);
-            SharedStructs.Cell memory cell = getCell(_startCell, gameId);
+    for (uint8 i = 0; i < newDistance; i++) {
+        _startCell = neighbor(_startCell, _direction);
+        SharedStructs.Cell memory cell = getCell(_startCell, gameId);
 
-            if (cell.island || !cell.exists) {
-                return (true, _startCell);
-            }
+        if (cell.island || !cell.exists) {
+            return (true, _startCell);
         }
-
-        return (false, _startCell);
     }
 
-    function calculateNewDistance(uint8 _distance) private view returns (uint8) {
-        uint8[] memory probability = new uint8[](_distance);
-        uint8 probabilityPerCell = 100 / _distance ;
-        for (uint8 i = 0; i < _distance - 1; i++) {
+    return (false, _startCell);
+}
+
+function calculateNewDistance(uint8 _distance, uint8 _maxAllowedMove) private view returns (uint8) {
+    uint8[] memory probability = new uint8[](_maxAllowedMove);
+    uint8 probabilityPerCell = 100 / _maxAllowedMove;
+
+    for (uint8 i = 0; i < _distance - 1; i++) {
         probability[i] = probabilityPerCell;
     }
-    probability[_distance - 1] = 100 - probabilityPerCell * (_distance - 1);
-     uint8 randomValue = random(100);
-    uint8 accumulatedProbability = 0;
 
-    for (uint8 i = 0; i < _distance; i++) {
-        accumulatedProbability += probability[i];
-        if (randomValue < accumulatedProbability) {
+    if (_distance < _maxAllowedMove) {
+        uint8 accumulatedProbability = probabilityPerCell * (_distance - 1);
+        probability[_distance - 1] = 100 - accumulatedProbability;
+    }
+
+    uint8[] memory cumulativeProbabilities = new uint8[](_maxAllowedMove);
+    cumulativeProbabilities[0] = probability[0];
+
+    for (uint8 i = 1; i < _maxAllowedMove; i++) {
+        cumulativeProbabilities[i] = cumulativeProbabilities[i - 1] + probability[i];
+    }
+
+    uint8 randomValue = random(100);
+
+    for (uint8 i = 0; i < _maxAllowedMove; i++) {
+        if (randomValue <= cumulativeProbabilities[i]) {
             return i + 1;
         }
     }
-    
+
     return _distance;
-    }
+}
+
+
 
     function random(uint256 upperBound) private view returns (uint8) {
     uint256 randomNum = uint256(keccak256(abi.encodePacked(block.timestamp, msg.sender))) % upperBound;
