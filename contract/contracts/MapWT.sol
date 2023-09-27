@@ -7,7 +7,7 @@ import "./SharedStructs.sol";
 
 error MapSizeMustBeInRange(uint suppliedSize, uint maxSize);
 
-contract Map {
+contract MapWT {
     uint8 constant MAX_RADIUS = 127;
 
     mapping(SharedStructs.Directions => SharedStructs.Direction)

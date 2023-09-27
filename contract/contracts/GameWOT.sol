@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./Map.sol";
+import "./MapWOT.sol";
 import "./SharedStructs.sol";
 import "./Random.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import "@chainlink/contracts/src/v0.8/interfaces/ChainlinkRequestInterface.sol";
-import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
+// import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+// import "@chainlink/contracts/src/v0.8/interfaces/ChainlinkRequestInterface.sol";
+// import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
 
 
 error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 
-contract Game is ChainlinkClient, Ownable {
-    using Chainlink for Chainlink.Request;
+contract GameWOT is  Ownable {
+    //using Chainlink for Chainlink.Request;
 
     //Events
     event PlayerAdded(address indexed player, uint8 gameId);
@@ -68,45 +68,45 @@ contract Game is ChainlinkClient, Ownable {
     mapping(uint256 => GameInstance) public games;
     mapping(address => NFTData) public nftDataMapping;
     mapping(bytes32 => address) public requestAddresses;
-    Map immutable map;
+    MapWOT immutable map;
 
     constructor(address _mapAddress) {
-        map = Map(_mapAddress);
+        map = MapWOT(_mapAddress);
         // setChainlinkToken(0x779877A7B0D9E8603169DdbD7836e478b4624789);
         // setChainlinkOracle(0x1e34a40AC8ed0BC66a02e5509747F69c7387c44f);
         // jobId = "c1d71057168b494388001548ee1f95ea";    
         // fee = 0.1 * 10 ** 18;
     }
 
-// Generate a random number between 0 and 10^18 (to represent 0 to 1 in 18 decimal places)
-function getRandomNumber() internal view returns (uint256) {
-    return uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % (10**18);
-}
+// // Generate a random number between 0 and 10^18 (to represent 0 to 1 in 18 decimal places)
+// function getRandomNumber() internal view returns (uint256) {
+//     return uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % (10**18);
+// }
 
-// This ceil function will round up the result of division of a by m
-function ceil(uint256 a, uint256 m) internal pure returns (uint256) {
-    return (a + m - 1) / m;
-}
+// // This ceil function will round up the result of division of a by m
+// function ceil(uint256 a, uint256 m) internal pure returns (uint256) {
+//     return (a + m - 1) / m;
+// }
 
-// Random move distance based on formula: d = ceil(3 * (s / 99) * p)
-function calculateMoveDistance(uint speed) internal view returns (uint8) {
-    uint256 randomValue = getRandomNumber(); 
-    uint256 distance = ceil(3 * speed * randomValue, 99 * (10**18));
-    if (distance > 3) {
-        distance = 3;
-    }
-    return uint8(distance);
-}
+// // Random move distance based on formula: d = ceil(3 * (s / 99) * p)
+// function calculateMoveDistance(uint speed) internal view returns (uint8) {
+//     uint256 randomValue = getRandomNumber(); 
+//     uint256 distance = ceil(3 * speed * randomValue, 99 * (10**18));
+//     if (distance > 3) {
+//         distance = 3;
+//     }
+//     return uint8(distance);
+// }
 
-// Random shot distance based on formula: c = ceil(3 * (r / 100) * p)
-function calculateShotDistance(uint range) internal view returns (uint8) {
-    uint256 randomValue = getRandomNumber(); 
-    uint256 shotDistance = ceil(3 * range * randomValue, 100 * (10**18));
-    if (shotDistance > 3) {
-        shotDistance = 3;
-    }
-    return uint8(shotDistance);
-}
+// // Random shot distance based on formula: c = ceil(3 * (r / 100) * p)
+// function calculateShotDistance(uint range) internal view returns (uint8) {
+//     uint256 randomValue = getRandomNumber(); 
+//     uint256 shotDistance = ceil(3 * range * randomValue, 100 * (10**18));
+//     if (shotDistance > 3) {
+//         shotDistance = 3;
+//     }
+//     return uint8(shotDistance);
+// }
 
     //Chainlink Integration
     // function requestAPIdata(string memory _tokenId, string memory _walletAddress, address walletAddressnonString) public returns (bytes32 requestId) {
@@ -184,10 +184,10 @@ function calculateShotDistance(uint range) internal view returns (uint8) {
   //Submit moves
   function revealMove(
     SharedStructs.Directions _travelDirection, 
-    // uint8 _travelDistance, 
+    uint8 _travelDistance, 
     SharedStructs.Directions _shotDirection, 
-    // uint8 _shotDistance,
-    // uint256 secret,
+    uint8 _shotDistance,
+    //uint256 secret,
     uint8 gameId
 ) public {
     require(games[gameId].letSubmitMoves == true, 'Submit moves has not started yet!');
@@ -199,15 +199,14 @@ function calculateShotDistance(uint range) internal view returns (uint8) {
         Ship storage ship = games[gameId].ships[msg.sender];
         
         // Calculate dynamic travel distance based on yachtSpeed
-        uint8 calculatedTravelDistance = calculateMoveDistance(ship.yachtSpeed);
+        // uint8 calculatedTravelDistance = calculateMoveDistance(ship.yachtSpeed);
         ship.travelDirection = _travelDirection;
-        ship.travelDistance = calculatedTravelDistance;
+        ship.travelDistance = _travelDistance;
 
         // Calculate dynamic shot distance based on yachtRange
-        uint8 calculatedShotDistance = calculateShotDistance(ship.yachtRange);
+       // uint8 calculatedShotDistance = calculateShotDistance(ship.yachtRange);
         ship.shotDirection = _shotDirection;
-        ship.shotDistance = calculatedShotDistance;
-
+        ship.shotDistance = _shotDistance;
         ship.publishedMove = true;
    // }
     emit MoveSubmitted(msg.sender);
