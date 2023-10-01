@@ -12,33 +12,6 @@ contract MapWOT {
 
     mapping(SharedStructs.Directions => SharedStructs.Direction)
         private directionVectors;
-
-    // struct Cell {
-    //     uint8 q;
-    //     uint8 r;
-    //     bool island;
-    //     bool exists;
-    // }
-
-    // struct Direction {
-    //     int8 q;
-    //     int8 r;
-    // }
-
-    // struct Coordinate {
-    //     uint8 q;
-    //     uint8 r;
-    // }
-
-    // enum Directions {
-    //     E,
-    //     NE,
-    //     NW,
-    //     W,
-    //     SW,
-    //     SE
-    // }
-
     // hexCells is the mapping holding all cells. It can be addressed with hexCells[r][q].
     // Note the rows first adressing
     mapping(uint256 => mapping(uint8 => mapping(uint8 => SharedStructs.Cell))) public gameHexCells;
@@ -141,6 +114,8 @@ contract MapWOT {
         return cells;
     }
 
+
+
     function initCell(SharedStructs.Coordinate memory _coordinate, uint8 gameId) private {
         SharedStructs.Cell storage cell = gameHexCells[gameId][_coordinate.r][
             _coordinate.q
@@ -179,6 +154,16 @@ contract MapWOT {
             }
         }
     }
+
+function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
+    uint8 gameRadius = gameRadii[gameId];
+    uint8 actualRadius = gameRadius - shrinkNo;
+    SharedStructs.Coordinate[] memory outerRing = ring(SharedStructs.Coordinate(gameRadius, gameRadius), actualRadius);
+
+    for (uint8 i = 0; i < outerRing.length; i++) {
+        gameHexCells[gameId][outerRing[i].r][outerRing[i].q].exists = false;
+    }
+}
 
     function createIslands(uint8 gameId) public {
         uint8 gameRadius = gameRadii[gameId];

@@ -5,15 +5,10 @@ import "./MapWOT.sol";
 import "./SharedStructs.sol";
 import "./Random.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-// import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-// import "@chainlink/contracts/src/v0.8/interfaces/ChainlinkRequestInterface.sol";
-// import "@chainlink/contracts/src/v0.8/ChainlinkClient.sol";
-
 
 error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 
 contract GameWOT is  Ownable {
-    //using Chainlink for Chainlink.Request;
 
     //Events
     event PlayerAdded(address indexed player, uint8 gameId);
@@ -32,6 +27,9 @@ contract GameWOT is  Ownable {
     event ShipHit(address indexed victim, address indexed attacker);
     event ShipCollidedWithIsland(address indexed captain);
     event ShipSunk(address indexed captain);
+    event WorldUpdated(uint256 gameId);
+    event ShipMovedInGame(address indexed captain, uint256 gameId);
+
 
 
     struct Ship {
@@ -48,6 +46,7 @@ contract GameWOT is  Ownable {
 
     struct GameInstance {
     uint256 round;
+    uint8 shrinkNo;
     mapping(address => Ship) ships;
     address[] players;
     bool gameInProgress;
@@ -56,94 +55,12 @@ contract GameWOT is  Ownable {
     bool letSubmitMoves;
     mapping(address => bytes32) moveHashes;
 }
-
-    bytes32 public jobId;
-    uint256 private fee;
-   struct NFTData {
-    string tokenId;
-    uint8 speed;
-    uint8 range;
-}
-
     mapping(uint256 => GameInstance) public games;
-    mapping(address => NFTData) public nftDataMapping;
-    mapping(bytes32 => address) public requestAddresses;
     MapWOT immutable map;
 
     constructor(address _mapAddress) {
         map = MapWOT(_mapAddress);
-        // setChainlinkToken(0x779877A7B0D9E8603169DdbD7836e478b4624789);
-        // setChainlinkOracle(0x1e34a40AC8ed0BC66a02e5509747F69c7387c44f);
-        // jobId = "c1d71057168b494388001548ee1f95ea";    
-        // fee = 0.1 * 10 ** 18;
     }
-
-// // Generate a random number between 0 and 10^18 (to represent 0 to 1 in 18 decimal places)
-// function getRandomNumber() internal view returns (uint256) {
-//     return uint256(keccak256(abi.encodePacked(block.number, msg.sender))) % (10**18);
-// }
-
-// // This ceil function will round up the result of division of a by m
-// function ceil(uint256 a, uint256 m) internal pure returns (uint256) {
-//     return (a + m - 1) / m;
-// }
-
-// // Random move distance based on formula: d = ceil(3 * (s / 99) * p)
-// function calculateMoveDistance(uint speed) internal view returns (uint8) {
-//     uint256 randomValue = getRandomNumber(); 
-//     uint256 distance = ceil(3 * speed * randomValue, 99 * (10**18));
-//     if (distance > 3) {
-//         distance = 3;
-//     }
-//     return uint8(distance);
-// }
-
-// // Random shot distance based on formula: c = ceil(3 * (r / 100) * p)
-// function calculateShotDistance(uint range) internal view returns (uint8) {
-//     uint256 randomValue = getRandomNumber(); 
-//     uint256 shotDistance = ceil(3 * range * randomValue, 100 * (10**18));
-//     if (shotDistance > 3) {
-//         shotDistance = 3;
-//     }
-//     return uint8(shotDistance);
-// }
-
-    //Chainlink Integration
-    // function requestAPIdata(string memory _tokenId, string memory _walletAddress, address walletAddressnonString) public returns (bytes32 requestId) {
-    //     Chainlink.Request memory request = buildChainlinkRequest(jobId, address(this), this.fulfill.selector);
-        
-    //     // Set the URL for the API call
-    //     string memory genesisUrlToken = string.concat("https://m59jtciqre.execute-api.us-east-1.amazonaws.com/getGenesisNftsforBattleRoyale/?tokenId=", _tokenId);
-    //     string memory genesisUrlAddress = string.concat(genesisUrlToken, "&address=");
-    //     string memory finalUrl = string.concat(genesisUrlAddress, _walletAddress);
-    //     request.add("get", finalUrl);
-        
-    //     // Set the paths to find the desired data in the API response
-    //     request.add("path_tokenId", "tokenId");
-    //     request.add("path_speed", "speed");
-    //     request.add("path_range", "range");
-      
-    //      requestId = sendChainlinkRequest(request, fee);
-    
-    //      requestAddresses[requestId] = walletAddressnonString;
-
-    //      return requestId;
-    // }
-
-    // function fulfill(bytes32 _requestId, string memory _tokenId, uint8 _speed, uint8 _range) public recordChainlinkFulfillment(_requestId) {
-
-    //   address walletAddress = requestAddresses[_requestId];
-
-    // // Store the data in the mapping
-    // nftDataMapping[walletAddress] = NFTData({
-    //     tokenId: _tokenId,
-    //     speed: _speed,
-    //     range: _range
-    // });
-    //   delete requestAddresses[_requestId];
-    // }
-
-
 
   function startNewGame(uint8 gameId) public onlyOwner () {
     require(gameId < 255, "Maximum number of games reached");
@@ -156,15 +73,7 @@ contract GameWOT is  Ownable {
         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         games[gameId].gameInProgress = false;   
         emit GameEnded(gameId);    
-    }
- 
-
-    // function to let players commit moves
-    //  function allowCommitMoves(uint8 gameId) public onlyOwner {
-    //     require(games[gameId].gameInProgress == true, 'Game has not started yet!');
-    //     games[gameId].letCommitMoves = true;
-    //     emit CommitPhaseStarted(gameId);
-    // }
+    }   
 
     // function to let players submit moves
      function allowSubmitMoves(uint8 gameId) public onlyOwner {
@@ -172,14 +81,8 @@ contract GameWOT is  Ownable {
         // games[gameId].letCommitMoves = false;
         games[gameId].letSubmitMoves = true;
         emit SubmitPhaseStarted(gameId);
-    }
-
-    //commit moves
-//     function commitMove(bytes32 moveHash, uint8 gameId) public {
-//      require(games[gameId].letCommitMoves == true, 'Commit moves has not started yet!');
-//      games[gameId].moveHashes[msg.sender] = moveHash;
-//      emit MoveCommitted(msg.sender);
-// }
+        games[gameId].round++; 
+    } 
 
   //Submit moves
   function revealMove(
@@ -197,14 +100,8 @@ contract GameWOT is  Ownable {
 
     // if(games[gameId].moveHashes[msg.sender] == moveHash){
         Ship storage ship = games[gameId].ships[msg.sender];
-        
-        // Calculate dynamic travel distance based on yachtSpeed
-        // uint8 calculatedTravelDistance = calculateMoveDistance(ship.yachtSpeed);
         ship.travelDirection = _travelDirection;
         ship.travelDistance = _travelDistance;
-
-        // Calculate dynamic shot distance based on yachtRange
-       // uint8 calculatedShotDistance = calculateShotDistance(ship.yachtRange);
         ship.shotDirection = _shotDirection;
         ship.shotDistance = _shotDistance;
         ship.publishedMove = true;
@@ -212,20 +109,15 @@ contract GameWOT is  Ownable {
     emit MoveSubmitted(msg.sender);
 }
 
-
-
     function initGame(uint8 _radius, uint8 gameId) public onlyOwner {
         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
-
         // reset ships
         for (uint256 i = 0; i < games[gameId].players.length; i++) {
             delete games[gameId].ships[games[gameId].players[i]];
         }
         delete games[gameId].players;
-
         map.initMap(_radius, gameId);
         map.createIslands(gameId);
-
         emit MapInitialized(_radius,gameId);
     }
 
@@ -241,7 +133,6 @@ contract GameWOT is  Ownable {
                 games[gameId].ships[msg.sender].coordinate.r
             );
         }
-
         SharedStructs.Coordinate memory coord;
         bool alreadyTaken = false;
         do {
@@ -258,7 +149,6 @@ contract GameWOT is  Ownable {
                 }
             }
         } while (alreadyTaken);
-
         Ship memory ship = Ship(
             coord,
             SharedStructs.Directions.E,
@@ -272,14 +162,9 @@ contract GameWOT is  Ownable {
         );
         games[gameId].ships[msg.sender] = ship;
         games[gameId].players.push(msg.sender);
-
-        console.log("New ship at %s, %s", ship.coordinate.q, ship.coordinate.r);
-
         emit PlayerAdded(msg.sender, gameId);
-
         return ship;
     }
-
 
     function sinkShip(address captain, uint8 gameId) internal {
         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
@@ -291,37 +176,64 @@ contract GameWOT is  Ownable {
                 break;
             }
         }
-
         sinkShip(captain, playerIndex, gameId);
     }
-
 
   function sinkShip(address captain, uint8 index, uint8 gameId) internal {
         require (index < games[gameId].players.length, 'Index value out of range');
         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
-
         emit PlayerDefeated(captain);
         delete (games[gameId].ships[captain]);
-
         games[gameId].players[index] = address(0);
     }
 
+function isShipOutsideMap(SharedStructs.Coordinate memory shipCoord, uint8 gameId) internal view returns (bool) {
+    SharedStructs.Cell memory cell = map.getCell(shipCoord, gameId);
+    return !cell.exists;
+}
+
+
 function updateWorld(uint8 gameId) public onlyOwner {
     require(games[gameId].gameInProgress == true, 'Game has not started yet!');
-
-    // shot destination positions
-    SharedStructs.Coordinate[] memory shotDestinations = new SharedStructs.Coordinate[](games[gameId].players.length);
     
+    if(games[gameId].round % 2 == 0){
+        map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
+        games[gameId].shrinkNo++;
+        
+        // Sink players outside the valid map cells
+        for (uint8 i = 0; i < games[gameId].players.length; i++) {
+            SharedStructs.Coordinate memory shipCoord = games[gameId].ships[games[gameId].players[i]].coordinate;
+            
+            if (isShipOutsideMap(shipCoord, gameId)) {
+                sinkShip(games[gameId].players[i], i, gameId);
+                emit ShipSunk(games[gameId].players[i]); // Emitting event when ship is sunk due to being outside the map
+                
+                // Adjust the players array
+                games[gameId].players[i] = games[gameId].players[games[gameId].players.length - 1]; // Swap with the last player
+                games[gameId].players.pop(); // Remove the last player
+                if (i > 0) {
+                    i--; // Adjust the loop counter to recheck the swapped player
+                }
+            }
+        }
+    }
+    
+    // shot destination positions
+    SharedStructs.Coordinate[] memory shotDestinations = new SharedStructs.Coordinate[](games[gameId].players.length);    
     // Flag to check if ship is active
-    bool[] memory isActive = new bool[](games[gameId].players.length);   
-
+    bool[] memory isActive = new bool[](games[gameId].players.length);
     // Initialize all ships as active
     for (uint8 i = 0; i < games[gameId].players.length; i++) {
         isActive[i] = true;
-    }    
+    }
 
     // Moving ships and handling deaths due to invalid moves
     for (uint8 i = 0; i < games[gameId].players.length; i++) {
+        // Skip the moves of removed players
+        if (games[gameId].ships[games[gameId].players[i]].captain == address(0)) {
+            continue;
+        }
+
         if (games[gameId].ships[games[gameId].players[i]].publishedMove) {
             (bool dies, SharedStructs.Coordinate memory dest) = map.travel(
                 games[gameId].ships[games[gameId].players[i]].coordinate,
@@ -337,6 +249,7 @@ function updateWorld(uint8 gameId) public onlyOwner {
             }
             games[gameId].ships[games[gameId].players[i]].coordinate = dest;
             emit ShipMoved(games[gameId].players[i], dest.q, dest.r); // Emitting event after ship moves
+            emit ShipMovedInGame(games[gameId].players[i], gameId);  // Emitting event with game ID
         }
     }
 
@@ -351,7 +264,7 @@ function updateWorld(uint8 gameId) public onlyOwner {
             shotDestinations[i] = shotDest;
             emit ShipShot(games[gameId].players[i], shotDest.q, shotDest.r); // Emitting event after ship shoots
         }
-    }  
+    }
 
     // Handle ship collisions and shots
     for (uint8 i = 0; i < games[gameId].players.length; i++) {
@@ -401,10 +314,12 @@ function updateWorld(uint8 gameId) public onlyOwner {
             games[gameId].ships[games[gameId].players[i]].shotDirection = SharedStructs.Directions.NO_MOVE;
             games[gameId].ships[games[gameId].players[i]].shotDistance = 0;
         }
-        // games[gameId].letCommitMoves = false;
         games[gameId].letSubmitMoves = false;
     }
+
+    emit WorldUpdated(gameId);  // Emitting the WorldUpdated event
 }
+
 
 
  function toString(address account) internal pure returns(string memory) {
@@ -423,7 +338,6 @@ function toString(bytes memory data) internal pure returns(string memory) {
     }
     return string(str);
 }
- 
 
     function getShips(uint8 gameId) public view returns (Ship[] memory) {
         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
@@ -433,7 +347,6 @@ function toString(bytes memory data) internal pure returns(string memory) {
         for (uint256 i = 0; i < games[gameId].players.length; i++) {
             returnShips[i] = games[gameId].ships[games[gameId].players[i]];
         }
-
         return returnShips;
     }
 
@@ -477,7 +390,7 @@ function toString(bytes memory data) internal pure returns(string memory) {
         }
     }
 
-    function getCells(uint8 gameId)
+function getCells(uint8 gameId)
         public
         view
         returns (SharedStructs.Coordinate[] memory)
@@ -498,7 +411,4 @@ function toString(bytes memory data) internal pure returns(string memory) {
         }
         return cells;
     }
-}
-
-
- 
+} 

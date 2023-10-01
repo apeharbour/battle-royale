@@ -27,9 +27,9 @@ import GameAbi from './abis/GameWOT.json'
 import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
-const MAP_ADDRESS = '0x56A1E801fF47441BDD4d3F2b45faaeb192bf525e'
+const MAP_ADDRESS = '0x1f3f971f850D86036cEF37343E38Aa8e547D1846'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xbA6Bf1b3059F5D5C264d1B16B80fcaDe0fAf61F3'
+const GAME_ADDRESS = '0x5baeeF876Db671baBE81b601e4c8273De416F42b'
 const GAME_ABI = GameAbi.abi
 
 function GameMode2() {
@@ -59,6 +59,7 @@ function GameMode2() {
   const [yachts, setYachts] = useState([])
   const [selectedYacht, setSelectedYacht] = useState(null)
   const [showYachtSelectError, setShowYachtSelectError] = useState(false)
+  const [gameRound, setGameRound] = useState(0)
 
   useEffect(() => {
     axios
@@ -84,6 +85,7 @@ function GameMode2() {
       setContract(contract)
       setProvider(provider)
       setPlayer(signer.address)
+      console.log('Player Address:', signer.address)
       const data = {
         playerAddress: signer.address,
         contractInstance: contract
@@ -147,8 +149,31 @@ function GameMode2() {
   }, [travelCell, shotDistance, shotDirection, player, ships, contract, gameId])
 
   useEffect(() => {
+    // Define a function to fetch the latest data
+    const fetchDatas = async () => {
+        await fetchShips()
+        await fetchData()
+    };
+    fetchDatas()
+    const interval = setInterval(fetchDatas, 5000);
+
+    return () => clearInterval(interval);
+}, [gameId, contract]); 
+
+
+
+  useEffect(() => {
     console.log('Game Id value: ', gameId)
   }, [gameId])
+
+  useEffect(() => {
+    if (contract) {
+        contract.games(gameId).then(roundData => {
+            setGameRound(Number(roundData[0]) + 1);
+        }).catch(console.error);
+    }
+}, [contract, gameId]);
+
 
   const startGame = async () => {
     if (contract) {
@@ -204,7 +229,9 @@ function GameMode2() {
 
   const submitMoves = async () => {
     if (contract) {
-      const tx = await contract.revealMove(direction, distance, shotDirection, shotDistance, gameId).catch(console.error)
+      const tx = await contract
+        .revealMove(direction, distance, shotDirection, shotDistance, gameId)
+        .catch(console.error)
       await tx.wait()
 
       console.log(tx)
@@ -251,6 +278,7 @@ function GameMode2() {
         console.log('Game Winner:', winner)
       }
       fetchShips()
+      fetchData()
     }
   }
 
@@ -378,30 +406,27 @@ function GameMode2() {
       console.log(cell)
 
       let tempCoords = await contract.getCells(gameId)
-      console.log('Coords', tempCoords)
-      let tempCells = tempCoords.map(c => {
-        return contract.getCell({ q: c.q, r: c.r }, gameId)
-      })
+      // console.log('Coords', tempCoords)
 
-      let resolvedTempCells = await Promise.all(tempCells)
-      resolvedTempCells = resolvedTempCells.map(c => ({
-        q: Number(c.q),
-        r: Number(c.r),
-        island: c.island,
-        exists: c.exists
-      }))
-
-      console.log('Cells')
-      console.log(resolvedTempCells)
-      console.log(JSON.stringify(resolvedTempCells))
-
-      Promise.all(tempCells)
-        .then(values => {
-          setCells([...values])
-        })
-        .catch(console.error)
+      // Use Promise.all to fetch all cells data
+      let resolvedTempCells = await Promise.all(tempCoords.map(c => contract.getCell({ q: c.q, r: c.r }, gameId)));
+      
+      resolvedTempCells = resolvedTempCells.filter(cell => cell.exists).map(c => ({
+          q: Number(c.q),
+          r: Number(c.r),
+          island: c.island,
+          exists: c.exists
+      }));
+      
+      // console.log('Cells')
+      // console.log(resolvedTempCells)
+      // console.log(JSON.stringify(resolvedTempCells))
+      
+      setCells([...resolvedTempCells]);
+      
     }
-  }
+}
+
 
   return (
     <Container>
@@ -411,6 +436,7 @@ function GameMode2() {
         </Grid>
 
         <Grid container mt={2}>
+        {player === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" || player === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
           <Grid item xs={4}>
             <Stack spacing={2} direction='row'>
               <TextField
@@ -426,6 +452,7 @@ function GameMode2() {
               </Button>
             </Stack>
           </Grid>
+        ) : null }
           <Grid item xs={4}>
             <Stack spacing={2} direction='row'>
               <TextField
@@ -439,6 +466,7 @@ function GameMode2() {
               {/* <Button variant='outlined' onClick={toggleGameIdValue}>Toggle Game ID</Button> */}
             </Stack>
           </Grid>
+          {player === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" || player === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
           <Grid item xs={4}>
             <Stack spacing={2} direction='row'>
               <TextField
@@ -454,10 +482,14 @@ function GameMode2() {
               </Button>
             </Stack>
           </Grid>
+            ) : null }
         </Grid>
 
         <Grid item xs={12}>
-          <Typography variant='h4'>Game ID: {gameId}</Typography>
+          <Stack spacing={10} direction='row'>
+            <Typography variant='h4'>Game ID: {gameId}</Typography>
+            <Typography variant='h4'>Round: {gameRound}</Typography>
+          </Stack>
         </Grid>
 
         <Grid item xs={4}>
@@ -480,44 +512,51 @@ function GameMode2() {
               <Button variant='outlined' onClick={getMap}>
                 Get Map
               </Button>
-              {yachts &&
-                yachts.map((yacht, index) => {
-                  const ipfsUrl = yacht.metadata && yacht.metadata.image
-                  const httpUrl = ipfsUrl
-                    ? ipfsUrl.replace('ipfs://', 'https://apeharbour.mypinata.cloud/ipfs/') +
-                      '?pinataGatewayToken=DpUkFkY4XM34Nwun1APLX8jozT9nY5J-DAxq5tK141A-BczLnktEeq7GaPAbwTDF'
-                    : null
+              <Box
+                sx={{
+                  height: '200px',
+                  overflowY: 'auto'
+                }}
+              >
+                {yachts &&
+                  yachts.map((yacht, index) => {
+                    const ipfsUrl = yacht.metadata && yacht.metadata.image
+                    const httpUrl = ipfsUrl
+                      ? ipfsUrl.replace('ipfs://', 'https://apeharbour.mypinata.cloud/ipfs/') +
+                        '?pinataGatewayToken=DpUkFkY4XM34Nwun1APLX8jozT9nY5J-DAxq5tK141A-BczLnktEeq7GaPAbwTDF'
+                      : null
 
-                  return (
-                    <Card
-                      key={yacht.tokenId}
-                      sx={{
-                        display: 'flex',
-                        border: selectedYacht === yacht.tokenId ? '2px solid blue' : 'none'
-                      }}
-                      onClick={() => {
-                        if (selectedYacht === yacht.tokenId) {
-                          setSelectedYacht(null) // deselect the yacht
-                        } else {
-                          setSelectedYacht(yacht.tokenId) // select the yacht
-                        }
-                      }}
-                    >
-                      <CardMedia component='img' sx={{ width: 151 }} image={httpUrl} alt={yacht.tokenId} />
-                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                        <CardContent sx={{ flex: '1 0 auto' }}>
-                          <Typography component='div' variant='h5'>
-                            {yacht.metadata.name}
-                          </Typography>
-                          <Typography variant='subtitle1' color='text.secondary' component='div'>
-                            {yacht.tokenId}
-                          </Typography>
-                          {selectedYacht === yacht.tokenId && <CheckCircleIcon color='#0000FF' />}
-                        </CardContent>
-                      </Box>
-                    </Card>
-                  )
-                })}
+                    return (
+                      <Card
+                        key={yacht.tokenId}
+                        sx={{
+                          display: 'flex',
+                          border: selectedYacht === yacht.tokenId ? '2px solid blue' : 'none'
+                        }}
+                        onClick={() => {
+                          if (selectedYacht === yacht.tokenId) {
+                            setSelectedYacht(null) // deselect the yacht
+                          } else {
+                            setSelectedYacht(yacht.tokenId) // select the yacht
+                          }
+                        }}
+                      >
+                        <CardMedia component='img' sx={{ width: 151 }} image={httpUrl} alt={yacht.tokenId} />
+                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                          <CardContent sx={{ flex: '1 0 auto' }}>
+                            <Typography component='div' variant='h5'>
+                              {yacht.metadata.name}
+                            </Typography>
+                            <Typography variant='subtitle1' color='text.secondary' component='div'>
+                              {yacht.tokenId}
+                            </Typography>
+                            {selectedYacht === yacht.tokenId && <CheckCircleIcon color='#0000FF' />}
+                          </CardContent>
+                        </Box>
+                      </Card>
+                    )
+                  })}
+              </Box>
               <Button
                 variant='outlined'
                 onClick={() => {
@@ -557,6 +596,75 @@ function GameMode2() {
         </Grid>
 
         <Grid item xs={4}>
+          {player === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" || player === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
+          <Paper sx={{ p: 2 }}>
+            <Stack spacing={4}>
+              <Box>
+                <Typography variant='h5'>Reveal Moves</Typography>
+              </Box>
+              <Button variant='contained' onClick={handleRevealMovesData}>
+                Reveal all Moves
+              </Button>
+              {/* <Button variant='contained' onClick={allowCommit}>
+                   Allow players to commit
+                 </Button> */}
+              <Button variant='contained' onClick={allowSubmit}>
+                Allow players to submit
+              </Button>
+              <Button variant='contained' onClick={updateWorld}>
+                Update World
+              </Button>
+            </Stack>
+          </Paper>
+            ) : null}
+        </Grid>
+
+        <Grid item xs={4}>
+            {revealMovesData &&
+              ships.map((ship, index) => (
+                <Box key={index}>
+                  <Typography variant='body1'>Captain: {ship.captain}</Typography>
+                  <Typography variant='body1'>
+                    Coordinates: {ship.q}, {ship.r}
+                  </Typography>
+                  <Typography variant='body1'>Travel Direction: {ship.travelDirection}</Typography>
+                  <Typography variant='body1'>Travel Distance: {ship.travelDistance}</Typography>
+                  <Typography variant='body1'>Shot Direction: {ship.shotDirection}</Typography>
+                  <Typography variant='body1'>Shot Distance: {ship.shotDistance}</Typography>
+                  <Typography variant='body1'>Speed: {ship.speed}</Typography>
+                  <Typography variant='body1'>Range: {ship.range}</Typography>
+                  {ship.publishedMove !== undefined && (
+                    <Typography variant='body1'>Published Move: {ship.publishedMove.toString()}</Typography>
+                  )}
+                  <br />
+                </Box>
+              ))}
+          </Grid>
+
+          <Grid item xs={12}>
+          <Stack spacing={10} direction='row'>
+            <Typography variant='h4'>Game ID: {gameId}</Typography>
+            <Typography variant='h4'>Round: {gameRound}</Typography>
+          </Stack>
+        </Grid>
+
+
+        <Grid container spacing={2} marginTop={10}>
+          <Grid item xs={8}>
+            <Paper sx={{ p: 2 }}>
+              <HexGrid
+                cells={cells}
+                ships={ships}
+                player={player}
+                path={path}
+                pathShots={pathShots}
+                destination={destination}
+                travelCell={travelCell}
+              />
+            </Paper>
+          </Grid>
+
+          <Grid item xs={4}>
           <Paper sx={{ p: 2 }}>
             <Stack spacing={4}>
               <Typography variant='h5'>Movements</Typography>
@@ -657,67 +765,6 @@ function GameMode2() {
             </Stack>
           </Paper>
         </Grid>
-
-        <Grid item xs={4}>
-          <Paper sx={{ p: 2 }}>
-            <Stack spacing={4}>
-              <Box>
-                <Typography variant='h5'>Reveal Moves</Typography>
-              </Box>
-              <Button variant='contained' onClick={handleRevealMovesData}>
-                Reveal all Moves
-              </Button>
-              {/* <Button variant='contained' onClick={allowCommit}>
-                   Allow players to commit
-                 </Button> */}
-              <Button variant='contained' onClick={allowSubmit}>
-                Allow players to submit
-              </Button>
-              <Button variant='contained' onClick={updateWorld}>
-                Update World
-              </Button>
-              {/* {player && contract && (
-         <GenesisYachts playerData={playerData} />
-         )} */}
-            </Stack>
-          </Paper>
-        </Grid>
-
-        <Grid container spacing={2} marginTop={10}>
-          <Grid item xs={8}>
-            <Paper sx={{ p: 2 }}>
-              <HexGrid
-                cells={cells}
-                ships={ships}
-                player={player}
-                path={path}
-                pathShots={pathShots}
-                destination={destination}
-                travelCell={travelCell}
-              />
-            </Paper>
-          </Grid>
-          <Grid item xs={4}>
-            {revealMovesData &&
-              ships.map((ship, index) => (
-                <Box key={index}>
-                  <Typography variant='body1'>Captain: {ship.captain}</Typography>
-                  <Typography variant='body1'>
-                    Coordinates: {ship.q}, {ship.r}
-                  </Typography>
-                  <Typography variant='body1'>Travel Direction: {ship.travelDirection}</Typography>
-                  <Typography variant='body1'>Travel Distance: {ship.travelDistance}</Typography>
-                  <Typography variant='body1'>Shot Direction: {ship.shotDirection}</Typography>
-                  <Typography variant='body1'>Shot Distance: {ship.shotDistance}</Typography>
-                  <Typography variant='body1'>Speed: {ship.speed}</Typography>
-                  <Typography variant='body1'>Range: {ship.range}</Typography>
-                  {ship.publishedMove !== undefined && (
-                    <Typography variant='body1'>Published Move: {ship.publishedMove.toString()}</Typography>
-                  )}
-                  <br />
-                </Box>
-              ))}
-          </Grid>
         </Grid>
       </Grid>
     </Container>
