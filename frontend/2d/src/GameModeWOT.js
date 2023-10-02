@@ -27,9 +27,9 @@ import GameAbi from './abis/GameWOT.json'
 import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
-const MAP_ADDRESS = '0x1f3f971f850D86036cEF37343E38Aa8e547D1846'
+const MAP_ADDRESS = '0x56F49FEAD71017f975a81048ff239A92b95f2D25'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0x5baeeF876Db671baBE81b601e4c8273De416F42b'
+const GAME_ADDRESS = '0x3551de85FBb501688ce7260B6E8aBd1E2Fc29eB2'
 const GAME_ABI = GameAbi.abi
 
 function GameMode2() {
