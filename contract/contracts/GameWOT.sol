@@ -196,7 +196,7 @@ function isShipOutsideMap(SharedStructs.Coordinate memory shipCoord, uint8 gameI
 function updateWorld(uint8 gameId) public onlyOwner {
     require(games[gameId].gameInProgress == true, 'Game has not started yet!');
     
-    if(games[gameId].round % 2 == 0){
+    if(games[gameId].round % 3 == 0){
         map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
         games[gameId].shrinkNo++;
         
