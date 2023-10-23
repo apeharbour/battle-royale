@@ -17,7 +17,8 @@ const pointy_hex_to_pixel = (q, r) => {
 
 
 const Hexagon = ({ q, r, island }) => {
-  const fillColor = island ? 'chocolate' : 'lightSkyBlue';
+  const fillColor = island ? 'chocolate' : 'url(#wavePattern)';
+
 
   const {x, y} = pointy_hex_to_pixel(q, r)
 
