@@ -27,9 +27,9 @@ import GameAbi from './abis/GameWOT.json'
 import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
-const MAP_ADDRESS = '0x56F49FEAD71017f975a81048ff239A92b95f2D25'
+const MAP_ADDRESS = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0x3551de85FBb501688ce7260B6E8aBd1E2Fc29eB2'
+const GAME_ADDRESS = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
 const GAME_ABI = GameAbi.abi
 
 function GameMode2() {
@@ -60,6 +60,13 @@ function GameMode2() {
   const [selectedYacht, setSelectedYacht] = useState(null)
   const [showYachtSelectError, setShowYachtSelectError] = useState(false)
   const [gameRound, setGameRound] = useState(0)
+  const [shouldShowMovements, setShouldShowMovements] = useState(false)
+  const [pathsData, setPathsData] = useState({})
+  const BASE_URL = 'https://a3tdgep7w2.execute-api.us-east-1.amazonaws.com/dev'
+
+  let storedMoves = []; // To store the user's moves
+
+ 
 
   useEffect(() => {
     axios
@@ -69,7 +76,7 @@ function GameMode2() {
       .then(({ data }) => {
         // Handle the response data
         setYachts(data)
-        console.log('Genesis Data:', data)
+        // console.log('Genesis Data:', data)
       })
       .catch(error => {
         // Handle errors
@@ -106,12 +113,12 @@ function GameMode2() {
         if (origin !== undefined) {
           for (let i = 1; i <= distance; i++) {
             const cell = await contract.move(origin, direction, i, gameId)
-            console.log('Travel destination Cell:', cell)
-            console.log('Ship Origin:', origin)
+            // console.log('Travel destination Cell:', cell)
+            // console.log('Ship Origin:', origin)
             pathCells.push({ q: Number(cell.q), r: Number(cell.r) })
           }
 
-          console.log('PathCells', pathCells)
+          // console.log('PathCellssss', pathCells)
 
           //setDestination(pathCells[pathCells.length-1])
           setPath([...pathCells])
@@ -124,23 +131,22 @@ function GameMode2() {
     }
 
     fetchPath()
-  }, [distance, direction, player])
+  }, [distance, direction, player, ships, contract, gameId])
 
   useEffect(() => {
     const fetchShotPath = async () => {
       if (contract !== null) {
-        // If travelCell is not defined, use the ship's current position as the starting point
         const startingPoint =
           travelCell || ships.filter(ship => ship.captain === player).map(s => ({ q: s.q, r: s.r }))[0]
         if (startingPoint) {
           const pathShotCells = []
           for (let i = 1; i <= shotDistance; i++) {
             const cell = await contract.move(startingPoint, shotDirection, i, gameId)
-            console.log('Combat destination Cell:', cell)
+            // console.log('Combat destination Cell:', cell)
             pathShotCells.push({ q: Number(cell.q), r: Number(cell.r) })
           }
 
-          console.log('PathShotCells', pathShotCells)
+          // console.log('PathShotCells', pathShotCells)
           setPathShots([...pathShotCells])
         }
       }
@@ -149,7 +155,7 @@ function GameMode2() {
   }, [travelCell, shotDistance, shotDirection, player, ships, contract, gameId])
 
   useEffect(() => {
-    // Define a function to fetch the latest data
+   
     const fetchDatas = async () => {
         await fetchShips()
         await fetchData()
@@ -166,13 +172,37 @@ function GameMode2() {
     console.log('Game Id value: ', gameId)
   }, [gameId])
 
+  const fetchPathsData = async () => {
+    try {
+      const response = await axios.get(`${BASE_URL}/paths`)
+      setPathsData(response.data)
+      console.log('Players Path Data:', response.data)
+    } catch (error) {
+      console.error('There was an error fetching the paths data!', error)
+    }
+  }
+
+  const updatePathsData = async (newPathData) => {
+    try {
+      await axios.post(`${BASE_URL}/paths`, newPathData)
+      // Optionally, refresh pathsData after posting
+      fetchPathsData()
+    } catch (error) {
+      console.error('There was an error updating the paths data!', error)
+    }
+  }
+
+  useEffect(() => {
+    fetchPathsData()
+  }, [])
+
   useEffect(() => {
     if (contract) {
         contract.games(gameId).then(roundData => {
-            setGameRound(Number(roundData[0]) + 1);
+            setGameRound(Number(roundData[0]) + 1)
         }).catch(console.error);
     }
-}, [contract, gameId]);
+}, []);
 
 
   const startGame = async () => {
@@ -227,19 +257,30 @@ function GameMode2() {
     }
   }
 
+
+
   const submitMoves = async () => {
     if (contract) {
       const tx = await contract
         .revealMove(direction, distance, shotDirection, shotDistance, gameId)
         .catch(console.error)
       await tx.wait()
-
       console.log(tx)
+
+      const newPathsData = {
+        ...pathsData,
+        [player]: {
+          path,
+          pathShots,
+        },
+      };
+      updatePathsData(newPathsData)
       setDistance(0)
       setShotDistance(0)
       setSecret(0)
     }
   }
+  
 
   const allowCommit = async () => {
     if (contract) {
@@ -277,6 +318,8 @@ function GameMode2() {
         const winner = eventWinner.args[0] // Access the first argument
         console.log('Game Winner:', winner)
       }
+
+      setShouldShowMovements(true)
       fetchShips()
       fetchData()
     }
@@ -288,7 +331,7 @@ function GameMode2() {
     const ship = ships.filter(ship => ship.captain === player).map(s => ({ q: s.q, r: s.r }))[0]
     console.log('ship', ship)
     if (ship !== undefined && contract != null) {
-      console.log(ship, direction, distance)
+      // console.log(ship, direction, distance)
       const tx = await contract.travel(ship, direction, distance, gameId)
       await tx.wait()
 
@@ -370,7 +413,7 @@ function GameMode2() {
         const shotDistance = Number(shotDistanceUint)
         const speed = Number(speedUint)
         const range = Number(rangeUint)
-        console.log(`Ship ${index}: ${coordinate[0]}, ${coordinate[1]} for ${captain}`)
+        // console.log(`Ship ${index}: ${coordinate[0]}, ${coordinate[1]} for ${captain}`)
         return {
           q: Number(coordinate[0]),
           r: Number(coordinate[1]),
@@ -385,9 +428,9 @@ function GameMode2() {
         }
       })
 
-      console.log('Ships')
-      console.log(shipsTemp)
-      console.log(JSON.stringify(shipsTemp))
+      // console.log('Ships')
+      // console.log(shipsTemp)
+      // console.log(JSON.stringify(shipsTemp))
 
       setShips([...shipsTemp])
     }
@@ -403,7 +446,7 @@ function GameMode2() {
         return
       }
 
-      console.log(cell)
+      // console.log(cell)
 
       let tempCoords = await contract.getCells(gameId)
       // console.log('Coords', tempCoords)
@@ -643,8 +686,8 @@ function GameMode2() {
 
           <Grid item xs={12}>
           <Stack spacing={10} direction='row'>
-            <Typography variant='h4'>Game ID: {gameId}</Typography>
-            <Typography variant='h4'>Round: {gameRound}</Typography>
+            <Typography variant='h6'>Game ID: {gameId}</Typography>
+            <Typography variant='h6'>Round: {gameRound}</Typography>
           </Stack>
         </Grid>
 
@@ -660,6 +703,8 @@ function GameMode2() {
                 pathShots={pathShots}
                 destination={destination}
                 travelCell={travelCell}
+                shouldShowMovements={shouldShowMovements}
+                pathsData={pathsData}
               />
             </Paper>
           </Grid>
