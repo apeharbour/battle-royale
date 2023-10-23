@@ -185,7 +185,6 @@ function GameMode2() {
   const updatePathsData = async (newPathData) => {
     try {
       await axios.post(`${BASE_URL}/paths`, newPathData)
-      // Optionally, refresh pathsData after posting
       fetchPathsData()
     } catch (error) {
       console.error('There was an error updating the paths data!', error)
@@ -293,6 +292,12 @@ function GameMode2() {
     if (contract) {
       const tx = await contract.allowSubmitMoves(gameId).catch(console.error)
       await tx.wait()
+       try {
+      await axios.post(`${BASE_URL}/clearPaths`);
+      console.log('Paths data cleared on the server');
+    } catch (error) {
+      console.error('There was an error clearing the paths data on the server!', error);
+    }
     }
   }
 

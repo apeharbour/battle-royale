@@ -21,14 +21,23 @@ app.get('/paths', (req, res) => {
 
 // Endpoint to update pathsData
 app.post('/paths', (req, res) => {
-  const { playerId, path } = req.body;
-  if (playerId && path) {
-    pathsData[playerId] = path; // Update the path for the specified player
-    res.json({ status: 'success', data: pathsData });
-  } else {
-    res.status(400).send('Player ID and path are required');
-  }
-});
+    const newPathData = req.body;
+    
+    // Check if the data is an object and not an array or null
+    if (newPathData && typeof newPathData === 'object' && !Array.isArray(newPathData)) {
+      pathsData = { ...pathsData, ...newPathData }; // Merge the existing and new data
+      res.json({ status: 'success', data: pathsData });
+    } else {
+      res.status(400).send('Invalid data format received');
+    }
+  });
+
+  // Endpoint to clear pathsData
+app.post('/clearPaths', (req, res) => {
+    pathsData = {}; // Clear the paths data
+    res.json({ status: 'success', message: 'Paths data cleared' });
+  });
+  
 
 // Export your express server so you can import it in the lambda function
 module.exports = app;
