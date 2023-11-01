@@ -256,6 +256,14 @@ function GameMode2() {
         fetchShips()
         const message = `Submit phase started for game with ID: ${gameId.toString()}`
         setLogMessages(prevMessages => [...prevMessages, message])
+        const newPathsData = {
+          ...pathsData,
+          [player]: {
+            path,
+            pathShots
+          }
+        }
+        updatePathsData(newPathsData)
       }
 
       contract.on('SubmitPhaseStarted', handleSubmitPhaseStarted)
@@ -337,11 +345,21 @@ function GameMode2() {
   // Game world updated
   useEffect(() => {
     if (contract) {
+       fetchPathsData()
       const handleWorldUpdated = (gameId) => {
         console.log('Game World is updated for game ID: ', gameId.toString())
         fetchShips()
         const message = `Game world is updated for game ID: ${gameId.toString()}`
         setLogMessages(prevMessages => [...prevMessages, message])
+        setShouldShowMovements(true)
+        setTimeout(() => {
+          console.log(`I'm here`)
+          setShouldShowMovements(false)
+  
+          // Call the functions after the timeout
+          fetchShips()
+          fetchData()
+        }, 15000)
       }
 
       contract.on('WorldUpdated', handleWorldUpdated)
@@ -350,7 +368,7 @@ function GameMode2() {
         contract.off('WorldUpdated', handleWorldUpdated)
       }
     }
-  }, [contract, fetchShips])
+  }, [contract, fetchShips, fetchPathsData])
 
   // Yacht moved to
   useEffect(() => {
