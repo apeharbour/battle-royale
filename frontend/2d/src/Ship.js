@@ -10,7 +10,7 @@ const pointy_hex_to_pixel = (q, r) => {
 }
 
 
-const Ship = ({ q, r, captain, player }) => {
+const Ship = React.memo(({ q, r, captain, player }) => {
   const {x, y} = pointy_hex_to_pixel(q, r)
   const color = captain === player ? 'green' : 'red'
 
@@ -19,6 +19,6 @@ const Ship = ({ q, r, captain, player }) => {
       <circle cx={x} cy={y} r='10' fill={color} opacity='0.5' />
     </g>
     );
-}
+})
 
 export default Ship;

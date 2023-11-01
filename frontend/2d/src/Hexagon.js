@@ -16,7 +16,7 @@ const pointy_hex_to_pixel = (q, r) => {
 }
 
 
-const Hexagon = ({ q, r, island }) => {
+const Hexagon = React.memo(({ q, r, island }) => {
   const fillColor = island ? 'chocolate' : 'url(#wavePattern)';
 
 
@@ -33,6 +33,6 @@ const Hexagon = ({ q, r, island }) => {
       <text x={x} y={y} fontSize='x-small' dominantBaseline="middle" textAnchor="middle" >{q},{r}</text>
     </g>
     );
-}
+})
 
 export default Hexagon;

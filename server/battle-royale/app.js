@@ -30,7 +30,7 @@ app.post('/paths', (req, res) => {
     } else {
       res.status(400).send('Invalid data format received');
     }
-  });
+  });  
 
   // Endpoint to clear pathsData
 app.post('/clearPaths', (req, res) => {
