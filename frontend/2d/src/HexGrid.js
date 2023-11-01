@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Hexagon from './Hexagon'
 import Ship from './Ship'
 import PathCell from './PathCell'
@@ -14,13 +14,64 @@ const pointy_hex_to_pixel = (q, r) => {
   return { x, y }
 }
 
-const HexGrid = ({ cells, ships, player, path, pathShots, destination, travelCell, shouldShowMovement, pathsData }) => {
+const HexGrid = ({ cells, ships, player, path, pathShots, destination, travelCell, shouldShowMovements, pathsData }) => {
 
   let pathWay = ''
   let pathShotWay = ''
-  let renderPath = ''
-  let renderShots = ''
-  let renderShotPath = ''
+  const [tempPaths, setTempPaths] = useState([])
+  const [tempShots, setTempShots] = useState([])
+
+
+  console.log(shouldShowMovements)
+  useEffect(() => {
+      if (shouldShowMovements) {
+        const newTempPaths = [];
+        const newTempShots = [];
+    
+        // Loop through all players' path data
+        Object.keys(pathsData).forEach((playerAddress) => {
+          const playerData = pathsData[playerAddress];
+          
+          // If the player has path data, process it
+          if (playerData.path && playerData.path.length > 0) {
+            const pathWithStartingPoint = [
+              ...playerData.path.map(({ q, r }) => pointy_hex_to_pixel(q, r)),
+            ];
+            newTempPaths.push(pathWithStartingPoint);
+          }
+    
+          // If the player has shot data, process it
+          if (playerData.pathShots && playerData.pathShots.length > 0) {
+            const shotsWithStartingPoint = [
+              ...playerData.pathShots.map(({ q, r }) => pointy_hex_to_pixel(q, r)),
+            ];
+            newTempShots.push(shotsWithStartingPoint);
+          }
+        });
+    
+        setTempPaths(newTempPaths);
+        setTempShots(newTempShots);
+  
+      // Set a timeout to hide the temporary paths and shots after 10 seconds
+      const timeoutId = setTimeout(() => {
+        setTempPaths([]);
+        setTempShots([]);
+      }, 10000); // 10000ms = 10s
+  
+      // Cleanup function to clear the timeout if the component unmounts before the timeout completes
+      return () => clearTimeout(timeoutId);
+    }
+  }, [shouldShowMovements, pathsData, ships]);
+  
+  const pointsToString = points => points.map(point => {
+    if (typeof point === 'object') {
+      return `${point.x},${point.y}`;
+    } else {
+      return point; // for shipX and shipY, which are strings
+    }
+  }).join(' ');
+  
+
 
   const hexagons = cells.map(({ q, r, island }) => {
     return <Hexagon key={`${q},${r}`} q={Number(q)} r={Number(r)} island={island} />
@@ -31,10 +82,6 @@ const HexGrid = ({ cells, ships, player, path, pathShots, destination, travelCel
   })
 
   const myShip = ships.filter(s => s.captain === player)[0]
-
-  // console.log('myShip:', myShip)
-  // console.log('ships', ships)
-  // console.log('TravelCell', travelCell)
 
   const pathCells = path.map(({ q, r }) => {
     return <PathCell key={`path${q},${r}`} q={q} r={r} />
@@ -64,38 +111,6 @@ const HexGrid = ({ cells, ships, player, path, pathShots, destination, travelCel
       })
       .join(' ')}`
   }
-
-   // Render path
-   if(shouldShowMovement === true){
-    renderPath = pathWay && (
-    <polyline 
-      points={`${pointy_hex_to_pixel(myShip.q, myShip.r).x}, ${pointy_hex_to_pixel(myShip.q, myShip.r).y} ${pathWay}`} 
-      stroke='black' 
-      strokeWidth={2} 
-      markerEnd='url(#arrowheadMove)'
-    />
-  )
-
-  // Render shot path and shots
-   renderShotPath = pathShotWay && (
-    <polyline 
-      points={`${pointy_hex_to_pixel(travelCell.q, travelCell.r).x}, ${pointy_hex_to_pixel(travelCell.q, travelCell.r).y} ${pathShotWay}`} 
-      stroke='red' 
-      strokeWidth={2} 
-      markerEnd='url(#arrowheadShoot)'
-    />
-  )
-
-   renderShots = shouldShowMovement && pathShots.map(({ q, r }, index) => (
-    <circle 
-      key={`shot${index}`} 
-      cx={pointy_hex_to_pixel(q, r).x} 
-      cy={pointy_hex_to_pixel(q, r).y} 
-      r='5' 
-      fill='black' 
-    />
-  ))
-   }
 
   return (
     <svg viewBox='0 -100 1000 800' width='100%' height='100%'>
@@ -131,16 +146,33 @@ const HexGrid = ({ cells, ships, player, path, pathShots, destination, travelCel
         </pattern>
       </defs>
       {hexagons}
-      {/* {Object.keys(ship).length !== 0 && (
-        <Ship key={`ship${ship.q},${ship.r}`} q={ship.q} r={ship.r} />
-      )} */}
       {shipsElements}
-      {/* {pathCells} */}
+        {/* Render the temporary paths */}
+{tempPaths.length > 0 &&
+  tempPaths.map((path, index) => (
+    <polyline
+      key={index}
+      points={pointsToString(path)}
+      stroke="black" // same color as pathWay
+      strokeWidth={2}
+      markerEnd="url(#arrowheadMove)" // Reuse the existing arrowhead for movement paths
+      fill="none"
+    />
+  ))}
 
-      {shouldShowMovement && renderPath}
-      {shouldShowMovement && renderShotPath}
-      {shouldShowMovement && renderShots}
-
+{/* Render the temporary shots */}
+{tempShots.length > 0 &&
+  tempShots.map((shots, index) => (
+    <polyline
+      key={index}
+      points={pointsToString(shots)}
+      stroke="red" // same color as pathShotWay
+      strokeWidth={2}
+      markerEnd="url(#arrowheadShoot)" // Reuse the existing arrowhead for shot paths
+      fill="none"
+    />
+  ))}
+    
       {path.length > 0 && <polyline points={pathWay} stroke='black' strokeWidth={2} markerEnd='url(#arrowheadMove)' />}
       {pathShots.length > 0 && (
         <polyline points={pathShotWay} stroke='red' strokeWidth={2} markerEnd='url(#arrowheadShoot)' />

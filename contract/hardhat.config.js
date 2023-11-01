@@ -15,7 +15,7 @@ module.exports = {
   },
   networks: {
     sepolia: {
-      url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
+      url: `https://eth-sepolia.g.alchemy.com/v2/S1MSWAqlr5h1kcztMrV5h9I3-ibEaQWK`,
       accounts: [process.env.SEPOLIA_PRIVATE_KEY],
     },
     hardhat: {
