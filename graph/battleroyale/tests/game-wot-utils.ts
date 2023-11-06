@@ -71,7 +71,8 @@ export function createGameStartedEvent(gameId: i32): GameStarted {
 
 export function createGameUpdatedEvent(
   gameStatus: boolean,
-  winnerAddress: Address
+  winnerAddress: Address,
+  gameId: i32
 ): GameUpdated {
   let gameUpdatedEvent = changetype<GameUpdated>(newMockEvent())
 
@@ -89,17 +90,32 @@ export function createGameUpdatedEvent(
       ethereum.Value.fromAddress(winnerAddress)
     )
   )
+  gameUpdatedEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
+  )
 
   return gameUpdatedEvent
 }
 
-export function createGameWinnerEvent(gameWinner: string): GameWinner {
+export function createGameWinnerEvent(
+  gameWinner: string,
+  gameId: i32
+): GameWinner {
   let gameWinnerEvent = changetype<GameWinner>(newMockEvent())
 
   gameWinnerEvent.parameters = new Array()
 
   gameWinnerEvent.parameters.push(
     new ethereum.EventParam("gameWinner", ethereum.Value.fromString(gameWinner))
+  )
+  gameWinnerEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
   )
 
   return gameWinnerEvent
@@ -144,7 +160,10 @@ export function createMapShrinkEvent(gameId: i32): MapShrink {
   return mapShrinkEvent
 }
 
-export function createMoveCommittedEvent(player: Address): MoveCommitted {
+export function createMoveCommittedEvent(
+  player: Address,
+  gameId: i32
+): MoveCommitted {
   let moveCommittedEvent = changetype<MoveCommitted>(newMockEvent())
 
   moveCommittedEvent.parameters = new Array()
@@ -152,17 +171,32 @@ export function createMoveCommittedEvent(player: Address): MoveCommitted {
   moveCommittedEvent.parameters.push(
     new ethereum.EventParam("player", ethereum.Value.fromAddress(player))
   )
+  moveCommittedEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
+  )
 
   return moveCommittedEvent
 }
 
-export function createMoveSubmittedEvent(player: Address): MoveSubmitted {
+export function createMoveSubmittedEvent(
+  player: Address,
+  gameId: i32
+): MoveSubmitted {
   let moveSubmittedEvent = changetype<MoveSubmitted>(newMockEvent())
 
   moveSubmittedEvent.parameters = new Array()
 
   moveSubmittedEvent.parameters.push(
     new ethereum.EventParam("player", ethereum.Value.fromAddress(player))
+  )
+  moveSubmittedEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
   )
 
   return moveSubmittedEvent
@@ -212,7 +246,10 @@ export function createPlayerAddedEvent(
   return playerAddedEvent
 }
 
-export function createPlayerDefeatedEvent(player: Address): PlayerDefeated {
+export function createPlayerDefeatedEvent(
+  player: Address,
+  gameId: i32
+): PlayerDefeated {
   let playerDefeatedEvent = changetype<PlayerDefeated>(newMockEvent())
 
   playerDefeatedEvent.parameters = new Array()
@@ -220,12 +257,19 @@ export function createPlayerDefeatedEvent(player: Address): PlayerDefeated {
   playerDefeatedEvent.parameters.push(
     new ethereum.EventParam("player", ethereum.Value.fromAddress(player))
   )
+  playerDefeatedEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
+  )
 
   return playerDefeatedEvent
 }
 
 export function createShipCollidedWithIslandEvent(
-  captain: Address
+  captain: Address,
+  gameId: i32
 ): ShipCollidedWithIsland {
   let shipCollidedWithIslandEvent = changetype<ShipCollidedWithIsland>(
     newMockEvent()
@@ -236,13 +280,20 @@ export function createShipCollidedWithIslandEvent(
   shipCollidedWithIslandEvent.parameters.push(
     new ethereum.EventParam("captain", ethereum.Value.fromAddress(captain))
   )
+  shipCollidedWithIslandEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
+  )
 
   return shipCollidedWithIslandEvent
 }
 
 export function createShipHitEvent(
   victim: Address,
-  attacker: Address
+  attacker: Address,
+  gameId: i32
 ): ShipHit {
   let shipHitEvent = changetype<ShipHit>(newMockEvent())
 
@@ -254,6 +305,12 @@ export function createShipHitEvent(
   shipHitEvent.parameters.push(
     new ethereum.EventParam("attacker", ethereum.Value.fromAddress(attacker))
   )
+  shipHitEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
+  )
 
   return shipHitEvent
 }
@@ -263,7 +320,8 @@ export function createShipMovedEvent(
   initialQ: i32,
   initialR: i32,
   q: i32,
-  r: i32
+  r: i32,
+  gameId: i32
 ): ShipMoved {
   let shipMovedEvent = changetype<ShipMoved>(newMockEvent())
 
@@ -296,13 +354,19 @@ export function createShipMovedEvent(
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(r))
     )
   )
+  shipMovedEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
+  )
 
   return shipMovedEvent
 }
 
 export function createShipMovedInGameEvent(
   captain: Address,
-  gameId: BigInt
+  gameId: i32
 ): ShipMovedInGame {
   let shipMovedInGameEvent = changetype<ShipMovedInGame>(newMockEvent())
 
@@ -312,7 +376,10 @@ export function createShipMovedInGameEvent(
     new ethereum.EventParam("captain", ethereum.Value.fromAddress(captain))
   )
   shipMovedInGameEvent.parameters.push(
-    new ethereum.EventParam("gameId", ethereum.Value.fromUnsignedBigInt(gameId))
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
   )
 
   return shipMovedInGameEvent
@@ -323,7 +390,8 @@ export function createShipShotEvent(
   fromQ: i32,
   fromR: i32,
   shotQ: i32,
-  shotR: i32
+  shotR: i32,
+  gameId: i32
 ): ShipShot {
   let shipShotEvent = changetype<ShipShot>(newMockEvent())
 
@@ -356,11 +424,17 @@ export function createShipShotEvent(
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(shotR))
     )
   )
+  shipShotEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
+  )
 
   return shipShotEvent
 }
 
-export function createShipSunkEvent(captain: Address): ShipSunk {
+export function createShipSunkEvent(captain: Address, gameId: i32): ShipSunk {
   let shipSunkEvent = changetype<ShipSunk>(newMockEvent())
 
   shipSunkEvent.parameters = new Array()
@@ -368,12 +442,19 @@ export function createShipSunkEvent(captain: Address): ShipSunk {
   shipSunkEvent.parameters.push(
     new ethereum.EventParam("captain", ethereum.Value.fromAddress(captain))
   )
+  shipSunkEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
+  )
 
   return shipSunkEvent
 }
 
 export function createShipSunkOutOfMapEvent(
-  captain: Address
+  captain: Address,
+  gameId: i32
 ): ShipSunkOutOfMap {
   let shipSunkOutOfMapEvent = changetype<ShipSunkOutOfMap>(newMockEvent())
 
@@ -381,6 +462,12 @@ export function createShipSunkOutOfMapEvent(
 
   shipSunkOutOfMapEvent.parameters.push(
     new ethereum.EventParam("captain", ethereum.Value.fromAddress(captain))
+  )
+  shipSunkOutOfMapEvent.parameters.push(
+    new ethereum.EventParam(
+      "gameId",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+    )
   )
 
   return shipSunkOutOfMapEvent

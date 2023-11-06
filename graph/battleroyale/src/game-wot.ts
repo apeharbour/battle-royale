@@ -90,6 +90,7 @@ export function handleGameUpdated(event: GameUpdatedEvent): void {
   )
   entity.gameStatus = event.params.gameStatus
   entity.winnerAddress = event.params.winnerAddress
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -103,6 +104,7 @@ export function handleGameWinner(event: GameWinnerEvent): void {
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.gameWinner = event.params.gameWinner
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -143,6 +145,7 @@ export function handleMoveCommitted(event: MoveCommittedEvent): void {
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.player = event.params.player
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -156,6 +159,7 @@ export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.player = event.params.player
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -199,6 +203,7 @@ export function handlePlayerDefeated(event: PlayerDefeatedEvent): void {
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.player = event.params.player
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -214,6 +219,7 @@ export function handleShipCollidedWithIsland(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.captain = event.params.captain
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -228,6 +234,7 @@ export function handleShipHit(event: ShipHitEvent): void {
   )
   entity.victim = event.params.victim
   entity.attacker = event.params.attacker
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -245,6 +252,7 @@ export function handleShipMoved(event: ShipMovedEvent): void {
   entity.initialR = event.params.initialR
   entity.q = event.params.q
   entity.r = event.params.r
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -276,6 +284,7 @@ export function handleShipShot(event: ShipShotEvent): void {
   entity.fromR = event.params.fromR
   entity.shotQ = event.params.shotQ
   entity.shotR = event.params.shotR
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -289,6 +298,7 @@ export function handleShipSunk(event: ShipSunkEvent): void {
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.captain = event.params.captain
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
@@ -302,6 +312,7 @@ export function handleShipSunkOutOfMap(event: ShipSunkOutOfMapEvent): void {
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
   entity.captain = event.params.captain
+  entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp

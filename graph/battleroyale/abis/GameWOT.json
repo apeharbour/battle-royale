@@ -68,6 +68,12 @@
         "internalType": "address",
         "name": "winnerAddress",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "GameUpdated",
@@ -81,6 +87,12 @@
         "internalType": "string",
         "name": "gameWinner",
         "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "GameWinner",
@@ -126,6 +138,12 @@
         "internalType": "address",
         "name": "player",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "MoveCommitted",
@@ -139,6 +157,12 @@
         "internalType": "address",
         "name": "player",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "MoveSubmitted",
@@ -190,6 +214,12 @@
         "internalType": "address",
         "name": "player",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "PlayerDefeated",
@@ -203,6 +233,12 @@
         "internalType": "address",
         "name": "captain",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "ShipCollidedWithIsland",
@@ -222,6 +258,12 @@
         "internalType": "address",
         "name": "attacker",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "ShipHit",
@@ -259,6 +301,12 @@
         "internalType": "uint8",
         "name": "r",
         "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "ShipMoved",
@@ -275,9 +323,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint256",
+        "internalType": "uint8",
         "name": "gameId",
-        "type": "uint256"
+        "type": "uint8"
       }
     ],
     "name": "ShipMovedInGame",
@@ -315,6 +363,12 @@
         "internalType": "uint8",
         "name": "shotR",
         "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "ShipShot",
@@ -328,6 +382,12 @@
         "internalType": "address",
         "name": "captain",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "ShipSunk",
@@ -341,6 +401,12 @@
         "internalType": "address",
         "name": "captain",
         "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
     "name": "ShipSunkOutOfMap",

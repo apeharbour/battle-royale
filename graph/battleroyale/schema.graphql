@@ -26,6 +26,7 @@ type GameUpdated @entity(immutable: true) {
   id: Bytes!
   gameStatus: Boolean! # bool
   winnerAddress: Bytes! # address
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -34,6 +35,7 @@ type GameUpdated @entity(immutable: true) {
 type GameWinner @entity(immutable: true) {
   id: Bytes!
   gameWinner: String! # string
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -59,6 +61,7 @@ type MapShrink @entity(immutable: true) {
 type MoveCommitted @entity(immutable: true) {
   id: Bytes!
   player: Bytes! # address
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -67,6 +70,7 @@ type MoveCommitted @entity(immutable: true) {
 type MoveSubmitted @entity(immutable: true) {
   id: Bytes!
   player: Bytes! # address
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -93,6 +97,7 @@ type PlayerAdded @entity(immutable: true) {
 type PlayerDefeated @entity(immutable: true) {
   id: Bytes!
   player: Bytes! # address
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -101,6 +106,7 @@ type PlayerDefeated @entity(immutable: true) {
 type ShipCollidedWithIsland @entity(immutable: true) {
   id: Bytes!
   captain: Bytes! # address
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -110,6 +116,7 @@ type ShipHit @entity(immutable: true) {
   id: Bytes!
   victim: Bytes! # address
   attacker: Bytes! # address
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -122,6 +129,7 @@ type ShipMoved @entity(immutable: true) {
   initialR: Int! # uint8
   q: Int! # uint8
   r: Int! # uint8
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -130,7 +138,7 @@ type ShipMoved @entity(immutable: true) {
 type ShipMovedInGame @entity(immutable: true) {
   id: Bytes!
   captain: Bytes! # address
-  gameId: BigInt! # uint256
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -143,6 +151,7 @@ type ShipShot @entity(immutable: true) {
   fromR: Int! # uint8
   shotQ: Int! # uint8
   shotR: Int! # uint8
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -151,6 +160,7 @@ type ShipShot @entity(immutable: true) {
 type ShipSunk @entity(immutable: true) {
   id: Bytes!
   captain: Bytes! # address
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -159,6 +169,7 @@ type ShipSunk @entity(immutable: true) {
 type ShipSunkOutOfMap @entity(immutable: true) {
   id: Bytes!
   captain: Bytes! # address
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
