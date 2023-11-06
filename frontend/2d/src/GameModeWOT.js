@@ -30,9 +30,9 @@ import GameAbi from './abis/GameWOT.json'
 import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
-const MAP_ADDRESS = '0xd186075624e26A4F93FeEE02c7BE0033898c66ED'
+const MAP_ADDRESS = '0xF51f4E9bab758C7a8Ff30c700F2c65168e6f0689'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xBBDd9245E1C397384b7a72ce5357c94F84a44169'
+const GAME_ADDRESS = '0xA259e3a526b839670B779379b1a8d3E517f9657F'
 const GAME_ABI = GameAbi.abi
 
 const LogBox = styled('div')({

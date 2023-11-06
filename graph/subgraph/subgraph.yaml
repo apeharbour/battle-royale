@@ -1,0 +1,84 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: GameWOT
+    network: sepolia
+    source:
+      address: "0xA259e3a526b839670B779379b1a8d3E517f9657F"
+      abi: GameWOT
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - CommitPhaseStarted
+        - GameEnded
+        - GameStarted
+        - GameUpdated
+        - GameWinner
+        - MapInitialized
+        - MapShrink
+        - MoveCommitted
+        - MoveSubmitted
+        - OwnershipTransferred
+        - PlayerAdded
+        - PlayerDefeated
+        - ShipCollidedWithIsland
+        - ShipHit
+        - ShipMoved
+        - ShipMovedInGame
+        - ShipShot
+        - ShipSunk
+        - ShipSunkOutOfMap
+        - SubmitPhaseStarted
+        - WorldUpdated
+      abis:
+        - name: GameWOT
+          file: ./abis/GameWOT.json
+      eventHandlers:
+        - event: CommitPhaseStarted(uint8)
+          handler: handleCommitPhaseStarted
+        - event: GameEnded(uint8)
+          handler: handleGameEnded
+        - event: GameStarted(uint8)
+          handler: handleGameStarted
+        - event: GameUpdated(indexed bool,indexed address)
+          handler: handleGameUpdated
+        - event: GameWinner(string)
+          handler: handleGameWinner
+        - event: MapInitialized(uint8,uint8)
+          handler: handleMapInitialized
+        - event: MapShrink(uint8)
+          handler: handleMapShrink
+        - event: MoveCommitted(indexed address)
+          handler: handleMoveCommitted
+        - event: MoveSubmitted(indexed address)
+          handler: handleMoveSubmitted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PlayerAdded(indexed address,uint8)
+          handler: handlePlayerAdded
+        - event: PlayerDefeated(indexed address)
+          handler: handlePlayerDefeated
+        - event: ShipCollidedWithIsland(indexed address)
+          handler: handleShipCollidedWithIsland
+        - event: ShipHit(indexed address,indexed address)
+          handler: handleShipHit
+        - event: ShipMoved(indexed address,uint8,uint8,uint8,uint8)
+          handler: handleShipMoved
+        - event: ShipMovedInGame(indexed address,uint256)
+          handler: handleShipMovedInGame
+        - event: ShipShot(indexed address,uint8,uint8,uint8,uint8)
+          handler: handleShipShot
+        - event: ShipSunk(indexed address)
+          handler: handleShipSunk
+        - event: ShipSunkOutOfMap(indexed address)
+          handler: handleShipSunkOutOfMap
+        - event: SubmitPhaseStarted(uint8,uint256)
+          handler: handleSubmitPhaseStarted
+        - event: WorldUpdated(uint8)
+          handler: handleWorldUpdated
+      file: ./src/game-wot.ts

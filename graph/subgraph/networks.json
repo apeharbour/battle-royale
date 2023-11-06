@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "GameWOT": {
+      "address": "0xA259e3a526b839670B779379b1a8d3E517f9657F",
+      "startBlock": 0
+    }
+  }
+}
