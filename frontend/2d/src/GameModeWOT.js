@@ -29,6 +29,7 @@ import MapAbi from './abis/MapWOT.json'
 import GameAbi from './abis/GameWOT.json'
 import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { useQuery, gql } from "@apollo/client"
 
 const MAP_ADDRESS = '0x369D8c3468EE7D9f95060740CAa20540Ad6f1b92'
 const MAP_ABI = MapAbi.abi

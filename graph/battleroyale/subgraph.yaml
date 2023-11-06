@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0x4685e0F6FC914201F6D89df495D4746Ec89f9C4f"
       abi: GameWOT
-      startBlock: 0
+      startBlock: 4642610
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
