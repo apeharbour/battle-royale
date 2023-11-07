@@ -5,6 +5,7 @@ import {
   Box,
   Button,
   Card,
+  CardActionArea,
   CardContent,
   CardMedia,
   Container,
@@ -29,34 +30,39 @@ import MapAbi from './abis/MapWOT.json'
 import GameAbi from './abis/GameWOT.json'
 import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
-import { useSubscription, gql } from "@apollo/client"
+import { useSubscription, gql } from '@apollo/client'
+import img1 from './images/6.png'
+import img2 from './images/8.png'
+import img3 from './images/7.png'
+import img4 from './images/4.png'
+import img5 from './images/5.png'
 
 const MAP_ADDRESS = '0x369D8c3468EE7D9f95060740CAa20540Ad6f1b92'
 const MAP_ABI = MapAbi.abi
 const GAME_ADDRESS = '0x4685e0F6FC914201F6D89df495D4746Ec89f9C4f'
 const GAME_ABI = GameAbi.abi
 
-const LogBox = styled('div')({
-  backgroundColor: '#000',
-  color: '#fff',
-  border: '1px solid #fff',
-  maxHeight: '200px',
-  overflowY: 'auto'
-})
+const punkShips = [
+  { name: 'Sailing Ship', movement: 6, shoot: 2, image: img1 },
+  { name: 'Three-master', movement: 5, shoot: 3, image: img2 },
+  { name: 'Four-master', movement: 4, shoot: 4, image: img3 },
+  { name: 'Five-master', movement: 3, shoot: 5, image: img4 },
+  { name: 'Superyacht', movement: 2, shoot: 6, image: img5 }
+]
 
 const GAME_STARTED_SUBSCRIPTION = gql`
-subscription onGameStarted($skip: Int, $first: Int) {
-  gameStarteds(skip: $skip, first: $first) {
-    id
-    gameId
-    blockNumber
-    blockTimestamp
-    transactionHash
+  subscription onGameStarted($skip: Int, $first: Int) {
+    gameStarteds(skip: $skip, first: $first) {
+      id
+      gameId
+      blockNumber
+      blockTimestamp
+      transactionHash
+    }
   }
-}`
+`
 
-function GameMode2() {
-
+function GameMode4() {
   const { data, loading, error } = useSubscription(GAME_STARTED_SUBSCRIPTION)
 
   const [cells, setCells] = useState([])
@@ -89,25 +95,6 @@ function GameMode2() {
   const [shouldShowMovements, setShouldShowMovements] = useState(false)
   const [pathsData, setPathsData] = useState({})
   const BASE_URL = 'https://a3tdgep7w2.execute-api.us-east-1.amazonaws.com/dev'
-
-  let storedMoves = [] // To store the user's moves
-
-
-  useEffect(() => {
-    axios
-      .get('https://m59jtciqre.execute-api.us-east-1.amazonaws.com/getGenesisNfts', {
-        params: { address: player }
-      })
-      .then(({ data }) => {
-        // Handle the response data
-        setYachts(data)
-        // console.log('Genesis Data:', data)
-      })
-      .catch(error => {
-        // Handle errors
-        console.error(error)
-      })
-  }, [player])
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -178,20 +165,6 @@ function GameMode2() {
     }
     fetchShotPath()
   }, [travelCell, shotDistance, shotDirection, player, ships, contract, gameId])
-
-  //   useEffect(() => {
-
-  //     const fetchDatas = async () => {
-  //         // await fetchShips()
-  //         await fetchData()
-  //     };
-  //     fetchDatas()
-  //     const interval = setInterval(fetchDatas, 5000);
-
-  //     return () => clearInterval(interval);
-  // }, [gameId, contract]);
-
- 
 
   const fetchPathsData = async () => {
     try {
@@ -392,16 +365,6 @@ function GameMode2() {
     fetchShips()
   }
 
-  const addShipWoYacht = async () => {
-    if (contract !== null) {
-      console.log('Adding Ship w/o yacht')
-      const tx = await contract.addShip(gameId, 50, 50).catch(console.error)
-      await tx.wait()
-    }
-    console.log('Added ship')
-    fetchShips()
-  }
-
   async function fetchShips() {
     if (contract !== null) {
       const enumDirections = ['E', 'NE', 'NW', 'W', 'SW', 'SE', 'NO_MOVE']
@@ -482,12 +445,16 @@ function GameMode2() {
       setCells([...resolvedTempCells])
     }
   }
+  const handleCardClick = ship => {
+    setSelectedYacht(ship)
+    setShowYachtSelectError(false)
+  }
 
   return (
     <Container>
       <Grid container spacing={4} mt={4}>
         <Grid item xs={12}>
-          <Typography variant='h3'>Battle Royale - without Yacht Traits</Typography>
+          <Typography variant='h3'>Battle Royale - with Punk Ships</Typography>
         </Grid>
 
         <Grid container mt={2}>
@@ -569,82 +536,50 @@ function GameMode2() {
               <Button variant='outlined' onClick={getMap}>
                 Get Map
               </Button>
-              <Box
-                sx={{
-                  height: '200px',
-                  overflowY: 'auto'
-                }}
-              >
-                {yachts &&
-                  yachts.map((yacht, index) => {
-                    const ipfsUrl = yacht.metadata && yacht.metadata.image
-                    const httpUrl = ipfsUrl
-                      ? ipfsUrl.replace('ipfs://', 'https://apeharbour.mypinata.cloud/ipfs/') +
-                        '?pinataGatewayToken=DpUkFkY4XM34Nwun1APLX8jozT9nY5J-DAxq5tK141A-BczLnktEeq7GaPAbwTDF'
-                      : null
+              <Box sx={{ height: '200px', overflowY: 'auto' }}>
+                {punkShips.map((ship, index) => (
+                  <Card
+                    key={index}
+                    sx={{
+                      display: 'flex',
+                      border: selectedYacht === ship ? '2px solid blue' : 'none'
+                    }}
+                    onClick={() => handleCardClick(ship)}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                      <CardContent sx={{ flex: '1 0 auto' }}>
+                        <Typography gutterBottom variant='h6' component='h2'>
+                          {ship.name}
+                        </Typography>
+                        <Typography variant='body2' color='textSecondary' component='div'>
+                          Movement: {ship.movement}
+                        </Typography>
+                        <Typography variant='body2' color='textSecondary' component='div'>
+                          Shoot: {ship.shoot}
+                        </Typography>
+                      </CardContent>
+                    </Box>
 
-                    return (
-                      <Card
-                        key={yacht.tokenId}
-                        sx={{
-                          display: 'flex',
-                          border: selectedYacht === yacht.tokenId ? '2px solid blue' : 'none'
-                        }}
-                        onClick={() => {
-                          if (selectedYacht === yacht.tokenId) {
-                            setSelectedYacht(null) // deselect the yacht
-                          } else {
-                            setSelectedYacht(yacht.tokenId) // select the yacht
-                          }
-                        }}
-                      >
-                        <CardMedia component='img' sx={{ width: 151 }} image={httpUrl} alt={yacht.tokenId} />
-                        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                          <CardContent sx={{ flex: '1 0 auto' }}>
-                            <Typography component='div' variant='h5'>
-                              {yacht.metadata.name}
-                            </Typography>
-                            <Typography variant='subtitle1' color='text.secondary' component='div'>
-                              {yacht.tokenId}
-                            </Typography>
-                            {selectedYacht === yacht.tokenId && <CheckCircleIcon color='#0000FF' />}
-                          </CardContent>
-                        </Box>
-                      </Card>
-                    )
-                  })}
+                    <CardMedia
+                      component='img'
+                      alt={ship.name}
+                      height={80}
+                      image={ship.image}
+                      title={ship.name}
+                      sx={{ width: 151 }}
+                    />
+                     {selectedYacht === ship && <CheckCircleIcon color='#0000FF' />}
+                  </Card>
+                ))}
               </Box>
               <Button
                 variant='outlined'
-                onClick={() => {
-                  if (selectedYacht) {
-                    // Extract speed and range from the selected yacht's metadata
-                    const yachtMetadata = yachts.find(yacht => yacht.tokenId === selectedYacht).metadata
-                    const speed = yachtMetadata.attributes.find(attr => attr.trait_type === 'Speed').value
-                    const range = yachtMetadata.attributes.find(attr => attr.trait_type === 'Range').value
-
-                    addShip(speed, range) // Pass speed and range to the addShip function
-                    setShowYachtSelectError(false)
-                  } else {
-                    setShowYachtSelectError(true)
-                  }
-                }}
-                disabled={!selectedYacht}
+                onClick={addShip}
+                disabled={!selectedYacht} // Disable if no yacht is selected
               >
                 Add Ship
               </Button>
-              {showYachtSelectError && (
-                <Typography variant='body1' style={{ color: 'red' }}>
-                  Please select a yacht first!
-                </Typography>
-              )}
-
-              {yachts.length === 0 && (
-                <Button variant='outlined' onClick={addShipWoYacht}>
-                  Add Ship w/o Yacht
-                </Button>
-              )}
-
+              {showYachtSelectError && <Typography color='error'>Please select a yacht first.</Typography>}
               <Button variant='outlined' onClick={fetchShips}>
                 Get Ships
               </Button>
@@ -826,9 +761,8 @@ function GameMode2() {
           </Grid>
         </Grid>
       </Grid>
-     
     </Container>
   )
 }
 
-export default GameMode2
+export default GameMode4
