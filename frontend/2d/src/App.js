@@ -4,6 +4,7 @@ import { Button, Container, Grid, Stack, Tooltip, Typography } from '@mui/materi
 import GameModeWT from './GameModeWT'
 import GameModeWOT from './GameModeWOT'
 import GameModeNP from './GameModeNP'
+import GameModePunk from './GameModePunk'
 
 function App() {
   const [gameMode, setGameMode] = useState(null)
@@ -53,12 +54,24 @@ function App() {
                   Game mode with probability mechanics
                 </Button>
             </Tooltip>
+            <Tooltip title='Game mode with new punk ships'>
+                <Button variant='outlined' onClick={() => {
+                  if (gameMode === 'gameModePunk') {
+                    setGameMode(null)
+                  } else {
+                    setGameMode('gameModePunk')
+                  }
+                }}>
+                  Game mode with new Punk ships
+                </Button>
+            </Tooltip>
           </Stack>
         </Grid>
       </Grid>
       {gameMode === 'gameModeWT' && <GameModeWT />}
       {gameMode === 'gameModeWOT' && <GameModeWOT />}
       {gameMode === 'gameModeNP' && <GameModeNP />}
+      {gameMode === 'gameModePunk' && <GameModePunk />}
     </Container>
   )
 }

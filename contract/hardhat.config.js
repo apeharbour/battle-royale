@@ -2,6 +2,7 @@ require("@nomicfoundation/hardhat-toolbox");
 require('dotenv').config();
 
 const INFURA_API_KEY = process.env.INFURA_API;
+const Alchemy_Key = process.env.ALCHEMEY_API;
 
 module.exports = {
   solidity: {
@@ -15,7 +16,7 @@ module.exports = {
   },
   networks: {
     sepolia: {
-      url: `https://eth-sepolia.g.alchemy.com/v2/S1MSWAqlr5h1kcztMrV5h9I3-ibEaQWK`,
+      url: `https://eth-sepolia.g.alchemy.com/v2/${Alchemy_Key}`,
       accounts: [process.env.SEPOLIA_PRIVATE_KEY],
     },
     hardhat: {

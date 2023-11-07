@@ -12,24 +12,24 @@ contract GameWOT is  Ownable {
 
     //Events
     event PlayerAdded(address indexed player, uint8 gameId);
-    event PlayerDefeated(address indexed player);
-    event GameUpdated(bool indexed gameStatus, address indexed winnerAddress);
-    event GameWinner(string gameWinner);
+    event PlayerDefeated(address indexed player, uint8 gameId);
+    event GameUpdated(bool indexed gameStatus, address indexed winnerAddress, uint8 gameId);
+    event GameWinner(string gameWinner, uint8 gameId);
     event GameStarted(uint8 gameId);
     event GameEnded(uint8 gameId);
     event CommitPhaseStarted(uint8 gameId);
     event SubmitPhaseStarted(uint8 gameId, uint256 round);
-    event MoveCommitted(address indexed player);
-    event MoveSubmitted(address indexed player);
+    event MoveCommitted(address indexed player, uint8 gameId);
+    event MoveSubmitted(address indexed player, uint8 gameId);
     event MapInitialized(uint8 radius, uint8 gameId);
-    event ShipMoved(address indexed captain, uint8 initialQ, uint8 initialR, uint8 q, uint8 r);
-    event ShipShot(address indexed captain, uint8 fromQ, uint8 fromR, uint8 shotQ, uint8 shotR);
-    event ShipHit(address indexed victim, address indexed attacker);
-    event ShipCollidedWithIsland(address indexed captain);
-    event ShipSunk(address indexed captain);
-    event ShipSunkOutOfMap(address indexed captain);
+    event ShipMoved(address indexed captain, uint8 initialQ, uint8 initialR, uint8 q, uint8 r, uint8 gameId);
+    event ShipShot(address indexed captain, uint8 fromQ, uint8 fromR, uint8 shotQ, uint8 shotR, uint8 gameId);
+    event ShipHit(address indexed victim, address indexed attacker, uint8 gameId);
+    event ShipCollidedWithIsland(address indexed captain, uint8 gameId);
+    event ShipSunk(address indexed captain, uint8 gameId);
+    event ShipSunkOutOfMap(address indexed captain, uint8 gameId);
     event WorldUpdated(uint8 gameId);
-    event ShipMovedInGame(address indexed captain, uint256 gameId);
+    event ShipMovedInGame(address indexed captain, uint8 gameId);
     event MapShrink(uint8 gameId);
 
 
@@ -108,7 +108,7 @@ contract GameWOT is  Ownable {
         ship.shotDistance = _shotDistance;
         ship.publishedMove = true;
    // }
-    emit MoveSubmitted(msg.sender);
+    emit MoveSubmitted(msg.sender, gameId);
 }
 
     function initGame(uint8 _radius, uint8 gameId) public onlyOwner {
@@ -184,7 +184,7 @@ contract GameWOT is  Ownable {
   function sinkShip(address captain, uint8 index, uint8 gameId) internal {
         require (index < games[gameId].players.length, 'Index value out of range');
         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
-        emit PlayerDefeated(captain);
+        emit PlayerDefeated(captain,gameId);
         delete (games[gameId].ships[captain]);
         games[gameId].players[index] = address(0);
     }
@@ -209,7 +209,7 @@ function updateWorld(uint8 gameId) public onlyOwner {
             
             if (isShipOutsideMap(shipCoord, gameId)) {
                 sinkShip(games[gameId].players[i], i, gameId);
-                emit ShipSunkOutOfMap(games[gameId].players[i]); // Emitting event when ship is sunk due to being outside the map
+                emit ShipSunkOutOfMap(games[gameId].players[i],gameId); // Emitting event when ship is sunk due to being outside the map
                 
                 // Adjust the players array
                 games[gameId].players[i] = games[gameId].players[games[gameId].players.length - 1]; // Swap with the last player
@@ -247,10 +247,10 @@ function updateWorld(uint8 gameId) public onlyOwner {
             if (dies) {
                 sinkShip(games[gameId].players[i], i, gameId);
                 isActive[i] = false;
-                emit ShipCollidedWithIsland(games[gameId].players[i]); // Emitting event when ship collides and dies
+                emit ShipCollidedWithIsland(games[gameId].players[i],gameId); // Emitting event when ship collides and dies
                 continue;
             }
-            emit ShipMoved(games[gameId].players[i],  games[gameId].ships[games[gameId].players[i]].coordinate.q,  games[gameId].ships[games[gameId].players[i]].coordinate.r, dest.q, dest.r); // Emitting event after ship moves
+            emit ShipMoved(games[gameId].players[i],  games[gameId].ships[games[gameId].players[i]].coordinate.q,  games[gameId].ships[games[gameId].players[i]].coordinate.r, dest.q, dest.r,gameId); // Emitting event after ship moves
             games[gameId].ships[games[gameId].players[i]].coordinate = dest;
            
             emit ShipMovedInGame(games[gameId].players[i], gameId);  // Emitting event with game ID
@@ -266,7 +266,7 @@ function updateWorld(uint8 gameId) public onlyOwner {
                 games[gameId].ships[games[gameId].players[i]].shotDistance
             );
             shotDestinations[i] = shotDest;
-            emit ShipShot(games[gameId].players[i], games[gameId].ships[games[gameId].players[i]].coordinate.q, games[gameId].ships[games[gameId].players[i]].coordinate.r, shotDest.q, shotDest.r); // Emitting event after ship shoots
+            emit ShipShot(games[gameId].players[i], games[gameId].ships[games[gameId].players[i]].coordinate.q, games[gameId].ships[games[gameId].players[i]].coordinate.r, shotDest.q, shotDest.r,gameId); // Emitting event after ship shoots
         }
     }
 
@@ -280,13 +280,13 @@ function updateWorld(uint8 gameId) public onlyOwner {
                     isActive[j] = false;
                     sinkShip(games[gameId].players[i], i, gameId);
                     sinkShip(games[gameId].players[j], j, gameId);
-                    emit ShipSunk(games[gameId].players[i]); // Emitting event when ship is sunk
-                    emit ShipSunk(games[gameId].players[j]); // Emitting event when ship is sunk
+                    emit ShipSunk(games[gameId].players[i],gameId); // Emitting event when ship is sunk
+                    emit ShipSunk(games[gameId].players[j],gameId); // Emitting event when ship is sunk
                 }
                 // Check for shots
                 if (isActive[i] && shotDestinations[j].q == games[gameId].ships[games[gameId].players[i]].coordinate.q && shotDestinations[j].r == games[gameId].ships[games[gameId].players[i]].coordinate.r) {
                     sinkShip(games[gameId].players[i], i, gameId);
-                    emit ShipHit(games[gameId].players[i], games[gameId].players[j]); // Emitting event when ship is hit by another ship's shot
+                    emit ShipHit(games[gameId].players[i], games[gameId].players[j],gameId); // Emitting event when ship is hit by another ship's shot
                 }
             }
         }
@@ -305,13 +305,13 @@ function updateWorld(uint8 gameId) public onlyOwner {
 
     // Check for winner, emit events accordingly
     if (games[gameId].players.length == 0) {
-        emit GameWinner("No winner");
+        emit GameWinner("No winner",gameId);
         games[gameId].stopAddingShips = true;           
     } else if (games[gameId].players.length == 1) {
-        emit GameWinner(string(abi.encodePacked("The Game winner is: ", toString(games[gameId].players[0]))));
+        emit GameWinner(string(abi.encodePacked("The Game winner is: ", toString(games[gameId].players[0]))),gameId);
         games[gameId].stopAddingShips = true;
     } else {
-        emit GameUpdated(false, games[gameId].players[0]);
+        emit GameUpdated(false, games[gameId].players[0],gameId);
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
             games[gameId].ships[games[gameId].players[i]].travelDirection = SharedStructs.Directions.NO_MOVE;
             games[gameId].ships[games[gameId].players[i]].travelDistance = 0;

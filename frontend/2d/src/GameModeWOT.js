@@ -29,10 +29,11 @@ import MapAbi from './abis/MapWOT.json'
 import GameAbi from './abis/GameWOT.json'
 import axios from 'axios'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { useSubscription, gql } from "@apollo/client"
 
-const MAP_ADDRESS = '0xd186075624e26A4F93FeEE02c7BE0033898c66ED'
+const MAP_ADDRESS = '0x369D8c3468EE7D9f95060740CAa20540Ad6f1b92'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xBBDd9245E1C397384b7a72ce5357c94F84a44169'
+const GAME_ADDRESS = '0x4685e0F6FC914201F6D89df495D4746Ec89f9C4f'
 const GAME_ABI = GameAbi.abi
 
 const LogBox = styled('div')({
@@ -43,7 +44,21 @@ const LogBox = styled('div')({
   overflowY: 'auto'
 })
 
+const GAME_STARTED_SUBSCRIPTION = gql`
+subscription onGameStarted($skip: Int, $first: Int) {
+  gameStarteds(skip: $skip, first: $first) {
+    id
+    gameId
+    blockNumber
+    blockTimestamp
+    transactionHash
+  }
+}`
+
 function GameMode2() {
+
+  const { data, loading, error } = useSubscription(GAME_STARTED_SUBSCRIPTION)
+
   const [cells, setCells] = useState([])
   const [ships, setShips] = useState([])
   const [path, setPath] = useState([])
@@ -73,10 +88,10 @@ function GameMode2() {
   const [gameRound, setGameRound] = useState(0)
   const [shouldShowMovements, setShouldShowMovements] = useState(false)
   const [pathsData, setPathsData] = useState({})
-  const [logMessages, setLogMessages] = useState([])
   const BASE_URL = 'https://a3tdgep7w2.execute-api.us-east-1.amazonaws.com/dev'
 
   let storedMoves = [] // To store the user's moves
+
 
   useEffect(() => {
     axios
@@ -176,306 +191,7 @@ function GameMode2() {
   //     return () => clearInterval(interval);
   // }, [gameId, contract]);
 
-  // Game Started
-  useEffect(() => {
-    if (contract) {
-      const handleGameStarted = gameId => {
-        console.log('Game Started with ID:', gameId.toString())
-        const message = `Game Started with ID: ${gameId.toString()}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('GameStarted', handleGameStarted)
-
-      return () => {
-        contract.off('GameStarted', handleGameStarted)
-      }
-    }
-  }, [contract])
-
-  // Game Ended
-  useEffect(() => {
-    if (contract) {
-      const handleGameEnded = (gameId) => {
-        console.log('Game Ended with ID:', gameId.toString())
-        const message = `Game ended with ID: ${gameId.toString()}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('GameEnded', handleGameEnded)
-
-      return () => {
-        contract.off('GameEnded', handleGameEnded)
-      }
-    }
-  }, [contract])
-
-  // Map Initialized
-  useEffect(() => {
-    if (contract) {
-      const handleMapInitialized = (radius, gameId) => {
-        console.log('Map created with radius:', radius.toString(), 'for game with ID:', gameId.toString())
-        fetchData()
-        const message = `Map created with radius: ${radius.toString()} for game with ID: ${gameId.toString()}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('MapInitialized', handleMapInitialized)
-
-      return () => {
-        contract.off('MapInitialized', handleMapInitialized)
-      }
-    }
-  }, [contract, fetchData])
-
-  // Player Added
-  useEffect(() => {
-    if (contract) {
-      const handlePlayerAdded = (player, gameId) => {
-        console.log('Player Added with address:', player, 'for game with ID:', gameId.toString())
-        fetchShips()
-        const message = `Player Added with address: ${player} for game with ID: ${gameId.toString()}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('PlayerAdded', handlePlayerAdded)
-
-      return () => {
-        contract.off('PlayerAdded', handlePlayerAdded)
-      }
-    }
-  }, [contract, fetchShips])
-
-  // Submit phase started
-  useEffect(() => {
-    if (contract) {
-      const handleSubmitPhaseStarted = (gameId, round) => {
-        console.log('Submit move started for game ID:', gameId.toString())
-        console.log('Current game round:', round.toString(), 'for game ID:', gameId.toString())
-        setGameRound(round.toString())
-        fetchShips()
-        const message = `Submit phase started for game with ID: ${gameId.toString()}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-        const newPathsData = {
-          ...pathsData,
-          [player]: {
-            path,
-            pathShots
-          }
-        }
-        updatePathsData(newPathsData)
-      }
-
-      contract.on('SubmitPhaseStarted', handleSubmitPhaseStarted)
-
-      return () => {
-        contract.off('SubmitPhaseStarted', handleSubmitPhaseStarted)
-      }
-    }
-  }, [contract, fetchShips])
-
-  // Player Defeated (ship sink)
-  useEffect(() => {
-    if (contract) {
-      const handlePlayerDefeated = (player) => {
-        console.log('Yacht sink for player with address:', player)
-        const message = `Yacht sink for player with address: ${player}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('PlayerDefeated', handlePlayerDefeated)
-
-      return () => {
-        contract.off('PlayerDefeated', handlePlayerDefeated)
-      }
-    }
-  }, [contract])
-
-  // Game Winner
-  useEffect(() => {
-    if (contract) {
-      const handleGameWinner = (gameWinner) => {
-        console.log(gameWinner)
-        const message = `${gameWinner}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('GameWinner', handleGameWinner)
-
-      return () => {
-        contract.off('GameWinner', handleGameWinner)
-      }
-    }
-  }, [contract])
-
-  // Move submitted by the players
-  useEffect(() => {
-    if (contract) {
-      const handleMoveSubmitted = (player) => {
-        console.log(player + ' submitted their move!')
-        const message = `${player} submitted their moves`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('MoveSubmitted', handleMoveSubmitted)
-
-      return () => {
-        contract.off('MoveSubmitted', handleMoveSubmitted)
-      }
-    }
-  }, [contract])
-
-  // Player sunk - outside map
-  useEffect(() => {
-    if (contract) {
-      const handleShipSunkOutOfMap = (captain) => {
-        console.log('Player sunk - outside map zone: ', captain)
-        const message = `Player sunk - outside map zone ${captain}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('ShipSunkOutOfMap', handleShipSunkOutOfMap)
-
-      return () => {
-        contract.off('ShipSunkOutOfMap', handleShipSunkOutOfMap)
-      }
-    }
-  }, [contract])
-
-  // Game world updated
-  useEffect(() => {
-    if (contract) {
-       fetchPathsData()
-      const handleWorldUpdated = (gameId) => {
-        console.log('Game World is updated for game ID: ', gameId.toString())
-        fetchShips()
-        const message = `Game world is updated for game ID: ${gameId.toString()}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-        setShouldShowMovements(true)
-        setTimeout(() => {
-          console.log(`I'm here`)
-          setShouldShowMovements(false)
-  
-          // Call the functions after the timeout
-          fetchShips()
-          fetchData()
-        }, 15000)
-      }
-
-      contract.on('WorldUpdated', handleWorldUpdated)
-
-      return () => {
-        contract.off('WorldUpdated', handleWorldUpdated)
-      }
-    }
-  }, [contract, fetchShips, fetchPathsData])
-
-  // Yacht moved to
-  useEffect(() => {
-    if (contract) {
-      const handleShipMoved = (captain, initialQ, initialR, q, r) => {
-        console.log(
-          `Player: ${captain} moved from ${initialQ.toString()},${initialR.toString()} to ${q.toString()},${r.toString()}`
-        )
-        const message = `Player: ${captain} moved from ${initialQ.toString()},${initialR.toString()} to ${q.toString()},${r.toString()}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('ShipMoved', handleShipMoved)
-
-      return () => {
-        contract.off('ShipMoved', handleShipMoved)
-      }
-    }
-  }, [contract])
-
-  // Yacht shoots to
-  useEffect(() => {
-    if (contract) {
-      const handleShipShot = (captain, fromQ, fromR, shotQ, shotR) => {
-        console.log(
-          `Player: ${captain} shoots cannon from ${fromQ.toString()},${fromR.toString()} to ${shotQ.toString()},${shotR.toString()}`
-        )
-        const message = `Player: ${captain} shoots cannon from ${fromQ.toString()},${fromR.toString()} to ${shotQ.toString()},${shotR.toString()}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('ShipShot', handleShipShot)
-
-      return () => {
-        contract.off('ShipShot', handleShipShot)
-      }
-    }
-  }, [contract])
-
-  // Ship collides to an island
-  useEffect(() => {
-    if (contract) {
-      const handleShipCollidedWithIsland = (captain) => {
-        console.log(`Player ${captain} collided with an island`)
-        const message = `Player ${captain} collide with an island`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('ShipCollidedWithIsland', handleShipCollidedWithIsland)
-
-      return () => {
-        contract.off('ShipCollidedWithIsland', handleShipCollidedWithIsland)
-      }
-    }
-  }, [contract])
-
-  // Player who shot other player
-  useEffect(() => {
-    if (contract) {
-      const handleShipHit = (victim, attacker) => {
-        console.log(`Player ${attacker} shot down the yacht of player ${victim}`)
-        const message = `Player ${attacker} shot down the yacht of player ${victim}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('ShipHit', handleShipHit)
-
-      return () => {
-        contract.off('ShipHit', handleShipHit)
-      }
-    }
-  }, [contract])
-
-  // Map Shrink
-  useEffect(() => {
-    if (contract) {
-      const handleMapShrink = (gameId) => {
-        console.log('Map shrinked for game ID:', gameId.toString())
-        fetchData()
-        const message = `Map shrinked for game with ID: ${gameId.toString()}`
-        setLogMessages(prevMessages => [...prevMessages, message])
-      }
-
-      contract.on('MapShrink', handleMapShrink)
-
-      return () => {
-        contract.off('MapShrink', handleMapShrink)
-      }
-    }
-  }, [contract, fetchData])
-
-  const LogBox = () => {
-    return (
-      <List
-        sx={{
-          backgroundColor: '#000',
-          color: '#fff',
-          border: '1px solid #fff',
-          maxHeight: '300px',
-        }}
-      >
-        {logMessages.map((message, index) => (
-          <ListItem key={index}>{message}</ListItem>
-        ))}
-      </List>
-    )
-  }
+ 
 
   const fetchPathsData = async () => {
     try {
@@ -1110,23 +826,7 @@ function GameMode2() {
           </Grid>
         </Grid>
       </Grid>
-      <Grid container spacing={2} marginTop={10}>
-        <Grid item xs={12}>
-          <Box
-            sx={{
-              height: '300px',
-              overflowY: 'auto',
-              backgroundColor: 'black',
-              color: 'white'
-            }}
-          >
-            <Typography variant='h6' sx={{ padding: '16px' }}>
-              Game Logs
-            </Typography>
-            <LogBox />
-          </Box>
-        </Grid>
-      </Grid>
+     
     </Container>
   )
 }
