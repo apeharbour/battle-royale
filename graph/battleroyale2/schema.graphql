@@ -34,7 +34,7 @@ type GameUpdated @entity(immutable: true) {
 
 type GameWinner @entity(immutable: true) {
   id: Bytes!
-  gameWinner: String! # string
+  winner: Bytes! # address
   gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
@@ -190,4 +190,74 @@ type WorldUpdated @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+}
+
+# Manuelly created objects
+type Game @entity {
+  id: Bytes!
+  radius: Int
+  centerQ: Int
+  centerR: Int
+  currentRound: Round!
+  players: [Player!]! @derivedFrom(field: "game")
+  rounds: [Round!]! @derivedFrom(field: "game")
+  islands: [Island!]! @derivedFrom(field: "game")
+}
+
+type Player @entity {
+  id: Bytes!
+  address: Bytes!
+  q: Int!
+  r: Int!
+  range: Int!
+  shotRange: Int!
+  game: Game!
+  state: PlayerState!
+  kills: Int!
+}
+
+type Round @entity {
+  game: Game
+  id: Bytes!
+  round: BigInt!
+  radius: Int!
+  shrunk: Boolean!
+}
+
+type Move @entity {
+  id: Bytes!
+  game: Game!
+  round: Round!
+  player: Player!
+  destinationQ: Int!
+  destinationR: Int!
+  # state:
+}
+
+type Shot @entity(immutable: true) {
+  id: Bytes!
+  game: Game!
+  round: Round!
+  player: Player!
+  originQ: Int!
+  originR: Int!
+  destinationQ: Int!
+  destinationR: Int!
+}
+
+type Island @entity(immutable: true) {
+  id: Bytes!
+  game: Game!
+  q: Int!
+  r: Int!
+}
+
+enum PlayerState {
+  active
+  dropped
+  beached
+  crashed
+  shot
+  draw
+  won
 }

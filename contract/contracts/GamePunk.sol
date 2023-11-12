@@ -60,7 +60,7 @@ contract GamePunk is  Ownable {
     mapping(uint256 => GameInstance) public games;
     MapPunk immutable map;
 
-    constructor(address _mapAddress) {
+    constructor(address _mapAddress) Ownable(msg.sender) {
         map = MapPunk(_mapAddress);
     }
 
