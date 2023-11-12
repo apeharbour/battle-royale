@@ -70,7 +70,7 @@ contract GameWT is Ownable {
     mapping(bytes32 => address) public requestAddresses;
     MapWT immutable map;
 
-    constructor(address _mapAddress) {
+    constructor(address _mapAddress) Ownable(msg.sender) {
         map = MapWT(_mapAddress);
         // setChainlinkToken(0x779877A7B0D9E8603169DdbD7836e478b4624789);
         // setChainlinkOracle(0x1e34a40AC8ed0BC66a02e5509747F69c7387c44f);

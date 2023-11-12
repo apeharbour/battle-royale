@@ -67,7 +67,7 @@ contract GamePunk is  Ownable {
         _;
     }
 
-    constructor(address _mapAddress) {
+    constructor(address _mapAddress) Ownable(msg.sender) {
         map = MapPunk(_mapAddress);
     }
 

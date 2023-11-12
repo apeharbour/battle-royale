@@ -61,7 +61,7 @@ contract GameNP is  Ownable {
     mapping(uint256 => GameInstance) public games;
     MapNP immutable map;
 
-    constructor(address _mapAddress) {
+    constructor(address _mapAddress) Ownable(msg.sender) {
         map = MapNP(_mapAddress);
     }
 

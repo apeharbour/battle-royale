@@ -165,16 +165,22 @@ function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
     }
 }
 
-    function createIslands(uint8 gameId) public {
+    function createIslands(uint8 gameId) public returns (SharedStructs.Coordinate[] memory) {
         uint8 gameRadius = gameRadii[gameId];
         uint256 gridSize = uint256(
             1 + 3 * uint256(gameRadius) * (uint256(gameRadius) + 1)
         );
         uint256 islandNo = (gridSize * 16) / 100;
+
+        SharedStructs.Coordinate[] memory islands = new SharedStructs.Coordinate[](islandNo);
+
         for (uint256 i = 0; i < islandNo; i++) {
             SharedStructs.Coordinate memory coord = getRandomCoordinatePair(gameId);
             gameHexCells[gameId][coord.r][coord.q].island = true;
+            islands[i] = coord;
         }
+
+        return islands;
     }
 
     function getRandomCoordinatePair(uint8 gameId)

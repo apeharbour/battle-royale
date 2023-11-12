@@ -1,3 +1,4 @@
+import { BigInt, Bytes, store } from "@graphprotocol/graph-ts"
 import {
   CommitPhaseStarted as CommitPhaseStartedEvent,
   GameEnded as GameEndedEvent,
@@ -23,17 +24,21 @@ import {
 } from "../generated/GameWOT/GameWOT"
 import {
   CommitPhaseStarted,
+  Game,
   GameEnded,
   GameStarted,
   GameUpdated,
   GameWinner,
   MapInitialized,
   MapShrink,
+  Move,
   MoveCommitted,
   MoveSubmitted,
   OwnershipTransferred,
+  Player,
   PlayerAdded,
   PlayerDefeated,
+  Round,
   ShipCollidedWithIsland,
   ShipHit,
   ShipMoved,
@@ -41,9 +46,22 @@ import {
   ShipShot,
   ShipSunk,
   ShipSunkOutOfMap,
+  Shot,
   SubmitPhaseStarted,
   WorldUpdated
 } from "../generated/schema"
+
+
+class PlayerState {
+  static ACTIVE: string = "Null";
+  static DROPPED: string = "Submitted";
+  static BEACHED: string = "Executed";
+  static CRASHED: string = "Rejected";
+  static SHOT: string = "Passed";
+  static DRAW: string = "Pended";
+  static WON: string = "Expired";
+}
+
 
 export function handleCommitPhaseStarted(event: CommitPhaseStartedEvent): void {
   let entity = new CommitPhaseStarted(
@@ -71,6 +89,19 @@ export function handleGameEnded(event: GameEndedEvent): void {
   entity.save()
 }
 
+function initRound(gameId: Bytes, roundNumber: BigInt, radius: i32, shrunk: boolean): Round  {
+  let roundId = gameId.concatI32(roundNumber.toI32());
+
+  let round = new Round(roundId);
+  round.round = roundNumber;
+  round.radius = radius;
+  round.shrunk = shrunk;
+
+  round.save();
+
+  return round;
+}
+
 export function handleGameStarted(event: GameStartedEvent): void {
   let entity = new GameStarted(
     event.transaction.hash.concatI32(event.logIndex.toI32())
@@ -82,6 +113,12 @@ export function handleGameStarted(event: GameStartedEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+  const round = initRound(gameId, BigInt.zero(), 0, false)
+  let game = new Game(gameId)
+  game.currentRound = round.id
+  game.save()
 }
 
 export function handleGameUpdated(event: GameUpdatedEvent): void {
@@ -103,7 +140,7 @@ export function handleGameWinner(event: GameWinnerEvent): void {
   let entity = new GameWinner(
     event.transaction.hash.concatI32(event.logIndex.toI32())
   )
-  entity.gameWinner = event.params.gameWinner
+  entity.winner = event.params.winner
   entity.gameId = event.params.gameId
 
   entity.blockNumber = event.block.number
@@ -111,6 +148,13 @@ export function handleGameWinner(event: GameWinnerEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+  const playerId = gameId.concat(event.params.winner)
+
+  let player = new Player(playerId)
+  player.state = PlayerState.WON
+  player.save()
 }
 
 export function handleMapInitialized(event: MapInitializedEvent): void {
@@ -125,6 +169,18 @@ export function handleMapInitialized(event: MapInitializedEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+  let round = initRound(gameId, BigInt.zero(), event.params.radius, false);
+
+  let game = new Game(gameId)
+
+  game.radius = event.params.radius;
+  game.centerQ = event.params.radius;
+  game.centerR = event.params.radius;
+
+  game.save();
+
 }
 
 export function handleMapShrink(event: MapShrinkEvent): void {
@@ -138,6 +194,16 @@ export function handleMapShrink(event: MapShrinkEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+
+  let game = Game.load(gameId)
+  if (game) {
+    let round = new Round(game.currentRound)
+      round.shrunk = true;
+      round.save();
+
+  }
 }
 
 export function handleMoveCommitted(event: MoveCommittedEvent): void {
@@ -166,6 +232,24 @@ export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+
+  let game = Game.load(gameId)
+
+  if (game && game.currentRound) {
+    let round = Round.load(game.currentRound)
+    if (round) {
+      const moveId = round.id.concat(event.transaction.from)
+      let move = new Move(moveId)
+      move.game = gameId;
+      move.round = round.id;
+      move.player = gameId.concat(event.transaction.from)
+      move.destinationQ = event.params.destQ
+      move.destinationR = event.params.destR
+      move.save()
+    }
+  }
 }
 
 export function handleOwnershipTransferred(
@@ -196,6 +280,21 @@ export function handlePlayerAdded(event: PlayerAddedEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+  const playerId = gameId.concat(event.params.player)
+
+  let player = new Player(playerId)
+
+  player.address = event.params.player;
+  player.q = event.params.q
+  player.r = event.params.r
+  player.range = event.params.range
+  player.shotRange = event.params.speed
+  player.game = gameId
+  player.state = PlayerState.ACTIVE
+
+  player.save()
 }
 
 export function handlePlayerDefeated(event: PlayerDefeatedEvent): void {
@@ -226,6 +325,13 @@ export function handleShipCollidedWithIsland(
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+  const playerId = gameId.concat(event.params.captain)
+
+  let player = new Player(playerId)
+  player.state = PlayerState.BEACHED
+  player.save()
 }
 
 export function handleShipHit(event: ShipHitEvent): void {
@@ -241,6 +347,20 @@ export function handleShipHit(event: ShipHitEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+  
+  const victimId = gameId.concat(event.params.victim)
+  let victim = new Player(victimId)
+  victim.state = PlayerState.SHOT
+  victim.save()
+
+  const attackerId = gameId.concat(event.params.attacker)
+  let attacker = Player.load(attackerId)
+  if (attacker) {
+    attacker.kills += 1
+    attacker.save()
+  }
 }
 
 export function handleShipMoved(event: ShipMovedEvent): void {
@@ -291,6 +411,26 @@ export function handleShipShot(event: ShipShotEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+
+  let game = Game.load(gameId)
+
+  if (game && game.currentRound) {
+    let round = Round.load(game.currentRound)
+    if (round) {
+      const shotId = round.id.concat(event.transaction.from)
+      let shot = new Shot(shotId)
+      shot.game = gameId;
+      shot.round = round.id;
+      shot.player = gameId.concat(event.transaction.from)
+      shot.originQ = event.params.fromQ
+      shot.originR = event.params.fromR
+      shot.destinationQ = event.params.shotQ
+      shot.destinationR = event.params.shotR
+      shot.save()
+    }
+  }
 }
 
 export function handleShipSunk(event: ShipSunkEvent): void {
@@ -305,6 +445,13 @@ export function handleShipSunk(event: ShipSunkEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+  const playerId = gameId.concat(event.params.captain)
+
+  let player = new Player(playerId)
+  player.state = PlayerState.CRASHED
+  player.save()
 }
 
 export function handleShipSunkOutOfMap(event: ShipSunkOutOfMapEvent): void {
@@ -319,6 +466,13 @@ export function handleShipSunkOutOfMap(event: ShipSunkOutOfMapEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+  const playerId = gameId.concat(event.params.captain)
+
+  let player = new Player(playerId)
+  player.state = PlayerState.DROPPED
+  player.save()
 }
 
 export function handleSubmitPhaseStarted(event: SubmitPhaseStartedEvent): void {
@@ -333,6 +487,14 @@ export function handleSubmitPhaseStarted(event: SubmitPhaseStartedEvent): void {
   entity.transactionHash = event.transaction.hash
 
   entity.save()
+
+  const gameId = event.address.concatI32(event.params.gameId)
+  let game = Game.load(gameId)
+
+  if (game) {
+    initRound(gameId, event.params.round, game.radius, false)
+  }
+
 }
 
 export function handleWorldUpdated(event: WorldUpdatedEvent): void {

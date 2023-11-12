@@ -83,10 +83,10 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
-        "internalType": "string",
-        "name": "gameWinner",
-        "type": "string"
+        "indexed": true,
+        "internalType": "address",
+        "name": "winner",
+        "type": "address"
       },
       {
         "indexed": false,
@@ -163,6 +163,30 @@
         "internalType": "uint8",
         "name": "gameId",
         "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "destQ",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "destR",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "shotQ",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "shotR",
+        "type": "uint8"
       }
     ],
     "name": "MoveSubmitted",
@@ -200,6 +224,30 @@
         "indexed": false,
         "internalType": "uint8",
         "name": "gameId",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "speed",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "range",
         "type": "uint8"
       }
     ],
