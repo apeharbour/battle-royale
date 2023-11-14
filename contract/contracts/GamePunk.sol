@@ -59,9 +59,21 @@ contract GamePunk is  Ownable {
 }
     mapping(uint256 => GameInstance) public games;
     MapPunk immutable map;
+    address public registrationContract;
+
+       // Modifier to restrict the call to the registration contract
+    modifier onlyRegistrationContract() {
+        require(msg.sender == registrationContract, "Caller is not the registration contract");
+        _;
+    }
 
     constructor(address _mapAddress) {
         map = MapPunk(_mapAddress);
+    }
+
+    // Function to set the registration contract's address
+    function setRegistrationContract(address _registrationContract) external onlyOwner {
+        registrationContract = _registrationContract;
     }
 
   function startNewGame(uint8 gameId) public onlyOwner () {
@@ -131,16 +143,16 @@ contract GamePunk is  Ownable {
         emit MapInitialized(_radius,gameId);
     }
 
-    function addShip(uint8 gameId, uint8 _speed, uint8 _range) public returns (Ship memory) {
+    function addShip(address playerAddress, uint8 gameId, uint8 _speed, uint8 _range) public  onlyRegistrationContract returns (bool) {
                 require(games[gameId].stopAddingShips == false && games[gameId].gameInProgress == true, 'Game has not started yet!');
         if (
-            games[gameId].ships[msg.sender].coordinate.q > 0 &&
-            games[gameId].ships[msg.sender].coordinate.r > 0
+            games[gameId].ships[playerAddress].coordinate.q > 0 &&
+            games[gameId].ships[playerAddress].coordinate.r > 0
         ) {
             revert ShipAlreadyAdded(
-                msg.sender,
-                games[gameId].ships[msg.sender].coordinate.q,
-                games[gameId].ships[msg.sender].coordinate.r
+                playerAddress,
+                games[gameId].ships[playerAddress].coordinate.q,
+                games[gameId].ships[playerAddress].coordinate.r
             );
         }
         SharedStructs.Coordinate memory coord;
@@ -166,14 +178,14 @@ contract GamePunk is  Ownable {
             SharedStructs.Directions.E,
             0,
             false,
-            msg.sender,
+            playerAddress,
             _speed,
             _range
         );
-        games[gameId].ships[msg.sender] = ship;
-        games[gameId].players.push(msg.sender);
-        emit PlayerAdded(msg.sender, gameId);
-        return ship;
+        games[gameId].ships[playerAddress] = ship;
+        games[gameId].players.push(playerAddress);
+        emit PlayerAdded(playerAddress, gameId);
+        return true;
     }
 
     function sinkShip(address captain, uint8 gameId) internal {
