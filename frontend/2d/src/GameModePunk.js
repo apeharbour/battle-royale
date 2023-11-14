@@ -29,7 +29,6 @@ import HexGrid from './HexGrid'
 import MapAbi from './abis/MapPunk.json'
 import GameAbi from './abis/GamePunk.json'
 import axios from 'axios'
-import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 import { useSubscription, gql } from '@apollo/client'
 import img1 from './images/6.png'
 import img2 from './images/8.png'
@@ -37,9 +36,9 @@ import img3 from './images/7.png'
 import img4 from './images/4.png'
 import img5 from './images/5.png'
 
-const MAP_ADDRESS = '0xfCe7754d2A2c925cb8Ed9408Aa9542b442a57639'
+const MAP_ADDRESS = '0x7ca652Df8b82a2d0CA83F3bA0A04644960B60577'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0x89A3BC86af72DE9E10E086D10dCF30cBA5aCDeA5'
+const GAME_ADDRESS = '0xAEe950Fe5697fC804ACc7435a36065a72475D5f5'
 const GAME_ABI = GameAbi.abi
 
 const punkShips = [
@@ -90,11 +89,10 @@ function GameMode4() {
   const [playerData, setPlayerData] = useState(null)
   const [yachts, setYachts] = useState([])
   const [selectedYacht, setSelectedYacht] = useState(null)
-  const [punkShipSelected, setPunkShipSelected] = useState(false)
-  const [showYachtSelectError, setShowYachtSelectError] = useState(false)
   const [gameRound, setGameRound] = useState(0)
   const [shouldShowMovements, setShouldShowMovements] = useState(false)
   const [pathsData, setPathsData] = useState({})
+  const [registrationContractAddress, setRegistrationContractAdress] = useState('')
   const BASE_URL = 'https://a3tdgep7w2.execute-api.us-east-1.amazonaws.com/dev'
 
   useEffect(() => {
@@ -191,6 +189,13 @@ function GameMode4() {
   useEffect(() => {
     fetchPathsData()
   }, [])
+
+  const registrationContract = async () => {
+    if(contract) {
+      const tx = await contract.setRegistrationContract(registrationContractAddress).catch(console.error)
+      await tx.wait()
+    }
+  }
 
   const startGame = async () => {
     if (contract) {
@@ -338,6 +343,7 @@ function GameMode4() {
 
       console.log('Outside if block')
       console.log('Using latest pathsData:', pathsData)
+      allowSubmit()
     }
   }
 
@@ -352,20 +358,6 @@ function GameMode4() {
     if (contract !== null) {
       fetchData()
     }
-  }
-
-  const addShip = async () => {
-    if (contract !== null) {
-        
-      console.log('Adding ship')
-      const tx = await contract.addShip(gameId, selectedYacht.movement, selectedYacht.shoot).catch(console.error)
-      await tx.wait()
-      
-    }
-    // const ship = { q: 3, r: 3 }
-    // setShip(ship)
-    console.log('Added ship')
-    fetchShips()
   }
 
   async function fetchShips() {
@@ -448,10 +440,7 @@ function GameMode4() {
       setCells([...resolvedTempCells])
     }
   }
-  const handleCardClick = ship => {
-    setSelectedYacht(ship)
-    setShowYachtSelectError(false)
-  }
+ 
 
   return (
     <Container>
@@ -522,6 +511,9 @@ function GameMode4() {
         <Grid item xs={4}>
           <Paper sx={{ p: 2 }}>
             <Stack spacing={4}>
+            {player === '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' ||
+          player === '0xCd9680dd8318b0df924f0bD47a407c05B300e36f' ? (
+            <Box>
               <Typography variant='h5'>Init</Typography>
               <Stack spacing={2} direction='row'>
                 <TextField
@@ -535,54 +527,13 @@ function GameMode4() {
                   Init
                 </Button>
               </Stack>
+              </Box>
+              ) : null}
               <Typography variant='h5'>Controls</Typography>
               <Button variant='outlined' onClick={getMap}>
                 Get Map
               </Button>
-              <Box sx={{ height: '200px', overflowY: 'auto' }}>
-                {punkShips.map((ship, index) => (
-                  <Card
-                    key={index}
-                    sx={{
-                      display: 'flex',
-                      border: selectedYacht === ship ? '2px solid blue' : 'none'
-                    }}
-                    onClick={() => handleCardClick(ship)}
-                  >
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <CardContent sx={{ flex: '1 0 auto' }}>
-                        <Typography gutterBottom variant='h6' component='h2'>
-                          {ship.name}
-                        </Typography>
-                        <Typography variant='body2' color='textSecondary' component='div'>
-                          Movement: {ship.movement}
-                        </Typography>
-                        <Typography variant='body2' color='textSecondary' component='div'>
-                          Shoot: {ship.shoot}
-                        </Typography>
-                      </CardContent>
-                    </Box>
-
-                    <CardMedia
-                      component='img'
-                      alt={ship.name}
-                      height={80}
-                      image={ship.image}
-                      title={ship.name}
-                      sx={{ width: 151 }}
-                    />
-                     {selectedYacht === ship && <CheckCircleIcon color='#0000FF' />}
-                  </Card>
-                ))}
-              </Box>
-              <Button
-                variant='outlined'
-                onClick={addShip}
-                disabled={!selectedYacht} // Disable if no yacht is selected
-              >
-                Add Ship
-              </Button>
-              {showYachtSelectError && <Typography color='error'>Please select a yacht first.</Typography>}
+             
               <Button variant='outlined' onClick={fetchShips}>
                 Get Ships
               </Button>
@@ -609,6 +560,18 @@ function GameMode4() {
                 </Button>
                 <Button variant='contained' onClick={beforeUpdateWorld}>
                   Update World
+                </Button>
+              </Stack>
+              <Stack spacing={2} direction='row' mt={2}>
+                <TextField
+                  variant='outlined'
+                  value={registrationContractAddress}
+                  onChange={e => {
+                    setRegistrationContractAdress(e.target.value)
+                  }}
+                />
+                <Button variant='contained' onClick={registrationContract}>
+                  Set
                 </Button>
               </Stack>
             </Paper>
@@ -712,7 +675,7 @@ function GameMode4() {
                     id='outlined-required'
                     label='Move Distance'
                     type='number'
-                    inputProps={{ min: '0',  max: selectedYacht ? selectedYacht.movement : '0', step: '1' }}
+                    inputProps={{ min: '0', step: '1' }}
                     onChange={event => {
                       let newValue = event.target.value
                       if (newValue === '' || newValue < 0) {
@@ -727,7 +690,7 @@ function GameMode4() {
                     id='outlined-required'
                     label='Shot Distance'
                     type='number'
-                    inputProps={{ min: '0',  max: selectedYacht ? selectedYacht.shoot : '0', step: '1' }}
+                    inputProps={{ min: '0', step: '1' }}
                     onChange={event => {
                       let newValue = event.target.value
                       if (newValue === '' || newValue < 0) {
