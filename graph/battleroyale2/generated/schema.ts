@@ -2455,6 +2455,19 @@ export class Game extends Entity {
     this.set("currentRound", Value.fromBytes(value));
   }
 
+  get state(): string {
+    let value = this.get("state");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set state(value: string) {
+    this.set("state", Value.fromString(value));
+  }
+
   get players(): PlayerLoader {
     return new PlayerLoader(
       "Game",
@@ -2728,6 +2741,26 @@ export class Round extends Entity {
   set shrunk(value: boolean) {
     this.set("shrunk", Value.fromBoolean(value));
   }
+
+  get moves(): MoveLoader {
+    return new MoveLoader(
+      "Round",
+      this.get("id")!
+        .toBytes()
+        .toHexString(),
+      "moves"
+    );
+  }
+
+  get shots(): ShotLoader {
+    return new ShotLoader(
+      "Round",
+      this.get("id")!
+        .toBytes()
+        .toHexString(),
+      "shots"
+    );
+  }
 }
 
 export class Move extends Entity {
@@ -2808,6 +2841,32 @@ export class Move extends Entity {
 
   set player(value: Bytes) {
     this.set("player", Value.fromBytes(value));
+  }
+
+  get originQ(): i32 {
+    let value = this.get("originQ");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set originQ(value: i32) {
+    this.set("originQ", Value.fromI32(value));
+  }
+
+  get originR(): i32 {
+    let value = this.get("originR");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set originR(value: i32) {
+    this.set("originR", Value.fromI32(value));
   }
 
   get destinationQ(): i32 {
@@ -3102,5 +3161,41 @@ export class IslandLoader extends Entity {
   load(): Island[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<Island[]>(value);
+  }
+}
+
+export class MoveLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): Move[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<Move[]>(value);
+  }
+}
+
+export class ShotLoader extends Entity {
+  _entity: string;
+  _field: string;
+  _id: string;
+
+  constructor(entity: string, id: string, field: string) {
+    super();
+    this._entity = entity;
+    this._id = id;
+    this._field = field;
+  }
+
+  load(): Shot[] {
+    let value = store.loadRelated(this._entity, this._id, this._field);
+    return changetype<Shot[]>(value);
   }
 }

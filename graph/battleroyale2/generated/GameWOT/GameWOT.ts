@@ -112,6 +112,32 @@ export class GameWinner__Params {
   }
 }
 
+export class Island extends ethereum.Event {
+  get params(): Island__Params {
+    return new Island__Params(this);
+  }
+}
+
+export class Island__Params {
+  _event: Island;
+
+  constructor(event: Island) {
+    this._event = event;
+  }
+
+  get gameId(): i32 {
+    return this._event.parameters[0].value.toI32();
+  }
+
+  get q(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+
+  get r(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+}
+
 export class MapInitialized extends ethereum.Event {
   get params(): MapInitialized__Params {
     return new MapInitialized__Params(this);
@@ -195,20 +221,50 @@ export class MoveSubmitted__Params {
     return this._event.parameters[1].value.toI32();
   }
 
-  get destQ(): i32 {
-    return this._event.parameters[2].value.toI32();
+  get roundId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 
-  get destR(): i32 {
+  get destQ(): i32 {
     return this._event.parameters[3].value.toI32();
   }
 
-  get shotQ(): i32 {
+  get destR(): i32 {
     return this._event.parameters[4].value.toI32();
   }
 
-  get shotR(): i32 {
+  get shotQ(): i32 {
     return this._event.parameters[5].value.toI32();
+  }
+
+  get shotR(): i32 {
+    return this._event.parameters[6].value.toI32();
+  }
+}
+
+export class NewRound extends ethereum.Event {
+  get params(): NewRound__Params {
+    return new NewRound__Params(this);
+  }
+}
+
+export class NewRound__Params {
+  _event: NewRound;
+
+  constructor(event: NewRound) {
+    this._event = event;
+  }
+
+  get gameId(): i32 {
+    return this._event.parameters[0].value.toI32();
+  }
+
+  get roundId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get radius(): i32 {
+    return this._event.parameters[2].value.toI32();
   }
 }
 
@@ -313,6 +369,14 @@ export class ShipCollidedWithIsland__Params {
 
   get gameId(): i32 {
     return this._event.parameters[1].value.toI32();
+  }
+
+  get q(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+
+  get r(): i32 {
+    return this._event.parameters[3].value.toI32();
   }
 }
 
@@ -752,16 +816,16 @@ export class GameWOT extends ethereum.SmartContract {
 
   addShip(
     gameId: i32,
-    _speed: BigInt,
-    _range: BigInt
+    _speed: i32,
+    _range: i32
   ): GameWOT__addShipResultValue0Struct {
     let result = super.call(
       "addShip",
-      "addShip(uint8,uint256,uint256):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint256,uint256))",
+      "addShip(uint8,uint8,uint8):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint256,uint256))",
       [
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
-        ethereum.Value.fromUnsignedBigInt(_speed),
-        ethereum.Value.fromUnsignedBigInt(_range)
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_speed)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_range))
       ]
     );
 
@@ -770,16 +834,16 @@ export class GameWOT extends ethereum.SmartContract {
 
   try_addShip(
     gameId: i32,
-    _speed: BigInt,
-    _range: BigInt
+    _speed: i32,
+    _range: i32
   ): ethereum.CallResult<GameWOT__addShipResultValue0Struct> {
     let result = super.tryCall(
       "addShip",
-      "addShip(uint8,uint256,uint256):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint256,uint256))",
+      "addShip(uint8,uint8,uint8):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint256,uint256))",
       [
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
-        ethereum.Value.fromUnsignedBigInt(_speed),
-        ethereum.Value.fromUnsignedBigInt(_range)
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_speed)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_range))
       ]
     );
     if (result.reverted) {
@@ -1050,12 +1114,12 @@ export class AddShipCall__Inputs {
     return this._call.inputValues[0].value.toI32();
   }
 
-  get _speed(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
+  get _speed(): i32 {
+    return this._call.inputValues[1].value.toI32();
   }
 
-  get _range(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
+  get _range(): i32 {
+    return this._call.inputValues[2].value.toI32();
   }
 }
 

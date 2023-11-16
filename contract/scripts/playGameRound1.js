@@ -20,55 +20,44 @@ const RANGE = 1;
 const RADIUS = 5;
 const GAME_ID = 1;
 const INITIAL_SEED = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-const GAME_ADDRESS = "0xc09bCeF5bE404697258a2966e76650a3697C1bEC";
+const GAME_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
 
 async function main() {
   const [owner, player1, player2, player3, player4] = await ethers.getSigners();
 
   const game = await hre.ethers.getContractAt("GameWOT", GAME_ADDRESS);
 
-  // // start new game GAME_ID
-  // await game
-  //   .startNewGame(GAME_ID)
-  //   .then((tx) => {
-  //     return tx.wait();
-  //   })
-  //   .then((receipt) => {
-  //     console.log(`Started game ${GAME_ID} in block ${receipt.blockNumber}.`);
-  //   })
-  //   .catch(console.error);
+  // start new game GAME_ID
+  await game
+    .startNewGame(GAME_ID)
+    .then((tx) => {
+      return tx.wait();
+    })
+    .then((receipt) => {
+      console.log(`Started game ${GAME_ID} in block ${receipt.blockNumber}.`);
+    })
+    .catch(console.error);
 
-  // // init with radius RADIUS
-  // await game
-  //   .initGame(RADIUS, GAME_ID)
-  //   .then((tx) => {
-  //     return tx.wait();
-  //   })
-  //   .then((receipt) => {
-  //     console.log(
-  //       `Initialized game ${GAME_ID} with radius ${RADIUS} in block ${receipt.blockNumber}.`
-  //     );
-  //   })
-  //   .catch(console.error);
+  // init with radius RADIUS
+  await game
+    .initGame(RADIUS, GAME_ID)
+    .then((tx) => {
+      return tx.wait();
+    })
+    .then((receipt) => {
+      console.log(
+        `Initialized game ${GAME_ID} with radius ${RADIUS} in block ${receipt.blockNumber}.`
+      );
+    })
+    .catch(console.error);
 
-  // // add players 1-4
-  // let tx = [];
-  // tx[0] = game.connect(player1).addShip(GAME_ID, SPEED, RANGE);
-  // tx[1] = game.connect(player2).addShip(GAME_ID, SPEED, RANGE);
-  // tx[2] = game.connect(player3).addShip(GAME_ID, SPEED, RANGE);
-  // tx[3] = game.connect(player4).addShip(GAME_ID, SPEED, RANGE);
+  // add players 1-4
 
-  // tx = await Promise.all(tx);
-  // tx = await Promise.all(
-  //   tx.map((tx) => {
-  //     return tx.wait();
-  //   })
-  // );
-
-  // tx.forEach((receipt) => {
-  //   console.log("Added player in block", receipt.blockNumber);
-  // });
-
+  await game.connect(player1).addShip(GAME_ID, SPEED, RANGE).then((tx) => { return tx.wait(); }) .then((receipt) => { console.log( `Added player ${player1.address} in block ${receipt.blockNumber}.` ); }) .catch(console.error);
+  await game.connect(player2).addShip(GAME_ID, SPEED, RANGE).then((tx) => { return tx.wait(); }) .then((receipt) => { console.log( `Added player ${player2.address} in block ${receipt.blockNumber}.` ); }) .catch(console.error);
+  await game.connect(player3).addShip(GAME_ID, SPEED, RANGE).then((tx) => { return tx.wait(); }) .then((receipt) => { console.log( `Added player ${player3.address} in block ${receipt.blockNumber}.` ); }) .catch(console.error);
+  await game.connect(player4).addShip(GAME_ID, SPEED, RANGE).then((tx) => { return tx.wait(); }) .then((receipt) => { console.log( `Added player ${player4.address} in block ${receipt.blockNumber}.` ); }) .catch(console.error);
+  
   // allow move submission
   await game
     .allowSubmitMoves(GAME_ID)

@@ -28,6 +28,9 @@ module.exports = {
         mnemonic: process.env.SEPOLIA_MNEMONIC
       },
     },
+    localhost: {
+      url: "http://0.0.0.0:8545",
+    },
     hardhat: {
       chainId: 1337,
     },
