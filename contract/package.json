@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/apeharbour/battle-royale.git"
   },
-  "author": "Chrisdotn <chrisdotn@laidback.ventures>",
+  "author": "chrisdotn <chrisdotn@laidback.ventures>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/apeharbour/battle-royale/issues"

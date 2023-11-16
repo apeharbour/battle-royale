@@ -14,6 +14,28 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "player",
         "type": "address"
       },
@@ -120,6 +142,31 @@
       {
         "indexed": false,
         "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
+      }
+    ],
+    "name": "Island",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
         "name": "radius",
         "type": "uint8"
       },
@@ -182,6 +229,12 @@
       },
       {
         "indexed": false,
+        "internalType": "uint256",
+        "name": "roundId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
         "internalType": "uint8",
         "name": "destQ",
         "type": "uint8"
@@ -206,6 +259,31 @@
       }
     ],
     "name": "MoveSubmitted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "roundId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "radius",
+        "type": "uint8"
+      }
+    ],
+    "name": "NewRound",
     "type": "event"
   },
   {
@@ -302,6 +380,18 @@
         "indexed": false,
         "internalType": "uint8",
         "name": "gameId",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
         "type": "uint8"
       }
     ],
@@ -516,14 +606,14 @@
         "type": "uint8"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint8",
         "name": "_speed",
-        "type": "uint256"
+        "type": "uint8"
       },
       {
-        "internalType": "uint256",
+        "internalType": "uint8",
         "name": "_range",
-        "type": "uint256"
+        "type": "uint8"
       }
     ],
     "name": "addShip",

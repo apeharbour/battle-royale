@@ -199,6 +199,7 @@ type Game @entity {
   centerQ: Int
   centerR: Int
   currentRound: Round!
+  state: GameState!
   players: [Player!]! @derivedFrom(field: "game")
   rounds: [Round!]! @derivedFrom(field: "game")
   islands: [Island!]! @derivedFrom(field: "game")
@@ -213,7 +214,7 @@ type Player @entity {
   shotRange: Int!
   game: Game!
   state: PlayerState!
-  kills: Int!
+  kills: Int
 }
 
 type Round @entity {
@@ -222,6 +223,8 @@ type Round @entity {
   round: BigInt!
   radius: Int!
   shrunk: Boolean!
+  moves: [Move!]! @derivedFrom(field: "round")
+  shots: [Shot!]! @derivedFrom(field: "round")
 }
 
 type Move @entity {
@@ -229,12 +232,14 @@ type Move @entity {
   game: Game!
   round: Round!
   player: Player!
+  originQ: Int!
+  originR: Int!
   destinationQ: Int!
   destinationR: Int!
   # state:
 }
 
-type Shot @entity(immutable: true) {
+type Shot @entity {
   id: Bytes!
   game: Game!
   round: Round!
@@ -260,4 +265,10 @@ enum PlayerState {
   shot
   draw
   won
+}
+
+enum GameState {
+  registering
+  active
+  finished
 }
