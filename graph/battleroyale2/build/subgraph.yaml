@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: GameWOT
-    network: localhost
+    network: sepolia
     source:
       abi: GameWOT
-      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
-      startBlock: 0
+      address: "0x5B2ebef54D738BEc843D2785a5ae14d5920365C0"
+      startBlock: 4705094
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
