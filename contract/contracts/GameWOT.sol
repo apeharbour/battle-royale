@@ -101,7 +101,7 @@ contract GameWOT is Ownable {
     mapping(uint256 => GameInstance) public games;
     MapWOT immutable map;
 
-    constructor(address _mapAddress) Ownable(msg.sender) {
+    constructor(address _mapAddress) Ownable() {
         map = MapWOT(_mapAddress);
     }
 

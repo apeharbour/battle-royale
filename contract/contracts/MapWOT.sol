@@ -243,7 +243,7 @@ function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
     }
 
     function deleteCell(SharedStructs.Coordinate calldata _coord, uint8 gameId) external {
-        console.log("Called deleteCell");
+       
         gameHexCells[gameId][_coord.r][_coord.q].exists = false;
     }
 
@@ -251,7 +251,7 @@ function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
         SharedStructs.Coordinate memory _coord,
         uint8 gameId
     ) public view returns (bool) {
-        console.log("Called isIsland");
+       
         SharedStructs.Cell memory c = getCell(_coord, gameId);
 
         return c.island;
