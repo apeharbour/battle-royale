@@ -17,7 +17,7 @@ contract RegistrationPunk is Ownable {
     mapping(address => bool) public registeredAddresses;
     bool public registrationClosed = false;
 
-    constructor(address _gamePunkAddress) {
+    constructor(address _gamePunkAddress) Ownable(msg.sender) {
         gamePunk = IGamePunk(_gamePunkAddress);
     }
 
