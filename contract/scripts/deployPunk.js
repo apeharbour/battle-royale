@@ -1,29 +1,28 @@
-
-const hre = require("hardhat");
+const { ethers } = require("hardhat");
 
 async function main() {
+  const [deployer] = await ethers.getSigners();
 
-  const [owner] = await ethers.getSigners(); 
+  console.log("Deploying contracts with the account:", deployer.address);
 
-  const MapPunk = await hre.ethers.getContractFactory('MapPunk');
-  const mapPunk = await MapPunk.deploy(owner.address);
-  await mapPunk.deployed();
-  console.log( `MapPunk contract deployed by ${owner.address} to ${mapPunk.address}` )
+  const INITIAL_SEED = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
-  const GamePunk = await hre.ethers.getContractFactory('GamePunk');
-  const gamePunk = await GamePunk.deploy(mapPunk.address);
-  await gamePunk.deployed();
-  console.log( `GamePunk contract deployed by ${owner.address} to ${gamePunk.address}` )
+  const map = await ethers.deployContract("MapPunk", [INITIAL_SEED]);
+  await map.waitForDeployment();
+  console.log("Map address:", await map.getAddress());
 
-  const RegistrationPunk = await hre.ethers.getContractFactory('RegistrationPunk');
-  const registrationPunk = await RegistrationPunk.deploy(gamePunk.address);
-  await registrationPunk.deployed();
-  console.log(`Registration contract for Punk Ships deployed by ${owner.address} to ${registrationPunk.address}`)
+  const game = await ethers.deployContract("GamePunk", [map.getAddress()]);
+  await game.waitForDeployment();
+  console.log("Game address:", await game.getAddress());
 
-
+  const registration = await ethers.deployContract("RegistrationPunk", [game.getAddress()]);
+  await registration.waitForDeployment();
+  console.log("Registration address:", await registration.getAddress());
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

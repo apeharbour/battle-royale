@@ -36,9 +36,9 @@ import img3 from './images/7.png'
 import img4 from './images/4.png'
 import img5 from './images/5.png'
 
-const MAP_ADDRESS = '0x7ca652Df8b82a2d0CA83F3bA0A04644960B60577'
+const MAP_ADDRESS = '0x547E8B96FD1c1bdd4d7Bf8b1ACC46971d86a6052'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0xAEe950Fe5697fC804ACc7435a36065a72475D5f5'
+const GAME_ADDRESS = '0x4cd89E0dc042bD2876d423739366B8a080beaa53'
 const GAME_ABI = GameAbi.abi
 
 const punkShips = [
@@ -225,11 +225,11 @@ function GameMode4() {
       })
       console.log(tx)
       await tx.wait()
-      console.log(
-        `Created map with radius ${Number(
-          await contract.getRadius(gameId)
-        )} in block ${await provider.getBlockNumber()}`
-      )
+      // console.log(
+      //   `Created map with radius ${Number(
+      //     await contract.getRadius(gameId)
+      //   )} in block ${await provider.getBlockNumber()}`
+     // )
       fetchData()
     }
   }

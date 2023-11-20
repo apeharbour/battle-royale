@@ -111,7 +111,7 @@ contract GamePunk is  Ownable {
         _;
     }
 
-    constructor(address _mapAddress) Ownable() {
+    constructor(address _mapAddress) Ownable(msg.sender) {
         map = MapPunk(_mapAddress);
     }
 
@@ -138,7 +138,6 @@ contract GamePunk is  Ownable {
         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         // games[gameId].letCommitMoves = false;
         games[gameId].letSubmitMoves = true;
-         games[gameId].round++; 
         emit SubmitPhaseStarted(gameId, games[gameId].round);       
     } 
 
