@@ -1,6 +1,6 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: GamePunk
@@ -43,7 +43,7 @@ dataSources:
         - Island
       abis:
         - name: GamePunk
-          file: ./abis/GamePunk.json
+          file: GamePunk\abis\GamePunk.json
       eventHandlers:
         - event: CommitPhaseStarted(uint8)
           handler: handleCommitPhaseStarted
@@ -91,4 +91,4 @@ dataSources:
           handler: handleIsland
         - event: NewRound(uint8,uint256,uint8)
           handler: handleNewRound
-      file: ./src/game-punk.ts
+      file: GamePunk\GamePunk.wasm
