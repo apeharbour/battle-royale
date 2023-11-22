@@ -22,6 +22,7 @@ import {
   SubmitPhaseStarted as SubmitPhaseStartedEvent,
   WorldUpdated as WorldUpdatedEvent,
   Island as IslandEvent,
+  Cell as CellEvent,
   NewRound as NewRoundEvent
 } from "../generated/GameWOT/GameWOT"
 import {
@@ -51,6 +52,7 @@ import {
   Shot,
   SubmitPhaseStarted,
   WorldUpdated,
+  Cell,
   Island
 } from "../generated/schema"
 
@@ -585,6 +587,18 @@ export function handleIsland(event: IslandEvent): void {
   let entity = new Island(islandId)
   entity.q = event.params.q
   entity.r = event.params.r
+  entity.game = gameId
+
+  entity.save()
+}
+export function handleCell(event: CellEvent): void {
+  const gameId = event.address.concatI32(event.params.gameId)
+  const cellId = gameId.concatI32(event.params.q).concatI32(event.params.r)
+
+  let entity = new Cell(cellId)
+  entity.q = event.params.q
+  entity.r = event.params.r
+  entity.island = event.params.island
   entity.game = gameId
 
   entity.save()
