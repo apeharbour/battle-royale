@@ -2488,13 +2488,13 @@ export class Game extends Entity {
     );
   }
 
-  get islands(): IslandLoader {
-    return new IslandLoader(
+  get cells(): CellLoader {
+    return new CellLoader(
       "Game",
       this.get("id")!
         .toBytes()
         .toHexString(),
-      "islands"
+      "cells"
     );
   }
 }
@@ -3110,6 +3110,100 @@ export class Island extends Entity {
   }
 }
 
+export class Cell extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Cell entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type Cell must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+      );
+      store.set("Cell", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): Cell | null {
+    return changetype<Cell | null>(
+      store.get_in_block("Cell", id.toHexString())
+    );
+  }
+
+  static load(id: Bytes): Cell | null {
+    return changetype<Cell | null>(store.get("Cell", id.toHexString()));
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
+  }
+
+  get game(): Bytes {
+    let value = this.get("game");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set game(value: Bytes) {
+    this.set("game", Value.fromBytes(value));
+  }
+
+  get q(): i32 {
+    let value = this.get("q");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set q(value: i32) {
+    this.set("q", Value.fromI32(value));
+  }
+
+  get r(): i32 {
+    let value = this.get("r");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set r(value: i32) {
+    this.set("r", Value.fromI32(value));
+  }
+
+  get island(): boolean {
+    let value = this.get("island");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set island(value: boolean) {
+    this.set("island", Value.fromBoolean(value));
+  }
+}
+
 export class PlayerLoader extends Entity {
   _entity: string;
   _field: string;
@@ -3146,7 +3240,7 @@ export class RoundLoader extends Entity {
   }
 }
 
-export class IslandLoader extends Entity {
+export class CellLoader extends Entity {
   _entity: string;
   _field: string;
   _id: string;
@@ -3158,9 +3252,9 @@ export class IslandLoader extends Entity {
     this._field = field;
   }
 
-  load(): Island[] {
+  load(): Cell[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<Island[]>(value);
+    return changetype<Cell[]>(value);
   }
 }
 

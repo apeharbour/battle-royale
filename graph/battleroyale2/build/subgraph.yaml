@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum
     name: GameWOT
-    network: sepolia
+    network: localhost
     source:
       abi: GameWOT
-      address: "0x5B2ebef54D738BEc843D2785a5ae14d5920365C0"
-      startBlock: 4705094
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -41,6 +41,7 @@ dataSources:
         - Move
         - Shot
         - Island
+        - Cell
       abis:
         - name: GameWOT
           file: GameWOT/abis/GameWOT.json
@@ -89,6 +90,8 @@ dataSources:
           handler: handleWorldUpdated
         - event: Island(uint8,uint8,uint8)
           handler: handleIsland
+        - event: Cell(uint8,uint8,uint8,bool)
+          handler: handleCell
         - event: NewRound(uint8,uint256,uint8)
           handler: handleNewRound
       file: GameWOT/GameWOT.wasm

@@ -10,6 +10,36 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
+export class Cell extends ethereum.Event {
+  get params(): Cell__Params {
+    return new Cell__Params(this);
+  }
+}
+
+export class Cell__Params {
+  _event: Cell;
+
+  constructor(event: Cell) {
+    this._event = event;
+  }
+
+  get gameId(): i32 {
+    return this._event.parameters[0].value.toI32();
+  }
+
+  get q(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+
+  get r(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+
+  get island(): boolean {
+    return this._event.parameters[3].value.toBoolean();
+  }
+}
+
 export class CommitPhaseStarted extends ethereum.Event {
   get params(): CommitPhaseStarted__Params {
     return new CommitPhaseStarted__Params(this);

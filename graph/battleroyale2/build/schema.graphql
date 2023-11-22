@@ -202,7 +202,7 @@ type Game @entity {
   state: GameState!
   players: [Player!]! @derivedFrom(field: "game")
   rounds: [Round!]! @derivedFrom(field: "game")
-  islands: [Island!]! @derivedFrom(field: "game")
+  cells: [Cell!]! @derivedFrom(field: "game")
 }
 
 type Player @entity {
@@ -255,6 +255,14 @@ type Island @entity(immutable: true) {
   game: Game!
   q: Int!
   r: Int!
+}
+
+type Cell @entity(immutable: true) {
+  id: Bytes!
+  game: Game!
+  q: Int!
+  r: Int!
+  island: Boolean!
 }
 
 enum PlayerState {

@@ -73,7 +73,7 @@ contract GameWOT is Ownable {
     event WorldUpdated(uint8 gameId);
     event ShipMovedInGame(address indexed captain, uint8 gameId);
     event MapShrink(uint8 gameId);
-    event Island(uint8 gameId, uint8 q, uint8 r);
+    event Cell(uint8 gameId, uint8 q, uint8 r, bool island);
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -201,10 +201,9 @@ contract GameWOT is Ownable {
         delete games[gameId].players;
         addNewRound(gameId);
 
-        map.initMap(_radius, gameId);
-        SharedStructs.Coordinate[] memory islands = map.createIslands(gameId);
-        for (uint j = 0; j < islands.length; j++) {
-            emit Island(gameId, islands[j].q, islands[j].r);
+        SharedStructs.Cell[] memory cells = map.initMap(_radius, gameId);
+        for (uint j = 0; j < cells.length; j++) {
+            emit Cell(gameId, cells[j].q, cells[j].r, cells[j].island);
         }
         emit MapInitialized(_radius, gameId);
     }
