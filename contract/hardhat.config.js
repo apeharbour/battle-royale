@@ -3,7 +3,7 @@ require("@nomicfoundation/hardhat-ignition");
 require('dotenv').config();
 
 const INFURA_API_KEY = process.env.INFURA_API;
-const Alchemy_Key = process.env.ALCHEMEY_API_KEY;
+const Alchemy_Key = process.env.ALCHEMY_API_KEY;
 
 module.exports = {
   solidity: {
