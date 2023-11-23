@@ -20,7 +20,7 @@ import img4 from './images/4.png'
 import img5 from './images/5.png'
 import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
-const REGISTRATION_ADDRESS = '0xd6a91D5aB87Bfb60B7417C83B6273cD1D566eB6B'
+const REGISTRATION_ADDRESS = '0x2300Bc033C668eC7a5De3BC5CDF46277b9f9b46C'
 const REGISTRATION_ABI = RegistrationPunkAbi.abi
 
 const punkShips = [

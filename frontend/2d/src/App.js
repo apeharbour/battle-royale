@@ -30,7 +30,7 @@ function App() {
                 Register for the Game
               </Button>
             </Tooltip>
-            <Tooltip title='Game mode which depends upon the speed and range of the yachts'>
+            {/* <Tooltip title='Game mode which depends upon the speed and range of the yachts'>
               <Button
                 variant='outlined'
                 onClick={() => {
@@ -71,7 +71,7 @@ function App() {
               >
                 Game mode with probability mechanics
               </Button>
-            </Tooltip>
+            </Tooltip> */}
             <Tooltip title='Game mode with new punk ships'>
               <Button
                 variant='outlined'

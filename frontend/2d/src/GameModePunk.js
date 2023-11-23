@@ -36,9 +36,9 @@ import img3 from './images/7.png'
 import img4 from './images/4.png'
 import img5 from './images/5.png'
 
-const MAP_ADDRESS = '0x547E8B96FD1c1bdd4d7Bf8b1ACC46971d86a6052'
+const MAP_ADDRESS = '0x1813fac8740a1cD5c8cC1f7F00773D233f652F22'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0x4cd89E0dc042bD2876d423739366B8a080beaa53'
+const GAME_ADDRESS = '0x918A43721771c2204ddC4DD3E3d62641DCF481bB'
 const GAME_ABI = GameAbi.abi
 
 const punkShips = [

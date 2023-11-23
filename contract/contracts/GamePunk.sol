@@ -9,7 +9,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 
 contract GamePunk is  Ownable {
-
    //Events
     event PlayerAdded(
         address indexed player,
@@ -74,9 +73,7 @@ contract GamePunk is  Ownable {
     event WorldUpdated(uint8 gameId);
     event ShipMovedInGame(address indexed captain, uint8 gameId);
     event MapShrink(uint8 gameId);
-    event Island(uint8 gameId, uint8 q, uint8 r);
-
-
+    event Cell(uint8 gameId, uint8 q, uint8 r, bool island);
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -205,10 +202,9 @@ contract GamePunk is  Ownable {
         delete games[gameId].players;
         addNewRound(gameId);
 
-        map.initMap(_radius, gameId);
-        SharedStructs.Coordinate[] memory islands = map.createIslands(gameId);
-        for (uint j = 0; j < islands.length; j++) {
-            emit Island(gameId, islands[j].q, islands[j].r);
+      SharedStructs.Cell[] memory cells = map.initMap(_radius, gameId);
+        for (uint j = 0; j < cells.length; j++) {
+            emit Cell(gameId, cells[j].q, cells[j].r, cells[j].island);
         }
         emit MapInitialized(_radius,gameId);
     }
@@ -229,7 +225,6 @@ contract GamePunk is  Ownable {
         bool alreadyTaken = false;
         do {
             coord = map.getRandomCoordinatePair(gameId);
-            console.log("New rnd pair %s, %s", coord.q, coord.r);
             for (uint8 i = 0; i < games[gameId].players.length; i++) {
                 console.log("in loop %s, address: %s", i, games[gameId].players[i]);
                 if (
@@ -293,7 +288,7 @@ function updateWorld(uint8 gameId) public onlyOwner {
         games[gameId].shrinkNo++;
         emit MapShrink(gameId);
         
-        // Sink players outside the valid map cells
+        // Sink players outside the invalid map cells
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
             SharedStructs.Coordinate memory shipCoord = games[gameId].ships[games[gameId].players[i]].coordinate;
             
