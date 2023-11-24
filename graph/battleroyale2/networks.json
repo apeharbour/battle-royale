@@ -1,8 +1,8 @@
 {
   "sepolia": {
     "GameWOT": {
-      "address": "0x5B2ebef54D738BEc843D2785a5ae14d5920365C0",
-      "startBlock": 4705094
+      "address": "0x8c8b430955A4459A90601fEEC060e9afe0c4B6c2",
+      "startBlock": 4750403
     }
   },
   "localhost": {

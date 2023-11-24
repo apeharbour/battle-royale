@@ -22,8 +22,10 @@ module.exports = {
   },
   networks: {
     sepolia: {
-      url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
-      accounts: [process.env.SEPOLIA_PRIVATE_KEY],
+      url: process.env.SEPOLIA_URL,
+      accounts: {
+        mnemonic: process.env.SEPOLIA_MNEMONIC,
+      },
     },
     localhost: {
       url: "http://0.0.0.0:8545",

@@ -17,7 +17,7 @@ const NO_MOVE = 6;
 const RADIUS = 5;
 const GAME_ID = 1;
 const INITIAL_SEED = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
-const GAME_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512";
+const GAME_ADDRESS = "0x8c8b430955A4459A90601fEEC060e9afe0c4B6c2";
 
 async function main() {
   const [owner, player1, player2, player3, player4] = await ethers.getSigners();
