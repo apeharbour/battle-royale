@@ -223,6 +223,7 @@ export function handleMapInitialized(event: MapInitializedEvent): void {
     game.currentRound = round.id;
   }
 
+  game.gameId = event.params.gameId;
   game.radius = event.params.radius;
   game.centerQ = event.params.radius;
   game.centerR = event.params.radius;

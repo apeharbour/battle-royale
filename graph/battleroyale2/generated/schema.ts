@@ -2403,6 +2403,19 @@ export class Game extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
+  get gameId(): i32 {
+    let value = this.get("gameId");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set gameId(value: i32) {
+    this.set("gameId", Value.fromI32(value));
+  }
+
   get radius(): i32 {
     let value = this.get("radius");
     if (!value || value.kind == ValueKind.NULL) {
