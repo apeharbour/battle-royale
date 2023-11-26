@@ -195,6 +195,7 @@ type WorldUpdated @entity(immutable: true) {
 # Manuelly created objects
 type Game @entity {
   id: Bytes!
+  gameId: Int
   radius: Int
   centerQ: Int
   centerR: Int
