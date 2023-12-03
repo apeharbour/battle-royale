@@ -73,3 +73,7 @@ svg .origin {
 svg {
   border: 1px solid yellow;
 }
+
+svg g.highlighted-hex .hexagon {
+  fill: #ffcc00; /* Choose a color that stands out */
+}

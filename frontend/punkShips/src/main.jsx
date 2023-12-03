@@ -9,8 +9,8 @@ import {
 import App from "./App.jsx";
 import "./index.css";
 
-const SUBGRAPH_URL = 'https://subgraph.satsuma-prod.com/c9da9dbd34c3/ape-harbour--20042/battle-royale/api'
-console.log(SUBGRAPH_URL)
+const SUBGRAPH_URL = 'https://subgraph.satsuma-prod.com/7a321097545d/jayants-personal--362208/Punk/api';
+
 
 const client = new ApolloClient({
   cache: new InMemoryCache(),

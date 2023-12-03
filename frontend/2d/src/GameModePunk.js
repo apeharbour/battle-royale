@@ -36,10 +36,11 @@ import img3 from './images/7.png'
 import img4 from './images/4.png'
 import img5 from './images/5.png'
 
-const MAP_ADDRESS = '0x1813fac8740a1cD5c8cC1f7F00773D233f652F22'
+const MAP_ADDRESS = '0x89ddB71B70065324F18aF0ADDfbD53AB20DF4d31'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0x918A43721771c2204ddC4DD3E3d62641DCF481bB'
+const GAME_ADDRESS = '0x5539E9d3748eeCecce344b4475FE317b2EbA598D'
 const GAME_ABI = GameAbi.abi
+const REGISTRATION = '0x4852435492AB30431757cF20853b87449118Abd0'
 
 const punkShips = [
   { name: 'Sailing Ship', movement: 6, shoot: 2, image: img1 },
