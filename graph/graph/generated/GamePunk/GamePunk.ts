@@ -142,6 +142,32 @@ export class GameWinner__Params {
   }
 }
 
+export class Island extends ethereum.Event {
+  get params(): Island__Params {
+    return new Island__Params(this);
+  }
+}
+
+export class Island__Params {
+  _event: Island;
+
+  constructor(event: Island) {
+    this._event = event;
+  }
+
+  get gameId(): i32 {
+    return this._event.parameters[0].value.toI32();
+  }
+
+  get q(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+
+  get r(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+}
+
 export class MapInitialized extends ethereum.Event {
   get params(): MapInitialized__Params {
     return new MapInitialized__Params(this);
