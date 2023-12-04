@@ -23,7 +23,7 @@ import img3 from "./images/7.png";
 import img4 from "./images/4.png";
 import img5 from "./images/5.png";
 
-const REGISTRATION_ADDRESS = "0x2300Bc033C668eC7a5De3BC5CDF46277b9f9b46C";
+const REGISTRATION_ADDRESS = "0x7AEfE3178aea932Cc5A155ef0E2eE53E33CF5DAc";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 const punkShips = [

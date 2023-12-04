@@ -38,7 +38,7 @@ import img5 from './images/5.png'
 
 const MAP_ADDRESS = '0x89ddB71B70065324F18aF0ADDfbD53AB20DF4d31'
 const MAP_ABI = MapAbi.abi
-const GAME_ADDRESS = '0x5539E9d3748eeCecce344b4475FE317b2EbA598D'
+const GAME_ADDRESS = '0xFbadD58d6317637af3Dad09BFa8F10C82ccDa2b0'
 const GAME_ABI = GameAbi.abi
 const REGISTRATION = '0x4852435492AB30431757cF20853b87449118Abd0'
 
@@ -114,6 +114,7 @@ function GameMode4() {
 
     fetchContract()
   }, [])
+
 
   useEffect(() => {
     const fetchPath = async () => {
@@ -434,9 +435,9 @@ function GameMode4() {
           exists: c.exists
         }))
 
-      // console.log('Cells')
-      // console.log(resolvedTempCells)
-      // console.log(JSON.stringify(resolvedTempCells))
+      console.log('Cells')
+       console.log(resolvedTempCells)
+       console.log(JSON.stringify(resolvedTempCells))
 
       setCells([...resolvedTempCells])
     }

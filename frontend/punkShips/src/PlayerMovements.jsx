@@ -26,7 +26,7 @@ import {
 
 import GameAbi from "./abis/GamePunk.json";
 
-const GAME_ADDRESS = "0xADA78799b470d23133eab1f7402459D762dFfECE";
+const GAME_ADDRESS = "0xFbadD58d6317637af3Dad09BFa8F10C82ccDa2b0";
 const GAME_ABI = GameAbi.abi;
 
 export default function PlayerMovements(props) {
@@ -65,7 +65,6 @@ export default function PlayerMovements(props) {
       setContract(contract);
       setProvider(provider);
       setPlayer(signer.address);
-      console.log("Player Address:", signer.address);
     };
 
     fetchContract();
