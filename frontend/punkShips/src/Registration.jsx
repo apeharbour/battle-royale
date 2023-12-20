@@ -53,7 +53,6 @@ export default function RegistrationPunk(props) {
       setContract(contract);
       setProvider(provider);
       setPlayer(signer.address);
-      console.log("Player Address:", signer.address);
     };
 
     fetchContract();

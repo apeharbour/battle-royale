@@ -5,6 +5,7 @@
   text-align: center;
 }
 
+
 .logo {
   height: 6em;
   padding: 1.5em;
@@ -49,19 +50,28 @@ svg g text {
 }
 
 svg g.water .hexagon {
-  fill: #1ca3ec;
+  fill: rgb(28, 164, 237);
 }
 
 svg g.island .hexagon {
   fill: #e69138
 }
 
-svg .ship {
-  fill: whitesmoke;
+svg .highlighted .hexagon {
+  /* fill: rgb(114, 195, 239); */
+  filter: brightness(120%);
 }
 
-svg .myShip {
-  fill: red;
+svg .myShip .hexagon {
+  fill: lightpink;
+}
+
+svg .reachableWater .hexagon {
+  fill:  rgb(28, 164, 237);
+}
+
+svg .reachableIsland .hexagon {
+  fill: #e3a665;
 }
 
 svg .origin {
@@ -70,10 +80,16 @@ svg .origin {
   fill: none;
 }
 
-svg {
-  border: 1px solid yellow;
+svg path {
+  fill: none;
+  stroke: lightgray;
+  stroke-width: 0.05em;
+  stroke-opacity: 0.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-svg g.highlighted-hex .hexagon {
-  fill: #ffcc00; /* Choose a color that stands out */
+
+svg {
+  border: 1px solid yellow;
 }

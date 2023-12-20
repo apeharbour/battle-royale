@@ -23,8 +23,9 @@ export default function ListGames(props) {
   const [provider, setProvider] = useState(null);
   const [player, setPlayer] = useState(null);
   const [gameId, setGameId] = useState(1);
-  const [endGameId, setEndGameId] = useState(0);
+  const [endGameId, setEndGameId] = useState(1);
   const [sortedGames, setSortedGames] = useState([]);
+  const [radius, setRadius] = useState(4);
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -58,6 +59,11 @@ export default function ListGames(props) {
       const tx = await contract.startNewGame(gameId).catch(console.error)
       await tx.wait()
       console.log('Start Game:', tx)
+      const txMap = await contract.initGame(radius, gameId).catch((e) => {
+        console.error("horrible mistake:", e)
+      })
+      await txMap.wait()
+      console.log(txMap)
     }
   }
 
@@ -102,7 +108,15 @@ export default function ListGames(props) {
                     setGameId(parseInt(e.target.value))
                   }}
                 />
-                <Button variant='contained' onClick={startGame}>
+                <TextField
+                variant="outlined"
+                value={radius}
+                label='Map Radius'
+                onChange={(e) => {
+                  setRadius(parseInt(e.target.value));
+                }}
+              />
+               <Button variant='contained' onClick={startGame}>
                   Start Game
                 </Button>
                 <TextField
