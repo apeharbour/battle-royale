@@ -128,6 +128,7 @@ export default function Game(props) {
   const [shotEndpoint, setShotEndpoint] = useState(undefined);
   const [state, setState] = useState(TRAVELLING);
   const [viewBoxValues, setViewBoxValues] = useState("2 -20 135 135");
+  const [showSubmitButton, setShowSubmitButton] = useState(false);
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -243,6 +244,7 @@ export default function Game(props) {
       setShotEndpoint(undefined);
       setCells([...updatedCells]);
       setState(TRAVELLING);
+      setShowSubmitButton(false);
     } else if (state === TRAVELLING && selectedCell.highlighted) {
       const updatedCells = cells
         .map(clearHighlights)
@@ -251,10 +253,12 @@ export default function Game(props) {
         );
       setCells([...updatedCells]);
       setState(SHOOTING);
+      setShowSubmitButton(false);
     } else if (state === SHOOTING && selectedCell.highlighted) {
       const updatedCells = cells.map(clearHighlights);
       setCells([...updatedCells]);
       setState(DONE);
+      setShowSubmitButton(true);
     }
   };
 
@@ -292,16 +296,16 @@ const determineDirection = (deltaQ, deltaR) => {
   const normDeltaQ = sign(deltaQ);
   const normDeltaR = sign(deltaR);
 
-  if (normDeltaQ === 1 && normDeltaR === 0) return "E";
-  if (normDeltaQ === 1 && normDeltaR === -1) return "NE";
-  if (normDeltaQ === 0 && normDeltaR === -1) return "NW";
-  if (normDeltaQ === -1 && normDeltaR === 0) return "W";
-  if (normDeltaQ === -1 && normDeltaR === 1) return "SW";
-  if (normDeltaQ === 0 && normDeltaR === 1) return "SE";
-  return "Unknown";
+  if (normDeltaQ === 1 && normDeltaR === 0) return 0;
+  if (normDeltaQ === 1 && normDeltaR === -1) return 1;
+  if (normDeltaQ === 0 && normDeltaR === -1) return 2;
+  if (normDeltaQ === -1 && normDeltaR === 0) return 3;
+  if (normDeltaQ === -1 && normDeltaR === 1) return 4;
+  if (normDeltaQ === 0 && normDeltaR === 1) return 5;
+  return 6;
 };
 
-const consoleMoves = () => {
+const consoleMoves = async () => {
   let qTravel = travelEndpoint.q - myShip.q;
   let rTravel = travelEndpoint.r - myShip.r;
   let travelDirection = determineDirection(qTravel, rTravel);
@@ -315,6 +319,22 @@ const consoleMoves = () => {
   console.log('Travel Distance: ', travelDistance);
   console.log('Shot Direction: ', shotDirection);
   console.log('Shot Distance: ', shotDistance);
+
+  if(contract){
+    const tx = await contract
+        .revealMove(travelDirection, travelDistance, shotDirection, shotDistance, id)
+        .catch(console.error)
+      await tx.wait()
+      console.log(tx)
+      const updatedCells = cells
+        .map(clearHighlights)
+        .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
+      setTravelEndpoint(undefined);
+      setShotEndpoint(undefined);
+      setCells([...updatedCells]);
+      setState(TRAVELLING);
+      setShowSubmitButton(false);
+  }
 };
 
 
@@ -420,9 +440,11 @@ const consoleMoves = () => {
       </Grid>
       <Grid item xs={3}>
         <PlayerMovements gameId={id} travelEndpoint={travelEndpoint} shotEndpoint={shotEndpoint} />
+        {showSubmitButton &&
         <Box mt={3}>
-        <Button variant="contained" onClick={consoleMoves}>Console</Button>
+        <Button variant="contained" onClick={consoleMoves}>Submit Moves</Button>
         </Box>
+        }
       </Grid>
     </Grid>
   );

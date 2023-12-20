@@ -79,7 +79,6 @@ export default function PlayerMovements(props) {
             <Button variant="contained" onClick={updateWorld}>
               Update World
             </Button>
-            <Button variant="contained"> Console Moves </Button>
           </Stack>
         </Grid>
       ) : null}
