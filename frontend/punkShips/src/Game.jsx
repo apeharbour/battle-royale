@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
 import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
+import { styled } from '@mui/material/styles';
 import { useQuery, gql } from "@apollo/client";
 import { useLocation } from "react-router-dom";
 import {
@@ -14,9 +15,12 @@ import {
 } from "react-hexgrid";
 import Coordinates from "./Coordinates";
 import Registration from "./Registration";
-import PlayerMovements from "./PlayerMovements";
 import { useLayoutContext } from "react-hexgrid/lib/Layout";
 import GameAbi from "./abis/GamePunk.json";
+import log from "./images/log.png";
+import timer from "./images/Timer.png";
+import ShipStatus from "./ShipStatus";
+import PlayerStatus from "./PlayerStatus";
 
 //const MY_ADDRESS = "0x21d5b09cbb222151271cb193e6849df246df82a5";
 const MY_ADDRESS = "0xCd9680dd8318b0df924f0bD47a407c05B300e36f";
@@ -25,6 +29,16 @@ const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
 const DONE = 2;
+
+const CustomButton = styled(Button)({
+  backgroundColor: '#CCE2E6',
+  borderRadius: '20px',
+  padding: '20px 70px',
+  fontSize: '1rem',
+  '&:hover': {
+    backgroundColor: '#000000', // Replace with a hover color
+  },
+});
 
 const GET_GAME = gql`
   query getGame($gameId: Int!, $first: Int, $skip: Int) {
@@ -305,7 +319,7 @@ const determineDirection = (deltaQ, deltaR) => {
   return 6;
 };
 
-const consoleMoves = async () => {
+const submitMoves = async () => {
   let qTravel = travelEndpoint.q - myShip.q;
   let rTravel = travelEndpoint.r - myShip.r;
   let travelDirection = determineDirection(qTravel, rTravel);
@@ -337,40 +351,61 @@ const consoleMoves = async () => {
   }
 };
 
+const allowSubmit = async () => {
+  if (contract) {
+    const tx = await contract
+      .allowSubmitMoves(id)
+      .catch(console.error);
+    await tx.wait();
+    console.log(tx);
+  }
+};
+
+const updateWorld = async () => {
+  if (contract) {
+    const tx = await contract.updateWorld(id);
+    await tx.wait();
+    allowSubmit();
+
+    updateData(data);
+  }
+};
+
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error : {error.message}</p>;
 
   return (
-    <Grid container spacing={2}>
-      <Grid container spacing={2}>
-        <Grid item xs={4}>
-          <Typography variant="h5">Game {id}</Typography>
-        </Grid>
-        {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
-        gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
-          <Grid item xs={8}>
+    <Fragment>
+    <Grid container spacing={2} >
+    <Grid item xs={4}>
+        <Typography variant="h5">Game {id}</Typography>
+      </Grid>
+      <Grid item xs={8}>
+        <Stack spacing={2} direction="row">
+          {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
+          gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
             <Stack spacing={2} direction="row">
               <TextField
                 variant="outlined"
                 value={registrationContractAddress}
-                onChange={(e) => {
-                  setRegistrationContractAdress(e.target.value);
-                }}
+                onChange={(e) => setRegistrationContractAdress(e.target.value)}
               />
               <Button variant="contained" onClick={registrationContract}>
                 Set
               </Button>
             </Stack>
-          </Grid>
-        ) : null}
+          ) : null}
+          <Registration gameId={id} />
+        </Stack>
       </Grid>
-
-      <Grid item xs={12}>
-        <Registration gameId={id} />
+      <Grid item xs={3}>
+        {myShip &&
+        <ShipStatus range={myShip.range} speed={myShip.shotRange} />
+      }
+        <img src={log}></img>
       </Grid>
-
-      <Grid item xs={9}>
+      <Grid item xs={6}>
         <HexGrid width={800} height={800} viewBox="-5 -20 120 120">
           <defs>
             <marker
@@ -438,14 +473,29 @@ const consoleMoves = async () => {
           </Layout>
         </HexGrid>
       </Grid>
-      <Grid item xs={3}>
-        <PlayerMovements gameId={id} travelEndpoint={travelEndpoint} shotEndpoint={shotEndpoint} />
-        {showSubmitButton &&
-        <Box mt={3}>
-        <Button variant="contained" onClick={consoleMoves}>Submit Moves</Button>
-        </Box>
+     <Grid item xs={3}>
+       {/* 
+        {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
+      gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
+          <Stack spacing={4}>
+            <Button variant="contained" onClick={allowSubmit}>
+              Allow players to submit
+            </Button>
+            <Button variant="contained" onClick={updateWorld}>
+              Update World
+            </Button>
+          </Stack>
+        
+      ) : null}    */}
+     <img src={timer}  alt="Timer" />
+     {showSubmitButton &&
+        <Box mt={2} mb={2}>
+        <CustomButton variant="contained" onClick={submitMoves}>Submit Moves</CustomButton>
+        </Box>  
         }
+      <PlayerStatus ships={ships}/> 
       </Grid>
-    </Grid>
+      </Grid>
+      </Fragment>
   );
 }

@@ -1,19 +1,26 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import ListGames from "./ListGames";
 import Game from "./Game";
+import Header from "./Header";
+import { Box } from '@mui/material';
 
 function App() {
   return (
-    <>
+    <Fragment>
+      <Box>
+      <Header />
+      <div className="mainContent">
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<ListGames />} />
         <Route path=":gameId" element={<Game />} />
       </Routes>
     </BrowserRouter>
-    </>
+    </div>
+    </Box>
+    </Fragment>
   );
 }
 

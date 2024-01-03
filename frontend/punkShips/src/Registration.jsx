@@ -84,12 +84,12 @@ export default function RegistrationPunk(props) {
 
   return (
     <Container>
-      <Accordion>
+      <Accordion sx={{ width: '100%' }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "cyan"}}>
           <Typography variant="h6">Register with Punk Ships</Typography>
         </AccordionSummary>
         <AccordionDetails sx={{ backgroundColor: "cyan"}} >
-          <Grid container spacing={2} mt={4}>
+          <Grid container spacing={2}>
             <Grid item xs={12}>
               {player === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
               player === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (

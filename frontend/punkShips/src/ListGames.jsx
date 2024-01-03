@@ -2,7 +2,7 @@ import React, { useState, useEffect} from "react";
 import { Box, Button, Card, CardActions, CardContent, Stack, TextField, Typography } from "@mui/material";
 import { useQuery, gql } from "@apollo/client";
 import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
-import GameAbi from "./abis/GamePunk.json";
+import GameAbi from "./abis/GamePunk.json";                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 import { ethers } from "ethers";
 
 const GAME_ADDRESS = "0xFbadD58d6317637af3Dad09BFa8F10C82ccDa2b0";
