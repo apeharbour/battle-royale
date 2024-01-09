@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap');
+
+
 :root {
   /* Existing root definitions */
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Pixelify Sans', sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light dark;
@@ -10,8 +13,8 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* Define your color variables */
-  --light-color: #efefef; /* Light shade */
-  --dark-color: #a3a3a3; /* Dark shade - adjust as needed */
+  --light-color: #d4eaff; /* Light shade */
+  --dark-color: #a4d3ff; /* Dark shade - adjust as needed */
 }
 
 body {

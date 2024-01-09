@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
 import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
-import { styled } from '@mui/material/styles';
+import { styled } from "@mui/material/styles";
 import { useQuery, gql } from "@apollo/client";
 import { useLocation } from "react-router-dom";
 import {
@@ -21,9 +21,9 @@ import log from "./images/log.png";
 import timer from "./images/Timer.png";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
+import Logs from "./Logs";
 
-//const MY_ADDRESS = "0x21d5b09cbb222151271cb193e6849df246df82a5";
-const MY_ADDRESS = "0xCd9680dd8318b0df924f0bD47a407c05B300e36f";
+
 const GAME_ADDRESS = "0xFbadD58d6317637af3Dad09BFa8F10C82ccDa2b0";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
@@ -31,13 +31,17 @@ const SHOOTING = 1;
 const DONE = 2;
 
 const CustomButton = styled(Button)({
-  backgroundColor: '#CCE2E6',
-  borderRadius: '20px',
-  padding: '20px 70px',
-  fontSize: '1rem',
-  '&:hover': {
-    backgroundColor: '#000000', // Replace with a hover color
+  backgroundColor: "rgba(215, 227, 249, 0.5)",
+  borderRadius: "20px",
+  padding: "20px 70px",
+  fontSize: "700",
+  color: "black",
+  "&:hover": {
+    backgroundColor: "rgba(195, 208, 243, 0.5)",
   },
+  "&.Mui-disabled": {
+    cursor: "not-allowed",    
+  }
 });
 
 const GET_GAME = gql`
@@ -156,7 +160,7 @@ export default function Game(props) {
     };
 
     fetchContract();
-  }, []);
+  }, []);  
 
   const enrichCell = (cell) => {
     const s = (cell.q + cell.r) * -1;
@@ -168,13 +172,12 @@ export default function Game(props) {
 
   const enrichShip = (ship) => {
     const s = (ship.q + ship.r) * -1;
-    const mine = ship.address.toLowerCase() === MY_ADDRESS.toLowerCase();
+    const mine = ship.address.toLowerCase() === gamePlayer.toLowerCase();
     const newCell = { ...ship, s, mine };
     return newCell;
   };
 
   const highlightReachableCells = (destination, origin, distance) => {
-
     if (HexUtils.equals(origin, destination)) {
       destination.highlighted = true;
     }
@@ -195,10 +198,11 @@ export default function Game(props) {
   };
 
   const updateData = (data) => {
+   
     const { games } = data;
     const game = games[0];
     console.log("Ships: ", game.players);
-   
+
     // process ships
     const ships = game.players.map(enrichShip);
     const myShip1 = ships.filter((s) => s.mine)[0];
@@ -220,7 +224,7 @@ export default function Game(props) {
   const { loading, error, data } = useQuery(GET_GAME, {
     pollInterval: 5000,
     variables: { gameId: id, first: 1000, skip: 0 },
-    fetchPolicy: 'network-only',
+    fetchPolicy: "network-only",
     onCompleted: (data) => {
       console.log("Data2:", data);
       updateData(data);
@@ -229,6 +233,12 @@ export default function Game(props) {
       console.log(error);
     },
   });
+
+  useEffect(() => {
+    if (gamePlayer && data) {
+      updateData(data);
+    }
+  }, [gamePlayer, data]);
 
   const handleMouseEnter = (event, source) => {
     cells.forEach((cell) => {
@@ -297,49 +307,58 @@ export default function Game(props) {
   };
 
   const distance = (a, b) => {
-    const q1 = a.q, r1 = a.r;
-    const q2 = b.q, r2 = b.r;
+    const q1 = a.q,
+      r1 = a.r;
+    const q2 = b.q,
+      r2 = b.r;
 
-    return (Math.abs(q1 - q2) + Math.abs(q1 + r1 - q2 - r2) + Math.abs(r1 - r2)) / 2;
-};
+    return (
+      (Math.abs(q1 - q2) + Math.abs(q1 + r1 - q2 - r2) + Math.abs(r1 - r2)) / 2
+    );
+  };
 
+  const determineDirection = (deltaQ, deltaR) => {
+    // Normalize the deltas to -1, 0, or 1
+    const sign = (num) => (num === 0 ? 0 : num > 0 ? 1 : -1);
+    const normDeltaQ = sign(deltaQ);
+    const normDeltaR = sign(deltaR);
 
-const determineDirection = (deltaQ, deltaR) => {
-  // Normalize the deltas to -1, 0, or 1
-  const sign = (num) => num === 0 ? 0 : num > 0 ? 1 : -1;
-  const normDeltaQ = sign(deltaQ);
-  const normDeltaR = sign(deltaR);
+    if (normDeltaQ === 1 && normDeltaR === 0) return 0;
+    if (normDeltaQ === 1 && normDeltaR === -1) return 1;
+    if (normDeltaQ === 0 && normDeltaR === -1) return 2;
+    if (normDeltaQ === -1 && normDeltaR === 0) return 3;
+    if (normDeltaQ === -1 && normDeltaR === 1) return 4;
+    if (normDeltaQ === 0 && normDeltaR === 1) return 5;
+    return 6;
+  };
 
-  if (normDeltaQ === 1 && normDeltaR === 0) return 0;
-  if (normDeltaQ === 1 && normDeltaR === -1) return 1;
-  if (normDeltaQ === 0 && normDeltaR === -1) return 2;
-  if (normDeltaQ === -1 && normDeltaR === 0) return 3;
-  if (normDeltaQ === -1 && normDeltaR === 1) return 4;
-  if (normDeltaQ === 0 && normDeltaR === 1) return 5;
-  return 6;
-};
+  const submitMoves = async () => {
+    let qTravel = travelEndpoint.q - myShip.q;
+    let rTravel = travelEndpoint.r - myShip.r;
+    let travelDirection = determineDirection(qTravel, rTravel);
+    let travelDistance = distance(myShip, travelEndpoint);
+    let qShot = shotEndpoint.q - travelEndpoint.q;
+    let rShot = shotEndpoint.r - travelEndpoint.r;
+    let shotDirection = determineDirection(qShot, rShot);
+    let shotDistance = distance(travelEndpoint, shotEndpoint);
 
-const submitMoves = async () => {
-  let qTravel = travelEndpoint.q - myShip.q;
-  let rTravel = travelEndpoint.r - myShip.r;
-  let travelDirection = determineDirection(qTravel, rTravel);
-  let travelDistance = distance(myShip, travelEndpoint);
-  let qShot = shotEndpoint.q - travelEndpoint.q;
-  let rShot = shotEndpoint.r - travelEndpoint.r;
-  let shotDirection = determineDirection(qShot, rShot);
-  let shotDistance = distance(travelEndpoint, shotEndpoint);
+    console.log("Travel Direction: ", travelDirection);
+    console.log("Travel Distance: ", travelDistance);
+    console.log("Shot Direction: ", shotDirection);
+    console.log("Shot Distance: ", shotDistance);
 
-  console.log('Travel Direction: ', travelDirection);
-  console.log('Travel Distance: ', travelDistance);
-  console.log('Shot Direction: ', shotDirection);
-  console.log('Shot Distance: ', shotDistance);
-
-  if(contract){
-    const tx = await contract
-        .revealMove(travelDirection, travelDistance, shotDirection, shotDistance, id)
-        .catch(console.error)
-      await tx.wait()
-      console.log(tx)
+    if (contract) {
+      const tx = await contract
+        .revealMove(
+          travelDirection,
+          travelDistance,
+          shotDirection,
+          shotDistance,
+          id
+        )
+        .catch(console.error);
+      await tx.wait();
+      console.log(tx);
       const updatedCells = cells
         .map(clearHighlights)
         .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
@@ -348,133 +367,135 @@ const submitMoves = async () => {
       setCells([...updatedCells]);
       setState(TRAVELLING);
       setShowSubmitButton(false);
-  }
-};
+    }
+  };
 
-const allowSubmit = async () => {
-  if (contract) {
-    const tx = await contract
-      .allowSubmitMoves(id)
-      .catch(console.error);
-    await tx.wait();
-    console.log(tx);
-  }
-};
+  const allowSubmit = async () => {
+    if (contract) {
+      const tx = await contract.allowSubmitMoves(id).catch(console.error);
+      await tx.wait();
+      console.log(tx);
+    }
+  };
 
-const updateWorld = async () => {
-  if (contract) {
-    const tx = await contract.updateWorld(id);
-    await tx.wait();
-    allowSubmit();
+  const updateWorld = async () => {
+    if (contract) {
+      const tx = await contract.updateWorld(id);
+      await tx.wait();
+      allowSubmit();
 
-    updateData(data);
-  }
-};
-
+      updateData(data);
+    }
+  };
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error : {error.message}</p>;
 
   return (
     <Fragment>
-    <Grid container spacing={2} >
-    <Grid item xs={4}>
-        <Typography variant="h5">Game {id}</Typography>
-      </Grid>
-      <Grid item xs={8}>
-        <Stack spacing={2} direction="row">
-          {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
-          gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
-            <Stack spacing={2} direction="row">
-              <TextField
-                variant="outlined"
-                value={registrationContractAddress}
-                onChange={(e) => setRegistrationContractAdress(e.target.value)}
-              />
-              <Button variant="contained" onClick={registrationContract}>
-                Set
-              </Button>
-            </Stack>
-          ) : null}
-          <Registration gameId={id} />
-        </Stack>
-      </Grid>
-      <Grid item xs={3}>
-        {myShip &&
-        <ShipStatus range={myShip.range} speed={myShip.shotRange} />
-      }
-        <img src={log}></img>
-      </Grid>
-      <Grid item xs={6}>
-        <HexGrid width={800} height={800} viewBox="-5 -20 120 120">
-          <defs>
-            <marker
-              id="arrowheadMove"
-              markerWidth="4"
-              markerHeight="4"
-              refX="2"
-              refY="2"
-              orient="auto"
-            >
-              <polyline
-                points="0 0, 2 2, 0 4"
-                fill="none"
-                strokeWidth={1}
-                stroke="lightgray"
-              />
-            </marker>
-            <marker
-              id="arrowheadShoot"
-              markerWidth="4"
-              markerHeight="4"
-              refX="2"
-              refY="2"
-              orient="auto"
-            >
-              <polyline
-                points="0 0, 2 2, 0 4"
-                fill="none"
-                strokeWidth={1}
-                stroke="lightgray"
-              />
-            </marker>
-          </defs>
-          <Layout size={{ x: 4, y: 4 }} spacing={1.05} flat={false}>
-            {cells.map(({ id, q, r, s, state, highlighted }) => (
-              <Hexagon
-                className={[state, highlighted ? "highlighted" : ""].join(" ")}
-                key={id}
-                q={q}
-                r={r}
-                s={s}
-                onMouseEnter={handleMouseEnter}
-                onClick={handleMouseClick}
-                // onMouseLeave={handleMouseLeave}
+      <Grid container spacing={2}>
+        <Grid item xs={4}>
+          <Typography variant="h5">Game {id}</Typography>
+        </Grid>
+        <Grid item xs={8}>
+          <Stack spacing={2} direction="row">
+            {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
+            gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
+              <Stack spacing={2} direction="row">
+                <TextField
+                  variant="outlined"
+                  value={registrationContractAddress}
+                  onChange={(e) =>
+                    setRegistrationContractAdress(e.target.value)
+                  }
+                />
+                <Button variant="contained" onClick={registrationContract}>
+                  Set
+                </Button>
+              </Stack>
+            ) : null}
+            <Registration gameId={id} />
+          </Stack>
+        </Grid>
+        <Grid item xs={3}>
+          {myShip && (
+            <ShipStatus range={myShip.range} speed={myShip.shotRange} />
+          )}
+
+           <Logs gameId={id} />
+        </Grid>
+        <Grid item xs={6}>
+          <HexGrid width={800} height={800} viewBox="-5 -20 120 120">
+            <defs>
+              <marker
+                id="arrowheadMove"
+                markerWidth="4"
+                markerHeight="4"
+                refX="2"
+                refY="2"
+                orient="auto"
               >
-                <Coordinates q={q} r={r} />
-              </Hexagon>
-            ))}
+                <polyline
+                  points="0 0, 2 2, 0 4"
+                  fill="none"
+                  strokeWidth={1}
+                  stroke="lightgray"
+                />
+              </marker>
+              <marker
+                id="arrowheadShoot"
+                markerWidth="4"
+                markerHeight="4"
+                refX="2"
+                refY="2"
+                orient="auto"
+              >
+                <polyline
+                  points="0 0, 2 2, 0 4"
+                  fill="none"
+                  strokeWidth={1}
+                  stroke="lightgray"
+                />
+              </marker>
+            </defs>
+            <Layout size={{ x: 4, y: 4 }} spacing={1.05} flat={false}>
+              {cells.map(({ id, q, r, s, state, highlighted }) => (
+                <Hexagon
+                  className={[state, highlighted ? "highlighted" : ""].join(
+                    " "
+                  )}
+                  key={id}
+                  q={q}
+                  r={r}
+                  s={s}
+                  onMouseEnter={handleMouseEnter}
+                  onClick={handleMouseClick}
+                  // onMouseLeave={handleMouseLeave}
+                >
+                  <Coordinates q={q} r={r} />
+                </Hexagon>
+              ))}
 
-            {ships.map(({ q, r, s, mine, address, state }, index) => (
-              <Ship q={q} r={r} s={s} mine={mine} key={index} />
-            ))}
+              {ships.map(({ q, r, s, mine, address, state }, index) => (
+                <Ship q={q} r={r} s={s} mine={mine} key={index} />
+              ))}
 
-            <Path
-              start={myShip}
-              end={travelEndpoint}
-              markerEnd="url(#arrowheadMove)"
-            />
-            <Path
-              start={travelEndpoint}
-              end={shotEndpoint}
-              markerEnd="url(#arrowheadShoot)"
-              strokeDasharray="1 2"
-            />
-          </Layout>
-        </HexGrid>
-      </Grid>
-     <Grid item xs={3}>
-       {/* 
+              <Path
+                start={myShip}
+                end={travelEndpoint}
+                markerEnd="url(#arrowheadMove)"
+              />
+              <Path
+                start={travelEndpoint}
+                end={shotEndpoint}
+                markerEnd="url(#arrowheadShoot)"
+                strokeDasharray="1 2"
+              />
+            </Layout>
+          </HexGrid>
+        </Grid>
+        <Grid item xs={3}>
+           
         {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
       gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
           <Stack spacing={4}>
@@ -486,16 +507,18 @@ const updateWorld = async () => {
             </Button>
           </Stack>
         
-      ) : null}    */}
-     <img src={timer}  alt="Timer" />
-     {showSubmitButton &&
-        <Box mt={2} mb={2}>
-        <CustomButton variant="contained" onClick={submitMoves}>Submit Moves</CustomButton>
-        </Box>  
-        }
-      <PlayerStatus ships={ships}/> 
+      ) : null}  
+          <img src={timer} alt="Timer" />
+        
+            <Box mt={2} mb={2}>
+              <CustomButton variant="contained" onClick={submitMoves} disabled={!showSubmitButton}>
+                Submit Moves
+              </CustomButton>
+            </Box>
+          
+          <PlayerStatus ships={ships} />
+        </Grid>
       </Grid>
-      </Grid>
-      </Fragment>
+    </Fragment>
   );
 }

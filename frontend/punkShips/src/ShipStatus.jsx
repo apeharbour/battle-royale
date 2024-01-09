@@ -18,23 +18,24 @@ const punkShips = [
     { name: "Superyacht", range: 2, speed: 6, image: img5 },
   ];
 
-const ShipPaper = styled(Paper)({
-  maxWidth: '200px',
-  borderRadius: '30px',
-  overflow: 'hidden',
-  margin: 'auto',
-  backgroundColor: '#424242'
-});
+  const ShipPaper = styled(Paper)({
+    maxWidth: '240px',
+    borderRadius: '30px',
+    overflow: 'hidden',
+    margin: 'auto auto 40px auto', 
+    backgroundColor: 'rgba(195, 208, 243, 0.5)'
 
-const TopSection = styled('div')({
-  backgroundColor: '#424242',
-  padding: '16px',
-});
+  });
 
-const BottomSection = styled('div')({
-  backgroundColor: '#CCE2E6',
-  padding: '16px',
-});
+  const TopSection = styled('div')({
+    backgroundColor: 'rgba(195, 208, 243, 0.5)',
+    padding: '16px',
+  });
+
+  const BottomSection = styled('div')({
+    backgroundColor: 'rgba(215, 227, 249, 0.5)',
+    padding: '16px',
+  });
 
 const ShipImage = styled('img')({
   maxWidth: '100%',
@@ -51,7 +52,7 @@ export default function ShipStatus (props) {
   return (
     <ShipPaper elevation={4}>
       <TopSection>
-        <Typography variant="h6" color="common.white">
+        <Typography variant="h6" color="black" sx={{ fontWeight: '700' }}>
           Your Ship
         </Typography>
       </TopSection>

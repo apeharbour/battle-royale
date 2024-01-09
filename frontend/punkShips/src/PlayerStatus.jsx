@@ -18,10 +18,11 @@ const punkShips = [
 ];
 
 const PlayerPaper = styled(Paper)({
-  maxWidth: '300px',  
-  borderRadius: '30px',
+  maxWidth: '240px',  
+  borderRadius: '45px',
   overflow: 'hidden',
-  backgroundColor: '#424242'
+  backgroundColor: 'rgba(195, 208, 243, 0.9)',
+  margin: '60px auto auto auto',
 });
 
 const ShipImage = styled('img')({
@@ -39,10 +40,10 @@ const PlayerStatus = ({ ships }) => {
   return (
     <Box sx={{ overflowX: 'auto' }}>
       <PlayerPaper elevation={4}>
-        <Typography variant="h6" component="div" sx={{ p: 2, backgroundColor: '#424242', color: 'white' }}>
+        <Typography variant="h6" component="div" sx={{ p: 2, backgroundColor: 'rgba(195, 208, 243, 0.9)', color: 'black', fontWeight: '700' }}>
           Player Status
         </Typography>
-        <TableContainer component={Paper} sx={{ borderTopLeftRadius: '35px', borderTopRightRadius: '35px', backgroundColor: '#CCE2E6'}}>
+        <TableContainer component={Paper} sx={{ borderTopLeftRadius: '35px', borderTopRightRadius: '35px', backgroundColor: 'rgba(215, 227, 249, 0.8)'}}>
           <Table sx={{ minWidth: 'auto' }} aria-label="simple table">
             <TableHead>
               <TableRow>
