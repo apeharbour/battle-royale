@@ -38,7 +38,7 @@ const PlayerStatus = ({ ships }) => {
   };
 
   return (
-    <Box sx={{ overflowX: 'auto' }}>
+    <Box ml={10}>
       <PlayerPaper elevation={4}>
         <Typography variant="h6" component="div" sx={{ p: 2, backgroundColor: 'rgba(195, 208, 243, 0.9)', color: 'black', fontWeight: '700' }}>
           Player Status

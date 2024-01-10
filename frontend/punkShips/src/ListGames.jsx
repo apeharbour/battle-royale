@@ -4,8 +4,9 @@ import { useQuery, gql } from "@apollo/client";
 import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
 import GameAbi from "./abis/GamePunk.json";                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        
 import { ethers } from "ethers";
+import Registration from "./Registration";
 
-const GAME_ADDRESS = "0xFbadD58d6317637af3Dad09BFa8F10C82ccDa2b0";
+const GAME_ADDRESS = "0x07FDE55d91347eDB0fEd9a6b5D541bc09d048525";
 const GAME_ABI = GameAbi.abi;
 
 const GET_GAMES = gql`
@@ -23,9 +24,12 @@ export default function ListGames(props) {
   const [provider, setProvider] = useState(null);
   const [player, setPlayer] = useState(null);
   const [gameId, setGameId] = useState(1);
+  const [regGameId, setRegGameId] = useState(1);
   const [endGameId, setEndGameId] = useState(1);
   const [sortedGames, setSortedGames] = useState([]);
   const [radius, setRadius] = useState(4);
+  const [registrationContractAddress, setRegistrationContractAdress] =
+  useState("");
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -74,6 +78,15 @@ export default function ListGames(props) {
       console.log('End Game:', tx)
     }
   }
+
+  const registrationContract = async () => {
+    if (contract) {
+      const tx = await contract
+        .setRegistrationContract(registrationContractAddress)
+        .catch(console.error);
+      await tx.wait();
+    }
+  };
 
   return (
     <Grid container spacing={2}>
@@ -131,6 +144,32 @@ export default function ListGames(props) {
                   End Game
                 </Button>
               </Stack>
+              <Box mt={2}>
+              <Stack spacing={2} direction="row">
+                <TextField
+                  variant="outlined"
+                  value={registrationContractAddress}
+                  label='Reg Contract'
+                  onChange={(e) =>
+                    setRegistrationContractAdress(e.target.value)
+                  }
+                />
+                  <TextField
+                  variant='outlined'
+                  value={regGameId}
+                  label='Reg GameID'
+                  onChange={e => {
+                    setRegGameId(parseInt(e.target.value))
+                  }}
+                /> 
+                <Button variant="contained" onClick={registrationContract}>
+                  Set
+                </Button>
+              </Stack>
+              </Box>
+              <Box mt={2}>
+              <Registration gameId={regGameId} />
+              </Box>
       </Grid>
     </Grid>
   );

@@ -1156,7 +1156,7 @@ exports.handler = async (event) => {
           "type": "function"
         }
       ];
-    const contractAddress = '0xFbadD58d6317637af3Dad09BFa8F10C82ccDa2b0';
+    const contractAddress = '0x07FDE55d91347eDB0fEd9a6b5D541bc09d048525';
     const contract = new ethers.Contract(contractAddress, contractABI, wallet);
     try {
         // Call allowSubmitMoves

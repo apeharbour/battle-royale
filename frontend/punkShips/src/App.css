@@ -89,11 +89,6 @@ svg path {
   stroke-linejoin: round;
 }
 
-
-svg {
-  border: 1px solid yellow;
-}
-
 .headerContainer {
   display: flex;
   justify-content: space-between;

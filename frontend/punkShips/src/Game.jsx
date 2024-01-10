@@ -14,7 +14,6 @@ import {
   Text,
 } from "react-hexgrid";
 import Coordinates from "./Coordinates";
-import Registration from "./Registration";
 import { useLayoutContext } from "react-hexgrid/lib/Layout";
 import GameAbi from "./abis/GamePunk.json";
 import log from "./images/log.png";
@@ -24,7 +23,7 @@ import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
 
-const GAME_ADDRESS = "0xFbadD58d6317637af3Dad09BFa8F10C82ccDa2b0";
+const GAME_ADDRESS = "0x07FDE55d91347eDB0fEd9a6b5D541bc09d048525";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
@@ -414,18 +413,17 @@ export default function Game(props) {
                 </Button>
               </Stack>
             ) : null}
-            <Registration gameId={id} />
           </Stack>
         </Grid>
         <Grid item xs={3}>
-          {myShip && (
+          {myShip && myShip.range && (
             <ShipStatus range={myShip.range} speed={myShip.shotRange} />
           )}
 
            <Logs gameId={id} />
         </Grid>
         <Grid item xs={6}>
-          <HexGrid width={800} height={800} viewBox="-5 -20 120 120">
+          <HexGrid width={800} height={800} viewBox="7 -20 120 120">
             <defs>
               <marker
                 id="arrowheadMove"
