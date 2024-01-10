@@ -23,9 +23,7 @@ module.exports = {
   networks: {
     sepolia: {
       url: process.env.SEPOLIA_URL,
-      accounts: {
-        mnemonic: process.env.SEPOLIA_MNEMONIC,
-      },
+      accounts: [process.env.SEPOLIA_PRIVATE_KEY]
     },
     localhost: {
       url: "http://0.0.0.0:8545",

@@ -1,0 +1,97 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: GamePunk
+    network: sepolia
+    source:
+      abi: GamePunk
+      address: "0x07FDE55d91347eDB0fEd9a6b5D541bc09d048525"
+      startBlock: 5055101
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - CommitPhaseStarted
+        - GameEnded
+        - GameStarted
+        - GameUpdated
+        - GameWinner
+        - MapInitialized
+        - MapShrink
+        - MoveCommitted
+        - MoveSubmitted
+        - OwnershipTransferred
+        - PlayerAdded
+        - PlayerDefeated
+        - ShipCollidedWithIsland
+        - ShipHit
+        - ShipMoved
+        - ShipMovedInGame
+        - ShipShot
+        - ShipSunk
+        - ShipSunkOutOfMap
+        - SubmitPhaseStarted
+        - WorldUpdated
+        - Game
+        - Player
+        - Round
+        - Move
+        - Shot
+        - Island
+        - Cell
+      abis:
+        - name: GamePunk
+          file: ./abis/GamePunk.json
+      eventHandlers:
+        - event: CommitPhaseStarted(uint8)
+          handler: handleCommitPhaseStarted
+        - event: GameEnded(uint8)
+          handler: handleGameEnded
+        - event: GameStarted(uint8)
+          handler: handleGameStarted
+        - event: GameUpdated(indexed bool,indexed address,uint8)
+          handler: handleGameUpdated
+        - event: GameWinner(indexed address,uint8)
+          handler: handleGameWinner
+        - event: MapInitialized(uint8,uint8)
+          handler: handleMapInitialized
+        - event: MapShrink(uint8)
+          handler: handleMapShrink
+        - event: MoveCommitted(indexed address,uint8)
+          handler: handleMoveCommitted
+        - event: MoveSubmitted(indexed address,uint8,uint256,uint8,uint8,uint8,uint8)
+          handler: handleMoveSubmitted
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PlayerAdded(indexed address,uint8,uint8,uint8,uint8,uint8)
+          handler: handlePlayerAdded
+        - event: PlayerDefeated(indexed address,uint8)
+          handler: handlePlayerDefeated
+        - event: ShipCollidedWithIsland(indexed address,uint8,uint8,uint8)
+          handler: handleShipCollidedWithIsland
+        - event: ShipHit(indexed address,indexed address,uint8)
+          handler: handleShipHit
+        - event: ShipMoved(indexed address,uint8,uint8,uint8,uint8,uint8)
+          handler: handleShipMoved
+        - event: ShipMovedInGame(indexed address,uint8)
+          handler: handleShipMovedInGame
+        - event: ShipShot(indexed address,uint8,uint8,uint8,uint8,uint8)
+          handler: handleShipShot
+        - event: ShipSunk(indexed address,uint8)
+          handler: handleShipSunk
+        - event: ShipSunkOutOfMap(indexed address,uint8)
+          handler: handleShipSunkOutOfMap
+        - event: SubmitPhaseStarted(uint8,uint256)
+          handler: handleSubmitPhaseStarted
+        - event: WorldUpdated(uint8)
+          handler: handleWorldUpdated
+        - event: Island(uint8,uint8,uint8)
+          handler: handleIsland
+        - event: Cell(uint8,uint8,uint8,bool)
+          handler: handleCell
+        - event: NewRound(uint8,uint256,uint8)
+          handler: handleNewRound
+      file: ./src/game-punk.ts

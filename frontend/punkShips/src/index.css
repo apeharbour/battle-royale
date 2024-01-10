@@ -1,25 +1,20 @@
+@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap');
+
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Existing root definitions */
+  font-family: 'Pixelify Sans', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
   color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  /* Define your color variables */
+  --light-color: #d4eaff; /* Light shade */
+  --dark-color: #a4d3ff; /* Dark shade - adjust as needed */
 }
 
 body {
@@ -28,6 +23,22 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  color: rgba(255, 255, 255, 0.87);
+
+  /* Apply the gradient background */
+  background: linear-gradient(to right, var(--dark-color), var(--light-color), var(--dark-color));
+  
+  /* Other styles... */
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #535bf2;
 }
 
 h1 {
@@ -46,9 +57,11 @@ button {
   cursor: pointer;
   transition: border-color 0.25s;
 }
+
 button:hover {
   border-color: #646cff;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
@@ -59,9 +72,11 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
+
   a:hover {
     color: #747bff;
   }
+
   button {
     background-color: #f9f9f9;
   }

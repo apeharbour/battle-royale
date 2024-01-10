@@ -9,12 +9,12 @@ interface IGamePunk {
 
 contract RegistrationPunk is Ownable {
 
-    //Events
-     event PlayerAdded(address indexed player);
-     event RegistrationClosed(bool registrationClosed);
+    // Events
+    event PlayerAdded(address indexed player, uint8 gameId);
+    event RegistrationClosed(bool registrationClosed);
 
     IGamePunk public gamePunk;
-    mapping(address => bool) public registeredAddresses;
+    mapping(address => mapping(uint8 => bool)) public registeredAddresses;
     bool public registrationClosed = false;
 
     constructor(address _gamePunkAddress) Ownable(msg.sender) {
@@ -22,12 +22,12 @@ contract RegistrationPunk is Ownable {
     }
 
     function registerPlayer(uint8 gameId, uint8 _speed, uint8 _range) public {
-        require(!registeredAddresses[msg.sender], "Player already registered");
         require(!registrationClosed, "Registration closed for the game");
-        
+        require(!registeredAddresses[msg.sender][gameId], "Player already registered for this game");
+
         gamePunk.addShip(msg.sender, gameId, _speed, _range);
-        emit PlayerAdded(msg.sender);
-        registeredAddresses[msg.sender] = true;
+        emit PlayerAdded(msg.sender, gameId);
+        registeredAddresses[msg.sender][gameId] = true;
     }
 
     function closeRegistration() public onlyOwner {
