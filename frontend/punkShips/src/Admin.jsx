@@ -35,6 +35,14 @@ export default function Game(props) {
         }
       };
 
+      const stopRegistration = async () => {
+        if (contract !== null) {
+          console.log(`Closing player registration for game with ID: ${props.gameId} `);
+          const tx = await contract.closeRegistration().catch(console.error);
+          await tx.wait();
+        }
+      };
+
     return (
         <Fragment>
               <Stack spacing={2} direction="row">
@@ -48,6 +56,13 @@ export default function Game(props) {
                 />
                 <Button variant="contained" onClick={registrationContract}>
                   Set
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={stopRegistration}
+                  color="error"
+                >
+                  Stop Registration
                 </Button>
               </Stack>
         </Fragment>      
