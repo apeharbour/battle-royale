@@ -1159,18 +1159,10 @@ exports.handler = async (event) => {
     const contractAddress = '0x07FDE55d91347eDB0fEd9a6b5D541bc09d048525';
     const contract = new ethers.Contract(contractAddress, contractABI, wallet);
     try {
-        // Call allowSubmitMoves
-        const tx1 = await contract.allowSubmitMoves(1);
-        await tx1.wait();
-        console.log('allowSubmitMoves executed:', tx1);
-
-        // Wait for 5 minutes
-        await new Promise(resolve => setTimeout(resolve, 288000)); 
-
         // Call updateWorld
-        const tx2 = await contract.updateWorld(1);
-        await tx2.wait();
-        console.log('updateWorld executed:', tx2);
+        const tx1 = await contract.updateWorld(1);
+        await tx1.wait();
+        console.log('updateWorld executed:', tx1);
     } catch (error) {
         console.error('Error:', error);
         throw new Error('Error executing contract functions');

@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "./App.css";
 import ListGames from "./ListGames";
 import Game from "./Game";
+import Admin from "./Admin";
 import Header from "./Header";
 import { Box } from '@mui/material';
 
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<ListGames />} />
         <Route path=":gameId" element={<Game />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
     </div>
