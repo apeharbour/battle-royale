@@ -23,7 +23,7 @@ import img3 from "./images/7.png";
 import img4 from "./images/4.png";
 import img5 from "./images/5.png";
 
-const REGISTRATION_ADDRESS = "0x6cC2704BF95860AeD55D76319a2E1A18DBc95874";
+const REGISTRATION_ADDRESS = "0x31247BfB632aEd8CD10395EE8f1063Ed68C6DF22";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 const punkShips = [
@@ -67,19 +67,11 @@ export default function RegistrationPunk(props) {
     if (contract !== null) {
       console.log("Adding ship");
       const tx = await contract
-        .registerPlayer(props.gameId, selectedYacht.movement, selectedYacht.shoot)
+        .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
         .catch(console.error);
       await tx.wait();
     }
     console.log("Added ship");
-  };
-
-  const stopRegistration = async () => {
-    if (contract !== null) {
-      console.log(`Closing player registration for game with ID: ${props.gameId} `);
-      const tx = await contract.closeRegistration().catch(console.error);
-      await tx.wait();
-    }
   };
 
   return (
@@ -90,18 +82,6 @@ export default function RegistrationPunk(props) {
         </AccordionSummary>
         <AccordionDetails sx={{ backgroundColor: "cyan"}} >
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              {player === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
-              player === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
-                <Button
-                  variant="contained"
-                  onClick={stopRegistration}
-                  color="error"
-                >
-                  Stop Registration
-                </Button>
-              ) : null}
-            </Grid>
             <Grid item xs={7}>
               {punkShips.map((ship, index) => (
                 <Card

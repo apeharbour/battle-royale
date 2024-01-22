@@ -13,7 +13,9 @@ contract RegistrationPunk is Ownable {
     IGamePunk public gamePunk;
     mapping(address => Player) public registeredPlayers;
     address[] private registeredPlayerAddresses;
-    bool public registrationClosed = false;
+    bool public registrationClosed = true;
+    uint8 public lastGameId = 0;
+    uint8 public registrationPhase = 0;
     struct Player {
         bool registered;
         uint8 speed;
@@ -22,6 +24,16 @@ contract RegistrationPunk is Ownable {
 
     constructor(address _gamePunkAddress) Ownable(msg.sender) {
         gamePunk = IGamePunk(_gamePunkAddress);
+    }
+
+     function startRegistration() public onlyOwner {
+        registrationClosed = false;
+        lastGameId += 1;
+
+         for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
+            delete registeredPlayers[registeredPlayerAddresses[i]];
+        }
+        delete registeredPlayerAddresses;
     }
 
     function registerPlayer(uint8 _speed, uint8 _range) public {
@@ -35,7 +47,6 @@ contract RegistrationPunk is Ownable {
      function closeRegistration() public onlyOwner {
         registrationClosed = true;
         uint8 maxPlayersPerGame = 8;
-        uint8 gameId = 1;
         uint8 playerIndex = 0;
         address[] memory players = new address[](maxPlayersPerGame);
         uint8[] memory speeds = new uint8[](maxPlayersPerGame);
@@ -43,7 +54,7 @@ contract RegistrationPunk is Ownable {
 
         for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
             if(playerIndex == 0) {
-                gamePunk.startNewGame(gameId, 6);
+                gamePunk.startNewGame(lastGameId, 6);
             }
             address playerAddress = registeredPlayerAddresses[i];
             Player storage player = registeredPlayers[playerAddress];
@@ -54,8 +65,8 @@ contract RegistrationPunk is Ownable {
             playerIndex++;
 
             if (playerIndex == maxPlayersPerGame) {
-                gamePunk.addShip(gameId, players, speeds, ranges);
-                gameId++;
+                gamePunk.addShip(lastGameId, players, speeds, ranges);
+                lastGameId++;
                 playerIndex = 0;
             }
         }
@@ -70,7 +81,7 @@ contract RegistrationPunk is Ownable {
                 lastBatchSpeeds[i] = speeds[i];
                 lastBatchRanges[i] = ranges[i];
             }
-            gamePunk.addShip(gameId, lastBatchPlayers, lastBatchSpeeds, lastBatchRanges);
+            gamePunk.addShip(lastGameId, lastBatchPlayers, lastBatchSpeeds, lastBatchRanges);
         }
     }
 }

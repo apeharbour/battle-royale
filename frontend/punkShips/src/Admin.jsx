@@ -1,14 +1,18 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
 import GameAbi from "./abis/GamePunk.json";
+import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { TextField, Button, Stack } from "@mui/material";
 
 const GAME_ADDRESS = "0x47f321419Aa908bcb090BBF4dc8E9Fc72c47358f";
 const GAME_ABI = GameAbi.abi;
+const REGISTRATION_ADDRESS = "0x31247BfB632aEd8CD10395EE8f1063Ed68C6DF22";
+const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Game(props) {
 
-    const [contract, setContract] = useState(null);
+    const [gameContract, setGameContract] = useState(null);
+    const [regiContract, setRegiContract] = useState(null);
     const [provider, setProvider] = useState(null);
     const [player, setPlayer] = useState(null);
     const [registrationContractAddress, setRegistrationContractAdress] = useState("");
@@ -17,8 +21,10 @@ export default function Game(props) {
         const fetchContract = async () => {
           const provider = new ethers.BrowserProvider(window.ethereum);
           const signer = await provider.getSigner();
-          const contract = new ethers.Contract(GAME_ADDRESS, GAME_ABI, signer);
-          setContract(contract);
+          const gameContract = new ethers.Contract(GAME_ADDRESS, GAME_ABI, signer);
+          const regiContract = new ethers.Contract(REGISTRATION_ADDRESS, REGISTRATION_ABI, signer);
+          setGameContract(gameContract);
+          setRegiContract(regiContract);
           setProvider(provider);
           setPlayer(signer.address);
         };
@@ -27,18 +33,24 @@ export default function Game(props) {
       }, []);
 
       const registrationContract = async () => {
-        if (contract) {
-          const tx = await contract
+        if (gameContract) {
+          const tx = await gameContract
             .setRegistrationContract(registrationContractAddress)
             .catch(console.error);
           await tx.wait();
         }
       };
 
+      const startRegistration = async () => {
+        if (regiContract !== null) {
+          const tx = await regiContract.startRegistration().catch(console.error);
+          await tx.wait();
+        }
+      }
+
       const stopRegistration = async () => {
-        if (contract !== null) {
-          console.log(`Closing player registration for game with ID: ${props.gameId} `);
-          const tx = await contract.closeRegistration().catch(console.error);
+        if (regiContract !== null) {
+          const tx = await regiContract.closeRegistration().catch(console.error);
           await tx.wait();
         }
       };
@@ -56,6 +68,9 @@ export default function Game(props) {
                 />
                 <Button variant="contained" onClick={registrationContract}>
                   Set
+                </Button>
+                <Button variant="contained" color="success" onClick={startRegistration}>
+                  Start Registration
                 </Button>
                 <Button
                   variant="contained"

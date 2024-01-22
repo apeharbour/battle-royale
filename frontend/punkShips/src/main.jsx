@@ -9,7 +9,7 @@ import {
 import App from "./App.jsx";
 import "./index.css";
 
-const SUBGRAPH_URL = 'https://subgraph.satsuma-prod.com/7a321097545d/jayants-personal--362208/gamePunk/api';
+const SUBGRAPH_URL = 'https://subgraph.satsuma-prod.com/7a321097545d/jayants-personal--362208/LatestPunkGraph/api';
 
 
 const client = new ApolloClient({
