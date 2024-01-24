@@ -11,6 +11,7 @@ export default function Header() {
             <a href="/">
                 <img src={punkShips} className="punkShipsLogo" alt="Punk Ships Logo" />
             </a>
+            <Button variant="contained" href="/admin">Admin</Button>
             <Button variant="contained" className="connectButton">Connect</Button>
         </div>
     );

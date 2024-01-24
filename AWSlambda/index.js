@@ -3,7 +3,6 @@ const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client
 
 const region = "eu-north-1";
 const secretName = "APHDevWallet";
-
 const client = new SecretsManagerClient({ region: region });
 
 exports.handler = async (event) => {
@@ -1156,11 +1155,12 @@ exports.handler = async (event) => {
           "type": "function"
         }
       ];
-    const contractAddress = '0x07FDE55d91347eDB0fEd9a6b5D541bc09d048525';
+    const contractAddress = '0x47f321419Aa908bcb090BBF4dc8E9Fc72c47358f';
     const contract = new ethers.Contract(contractAddress, contractABI, wallet);
     try {
         // Call updateWorld
-        const tx1 = await contract.updateWorld(1);
+        const { gameId } = JSON.parse(event.body);
+        const tx1 = await contract.updateWorld(gameId);
         await tx1.wait();
         console.log('updateWorld executed:', tx1);
     } catch (error) {

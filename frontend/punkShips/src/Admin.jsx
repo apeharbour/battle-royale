@@ -45,15 +45,46 @@ export default function Game(props) {
         if (regiContract !== null) {
           const tx = await regiContract.startRegistration().catch(console.error);
           await tx.wait();
+          console.log(tx);
         }
       }
 
-      const stopRegistration = async () => {
+      const closeRegistration = async () => {
         if (regiContract !== null) {
           const tx = await regiContract.closeRegistration().catch(console.error);
           await tx.wait();
+
+          const lastGameId = await regiContract.lastGameId();
+
+          for (let gameId = 1; gameId <= lastGameId; gameId++) {
+            triggerLambdaFunction(gameId);
+        }
         }
       };
+
+      const triggerLambdaFunction = async (gameId) => {
+        const apiEndpoint = 'https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated';
+        const postData = {
+            gameId: gameId.toString(),
+            scheduleTime: "0 */1 * * *" // Cron expression for every 1 hours
+        };
+    
+        try {
+            const response = await fetch(apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(postData),
+            });
+    
+            const responseData = await response.json();
+            console.log('API Response for Game ID:', gameId, responseData);
+        } catch (error) {
+            console.error('API Call Error for Game ID:', gameId, error);
+        }
+    };
+    
 
     return (
         <Fragment>
@@ -74,7 +105,7 @@ export default function Game(props) {
                 </Button>
                 <Button
                   variant="contained"
-                  onClick={stopRegistration}
+                  onClick={closeRegistration}
                   color="error"
                 >
                   Stop Registration

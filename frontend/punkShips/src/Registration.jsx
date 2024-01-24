@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
 import {
   Accordion,
@@ -75,8 +75,8 @@ export default function RegistrationPunk(props) {
   };
 
   return (
-    <Container>
-      <Accordion sx={{ width: '100%' }}>
+    <Fragment>
+      <Accordion sx={{ width: '200%' }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "cyan"}}>
           <Typography variant="h6">Register with Punk Ships</Typography>
         </AccordionSummary>
@@ -147,7 +147,7 @@ export default function RegistrationPunk(props) {
           </Grid>
         </AccordionDetails>
       </Accordion>
-    </Container>
+    </Fragment>
   )
 }
 
