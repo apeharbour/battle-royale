@@ -4,9 +4,9 @@ import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { TextField, Button, Stack } from "@mui/material";
 
-const GAME_ADDRESS = "0x47f321419Aa908bcb090BBF4dc8E9Fc72c47358f";
+const GAME_ADDRESS = "0x32d3aeB465451DD615a413174C4197F6Be244468";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x31247BfB632aEd8CD10395EE8f1063Ed68C6DF22";
+const REGISTRATION_ADDRESS = "0x82826ED189b640bf5e4a3d5E4A483C87297ed76c";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Game(props) {
@@ -54,7 +54,9 @@ export default function Game(props) {
           const tx = await regiContract.closeRegistration().catch(console.error);
           await tx.wait();
 
-          const lastGameId = await regiContract.lastGameId();
+          const lastGameIdBigInt = await regiContract.lastGameId();
+          const lastGameId = Number(lastGameIdBigInt);
+          console.log(lastGameId);
 
           for (let gameId = 1; gameId <= lastGameId; gameId++) {
             triggerLambdaFunction(gameId);

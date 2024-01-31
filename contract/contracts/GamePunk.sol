@@ -134,7 +134,7 @@ contract GamePunk is  Ownable {
     }   
 
     // function to let players submit moves
-     function allowSubmitMoves(uint8 gameId) public onlyOwner {
+     function allowSubmitMoves(uint8 gameId) internal {
         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         // games[gameId].letCommitMoves = false;
         games[gameId].letSubmitMoves = true;

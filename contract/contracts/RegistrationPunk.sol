@@ -2,6 +2,7 @@
 pragma solidity ^0.8.12;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
 interface IGamePunk {
     function startNewGame(uint8 gameId, uint8 radius) external;
@@ -51,6 +52,7 @@ contract RegistrationPunk is Ownable {
         address[] memory players = new address[](maxPlayersPerGame);
         uint8[] memory speeds = new uint8[](maxPlayersPerGame);
         uint8[] memory ranges = new uint8[](maxPlayersPerGame);
+        console.log("Im here register players in the game:", registeredPlayerAddresses.length);
 
         for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
             if(playerIndex == 0) {

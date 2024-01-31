@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "GamePunk": {
+      "address": "0x32d3aeB465451DD615a413174C4197F6Be244468",
+      "startBlock": 0
+    }
+  }
+}
