@@ -23,7 +23,7 @@ import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
 
-const GAME_ADDRESS = "0x07FDE55d91347eDB0fEd9a6b5D541bc09d048525";
+const GAME_ADDRESS = "0x47f321419Aa908bcb090BBF4dc8E9Fc72c47358f";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;

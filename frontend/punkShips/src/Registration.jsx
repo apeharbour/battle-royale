@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
 import {
   Accordion,
@@ -23,7 +23,7 @@ import img3 from "./images/7.png";
 import img4 from "./images/4.png";
 import img5 from "./images/5.png";
 
-const REGISTRATION_ADDRESS = "0x03c4F7c69De42d15ebE1767aD2626710c33Dd134";
+const REGISTRATION_ADDRESS = "0x26D745e12f8D5e215d81e90ED79854Fd9cB9faEA";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 const punkShips = [
@@ -67,41 +67,21 @@ export default function RegistrationPunk(props) {
     if (contract !== null) {
       console.log("Adding ship");
       const tx = await contract
-        .registerPlayer(props.gameId, selectedYacht.movement, selectedYacht.shoot)
+        .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
         .catch(console.error);
       await tx.wait();
     }
     console.log("Added ship");
   };
 
-  const stopRegistration = async () => {
-    if (contract !== null) {
-      console.log(`Closing player registration for game with ID: ${props.gameId} `);
-      const tx = await contract.closeRegistration().catch(console.error);
-      await tx.wait();
-    }
-  };
-
   return (
-    <Container>
-      <Accordion sx={{ width: '100%' }}>
+    <Fragment>
+      <Accordion sx={{ width: '200%' }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ backgroundColor: "cyan"}}>
           <Typography variant="h6">Register with Punk Ships</Typography>
         </AccordionSummary>
         <AccordionDetails sx={{ backgroundColor: "cyan"}} >
           <Grid container spacing={2}>
-            <Grid item xs={12}>
-              {player === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
-              player === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
-                <Button
-                  variant="contained"
-                  onClick={stopRegistration}
-                  color="error"
-                >
-                  Stop Registration
-                </Button>
-              ) : null}
-            </Grid>
             <Grid item xs={7}>
               {punkShips.map((ship, index) => (
                 <Card
@@ -167,7 +147,7 @@ export default function RegistrationPunk(props) {
           </Grid>
         </AccordionDetails>
       </Accordion>
-    </Container>
+    </Fragment>
   )
 }
 

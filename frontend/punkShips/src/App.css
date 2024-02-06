@@ -59,7 +59,11 @@ svg g.island .hexagon {
 
 svg .highlighted .hexagon {
   /* fill: rgb(114, 195, 239); */
-  filter: brightness(120%);
+  filter: brightness(200%);
+}
+
+svg .unfocused .hexagon {
+  
 }
 
 svg .myShip .hexagon {
