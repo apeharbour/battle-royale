@@ -5,7 +5,7 @@ async function main() {
 
   console.log("Deploying contracts with the account:", deployer.address);
 
-  const GAME_ADDRESS = "0x47f321419Aa908bcb090BBF4dc8E9Fc72c47358f";
+  const GAME_ADDRESS = "0x32d3aeB465451DD615a413174C4197F6Be244468";
 
 
   const registration = await ethers.deployContract("RegistrationPunk", [GAME_ADDRESS]);

@@ -6,7 +6,7 @@ import { TextField, Button, Stack } from "@mui/material";
 
 const GAME_ADDRESS = "0x32d3aeB465451DD615a413174C4197F6Be244468";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x82826ED189b640bf5e4a3d5E4A483C87297ed76c";
+const REGISTRATION_ADDRESS = "0x26D745e12f8D5e215d81e90ED79854Fd9cB9faEA";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Game(props) {

@@ -45,18 +45,17 @@ contract RegistrationPunk is Ownable {
         registeredPlayerAddresses.push(msg.sender);
     }
 
-     function closeRegistration() public onlyOwner {
+     function closeRegistration(uint8 _maxPlayersPerGame, uint8 _radius) public onlyOwner {
         registrationClosed = true;
-        uint8 maxPlayersPerGame = 8;
         uint8 playerIndex = 0;
-        address[] memory players = new address[](maxPlayersPerGame);
-        uint8[] memory speeds = new uint8[](maxPlayersPerGame);
-        uint8[] memory ranges = new uint8[](maxPlayersPerGame);
+        address[] memory players = new address[](_maxPlayersPerGame);
+        uint8[] memory speeds = new uint8[](_maxPlayersPerGame);
+        uint8[] memory ranges = new uint8[](_maxPlayersPerGame);
         console.log("Im here register players in the game:", registeredPlayerAddresses.length);
 
         for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
             if(playerIndex == 0) {
-                gamePunk.startNewGame(lastGameId, 6);
+                gamePunk.startNewGame(lastGameId, _radius);
             }
             address playerAddress = registeredPlayerAddresses[i];
             Player storage player = registeredPlayers[playerAddress];
@@ -66,7 +65,7 @@ contract RegistrationPunk is Ownable {
             ranges[playerIndex] = player.range;
             playerIndex++;
 
-            if (playerIndex == maxPlayersPerGame) {
+            if (playerIndex == _maxPlayersPerGame) {
                 gamePunk.addShip(lastGameId, players, speeds, ranges);
                 lastGameId++;
                 playerIndex = 0;

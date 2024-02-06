@@ -1,14 +1,3 @@
-type Cell @entity(immutable: true) {
-  id: Bytes!
-  gameId: Int! # uint8
-  q: Int! # uint8
-  r: Int! # uint8
-  island: Boolean! # bool
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
 type CommitPhaseStarted @entity(immutable: true) {
   id: Bytes!
   gameId: Int! # uint8
@@ -82,21 +71,6 @@ type MoveSubmitted @entity(immutable: true) {
   id: Bytes!
   player: Bytes! # address
   gameId: Int! # uint8
-  roundId: BigInt! # uint256
-  destQ: Int! # uint8
-  destR: Int! # uint8
-  shotQ: Int! # uint8
-  shotR: Int! # uint8
-  blockNumber: BigInt!
-  blockTimestamp: BigInt!
-  transactionHash: Bytes!
-}
-
-type NewRound @entity(immutable: true) {
-  id: Bytes!
-  gameId: Int! # uint8
-  roundId: BigInt! # uint256
-  radius: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -115,10 +89,6 @@ type PlayerAdded @entity(immutable: true) {
   id: Bytes!
   player: Bytes! # address
   gameId: Int! # uint8
-  q: Int! # uint8
-  r: Int! # uint8
-  speed: Int! # uint8
-  range: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -137,8 +107,6 @@ type ShipCollidedWithIsland @entity(immutable: true) {
   id: Bytes!
   captain: Bytes! # address
   gameId: Int! # uint8
-  q: Int! # uint8
-  r: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -222,4 +190,94 @@ type WorldUpdated @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+}
+
+# Manuelly created objects
+type Game @entity {
+  id: Bytes!
+  gameId: Int
+  radius: Int
+  centerQ: Int
+  centerR: Int
+  currentRound: Round!
+  state: GameState!
+  players: [Player!]! @derivedFrom(field: "game")
+  rounds: [Round!]! @derivedFrom(field: "game")
+  cells: [Cell!]! @derivedFrom(field: "game")
+}
+
+type Player @entity {
+  id: Bytes!
+  address: Bytes!
+  q: Int!
+  r: Int!
+  range: Int!
+  shotRange: Int!
+  game: Game!
+  state: PlayerState!
+  kills: Int
+}
+
+type Round @entity {
+  game: Game
+  id: Bytes!
+  round: BigInt!
+  radius: Int!
+  shrunk: Boolean!
+  moves: [Move!]! @derivedFrom(field: "round")
+  shots: [Shot!]! @derivedFrom(field: "round")
+}
+
+type Move @entity {
+  id: Bytes!
+  game: Game!
+  round: Round!
+  player: Player!
+  originQ: Int!
+  originR: Int!
+  destinationQ: Int!
+  destinationR: Int!
+  # state:
+}
+
+type Shot @entity {
+  id: Bytes!
+  game: Game!
+  round: Round!
+  player: Player!
+  originQ: Int!
+  originR: Int!
+  destinationQ: Int!
+  destinationR: Int!
+}
+
+type Island @entity(immutable: true) {
+  id: Bytes!
+  game: Game!
+  q: Int!
+  r: Int!
+}
+
+type Cell @entity(immutable: true) {
+  id: Bytes!
+  game: Game!
+  q: Int!
+  r: Int!
+  island: Boolean!
+}
+
+enum PlayerState {
+  active
+  dropped
+  beached
+  crashed
+  shot
+  draw
+  won
+}
+
+enum GameState {
+  registering
+  active
+  finished
 }
