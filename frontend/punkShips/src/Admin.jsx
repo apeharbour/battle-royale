@@ -9,7 +9,7 @@ const GAME_ABI = GameAbi.abi;
 const REGISTRATION_ADDRESS = "0x26D745e12f8D5e215d81e90ED79854Fd9cB9faEA";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
-export default function Game(props) {
+export default function Admin(props) {
 
     const [gameContract, setGameContract] = useState(null);
     const [regiContract, setRegiContract] = useState(null);

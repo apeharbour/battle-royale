@@ -34,7 +34,7 @@ const punkShips = [
   { name: "Superyacht", movement: 2, shoot: 6, image: img5 },
 ];
 
-export default function RegistrationPunk(props) {
+export default function Registration(props) {
   const [contract, setContract] = useState(null);
   const [provider, setProvider] = useState(null);
   const [player, setPlayer] = useState(null);
