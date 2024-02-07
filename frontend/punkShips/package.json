@@ -10,27 +10,27 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@apollo/client": "^3.8.7",
-    "@emotion/react": "^11.11.1",
+    "@apollo/client": "^3.9.3",
+    "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
     "@fontsource/merriweather": "^5.0.8",
-    "@mui/icons-material": "^5.14.18",
-    "@mui/material": "^5.14.18",
-    "ethers": "^6.8.1",
+    "@mui/icons-material": "^5.15.8",
+    "@mui/material": "^5.15.7",
+    "ethers": "^6.10.0",
     "graphql": "^16.8.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hexgrid": "^2.0.1",
-    "react-router-dom": "^6.20.0"
+    "react-router-dom": "^6.22.0"
   },
   "devDependencies": {
-    "@types/react": "^18.2.37",
-    "@types/react-dom": "^18.2.15",
-    "@vitejs/plugin-react": "^4.2.0",
-    "eslint": "^8.55.0",
+    "@types/react": "^18.2.55",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "eslint": "^8.56.0",
     "eslint-plugin-react": "^7.33.2",
     "eslint-plugin-react-hooks": "^4.6.0",
-    "eslint-plugin-react-refresh": "^0.4.4",
-    "vite": "^5.0.0"
+    "eslint-plugin-react-refresh": "^0.4.5",
+    "vite": "^5.0.12"
   }
 }
