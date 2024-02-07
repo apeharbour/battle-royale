@@ -23,7 +23,7 @@ import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
 
-const GAME_ADDRESS = "0x47f321419Aa908bcb090BBF4dc8E9Fc72c47358f";
+const GAME_ADDRESS = "0x10dc42828B50d3b4B72C54600280E9B628eD5f73";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
@@ -146,6 +146,7 @@ export default function Game(props) {
   const [state, setState] = useState(TRAVELLING);
   const [viewBoxValues, setViewBoxValues] = useState("2 -20 135 135");
   const [showSubmitButton, setShowSubmitButton] = useState(false);
+  const [randomInt, setRandomInt] = useState(generateRandomInt());
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -331,6 +332,10 @@ export default function Game(props) {
     return 6;
   };
 
+  function generateRandomInt() {
+    return Math.floor(Math.random() * 99) + 1;
+  }
+
   const submitMoves = async () => {
     let qTravel = travelEndpoint.q - myShip.q;
     let rTravel = travelEndpoint.r - myShip.r;
@@ -345,6 +350,20 @@ export default function Game(props) {
     console.log("Travel Distance: ", travelDistance);
     console.log("Shot Direction: ", shotDirection);
     console.log("Shot Distance: ", shotDistance);
+
+    if (contract) {
+      setRandomInt(generateRandomInt());
+      const moveHash = ethers.solidityPackedKeccak256(
+        ['uint8', 'uint8', 'uint8', 'uint8', 'uint8', 'uint256'],
+        [direction, distance, shotDirection, shotDistance, gameId, randomInt]
+      )
+
+      const tx = await contract.commitMove(moveHash, gameId).catch(console.error)
+      await tx.wait()
+
+      console.log(tx)
+      console.log(moveHash)
+    }
 
     if (contract) {
       const tx = await contract
