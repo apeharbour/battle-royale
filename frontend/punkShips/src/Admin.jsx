@@ -51,7 +51,7 @@ export default function Admin(props) {
 
       const closeRegistration = async () => {
         if (regiContract !== null) {
-          const tx = await regiContract.closeRegistration().catch(console.error);
+          const tx = await regiContract.closeRegistration(8,6).catch(console.error);
           await tx.wait();
 
           const lastGameIdBigInt = await regiContract.lastGameId();
