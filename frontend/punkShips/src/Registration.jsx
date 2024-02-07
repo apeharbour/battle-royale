@@ -23,7 +23,7 @@ import img3 from "./images/7.png";
 import img4 from "./images/4.png";
 import img5 from "./images/5.png";
 
-const REGISTRATION_ADDRESS = "0x26D745e12f8D5e215d81e90ED79854Fd9cB9faEA";
+const REGISTRATION_ADDRESS = "0x9f6B8fB16545878d8711F3E7e8fd9B6C570F2FcC";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 const punkShips = [
@@ -34,7 +34,7 @@ const punkShips = [
   { name: "Superyacht", movement: 2, shoot: 6, image: img5 },
 ];
 
-export default function RegistrationPunk(props) {
+export default function Registration(props) {
   const [contract, setContract] = useState(null);
   const [provider, setProvider] = useState(null);
   const [player, setPlayer] = useState(null);

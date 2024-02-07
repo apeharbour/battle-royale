@@ -4,12 +4,12 @@ import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { TextField, Button, Stack } from "@mui/material";
 
-const GAME_ADDRESS = "0x32d3aeB465451DD615a413174C4197F6Be244468";
+const GAME_ADDRESS = "0x10dc42828B50d3b4B72C54600280E9B628eD5f73";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x26D745e12f8D5e215d81e90ED79854Fd9cB9faEA";
+const REGISTRATION_ADDRESS = "0x9f6B8fB16545878d8711F3E7e8fd9B6C570F2FcC";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
-export default function Game(props) {
+export default function Admin(props) {
 
     const [gameContract, setGameContract] = useState(null);
     const [regiContract, setRegiContract] = useState(null);
@@ -51,7 +51,7 @@ export default function Game(props) {
 
       const closeRegistration = async () => {
         if (regiContract !== null) {
-          const tx = await regiContract.closeRegistration().catch(console.error);
+          const tx = await regiContract.closeRegistration(8,6).catch(console.error);
           await tx.wait();
 
           const lastGameIdBigInt = await regiContract.lastGameId();
