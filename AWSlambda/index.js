@@ -1126,7 +1126,7 @@ exports.handler = async (event) => {
       "stateMutability": "nonpayable",
       "type": "function"
     }];
-    const contractAddress = '0x47f321419Aa908bcb090BBF4dc8E9Fc72c47358f';
+    const contractAddress = '0x10dc42828B50d3b4B72C54600280E9B628eD5f73';
     const contract = new ethers.Contract(contractAddress, contractABI, wallet);
     try {
         // Call updateWorld

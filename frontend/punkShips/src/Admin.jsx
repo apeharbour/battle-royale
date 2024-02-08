@@ -72,6 +72,7 @@ export default function Admin(props) {
         };
     
         try {
+            console.log('Sending API Request for Game ID:', gameId, postData);
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
