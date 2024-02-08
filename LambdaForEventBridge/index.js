@@ -13,9 +13,10 @@ exports.handler = async (event) => {
         // Create or Update the EventBridge rule
         await eventbridge.putRule({
             Name: ruleName,
-            ScheduleExpression: `cron(${scheduleTime})`, // Ensure 'scheduleTime' is in cron format
+            ScheduleExpression: `cron(${scheduleTime.trim()})`, // Using trim() to remove any accidental leading/trailing spaces
             State: 'ENABLED'
         }).promise();
+        
 
         // Set the target as your smart contract interaction Lambda function
         await eventbridge.putTargets({
