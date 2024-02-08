@@ -61,7 +61,7 @@ export default function Admin(props) {
         //   for (let gameId = 1; gameId <= lastGameId; gameId++) {
         //     triggerLambdaFunction(gameId);
         // }
-        triggerLambdaFunction(6);
+        triggerLambdaFunction(7);
         }
       };
 
@@ -69,9 +69,9 @@ export default function Admin(props) {
         const apiEndpoint = 'https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated';
         const postData = {
             gameId: gameId.toString(),
-            scheduleTime: "0 0 */1 * * ? *" // Cron expression for every 1 hours
+            scheduleTime: " 0 1 * * ? *" // Cron expression for every 1 hours
         };
-    
+       
         try {
             console.log('Sending API Request for Game ID:', gameId, postData);
             const response = await fetch(apiEndpoint, {
