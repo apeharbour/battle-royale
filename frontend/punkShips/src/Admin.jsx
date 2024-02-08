@@ -61,7 +61,7 @@ export default function Admin(props) {
         //   for (let gameId = 1; gameId <= lastGameId; gameId++) {
         //     triggerLambdaFunction(gameId);
         // }
-        triggerLambdaFunction(7);
+        triggerLambdaFunction(8);
         }
       };
 
