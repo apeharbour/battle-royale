@@ -1,30 +1,14 @@
+const AWS = require('aws-sdk');
 const { ethers } = require('ethers');
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
 
 const region = "eu-north-1";
-const secretName = "APHDevWallet";
-const client = new SecretsManagerClient({ region: region });
+const secretName = "YourSecretNameHere";
+const secretsClient = new SecretsManagerClient({ region: region });
+const dynamoDb = new AWS.DynamoDB.DocumentClient({ region: region });
 
-exports.handler = async (event) => {
-    const url = "https://eth-sepolia.g.alchemy.com/v2/S1MSWAqlr5h1kcztMrV5h9I3-ibEaQWK";
-    let privateKey;
-
-    // Fetch the secret from AWS Secrets Manager
-    try {
-        const response = await client.send(new GetSecretValueCommand({
-            SecretId: secretName,
-            VersionStage: "AWSCURRENT", 
-        }));
-        const secret = JSON.parse(response.SecretString);
-        privateKey = secret.APHPrivateKey;
-    } catch (error) {
-        console.error('Error retrieving secret:', error);
-        throw error;
-    }
-    const provider = new ethers.JsonRpcProvider(url);   
-    const wallet = new ethers.Wallet(privateKey, provider);
-
-    const contractABI = [ {
+const contractABI = [
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -660,6 +644,24 @@ exports.handler = async (event) => {
     {
       "inputs": [
         {
+          "internalType": "bytes32",
+          "name": "moveHash",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint8",
+          "name": "gameId",
+          "type": "uint8"
+        }
+      ],
+      "name": "commitMove",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "uint8",
           "name": "gameId",
           "type": "uint8"
@@ -999,39 +1001,6 @@ exports.handler = async (event) => {
     {
       "inputs": [
         {
-          "internalType": "enum SharedStructs.Directions",
-          "name": "_travelDirection",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "_travelDistance",
-          "type": "uint8"
-        },
-        {
-          "internalType": "enum SharedStructs.Directions",
-          "name": "_shotDirection",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "_shotDistance",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "gameId",
-          "type": "uint8"
-        }
-      ],
-      "name": "revealMove",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
           "name": "_registrationContract",
           "type": "address"
@@ -1056,6 +1025,49 @@ exports.handler = async (event) => {
         }
       ],
       "name": "startNewGame",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "enum SharedStructs.Directions[]",
+          "name": "_travelDirections",
+          "type": "uint8[]"
+        },
+        {
+          "internalType": "uint8[]",
+          "name": "_travelDistances",
+          "type": "uint8[]"
+        },
+        {
+          "internalType": "enum SharedStructs.Directions[]",
+          "name": "_shotDirections",
+          "type": "uint8[]"
+        },
+        {
+          "internalType": "uint8[]",
+          "name": "_shotDistances",
+          "type": "uint8[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "secrets",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "playerAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint8",
+          "name": "gameId",
+          "type": "uint8"
+        }
+      ],
+      "name": "submitMove",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -1125,17 +1137,103 @@ exports.handler = async (event) => {
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
-    }];
-    const contractAddress = '0x10dc42828B50d3b4B72C54600280E9B628eD5f73';
-    const contract = new ethers.Contract(contractAddress, contractABI, wallet);
+    }
+  ]; 
+const contractAddress = '0xB29EB360720DE3FC7BB14E6F91bcA6E0bdF50a66';
+
+exports.handler = async (event) => {
+    const url = "https://eth-sepolia.g.alchemy.com/v2/S1MSWAqlr5h1kcztMrV5h9I3-ibEaQWK";
+    let privateKey;
+
+    // Fetch the secret from AWS Secrets Manager
     try {
-        // Call updateWorld
-        const { gameId } = JSON.parse(event.body);
-        const tx1 = await contract.updateWorld(gameId);
-        await tx1.wait();
-        console.log('updateWorld executed:', tx1);
+        const response = await secretsClient.send(new GetSecretValueCommand({
+            SecretId: secretName,
+            VersionStage: "AWSCURRENT", 
+        }));
+        const secret = JSON.parse(response.SecretString);
+        privateKey = secret.APHPrivateKey;
     } catch (error) {
-        console.error('Error:', error);
-        throw new Error('Error executing contract functions');
+        console.error('Error retrieving secret:', error);
+        throw error;
+    }
+
+    const provider = new ethers.JsonRpcProvider(url);
+    const wallet = new ethers.Wallet(privateKey, provider);
+    const contract = new ethers.Contract(contractAddress, contractABI, wallet);
+
+    // Parse the gameId from the event
+    const { gameId } = JSON.parse(event.body);
+
+    // Fetch player moves from DynamoDB
+    const playerMoves = await fetchPlayerMoves(gameId);
+
+    // Format data for smart contract
+    const { travelDirections, travelDistances, shotDirections, shotDistances, secrets, playerAddresses } = formatDataForContract(playerMoves);
+
+    // Call the smart contract function
+    try {
+        const tx = await contract.submitMove(travelDirections, travelDistances, shotDirections, shotDistances, secrets, playerAddresses, gameId);
+        await tx.wait();
+        console.log('submitMove executed:', tx.hash);
+
+        // After successful smart contract execution, delete player moves
+        await deletePlayerMoves(gameId);
+    } catch (error) {
+        console.error('Error executing contract function or deleting player moves:', error);
+        throw error;
     }
 };
+
+async function fetchPlayerMoves(gameId) {
+    const params = {
+        TableName: 'BattleRoyalePlayerMoves',
+        KeyConditionExpression: 'gameId = :gameId',
+        ExpressionAttributeValues: { ':gameId': gameId },
+    };
+
+    try {
+        const data = await dynamoDb.query(params).promise();
+        return data.Items;
+    } catch (error) {
+        console.error('Error fetching player moves from DynamoDB:', error);
+        throw error;
+    }
+}
+
+function formatDataForContract(playerMoves) {
+    let travelDirections = [], travelDistances = [], shotDirections = [], shotDistances = [], secrets = [], playerAddresses = [];
+
+    playerMoves.forEach(move => {
+        travelDirections.push(move.travelDirection);
+        travelDistances.push(move.travelDistance);
+        shotDirections.push(move.shotDirection);
+        shotDistances.push(move.shotDistance);
+        secrets.push(move.secretValue);
+        playerAddresses.push(move.playerAddress);
+    });
+
+    return { travelDirections, travelDistances, shotDirections, shotDistances, secrets, playerAddresses };
+}
+
+async function deletePlayerMoves(gameId) {
+    const playerMoves = await fetchPlayerMoves(gameId);
+    const MAX_BATCH_SIZE = 25;
+    let batchWriteParams = { RequestItems: { 'BattleRoyalePlayerMoves': [] } };
+
+    for (let i = 0; i < playerMoves.length; i++) {
+        batchWriteParams.RequestItems['BattleRoyalePlayerMoves'].push({
+            DeleteRequest: { Key: { 'gameId': playerMoves[i].gameId, 'playerAddress': playerMoves[i].playerAddress } }
+        });
+
+        if (batchWriteParams.RequestItems['BattleRoyalePlayerMoves'].length === MAX_BATCH_SIZE || i === playerMoves.length - 1) {
+            try {
+                await dynamoDb.batchWrite(batchWriteParams).promise();
+                console.log(`Batch delete successful for batch ending at index ${i}`);
+                batchWriteParams.RequestItems['BattleRoyalePlayerMoves'] = []; // Reset the batch
+            } catch (error) {
+                console.error('Error in batch delete:', error);
+            }
+        }
+    }
+}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
+import AWS from "aws-sdk";
 import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useQuery, gql } from "@apollo/client";
@@ -22,12 +23,21 @@ import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
-
 const GAME_ADDRESS = "0x10dc42828B50d3b4B72C54600280E9B628eD5f73";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
 const DONE = 2;
+
+AWS.config.update({
+  region: "eu-north-1",
+  credentials: new AWS.Credentials({
+    accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
+  }),
+});
+
+const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 const CustomButton = styled(Button)({
   backgroundColor: "rgba(215, 227, 249, 0.5)",
@@ -39,8 +49,8 @@ const CustomButton = styled(Button)({
     backgroundColor: "rgba(195, 208, 243, 0.5)",
   },
   "&.Mui-disabled": {
-    cursor: "not-allowed",    
-  }
+    cursor: "not-allowed",
+  },
 });
 
 const GET_GAME = gql`
@@ -136,8 +146,6 @@ export default function Game(props) {
   const [contract, setContract] = useState(null);
   const [provider, setProvider] = useState(null);
   const [gamePlayer, setGamePlayer] = useState(null);
-  const [registrationContractAddress, setRegistrationContractAdress] =
-    useState("");
   const [cells, setCells] = useState([]);
   const [ships, setShips] = useState([]);
   const [myShip, setMyShip] = useState(undefined);
@@ -160,7 +168,7 @@ export default function Game(props) {
     };
 
     fetchContract();
-  }, []);  
+  }, []);
 
   const enrichCell = (cell) => {
     const s = (cell.q + cell.r) * -1;
@@ -198,7 +206,6 @@ export default function Game(props) {
   };
 
   const updateData = (data) => {
-   
     const { games } = data;
     const game = games[0];
     console.log("Ships: ", game.players);
@@ -297,15 +304,7 @@ export default function Game(props) {
     setCells([...updatedCells]);
   };
 
-  const registrationContract = async () => {
-    if (contract) {
-      const tx = await contract
-        .setRegistrationContract(registrationContractAddress)
-        .catch(console.error);
-      await tx.wait();
-    }
-  };
-
+  //To determine the distance between two cells
   const distance = (a, b) => {
     const q1 = a.q,
       r1 = a.r;
@@ -317,6 +316,7 @@ export default function Game(props) {
     );
   };
 
+  //To determine the direction of the moves in the map
   const determineDirection = (deltaQ, deltaR) => {
     // Normalize the deltas to -1, 0, or 1
     const sign = (num) => (num === 0 ? 0 : num > 0 ? 1 : -1);
@@ -332,11 +332,45 @@ export default function Game(props) {
     return 6;
   };
 
+  //Helper Function to generate secret random number for hashing moves
   function generateRandomInt() {
     return Math.floor(Math.random() * 99) + 1;
   }
 
-  const submitMoves = async () => {
+  //To store players moves in the dynamoDB
+  const storePlayerMove = async ({
+    gameId,
+    playerAddress,
+    moveHash,
+    secretValue,
+    travelDirection,
+    travelDistance,
+    shotDirection,
+    shotDistance,
+  }) => {
+    const params = {
+      TableName: "BattleRoyalePlayerMoves",
+      Item: {
+        gameId,
+        playerAddress,
+        moveHash,
+        secretValue,
+        travelDirection,
+        travelDistance,
+        shotDirection,
+        shotDistance,
+      },
+    };
+
+    try {
+      await dynamoDb.put(params).promise();
+      console.log("Move stored successfully");
+    } catch (error) {
+      console.error("Error storing move in DynamoDB", error);
+    }
+  };
+
+  const commitMoves = async () => {
     let qTravel = travelEndpoint.q - myShip.q;
     let rTravel = travelEndpoint.r - myShip.r;
     let travelDirection = determineDirection(qTravel, rTravel);
@@ -354,37 +388,49 @@ export default function Game(props) {
     if (contract) {
       setRandomInt(generateRandomInt());
       const moveHash = ethers.solidityPackedKeccak256(
-        ['uint8', 'uint8', 'uint8', 'uint8', 'uint8', 'uint256'],
-        [direction, distance, shotDirection, shotDistance, gameId, randomInt]
-      )
-
-      const tx = await contract.commitMove(moveHash, gameId).catch(console.error)
-      await tx.wait()
-
-      console.log(tx)
-      console.log(moveHash)
-    }
-
-    if (contract) {
-      const tx = await contract
-        .revealMove(
+        ["uint8", "uint8", "uint8", "uint8", "uint8", "uint256"],
+        [
           travelDirection,
           travelDistance,
           shotDirection,
           shotDistance,
-          id
-        )
-        .catch(console.error);
-      await tx.wait();
-      console.log(tx);
+          gameId,
+          randomInt,
+        ]
+      );
+
+      try {
+        const tx = await contract
+          .commitMove(moveHash, gameId)
+          .catch(console.error);
+        await tx.wait();
+        console.log(tx);
+        console.log(moveHash);
+
+        await storePlayerMove({
+          gameId,
+          playerAddress: gamePlayer,
+          moveHash,
+          secretValue: randomInt,
+          travelDirection,
+          travelDistance,
+          shotDirection,
+          shotDistance,
+        });
+      } catch (error) {
+        console.error(
+          "Error in submitting moves or storing in DynamoDB",
+          error
+        );
+      }
       const updatedCells = cells
-        .map(clearHighlights)
-        .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
-      setTravelEndpoint(undefined);
-      setShotEndpoint(undefined);
-      setCells([...updatedCells]);
-      setState(TRAVELLING);
-      setShowSubmitButton(false);
+      .map(clearHighlights)
+      .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
+    setTravelEndpoint(undefined);
+    setShotEndpoint(undefined);
+    setCells([...updatedCells]);
+    setState(TRAVELLING);
+    setShowSubmitButton(false);
     }
   };
 
@@ -415,31 +461,12 @@ export default function Game(props) {
         <Grid item xs={4}>
           <Typography variant="h5">Game {id}</Typography>
         </Grid>
-        <Grid item xs={8}>
-          <Stack spacing={2} direction="row">
-            {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
-            gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
-              <Stack spacing={2} direction="row">
-                <TextField
-                  variant="outlined"
-                  value={registrationContractAddress}
-                  onChange={(e) =>
-                    setRegistrationContractAdress(e.target.value)
-                  }
-                />
-                <Button variant="contained" onClick={registrationContract}>
-                  Set
-                </Button>
-              </Stack>
-            ) : null}
-          </Stack>
-        </Grid>
         <Grid item xs={3}>
           {myShip && myShip.range && (
             <ShipStatus range={myShip.range} speed={myShip.shotRange} />
           )}
 
-           <Logs gameId={id} />
+          <Logs gameId={id} />
         </Grid>
         <Grid item xs={6}>
           <HexGrid width={800} height={800} viewBox="7 -20 120 120">
@@ -512,27 +539,29 @@ export default function Game(props) {
           </HexGrid>
         </Grid>
         <Grid item xs={3}>
-           
-        {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
-      gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
-          <Stack spacing={4}>
-            <Button variant="contained" onClick={allowSubmit}>
-              Allow players to submit
-            </Button>
-            <Button variant="contained" onClick={updateWorld}>
-              Update World
-            </Button>
-          </Stack>
-        
-      ) : null}  
+          {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
+          gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
+            <Stack spacing={4}>
+              <Button variant="contained" onClick={allowSubmit}>
+                Allow players to submit
+              </Button>
+              <Button variant="contained" onClick={updateWorld}>
+                Update World
+              </Button>
+            </Stack>
+          ) : null}
           <img src={timer} alt="Timer" />
-        
-            <Box mt={2} mb={2}>
-              <CustomButton variant="contained" onClick={submitMoves} disabled={!showSubmitButton}>
-                Submit Moves
-              </CustomButton>
-            </Box>
-          
+
+          <Box mt={2} mb={2}>
+            <CustomButton
+              variant="contained"
+              onClick={commitMoves}
+              disabled={!showSubmitButton}
+            >
+              Commit Moves
+            </CustomButton>
+          </Box>
+
           <PlayerStatus ships={ships} />
         </Grid>
       </Grid>

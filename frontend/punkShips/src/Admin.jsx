@@ -54,14 +54,14 @@ export default function Admin(props) {
           const tx = await regiContract.closeRegistration(8,6).catch(console.error);
           await tx.wait();
 
-        //   const lastGameIdBigInt = await regiContract.lastGameId();
-        //   const lastGameId = Number(lastGameIdBigInt);
-        //   console.log(lastGameId);
+          const lastGameIdBigInt = await regiContract.lastGameId();
+          const lastGameId = Number(lastGameIdBigInt);
+          console.log(lastGameId);
 
-        //   for (let gameId = 1; gameId <= lastGameId; gameId++) {
-        //     triggerLambdaFunction(gameId);
-        // }
-        triggerLambdaFunction(8);
+          for (let gameId = 1; gameId <= lastGameId; gameId++) {
+            triggerLambdaFunction(gameId);
+        }
+      
         }
       };
 
