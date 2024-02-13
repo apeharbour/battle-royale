@@ -4,9 +4,9 @@ import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { TextField, Button, Stack } from "@mui/material";
 
-const GAME_ADDRESS = "0x10dc42828B50d3b4B72C54600280E9B628eD5f73";
+const GAME_ADDRESS = "0xB29EB360720DE3FC7BB14E6F91bcA6E0bdF50a66";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x9f6B8fB16545878d8711F3E7e8fd9B6C570F2FcC";
+const REGISTRATION_ADDRESS = "0x90463db24497E862A848417EdFc351F32F3e4E08";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Admin(props) {
