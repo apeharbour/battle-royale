@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import AWS from "aws-sdk";
+// import AWS from "aws-sdk";
 import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { useQuery, gql } from "@apollo/client";
