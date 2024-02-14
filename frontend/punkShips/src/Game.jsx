@@ -1,7 +1,8 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
 // import AWS from "aws-sdk";
-import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
+import { Box, Grid, Stack, TextField, Typography } from "@mui/material";
+import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { useQuery, gql } from "@apollo/client";
 import { useLocation } from "react-router-dom";
@@ -349,26 +350,35 @@ export default function Game(props) {
     shotDirection,
     shotDistance,
   }) => {
-    const params = {
-      TableName: "BattleRoyalePlayerMoves",
-      Item: {
-        gameId,
-        playerAddress,
-        moveHash,
-        secretValue,
-        travelDirection,
-        travelDistance,
-        shotDirection,
-        shotDistance,
-      },
-    };
+    const apiEndpoint = 'https://w5vv6tsh9l.execute-api.eu-north-1.amazonaws.com/prod/storePlayerMove';
+  const moveData = {
+    gameId,
+    playerAddress,
+    moveHash,
+    secretValue,
+    travelDirection,
+    travelDistance,
+    shotDirection,
+    shotDistance,
+  };
 
-    try {
-      await dynamoDb.put(params).promise();
-      console.log("Move stored successfully");
-    } catch (error) {
-      console.error("Error storing move in DynamoDB", error);
+  try {
+    const response = await fetch(apiEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(moveData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+
+    console.log("Move stored successfully via API");
+  } catch (error) {
+    console.error("Error storing move via API", error);
+  }
   };
 
   const commitMoves = async () => {
