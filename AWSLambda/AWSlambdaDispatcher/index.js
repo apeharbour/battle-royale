@@ -18,7 +18,7 @@ exports.handler = async (event) => {
 
         // Invoke the next function
         await lambda.invoke({
-            FunctionName: nextFunction, // Function names should exactly match your Lambda function names
+            FunctionName: nextFunction,
             InvocationType: 'Event',
             Payload: JSON.stringify({ gameId: event.gameId })
         }).promise();

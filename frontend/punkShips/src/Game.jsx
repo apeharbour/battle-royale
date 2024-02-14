@@ -155,6 +155,7 @@ export default function Game(props) {
   const [viewBoxValues, setViewBoxValues] = useState("2 -20 135 135");
   const [showSubmitButton, setShowSubmitButton] = useState(false);
   const [randomInt, setRandomInt] = useState(generateRandomInt());
+  const gameId = id;
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -388,13 +389,12 @@ export default function Game(props) {
     if (contract) {
       setRandomInt(generateRandomInt());
       const moveHash = ethers.solidityPackedKeccak256(
-        ["uint8", "uint8", "uint8", "uint8", "uint8", "uint256"],
+        ["uint8", "uint8", "uint8", "uint8", "uint256"],
         [
           travelDirection,
           travelDistance,
           shotDirection,
           shotDistance,
-          gameId,
           randomInt,
         ]
       );
@@ -431,24 +431,6 @@ export default function Game(props) {
     setCells([...updatedCells]);
     setState(TRAVELLING);
     setShowSubmitButton(false);
-    }
-  };
-
-  const allowSubmit = async () => {
-    if (contract) {
-      const tx = await contract.allowSubmitMoves(id).catch(console.error);
-      await tx.wait();
-      console.log(tx);
-    }
-  };
-
-  const updateWorld = async () => {
-    if (contract) {
-      const tx = await contract.updateWorld(id);
-      await tx.wait();
-      allowSubmit();
-
-      updateData(data);
     }
   };
 
@@ -539,17 +521,6 @@ export default function Game(props) {
           </HexGrid>
         </Grid>
         <Grid item xs={3}>
-          {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
-          gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
-            <Stack spacing={4}>
-              <Button variant="contained" onClick={allowSubmit}>
-                Allow players to submit
-              </Button>
-              <Button variant="contained" onClick={updateWorld}>
-                Update World
-              </Button>
-            </Stack>
-          ) : null}
           <img src={timer} alt="Timer" />
 
           <Box mt={2} mb={2}>

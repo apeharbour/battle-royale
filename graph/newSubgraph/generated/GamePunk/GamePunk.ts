@@ -1101,6 +1101,40 @@ export class AddShipCall__Outputs {
   }
 }
 
+export class CommitMoveCall extends ethereum.Call {
+  get inputs(): CommitMoveCall__Inputs {
+    return new CommitMoveCall__Inputs(this);
+  }
+
+  get outputs(): CommitMoveCall__Outputs {
+    return new CommitMoveCall__Outputs(this);
+  }
+}
+
+export class CommitMoveCall__Inputs {
+  _call: CommitMoveCall;
+
+  constructor(call: CommitMoveCall) {
+    this._call = call;
+  }
+
+  get moveHash(): Bytes {
+    return this._call.inputValues[0].value.toBytes();
+  }
+
+  get gameId(): i32 {
+    return this._call.inputValues[1].value.toI32();
+  }
+}
+
+export class CommitMoveCall__Outputs {
+  _call: CommitMoveCall;
+
+  constructor(call: CommitMoveCall) {
+    this._call = call;
+  }
+}
+
 export class EndGameCall extends ethereum.Call {
   get inputs(): EndGameCall__Inputs {
     return new EndGameCall__Inputs(this);
@@ -1153,52 +1187,6 @@ export class RenounceOwnershipCall__Outputs {
   _call: RenounceOwnershipCall;
 
   constructor(call: RenounceOwnershipCall) {
-    this._call = call;
-  }
-}
-
-export class RevealMoveCall extends ethereum.Call {
-  get inputs(): RevealMoveCall__Inputs {
-    return new RevealMoveCall__Inputs(this);
-  }
-
-  get outputs(): RevealMoveCall__Outputs {
-    return new RevealMoveCall__Outputs(this);
-  }
-}
-
-export class RevealMoveCall__Inputs {
-  _call: RevealMoveCall;
-
-  constructor(call: RevealMoveCall) {
-    this._call = call;
-  }
-
-  get _travelDirection(): i32 {
-    return this._call.inputValues[0].value.toI32();
-  }
-
-  get _travelDistance(): i32 {
-    return this._call.inputValues[1].value.toI32();
-  }
-
-  get _shotDirection(): i32 {
-    return this._call.inputValues[2].value.toI32();
-  }
-
-  get _shotDistance(): i32 {
-    return this._call.inputValues[3].value.toI32();
-  }
-
-  get gameId(): i32 {
-    return this._call.inputValues[4].value.toI32();
-  }
-}
-
-export class RevealMoveCall__Outputs {
-  _call: RevealMoveCall;
-
-  constructor(call: RevealMoveCall) {
     this._call = call;
   }
 }
@@ -1263,6 +1251,60 @@ export class StartNewGameCall__Outputs {
   _call: StartNewGameCall;
 
   constructor(call: StartNewGameCall) {
+    this._call = call;
+  }
+}
+
+export class SubmitMoveCall extends ethereum.Call {
+  get inputs(): SubmitMoveCall__Inputs {
+    return new SubmitMoveCall__Inputs(this);
+  }
+
+  get outputs(): SubmitMoveCall__Outputs {
+    return new SubmitMoveCall__Outputs(this);
+  }
+}
+
+export class SubmitMoveCall__Inputs {
+  _call: SubmitMoveCall;
+
+  constructor(call: SubmitMoveCall) {
+    this._call = call;
+  }
+
+  get _travelDirections(): Array<i32> {
+    return this._call.inputValues[0].value.toI32Array();
+  }
+
+  get _travelDistances(): Array<i32> {
+    return this._call.inputValues[1].value.toI32Array();
+  }
+
+  get _shotDirections(): Array<i32> {
+    return this._call.inputValues[2].value.toI32Array();
+  }
+
+  get _shotDistances(): Array<i32> {
+    return this._call.inputValues[3].value.toI32Array();
+  }
+
+  get secrets(): Array<BigInt> {
+    return this._call.inputValues[4].value.toBigIntArray();
+  }
+
+  get playerAddresses(): Array<Address> {
+    return this._call.inputValues[5].value.toAddressArray();
+  }
+
+  get gameId(): i32 {
+    return this._call.inputValues[6].value.toI32();
+  }
+}
+
+export class SubmitMoveCall__Outputs {
+  _call: SubmitMoveCall;
+
+  constructor(call: SubmitMoveCall) {
     this._call = call;
   }
 }

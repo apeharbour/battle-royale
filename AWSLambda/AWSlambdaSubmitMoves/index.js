@@ -3,7 +3,7 @@ const { ethers } = require('ethers');
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
 
 const region = "eu-north-1";
-const secretName = "YourSecretNameHere";
+const secretName = "APHDevWallet";
 const secretsClient = new SecretsManagerClient({ region: region });
 const dynamoDb = new AWS.DynamoDB.DocumentClient({ region: region });
 
@@ -1168,6 +1168,12 @@ exports.handler = async (event) => {
     // Fetch player moves from DynamoDB
     const playerMoves = await fetchPlayerMoves(gameId);
 
+    // Check if any player moves were found
+    if (playerMoves.length === 0) {
+      console.log(`No player moves found for gameId: ${gameId}. Exiting function.`);
+      return { statusCode: 404, body: JSON.stringify({ message: `No player moves found for gameId: ${gameId}` }) };
+  }
+
     // Format data for smart contract
     const { travelDirections, travelDistances, shotDirections, shotDistances, secrets, playerAddresses } = formatDataForContract(playerMoves);
 
@@ -1189,7 +1195,7 @@ async function fetchPlayerMoves(gameId) {
     const params = {
         TableName: 'BattleRoyalePlayerMoves',
         KeyConditionExpression: 'gameId = :gameId',
-        ExpressionAttributeValues: { ':gameId': gameId },
+        ExpressionAttributeValues: { ':gameId': Number(gameId) },
     };
 
     try {
