@@ -62,7 +62,7 @@ export default function Admin(props) {
         //     triggerLambdaFunction(gameId);
         // }
 
-        triggerLambdaFunction(2);
+        triggerLambdaFunction(3);
       
         }
       };
