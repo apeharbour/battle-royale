@@ -7,8 +7,8 @@ dataSources:
     network: sepolia
     source:
       abi: GamePunk
-      address: "0xB29EB360720DE3FC7BB14E6F91bcA6E0bdF50a66"
-      startBlock: 5260149
+      address: "0x546A19Aa945fD18a6495e0DDF93153cB51623D42"
+      startBlock: 5294489
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

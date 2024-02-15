@@ -1156,7 +1156,7 @@ exports.handler = async (event) => {
         "type": "function"
       }
     ];
-    const contractAddress = '0xB29EB360720DE3FC7BB14E6F91bcA6E0bdF50a66';
+    const contractAddress = '0x546A19Aa945fD18a6495e0DDF93153cB51623D42';
     const contract = new ethers.Contract(contractAddress, contractABI, wallet);
     try {
         // Call updateWorld

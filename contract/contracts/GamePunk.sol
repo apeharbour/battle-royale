@@ -223,8 +223,9 @@ contract GamePunk is  Ownable {
         for (uint j = 0; j < cells.length; j++) {
             emit Cell(gameId, cells[j].q, cells[j].r, cells[j].island);
         }
-        emit MapInitialized(_radius,gameId);
+        
         addNewRound(gameId);
+        emit MapInitialized(_radius,gameId);
     }
 
     function addShip(uint8 gameId, address[] memory playerAddresses, uint8[] memory speeds, uint8[] memory ranges) public  onlyRegistrationContract {
