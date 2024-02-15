@@ -450,7 +450,7 @@ export default function Game(props) {
   return (
     <Fragment>
       <Grid container spacing={2}>
-        <Grid item xs={4}>
+        <Grid item xs={12}>
           <Typography variant="h5">Game {id}</Typography>
         </Grid>
         <Grid item xs={3}>
@@ -461,7 +461,7 @@ export default function Game(props) {
           <Logs gameId={id} />
         </Grid>
         <Grid item xs={6}>
-          <HexGrid width={800} height={800} viewBox="7 -20 120 120">
+          <HexGrid width={800} height={800} viewBox="18 -20 120 120">
             <defs>
               <marker
                 id="arrowheadMove"
