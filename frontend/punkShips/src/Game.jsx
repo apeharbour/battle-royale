@@ -350,35 +350,36 @@ export default function Game(props) {
     shotDirection,
     shotDistance,
   }) => {
-    const apiEndpoint = 'https://w5vv6tsh9l.execute-api.eu-north-1.amazonaws.com/prod/storePlayerMove';
-  const moveData = {
-    gameId,
-    playerAddress,
-    moveHash,
-    secretValue,
-    travelDirection,
-    travelDistance,
-    shotDirection,
-    shotDistance,
-  };
+    const apiEndpoint =
+      "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/storePlayerMoves";
+    const moveData = {
+      gameId,
+      playerAddress,
+      moveHash,
+      secretValue,
+      travelDirection,
+      travelDistance,
+      shotDirection,
+      shotDistance,
+    };
 
-  try {
-    const response = await fetch(apiEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(moveData),
-    });
+    try {
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(moveData),
+      });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      console.log("Move stored successfully via API");
+    } catch (error) {
+      console.error("Error storing move via API", error);
     }
-
-    console.log("Move stored successfully via API");
-  } catch (error) {
-    console.error("Error storing move via API", error);
-  }
   };
 
   const commitMoves = async () => {
@@ -434,13 +435,13 @@ export default function Game(props) {
         );
       }
       const updatedCells = cells
-      .map(clearHighlights)
-      .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
-    setTravelEndpoint(undefined);
-    setShotEndpoint(undefined);
-    setCells([...updatedCells]);
-    setState(TRAVELLING);
-    setShowSubmitButton(false);
+        .map(clearHighlights)
+        .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
+      setTravelEndpoint(undefined);
+      setShotEndpoint(undefined);
+      setCells([...updatedCells]);
+      setState(TRAVELLING);
+      setShowSubmitButton(false);
     }
   };
 

@@ -71,7 +71,7 @@ export default function Admin(props) {
         const apiEndpoint = 'https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated';
         const postData = {
             gameId: gameId.toString(),
-            scheduleTime: "0,15 * * * ? *" // Cron expression for every 30 mins
+            scheduleTime: "0,10 * * * ? *" // Cron expression for every 30 mins
         };
        
         try {

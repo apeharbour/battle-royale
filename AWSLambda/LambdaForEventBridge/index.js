@@ -22,7 +22,7 @@ exports.handler = async (event) => {
             Targets: [
                 {
                     Id: 'TargetFunction',
-                    Arn: 'arn:aws:lambda:eu-north-1:959450033266:function:dispatcherLambdaBattleRoyale',
+                    Arn: 'arn:aws:lambda:eu-north-1:959450033266:function:submitMoveAndUpdateWorldBattleRoyale',
                     Input: JSON.stringify({ gameId }) // Pass gameId as input to the target function
                 }
             ]
