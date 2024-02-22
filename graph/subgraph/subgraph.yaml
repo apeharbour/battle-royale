@@ -6,14 +6,15 @@ dataSources:
     name: GamePunk
     network: sepolia
     source:
-      abi: GamePunk
       address: "0x70ed0fEfd513ba2B7F622867eB6ba4Ad77a9c874"
-      startBlock: 5343179
+      abi: GamePunk
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
+        - Cell
         - CommitPhaseStarted
         - GameEnded
         - GameStarted
@@ -23,6 +24,7 @@ dataSources:
         - MapShrink
         - MoveCommitted
         - MoveSubmitted
+        - NewRound
         - OwnershipTransferred
         - PlayerAdded
         - PlayerDefeated
@@ -35,17 +37,12 @@ dataSources:
         - ShipSunkOutOfMap
         - SubmitPhaseStarted
         - WorldUpdated
-        - Game
-        - Player
-        - Round
-        - Move
-        - Shot
-        - Island
-        - Cell
       abis:
         - name: GamePunk
           file: ./abis/GamePunk.json
       eventHandlers:
+        - event: Cell(uint8,uint8,uint8,bool)
+          handler: handleCell
         - event: CommitPhaseStarted(uint8)
           handler: handleCommitPhaseStarted
         - event: GameEnded(uint8)
@@ -64,6 +61,8 @@ dataSources:
           handler: handleMoveCommitted
         - event: MoveSubmitted(indexed address,uint8,uint256,uint8,uint8,uint8,uint8)
           handler: handleMoveSubmitted
+        - event: NewRound(uint8,uint256,uint8)
+          handler: handleNewRound
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
         - event: PlayerAdded(indexed address,uint8,uint8,uint8,uint8,uint8)
@@ -88,10 +87,4 @@ dataSources:
           handler: handleSubmitPhaseStarted
         - event: WorldUpdated(uint8)
           handler: handleWorldUpdated
-        - event: Island(uint8,uint8,uint8)
-          handler: handleIsland
-        - event: Cell(uint8,uint8,uint8,bool)
-          handler: handleCell
-        - event: NewRound(uint8,uint256,uint8)
-          handler: handleNewRound
       file: ./src/game-punk.ts

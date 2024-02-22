@@ -184,23 +184,22 @@ contract MapPunk {
         }
     }
 
-    function getRandomCoordinatePair(
-        uint8 gameId
-    ) public returns (SharedStructs.Coordinate memory) {
-        uint8 gameRadius = gameRadii[gameId];
-        SharedStructs.Coordinate memory coord;
-        SharedStructs.Cell memory cell;
+   function getRandomCoordinatePair(uint8 gameId) public returns (SharedStructs.Coordinate memory, SharedStructs.Cell memory) {
+    uint8 gameRadius = gameRadii[gameId];
+    SharedStructs.Coordinate memory coord;
+    SharedStructs.Cell memory cell;
 
-        do {
-            coord = SharedStructs.Coordinate(
-                Random.getRandomValue(rnd, 2 * gameRadius),
-                Random.getRandomValue(rnd, 2 * gameRadius)
-            );
-            cell = gameHexCells[gameId][coord.r][coord.q];
-        } while (cell.island || !cell.exists);
+    do {
+        coord = SharedStructs.Coordinate(
+            Random.getRandomValue(rnd, 2 * gameRadius),
+            Random.getRandomValue(rnd, 2 * gameRadius)
+        );
+        cell = gameHexCells[gameId][coord.r][coord.q];
+    } while (cell.island || !cell.exists);
 
-        return coord;
-    }
+    // Return both the coordinate and the cell
+    return (coord, cell);
+}
 
     function getCell(
         SharedStructs.Coordinate memory _coord,

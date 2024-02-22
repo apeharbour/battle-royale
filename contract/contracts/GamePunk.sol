@@ -228,42 +228,49 @@ contract GamePunk is  Ownable {
         emit MapInitialized(_radius,gameId);
     }
 
-    function addShip(uint8 gameId, address[] memory playerAddresses, uint8[] memory speeds, uint8[] memory ranges) public  onlyRegistrationContract {
-                require(gameId < 255, "Maximum number of games reached");
-                require(games[gameId].gameInProgress, "Game not in progress");
-                require(playerAddresses.length == speeds.length && playerAddresses.length == ranges.length, "Array length mismatch");
-                
-                for (uint i = 0; i < playerAddresses.length; i++) {
-                    address playerAddress = playerAddresses[i];
-                    uint8 speed = speeds[i];
-                    uint8 range = ranges[i];
-                    if (games[gameId].ships[playerAddress].captain != address(0)) {
-                        revert ShipAlreadyAdded(playerAddress, games[gameId].ships[playerAddress].coordinate.q, games[gameId].ships[playerAddress].coordinate.r);
-                    }
-                    SharedStructs.Coordinate memory coord = map.getRandomCoordinatePair(gameId);
-    
-                    while (isCoordinateTaken(coord, gameId)) {
-                         coord = map.getRandomCoordinatePair(gameId);
-                    }
-                    Ship memory ship = Ship(
-                    coord,
-                    SharedStructs.Directions.E,
-                    0,
-                    SharedStructs.Directions.E,
-                    0,
-                    false,
-                    playerAddress,
-                    speed,
-                    range,
-                    gameId 
-                    );
+  function addShip(uint8 gameId, address[] memory playerAddresses, uint8[] memory speeds, uint8[] memory ranges) public onlyRegistrationContract {
+    require(gameId < 255, "Maximum number of games reached");
+    require(games[gameId].gameInProgress, "Game not in progress");
+    require(playerAddresses.length == speeds.length && playerAddresses.length == ranges.length, "Array length mismatch");
 
-                    games[gameId].ships[playerAddress] = ship;
-                    games[gameId].players.push(playerAddress);
+    for (uint i = 0; i < playerAddresses.length; i++) {
+        address playerAddress = playerAddresses[i];
+        uint8 speed = speeds[i];
+        uint8 range = ranges[i];
 
-                    emit PlayerAdded(playerAddress, gameId, coord.q, coord.r, speed, range);
-                }
+        if (games[gameId].ships[playerAddress].captain != address(0)) {
+            revert ShipAlreadyAdded(playerAddress, games[gameId].ships[playerAddress].coordinate.q, games[gameId].ships[playerAddress].coordinate.r);
+        }
+
+        // Assume map.getRandomCoordinatePair now returns both Coordinate and Cell
+        (SharedStructs.Coordinate memory coord, SharedStructs.Cell memory cell) = map.getRandomCoordinatePair(gameId);
+
+        // Check if the coordinate is taken or if the cell is an island, and retry if necessary
+        while (isCoordinateTaken(coord, gameId) || cell.island) {
+            (coord, cell) = map.getRandomCoordinatePair(gameId); // Re-fetch if the coordinate is taken or is an island
+        }
+
+        // Once a valid coordinate is found, create the ship
+        Ship memory ship = Ship(
+            coord,
+            SharedStructs.Directions.E,
+            0,
+            SharedStructs.Directions.E,
+            0,
+            false,
+            playerAddress,
+            speed,
+            range,
+            gameId
+        );
+
+        games[gameId].ships[playerAddress] = ship;
+        games[gameId].players.push(playerAddress);
+
+        emit PlayerAdded(playerAddress, gameId, coord.q, coord.r, speed, range);
     }
+}
+
 
     function isCoordinateTaken(SharedStructs.Coordinate memory coord, uint8 gameId) internal view returns (bool) {
         for (uint i = 0; i < games[gameId].players.length; i++) {

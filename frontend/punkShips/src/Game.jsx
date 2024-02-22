@@ -23,7 +23,7 @@ import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
-const GAME_ADDRESS = "0x03A9c20c0228e849dba1d1AA1BadD918eC9ac55A";
+const GAME_ADDRESS = "0x70ed0fEfd513ba2B7F622867eB6ba4Ad77a9c874";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
