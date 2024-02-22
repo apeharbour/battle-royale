@@ -2,7 +2,7 @@ const AWS = require('aws-sdk');
 const eventbridge = new AWS.EventBridge();
 
 exports.handler = async (event) => {
-    const { gameId, scheduleTime } = JSON.parse(event.body);  // Extract 'scheduleTime' in cron format
+    const { gameId, scheduleRate } = JSON.parse(event.body);  // Extract 'scheduleTime' in cron format
 
      // Construct a unique name for the rule based on gameId or other unique identifier
      const ruleName = `TriggerContractFunctionForGame_${gameId}`;
@@ -12,7 +12,7 @@ exports.handler = async (event) => {
         // Create or Update the EventBridge rule
         await eventbridge.putRule({
             Name: ruleName,
-            ScheduleExpression: `cron(${scheduleTime})`, // Ensure 'scheduleTime' is in cron format
+            ScheduleExpression: `rate(${scheduleRate})`,
             State: 'ENABLED'
         }).promise();
 

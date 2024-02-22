@@ -1,6 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-// import AWS from "aws-sdk";
 import { Box, Grid, Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
@@ -24,21 +23,11 @@ import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
-const GAME_ADDRESS = "0x546A19Aa945fD18a6495e0DDF93153cB51623D42";
+const GAME_ADDRESS = "0x03A9c20c0228e849dba1d1AA1BadD918eC9ac55A";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
 const DONE = 2;
-
-// AWS.config.update({
-//   region: "eu-north-1",
-//   credentials: new AWS.Credentials({
-//     accessKeyId: process.env.REACT_APP_AWS_ACCESS_KEY_ID,
-//     secretAccessKey: process.env.REACT_APP_AWS_SECRET_ACCESS_KEY,
-//   }),
-// });
-
-// const dynamoDb = new AWS.DynamoDB.DocumentClient();
 
 const CustomButton = styled(Button)({
   backgroundColor: "rgba(215, 227, 249, 0.5)",

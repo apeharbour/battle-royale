@@ -4,9 +4,9 @@ import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { TextField, Button, Stack } from "@mui/material";
 
-const GAME_ADDRESS = "0x546A19Aa945fD18a6495e0DDF93153cB51623D42";
+const GAME_ADDRESS = "0x03A9c20c0228e849dba1d1AA1BadD918eC9ac55A";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x51bc67a5A05C9f624089dDf83ee027Ce1609b094";
+const REGISTRATION_ADDRESS = "0x409E25a76220424c989242D497F00161338252A4";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Admin(props) {
@@ -62,7 +62,7 @@ export default function Admin(props) {
         //     triggerLambdaFunction(gameId);
         // }
 
-        triggerLambdaFunction(7);
+        triggerLambdaFunction(1);
       
         }
       };
@@ -71,7 +71,7 @@ export default function Admin(props) {
         const apiEndpoint = 'https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated';
         const postData = {
             gameId: gameId.toString(),
-            scheduleTime: "0,10 * * * ? *" // Cron expression for every 30 mins
+            scheduleRate: "10 minutes" 
         };
        
         try {
@@ -90,6 +90,7 @@ export default function Admin(props) {
             console.error('API Call Error for Game ID:', gameId, error);
         }
     };
+    
     
 
     return (

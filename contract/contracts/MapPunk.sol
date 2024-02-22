@@ -13,9 +13,9 @@ contract MapPunk {
         private directionVectors;
     // hexCells is the mapping holding all cells. It can be addressed with hexCells[r][q].
     // Note the rows first adressing
-    mapping(uint256 => mapping(uint8 => mapping(uint8 => SharedStructs.Cell))) public gameHexCells;
+    mapping(uint256 => mapping(uint8 => mapping(uint8 => SharedStructs.Cell)))
+        public gameHexCells;
     mapping(uint256 => uint8) public gameRadii;
-
 
     // uint8 public radius;
     Random.RandomGeneration private rnd;
@@ -113,9 +113,12 @@ contract MapPunk {
         return cells;
     }
 
-
-
-    function initCell(SharedStructs.Coordinate memory _coordinate, uint8 gameId, bool island, bool exits) private {
+    function initCell(
+        SharedStructs.Coordinate memory _coordinate,
+        uint8 gameId,
+        bool island,
+        bool exits
+    ) private {
         SharedStructs.Cell storage cell = gameHexCells[gameId][_coordinate.r][
             _coordinate.q
         ];
@@ -125,15 +128,19 @@ contract MapPunk {
         cell.exists = true;
     }
 
-    function initMap(uint8 _radius, uint8 gameId) public returns (SharedStructs.Cell[] memory) {
+    function initMap(
+        uint8 _radius,
+        uint8 gameId
+    ) public returns (SharedStructs.Cell[] memory) {
         if (_radius > MAX_RADIUS) {
             revert MapSizeMustBeInRange(_radius, MAX_RADIUS);
         }
-       gameRadii[gameId] = _radius;
+        gameRadii[gameId] = _radius;
 
-
-          uint256 numberOfCells = 1 + 3 * _radius * (_radius + 1);
-        SharedStructs.Cell[] memory cells = new SharedStructs.Cell[](numberOfCells);
+        uint256 numberOfCells = 1 + 3 * _radius * (_radius + 1);
+        SharedStructs.Cell[] memory cells = new SharedStructs.Cell[](
+            numberOfCells
+        );
         // set center cell
         cells[0] = SharedStructs.Cell(_radius, _radius, false, true);
         gameHexCells[gameId][_radius][_radius] = SharedStructs.Cell({
@@ -144,46 +151,53 @@ contract MapPunk {
         });
 
         for (uint8 i = 1; i <= _radius; i++) {
-          // loop through all radii
+            // loop through all radii
             uint256 start = 1 + 3 * (i - 1) * i; // #of cells at radius -1
-            SharedStructs.Coordinate[] memory currentRing = ring(SharedStructs.Coordinate(_radius, _radius), i);
+            SharedStructs.Coordinate[] memory currentRing = ring(
+                SharedStructs.Coordinate(_radius, _radius),
+                i
+            );
             for (uint8 c = 0; c < currentRing.length; c++) {
                 bool island = Random.getRandomValue(rnd, 100) < 16;
-                cells[start + c] = SharedStructs.Cell(currentRing[c].q, currentRing[c].r, island, true);
+                cells[start + c] = SharedStructs.Cell(
+                    currentRing[c].q,
+                    currentRing[c].r,
+                    island,
+                    true
+                );
                 initCell(currentRing[c], gameId, island, true);
             }
         }
-         return cells;
+        return cells;
     }
 
-function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
-    uint8 gameRadius = gameRadii[gameId];
-    uint8 actualRadius = gameRadius - shrinkNo;
-    SharedStructs.Coordinate[] memory outerRing = ring(SharedStructs.Coordinate(gameRadius, gameRadius), actualRadius);
-
-    for (uint8 i = 0; i < outerRing.length; i++) {
-        gameHexCells[gameId][outerRing[i].r][outerRing[i].q].exists = false;
-    }
-}
-
-    function getRandomCoordinatePair(uint8 gameId)
-        public
-        returns (SharedStructs.Coordinate memory)
-    {
-         uint8 gameRadius = gameRadii[gameId];
-        SharedStructs.Coordinate memory coord = SharedStructs.Coordinate(
-            Random.getRandomValue(rnd, 2 * gameRadius),
-            Random.getRandomValue(rnd, 2 * gameRadius)
+    function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
+        uint8 gameRadius = gameRadii[gameId];
+        uint8 actualRadius = gameRadius - shrinkNo;
+        SharedStructs.Coordinate[] memory outerRing = ring(
+            SharedStructs.Coordinate(gameRadius, gameRadius),
+            actualRadius
         );
-        SharedStructs.Cell memory cell = gameHexCells[gameId][coord.r][coord.q];
 
-        while (!cell.exists || cell.island) {
+        for (uint8 i = 0; i < outerRing.length; i++) {
+            gameHexCells[gameId][outerRing[i].r][outerRing[i].q].exists = false;
+        }
+    }
+
+    function getRandomCoordinatePair(
+        uint8 gameId
+    ) public returns (SharedStructs.Coordinate memory) {
+        uint8 gameRadius = gameRadii[gameId];
+        SharedStructs.Coordinate memory coord;
+        SharedStructs.Cell memory cell;
+
+        do {
             coord = SharedStructs.Coordinate(
                 Random.getRandomValue(rnd, 2 * gameRadius),
                 Random.getRandomValue(rnd, 2 * gameRadius)
             );
             cell = gameHexCells[gameId][coord.r][coord.q];
-        }
+        } while (cell.island || !cell.exists);
 
         return coord;
     }
@@ -198,7 +212,7 @@ function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
     function travel(
         SharedStructs.Coordinate memory _startCell,
         SharedStructs.Directions _direction,
-        uint8 _distance, 
+        uint8 _distance,
         uint8 gameId
     ) external view returns (bool, SharedStructs.Coordinate memory) {
         for (uint8 i = 0; i < _distance; i++) {
@@ -217,16 +231,18 @@ function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
         SharedStructs.Coordinate memory _startCell,
         SharedStructs.Directions _directions,
         uint8 _distance
-    ) external view returns (SharedStructs.Coordinate memory){
-        for(uint8 i = 0; i < _distance; i++){
+    ) external view returns (SharedStructs.Coordinate memory) {
+        for (uint8 i = 0; i < _distance; i++) {
             _startCell = neighbor(_startCell, _directions);
         }
 
         return _startCell;
     }
 
-    function deleteCell(SharedStructs.Coordinate calldata _coord, uint8 gameId) external {
-       
+    function deleteCell(
+        SharedStructs.Coordinate calldata _coord,
+        uint8 gameId
+    ) external {
         gameHexCells[gameId][_coord.r][_coord.q].exists = false;
     }
 
@@ -234,7 +250,6 @@ function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
         SharedStructs.Coordinate memory _coord,
         uint8 gameId
     ) public view returns (bool) {
-       
         SharedStructs.Cell memory c = getCell(_coord, gameId);
 
         return c.island;
