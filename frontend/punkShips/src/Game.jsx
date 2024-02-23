@@ -23,7 +23,7 @@ import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
-const GAME_ADDRESS = "0x794a3E47a440649DF90AB37A48028fD1a46eA695";
+const GAME_ADDRESS = "0xD1E897b8F83a403c59a84FbE53978DF471C14AF2";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
@@ -407,46 +407,42 @@ export default function Game(props) {
     console.log("Shot Distance: ", shotDistance);
 
     if (contract) {
-      // setRandomInt(generateRandomInt());
-      // const moveHash = ethers.solidityPackedKeccak256(
-      //   ["uint8", "uint8", "uint8", "uint8", "uint256"],
-      //   [
-      //     travelDirection,
-      //     travelDistance,
-      //     shotDirection,
-      //     shotDistance,
-      //     randomInt,
-      //   ]
-      // );
+       setRandomInt(generateRandomInt());
+       const moveHash = ethers.solidityPackedKeccak256(
+         ["uint8", "uint8", "uint8", "uint8", "uint256"],
+         [
+           travelDirection,
+           travelDistance,
+           shotDirection,
+           shotDistance,
+           randomInt,
+         ]
+       );
 
-      // try {
-      //   const tx = await contract
-      //     .commitMove(moveHash, gameId)
-      //     .catch(console.error);
-      //   await tx.wait();
-      //   console.log(tx);
-      //   console.log(moveHash);
+       try {
+         const tx = await contract
+           .commitMove(moveHash, gameId)
+           .catch(console.error);
+         await tx.wait();
+         console.log(tx);
+         console.log(moveHash);
 
-      //   await storePlayerMove({
-      //     gameId,
-      //     playerAddress: gamePlayer,
-      //     moveHash,
-      //     secretValue: randomInt,
-      //     travelDirection,
-      //     travelDistance,
-      //     shotDirection,
-      //     shotDistance,
-      //   });
-      // } catch (error) {
-      //   console.error(
-      //     "Error in submitting moves or storing in DynamoDB",
-      //     error
-      //   );
-      // }
-
-      const tx = await contract.revealMove(travelDirection, travelDistance, shotDirection, shotDistance, gameId).catch(console.error);
-      await tx.wait();
-      console.log(tx);
+         await storePlayerMove({
+           gameId,
+           playerAddress: gamePlayer,
+          moveHash,
+          secretValue: randomInt,
+           travelDirection,
+          travelDistance,
+           shotDirection,
+           shotDistance,
+      });
+       } catch (error) {
+       console.error(
+           "Error in submitting moves or storing in DynamoDB",
+         error
+         );
+       }
       const updatedCells = cells
         .map(clearHighlights)
         .map((cell) => highlightReachableCells(cell, myShip, myShip.range));

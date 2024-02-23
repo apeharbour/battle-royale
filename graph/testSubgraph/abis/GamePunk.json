@@ -1,54 +1,30 @@
 [
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_mapAddress",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "_mapAddress", "type": "address" }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "owner", "type": "address" }
     ],
     "name": "OwnableInvalidOwner",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
+      { "internalType": "address", "name": "account", "type": "address" }
     ],
     "name": "OwnableUnauthorizedAccount",
     "type": "error"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "player",
-        "type": "address"
-      },
-      {
-        "internalType": "uint8",
-        "name": "q",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "r",
-        "type": "uint8"
-      }
+      { "internalType": "address", "name": "player", "type": "address" },
+      { "internalType": "uint8", "name": "q", "type": "uint8" },
+      { "internalType": "uint8", "name": "r", "type": "uint8" }
     ],
     "name": "ShipAlreadyAdded",
     "type": "error"
@@ -167,31 +143,6 @@
     "name": "GameWinner",
     "type": "event"
   },
-  {
-    "anonymous": false,
-    "inputs": [
-        {
-            "indexed": false,
-            "internalType": "uint8",
-            "name": "gameId",
-            "type": "uint8"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint8",
-            "name": "q",
-            "type": "uint8"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint8",
-            "name": "r",
-            "type": "uint8"
-        }
-    ],
-    "name": "Island",
-    "type": "event"
-},
   {
     "anonymous": false,
     "inputs": [
@@ -631,91 +582,43 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "playerAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_speed",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_range",
-        "type": "uint8"
-      }
+      { "internalType": "address", "name": "playerAddress", "type": "address" },
+      { "internalType": "uint8", "name": "gameId", "type": "uint8" },
+      { "internalType": "uint8", "name": "_speed", "type": "uint8" },
+      { "internalType": "uint8", "name": "_range", "type": "uint8" }
     ],
     "name": "addShip",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
-    ],
-    "name": "endGame",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
+      { "internalType": "bytes32", "name": "moveHash", "type": "bytes32" },
+      { "internalType": "uint8", "name": "gameId", "type": "uint8" }
     ],
+    "name": "commitMove",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint8", "name": "gameId", "type": "uint8" }],
+    "name": "endGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
     "name": "games",
     "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "round",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint8",
-        "name": "shrinkNo",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bool",
-        "name": "gameInProgress",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "stopAddingShips",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "letCommitMoves",
-        "type": "bool"
-      },
-      {
-        "internalType": "bool",
-        "name": "letSubmitMoves",
-        "type": "bool"
-      }
+      { "internalType": "uint256", "name": "round", "type": "uint256" },
+      { "internalType": "uint8", "name": "shrinkNo", "type": "uint8" },
+      { "internalType": "bool", "name": "gameInProgress", "type": "bool" },
+      { "internalType": "bool", "name": "stopAddingShips", "type": "bool" },
+      { "internalType": "bool", "name": "letCommitMoves", "type": "bool" },
+      { "internalType": "bool", "name": "letSubmitMoves", "type": "bool" }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -724,51 +627,23 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "uint8",
-            "name": "q",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint8",
-            "name": "r",
-            "type": "uint8"
-          }
+          { "internalType": "uint8", "name": "q", "type": "uint8" },
+          { "internalType": "uint8", "name": "r", "type": "uint8" }
         ],
         "internalType": "struct SharedStructs.Coordinate",
         "name": "_coord",
         "type": "tuple"
       },
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
+      { "internalType": "uint8", "name": "gameId", "type": "uint8" }
     ],
     "name": "getCell",
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "uint8",
-            "name": "q",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint8",
-            "name": "r",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bool",
-            "name": "island",
-            "type": "bool"
-          },
-          {
-            "internalType": "bool",
-            "name": "exists",
-            "type": "bool"
-          }
+          { "internalType": "uint8", "name": "q", "type": "uint8" },
+          { "internalType": "uint8", "name": "r", "type": "uint8" },
+          { "internalType": "bool", "name": "island", "type": "bool" },
+          { "internalType": "bool", "name": "exists", "type": "bool" }
         ],
         "internalType": "struct SharedStructs.Cell",
         "name": "",
@@ -779,27 +654,13 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
-    ],
+    "inputs": [{ "internalType": "uint8", "name": "gameId", "type": "uint8" }],
     "name": "getCells",
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "uint8",
-            "name": "q",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint8",
-            "name": "r",
-            "type": "uint8"
-          }
+          { "internalType": "uint8", "name": "q", "type": "uint8" },
+          { "internalType": "uint8", "name": "r", "type": "uint8" }
         ],
         "internalType": "struct SharedStructs.Coordinate[]",
         "name": "",
@@ -810,48 +671,22 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
-    ],
+    "inputs": [{ "internalType": "uint8", "name": "gameId", "type": "uint8" }],
     "name": "getRadius",
-    "outputs": [
-      {
-        "internalType": "uint8",
-        "name": "",
-        "type": "uint8"
-      }
-    ],
+    "outputs": [{ "internalType": "uint8", "name": "", "type": "uint8" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
-    ],
+    "inputs": [{ "internalType": "uint8", "name": "gameId", "type": "uint8" }],
     "name": "getShips",
     "outputs": [
       {
         "components": [
           {
             "components": [
-              {
-                "internalType": "uint8",
-                "name": "q",
-                "type": "uint8"
-              },
-              {
-                "internalType": "uint8",
-                "name": "r",
-                "type": "uint8"
-              }
+              { "internalType": "uint8", "name": "q", "type": "uint8" },
+              { "internalType": "uint8", "name": "r", "type": "uint8" }
             ],
             "internalType": "struct SharedStructs.Coordinate",
             "name": "coordinate",
@@ -872,36 +707,12 @@
             "name": "shotDirection",
             "type": "uint8"
           },
-          {
-            "internalType": "uint8",
-            "name": "shotDistance",
-            "type": "uint8"
-          },
-          {
-            "internalType": "bool",
-            "name": "publishedMove",
-            "type": "bool"
-          },
-          {
-            "internalType": "address",
-            "name": "captain",
-            "type": "address"
-          },
-          {
-            "internalType": "uint8",
-            "name": "yachtSpeed",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint8",
-            "name": "yachtRange",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint8",
-            "name": "gameId",
-            "type": "uint8"
-          }
+          { "internalType": "uint8", "name": "shotDistance", "type": "uint8" },
+          { "internalType": "bool", "name": "publishedMove", "type": "bool" },
+          { "internalType": "address", "name": "captain", "type": "address" },
+          { "internalType": "uint8", "name": "yachtSpeed", "type": "uint8" },
+          { "internalType": "uint8", "name": "yachtRange", "type": "uint8" },
+          { "internalType": "uint8", "name": "gameId", "type": "uint8" }
         ],
         "internalType": "struct GamePunk.Ship[]",
         "name": "",
@@ -915,16 +726,8 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "uint8",
-            "name": "q",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint8",
-            "name": "r",
-            "type": "uint8"
-          }
+          { "internalType": "uint8", "name": "q", "type": "uint8" },
+          { "internalType": "uint8", "name": "r", "type": "uint8" }
         ],
         "internalType": "struct SharedStructs.Coordinate",
         "name": "_start",
@@ -935,31 +738,15 @@
         "name": "_dir",
         "type": "uint8"
       },
-      {
-        "internalType": "uint8",
-        "name": "_distance",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
+      { "internalType": "uint8", "name": "_distance", "type": "uint8" },
+      { "internalType": "uint8", "name": "gameId", "type": "uint8" }
     ],
     "name": "move",
     "outputs": [
       {
         "components": [
-          {
-            "internalType": "uint8",
-            "name": "q",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint8",
-            "name": "r",
-            "type": "uint8"
-          }
+          { "internalType": "uint8", "name": "q", "type": "uint8" },
+          { "internalType": "uint8", "name": "r", "type": "uint8" }
         ],
         "internalType": "struct SharedStructs.Coordinate",
         "name": "",
@@ -972,26 +759,14 @@
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "registrationContract",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
     "stateMutability": "view",
     "type": "function"
   },
@@ -1005,48 +780,20 @@
   {
     "inputs": [
       {
-        "internalType": "enum SharedStructs.Directions",
-        "name": "_travelDirection",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_travelDistance",
-        "type": "uint8"
-      },
-      {
-        "internalType": "enum SharedStructs.Directions",
-        "name": "_shotDirection",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_shotDistance",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
+        "internalType": "address",
+        "name": "_registrationContract",
+        "type": "address"
       }
     ],
-    "name": "revealMove",
+    "name": "setRegistrationContract",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_radius",
-        "type": "uint8"
-      }
+      { "internalType": "uint8", "name": "gameId", "type": "uint8" },
+      { "internalType": "uint8", "name": "_radius", "type": "uint8" }
     ],
     "name": "startNewGame",
     "outputs": [],
@@ -1056,10 +803,41 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "newOwner",
-        "type": "address"
-      }
+        "internalType": "enum SharedStructs.Directions[]",
+        "name": "_travelDirections",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "_travelDistances",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "enum SharedStructs.Directions[]",
+        "name": "_shotDirections",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "_shotDistances",
+        "type": "uint8[]"
+      },
+      { "internalType": "bytes32[]", "name": "_secrets", "type": "bytes32[]" },
+      {
+        "internalType": "address[]",
+        "name": "_playerAddresses",
+        "type": "address[]"
+      },
+      { "internalType": "uint8", "name": "gameId", "type": "uint8" }
+    ],
+    "name": "submitMove",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
     ],
     "name": "transferOwnership",
     "outputs": [],
@@ -1070,16 +848,8 @@
     "inputs": [
       {
         "components": [
-          {
-            "internalType": "uint8",
-            "name": "q",
-            "type": "uint8"
-          },
-          {
-            "internalType": "uint8",
-            "name": "r",
-            "type": "uint8"
-          }
+          { "internalType": "uint8", "name": "q", "type": "uint8" },
+          { "internalType": "uint8", "name": "r", "type": "uint8" }
         ],
         "internalType": "struct SharedStructs.Coordinate",
         "name": "_startCell",
@@ -1090,16 +860,8 @@
         "name": "_direction",
         "type": "uint8"
       },
-      {
-        "internalType": "uint8",
-        "name": "_distance",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
+      { "internalType": "uint8", "name": "_distance", "type": "uint8" },
+      { "internalType": "uint8", "name": "gameId", "type": "uint8" }
     ],
     "name": "travel",
     "outputs": [],
@@ -1107,13 +869,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
-    ],
+    "inputs": [{ "internalType": "uint8", "name": "gameId", "type": "uint8" }],
     "name": "updateWorld",
     "outputs": [],
     "stateMutability": "nonpayable",

@@ -5,7 +5,7 @@ async function main() {
 
   console.log("Deploying contracts with the account:", deployer.address);
 
-  const INITIAL_SEED = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const INITIAL_SEED = "0xB08ddae70172fd9322E9A78Cc1165f9D2993d888";
 
   const map = await ethers.deployContract("MapPunk", [INITIAL_SEED]);
   await map.waitForDeployment();
