@@ -161,11 +161,31 @@ export default function Game(props) {
     fetchContract();
   }, []);
 
-  const enrichCell = (cell) => {
+  const enrichCell = (cell, allCells) => {
     const s = (cell.q + cell.r) * -1;
     const state = cell.island ? "island" : "water";
     const highlighted = false;
-    const newCell = { ...cell, s, state, highlighted };
+
+    // check if there are islands as neighbors
+    const hex = new Hex(cell.q, cell.r, s);
+    const neighbors = HexUtils.neighbors(hex);
+
+    const allNeighborCells = allCells.filter((c) => neighbors.some((n) => HexUtils.equals(n, new Hex(c.q, c.r, (c.q + c.r) * -1)) ))
+
+    /* neigbor code is a 6 bit number where each bit represents a neighbor cell
+    The codes are as follows:
+    0b000001: West
+    0b000010: South West
+    0b000100: North West
+    0b001000: South East
+    0b010000: North East
+    0b100000: East */
+    // FIXME: doesn't work for cells on the edge of the map because the ring of neighbors is not complete
+    const neighborCode = allNeighborCells.reduce((acc, c, i) => 
+        acc + (c.island ? Math.pow(2, i) : 0), 0
+    )
+
+    const newCell = { ...cell, s, state, highlighted, neighborCode };
     return newCell;
   };
 
@@ -209,8 +229,8 @@ export default function Game(props) {
     console.log("My Ship: ", myShip1);
 
     // process cells
-    const cells = game.cells.map(enrichCell);
-    console.log("Cells: ", cells);
+    const cells = game.cells.map((c) => { return enrichCell(c, game.cells)});
+
     setCells([...cells]);
     const updatedCells = cells.map((c) =>
       highlightReachableCells(c, myShip1, myShip1.range)
