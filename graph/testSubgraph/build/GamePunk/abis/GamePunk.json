@@ -666,24 +666,6 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "moveHash",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
-    ],
-    "name": "commitMove",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "uint8",
         "name": "gameId",
         "type": "uint8"
@@ -1023,12 +1005,32 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_registrationContract",
-        "type": "address"
+        "internalType": "enum SharedStructs.Directions",
+        "name": "_travelDirection",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_travelDistance",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum SharedStructs.Directions",
+        "name": "_shotDirection",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_shotDistance",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
       }
     ],
-    "name": "setRegistrationContract",
+    "name": "revealMove",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1047,49 +1049,6 @@
       }
     ],
     "name": "startNewGame",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "enum SharedStructs.Directions[]",
-        "name": "_travelDirections",
-        "type": "uint8[]"
-      },
-      {
-        "internalType": "uint8[]",
-        "name": "_travelDistances",
-        "type": "uint8[]"
-      },
-      {
-        "internalType": "enum SharedStructs.Directions[]",
-        "name": "_shotDirections",
-        "type": "uint8[]"
-      },
-      {
-        "internalType": "uint8[]",
-        "name": "_shotDistances",
-        "type": "uint8[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "secrets",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "address[]",
-        "name": "playerAddresses",
-        "type": "address[]"
-      },
-      {
-        "internalType": "uint8",
-        "name": "gameId",
-        "type": "uint8"
-      }
-    ],
-    "name": "submitMove",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
