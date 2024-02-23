@@ -213,7 +213,7 @@ contract GamePunk is  Ownable {
     }
 
   function addShip(address playerAddress, uint8 gameId, uint8 _speed, uint8 _range) public returns (bool) {
-                require(games[gameId].stopAddingShips == false && games[gameId].gameInProgress == true, 'Game has not started yet!');
+                require(games[gameId].gameInProgress == true, 'Game has not started yet!');
         if (
             games[gameId].ships[playerAddress].coordinate.q > 0 &&
             games[gameId].ships[playerAddress].coordinate.r > 0

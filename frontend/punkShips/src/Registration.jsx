@@ -28,7 +28,7 @@ import img5 from "./images/5.png";
 // const REGISTRATION_ADDRESS = "0x8AE86b9FCCe0340B8aeb35B2285005303691A420";
 // const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
-const GAME_ADDRESS = "0xcC3176613eE9e95F280ad7c3e1591DE377f01d8d";
+const GAME_ADDRESS = "0x794a3E47a440649DF90AB37A48028fD1a46eA695";
 const GAME_ABI = GameAbi.abi;
 
 const punkShips = [
