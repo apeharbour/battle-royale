@@ -6,7 +6,7 @@ import "hardhat/console.sol";
 
 interface IGamePunk {
     function startNewGame(uint8 gameId, uint8 radius) external;
-    function addShip(uint8 gameId, address[] memory players, uint8[] memory speeds, uint8[] memory ranges) external;
+    function addShip(address players, uint8 gameId, uint8 speeds, uint8 ranges) external;
 }
 
 contract RegistrationPunk is Ownable {
@@ -45,45 +45,28 @@ contract RegistrationPunk is Ownable {
         registeredPlayerAddresses.push(msg.sender);
     }
 
-     function closeRegistration(uint8 _maxPlayersPerGame, uint8 _radius) public onlyOwner {
-        registrationClosed = true;
-        uint8 playerIndex = 0;
-        address[] memory players = new address[](_maxPlayersPerGame);
-        uint8[] memory speeds = new uint8[](_maxPlayersPerGame);
-        uint8[] memory ranges = new uint8[](_maxPlayersPerGame);
-        console.log("Im here register players in the game:", registeredPlayerAddresses.length);
+  function closeRegistration(uint8 _maxPlayersPerGame, uint8 _radius) public onlyOwner {
+    registrationClosed = true;
+    uint8 gamePlayerCount = 0;
 
-        for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
-            if(playerIndex == 0) {
-                gamePunk.startNewGame(lastGameId, _radius);
-            }
-            address playerAddress = registeredPlayerAddresses[i];
-            Player storage player = registeredPlayers[playerAddress];
-
-            players[playerIndex] = playerAddress;
-            speeds[playerIndex] = player.speed;
-            ranges[playerIndex] = player.range;
-            playerIndex++;
-
-            if (playerIndex == _maxPlayersPerGame) {
-                gamePunk.addShip(lastGameId, players, speeds, ranges);
-                lastGameId++;
-                playerIndex = 0;
-            }
+    for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
+        if(gamePlayerCount == 0) {
+            gamePunk.startNewGame(lastGameId, _radius); // Start a new game when the previous one is filled
         }
+        
+        address playerAddress = registeredPlayerAddresses[i];
+        Player storage player = registeredPlayers[playerAddress];
+        
+        gamePunk.addShip(playerAddress,lastGameId,player.speed, player.range);
 
-        //Last bunch of players
-        if (playerIndex > 0) {
-            address[] memory lastBatchPlayers = new address[](playerIndex);
-            uint8[] memory lastBatchSpeeds = new uint8[](playerIndex);
-            uint8[] memory lastBatchRanges = new uint8[](playerIndex);
-            for (uint8 i = 0; i < playerIndex; i++) {
-                lastBatchPlayers[i] = players[i];
-                lastBatchSpeeds[i] = speeds[i];
-                lastBatchRanges[i] = ranges[i];
-            }
-            gamePunk.addShip(lastGameId, lastBatchPlayers, lastBatchSpeeds, lastBatchRanges);
+        gamePlayerCount++;
+       
+        if (gamePlayerCount == _maxPlayersPerGame) {
+            lastGameId++;
+            gamePlayerCount = 0;
         }
     }
+}
+
 }
 
