@@ -3,37 +3,88 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum
-    name: Contract
+    name: GamePunk
     network: sepolia
     source:
       address: "0xdbe95A967Ce8fc1a74d4Ae8E67686b091079E73A"
-      abi: Contract
+      abi: GamePunk
       startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - CloseStream
-        - Deposit
-        - ExecuteTransaction
-        - OpenStream
-        - Owner
-        - Withdraw
+        - Cell
+        - CommitPhaseStarted
+        - GameEnded
+        - GameStarted
+        - GameUpdated
+        - GameWinner
+        - MapInitialized
+        - MapShrink
+        - MoveCommitted
+        - MoveSubmitted
+        - NewRound
+        - OwnershipTransferred
+        - PlayerAdded
+        - PlayerDefeated
+        - ShipCollidedWithIsland
+        - ShipHit
+        - ShipMoved
+        - ShipMovedInGame
+        - ShipShot
+        - ShipSunk
+        - ShipSunkOutOfMap
+        - SubmitPhaseStarted
+        - WorldUpdated
       abis:
-        - name: Contract
-          file: ./abis/Contract.json
+        - name: GamePunk
+          file: ./abis/GamePunk.json
       eventHandlers:
-        - event: CloseStream(indexed address)
-          handler: handleCloseStream
-        - event: Deposit(indexed address,uint256,uint256)
-          handler: handleDeposit
-        - event: ExecuteTransaction(indexed address,address,uint256,bytes,uint256,bytes32,bytes)
-          handler: handleExecuteTransaction
-        - event: OpenStream(indexed address,uint256,uint256)
-          handler: handleOpenStream
-        - event: Owner(indexed address,bool)
-          handler: handleOwner
-        - event: Withdraw(indexed address,uint256,string)
-          handler: handleWithdraw
-      file: ./src/contract.ts
+        - event: Cell(uint8,uint8,uint8,bool)
+          handler: handleCell
+        - event: CommitPhaseStarted(uint8)
+          handler: handleCommitPhaseStarted
+        - event: GameEnded(uint8)
+          handler: handleGameEnded
+        - event: GameStarted(uint8)
+          handler: handleGameStarted
+        - event: GameUpdated(indexed bool,indexed address,uint8)
+          handler: handleGameUpdated
+        - event: GameWinner(indexed address,uint8)
+          handler: handleGameWinner
+        - event: MapInitialized(uint8,uint8)
+          handler: handleMapInitialized
+        - event: MapShrink(uint8)
+          handler: handleMapShrink
+        - event: MoveCommitted(indexed address,uint8)
+          handler: handleMoveCommitted
+        - event: MoveSubmitted(indexed address,uint8,uint256,uint8,uint8,uint8,uint8)
+          handler: handleMoveSubmitted
+        - event: NewRound(uint8,uint256,uint8)
+          handler: handleNewRound
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PlayerAdded(indexed address,uint8,uint8,uint8,uint8,uint8)
+          handler: handlePlayerAdded
+        - event: PlayerDefeated(indexed address,uint8)
+          handler: handlePlayerDefeated
+        - event: ShipCollidedWithIsland(indexed address,uint8,uint8,uint8)
+          handler: handleShipCollidedWithIsland
+        - event: ShipHit(indexed address,indexed address,uint8)
+          handler: handleShipHit
+        - event: ShipMoved(indexed address,uint8,uint8,uint8,uint8,uint8)
+          handler: handleShipMoved
+        - event: ShipMovedInGame(indexed address,uint8)
+          handler: handleShipMovedInGame
+        - event: ShipShot(indexed address,uint8,uint8,uint8,uint8,uint8)
+          handler: handleShipShot
+        - event: ShipSunk(indexed address,uint8)
+          handler: handleShipSunk
+        - event: ShipSunkOutOfMap(indexed address,uint8)
+          handler: handleShipSunkOutOfMap
+        - event: SubmitPhaseStarted(uint8,uint256)
+          handler: handleSubmitPhaseStarted
+        - event: WorldUpdated(uint8)
+          handler: handleWorldUpdated
+      file: ./src/game-punk.ts

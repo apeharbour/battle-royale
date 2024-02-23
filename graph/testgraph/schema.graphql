@@ -1,59 +1,224 @@
-type CloseStream @entity(immutable: true) {
+type Cell @entity(immutable: true) {
   id: Bytes!
-  to: Bytes! # address
+  gameId: Int! # uint8
+  q: Int! # uint8
+  r: Int! # uint8
+  island: Boolean! # bool
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
 
-type Deposit @entity(immutable: true) {
+type CommitPhaseStarted @entity(immutable: true) {
   id: Bytes!
-  sender: Bytes! # address
-  amount: BigInt! # uint256
-  balance: BigInt! # uint256
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
 
-type ExecuteTransaction @entity(immutable: true) {
+type GameEnded @entity(immutable: true) {
   id: Bytes!
-  owner: Bytes! # address
-  to: Bytes! # address
-  value: BigInt! # uint256
-  data: Bytes! # bytes
-  nonce: BigInt! # uint256
-  hash: Bytes! # bytes32
-  result: Bytes! # bytes
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
 
-type OpenStream @entity(immutable: true) {
+type GameStarted @entity(immutable: true) {
   id: Bytes!
-  to: Bytes! # address
-  amount: BigInt! # uint256
-  frequency: BigInt! # uint256
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
 
-type Owner @entity(immutable: true) {
+type GameUpdated @entity(immutable: true) {
   id: Bytes!
-  owner: Bytes! # address
-  added: Boolean! # bool
+  gameStatus: Boolean! # bool
+  winnerAddress: Bytes! # address
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
 
-type Withdraw @entity(immutable: true) {
+type GameWinner @entity(immutable: true) {
   id: Bytes!
-  to: Bytes! # address
-  amount: BigInt! # uint256
-  reason: String! # string
+  winner: Bytes! # address
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MapInitialized @entity(immutable: true) {
+  id: Bytes!
+  radius: Int! # uint8
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MapShrink @entity(immutable: true) {
+  id: Bytes!
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MoveCommitted @entity(immutable: true) {
+  id: Bytes!
+  player: Bytes! # address
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type MoveSubmitted @entity(immutable: true) {
+  id: Bytes!
+  player: Bytes! # address
+  gameId: Int! # uint8
+  roundId: BigInt! # uint256
+  destQ: Int! # uint8
+  destR: Int! # uint8
+  shotQ: Int! # uint8
+  shotR: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type NewRound @entity(immutable: true) {
+  id: Bytes!
+  gameId: Int! # uint8
+  roundId: BigInt! # uint256
+  radius: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PlayerAdded @entity(immutable: true) {
+  id: Bytes!
+  player: Bytes! # address
+  gameId: Int! # uint8
+  q: Int! # uint8
+  r: Int! # uint8
+  speed: Int! # uint8
+  range: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PlayerDefeated @entity(immutable: true) {
+  id: Bytes!
+  player: Bytes! # address
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ShipCollidedWithIsland @entity(immutable: true) {
+  id: Bytes!
+  captain: Bytes! # address
+  gameId: Int! # uint8
+  q: Int! # uint8
+  r: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ShipHit @entity(immutable: true) {
+  id: Bytes!
+  victim: Bytes! # address
+  attacker: Bytes! # address
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ShipMoved @entity(immutable: true) {
+  id: Bytes!
+  captain: Bytes! # address
+  initialQ: Int! # uint8
+  initialR: Int! # uint8
+  q: Int! # uint8
+  r: Int! # uint8
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ShipMovedInGame @entity(immutable: true) {
+  id: Bytes!
+  captain: Bytes! # address
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ShipShot @entity(immutable: true) {
+  id: Bytes!
+  captain: Bytes! # address
+  fromQ: Int! # uint8
+  fromR: Int! # uint8
+  shotQ: Int! # uint8
+  shotR: Int! # uint8
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ShipSunk @entity(immutable: true) {
+  id: Bytes!
+  captain: Bytes! # address
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type ShipSunkOutOfMap @entity(immutable: true) {
+  id: Bytes!
+  captain: Bytes! # address
+  gameId: Int! # uint8
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SubmitPhaseStarted @entity(immutable: true) {
+  id: Bytes!
+  gameId: Int! # uint8
+  round: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type WorldUpdated @entity(immutable: true) {
+  id: Bytes!
+  gameId: Int! # uint8
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
