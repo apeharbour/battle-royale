@@ -1,6 +1,6 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: GamePunk
@@ -39,7 +39,7 @@ dataSources:
         - WorldUpdated
       abis:
         - name: GamePunk
-          file: ./abis/GamePunk.json
+          file: GamePunk\abis\GamePunk.json
       eventHandlers:
         - event: Cell(uint8,uint8,uint8,bool)
           handler: handleCell
@@ -87,4 +87,4 @@ dataSources:
           handler: handleSubmitPhaseStarted
         - event: WorldUpdated(uint8)
           handler: handleWorldUpdated
-      file: ./src/game-punk.ts
+      file: GamePunk\GamePunk.wasm
