@@ -170,28 +170,28 @@
   {
     "anonymous": false,
     "inputs": [
-        {
-            "indexed": false,
-            "internalType": "uint8",
-            "name": "gameId",
-            "type": "uint8"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint8",
-            "name": "q",
-            "type": "uint8"
-        },
-        {
-            "indexed": false,
-            "internalType": "uint8",
-            "name": "r",
-            "type": "uint8"
-        }
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "gameId",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
+      }
     ],
     "name": "Island",
     "type": "event"
-},
+  },
   {
     "anonymous": false,
     "inputs": [
