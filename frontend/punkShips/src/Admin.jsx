@@ -2,9 +2,9 @@ import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
 import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
-import { TextField, Button, Stack } from "@mui/material";
+import { Box, TextField, Button, Stack } from "@mui/material";
 
-const GAME_ADDRESS = "0x10dc42828B50d3b4B72C54600280E9B628eD5f73";
+const GAME_ADDRESS = "0xdbe95A967Ce8fc1a74d4Ae8E67686b091079E73A";
 const GAME_ABI = GameAbi.abi;
 const REGISTRATION_ADDRESS = "0x9f6B8fB16545878d8711F3E7e8fd9B6C570F2FcC";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
@@ -16,6 +16,9 @@ export default function Admin(props) {
     const [provider, setProvider] = useState(null);
     const [player, setPlayer] = useState(null);
     const [registrationContractAddress, setRegistrationContractAdress] = useState("");
+    const [testGameId, setTestGameId] = useState(0);
+    const [testRadius, setTestRadius] = useState(0);
+    const [testWorld, setTestWorld] = useState(0);
 
     useEffect(() => {
         const fetchContract = async () => {
@@ -86,6 +89,22 @@ export default function Admin(props) {
             console.error('API Call Error for Game ID:', gameId, error);
         }
     };
+
+    const startGameTest = async () => {
+      if (gameContract){
+        const tx = await gameContract.startNewGame(testGameId, testRadius).catch(console.error);
+        await tx.wait();
+        console.log(tx);
+      }
+    }
+
+    const endGameTest = async () => {
+      if (gameContract){
+        const tx = await gameContract.endGame(testGameId).catch(console.error);
+        await tx.wait();
+        console.log(tx);
+      }
+    }
     
 
     return (
@@ -113,6 +132,47 @@ export default function Admin(props) {
                   Stop Registration
                 </Button>
               </Stack>
+              <Box mt={10}>
+              <Stack spacing={2} direction="row">
+              <TextField
+                  variant="outlined"
+                  value={testGameId}
+                  label='Game ID'
+                  onChange={(e) =>
+                    setTestGameId(e.target.value)
+                  }
+                />
+                 <TextField
+                  variant="outlined"
+                  value={testRadius}
+                  label='Radius'
+                  onChange={(e) =>
+                    setTestRadius(e.target.value)
+                  }
+                />
+                <Button variant="contained" onClick={startGameTest}>
+                  Start Game
+                </Button>
+                <Button variant="contained" onClick={endGameTest}>
+                  End Game
+                </Button>
+              </Stack>
+              </Box>
+              <Box mt={10}>
+              <Stack spacing={2} direction="row">
+              <TextField
+                  variant="outlined"
+                  value={testWorld}
+                  label='Game ID'
+                  onChange={(e) =>
+                    setTestWorld(e.target.value)
+                  }
+                />
+                <Button variant="contained" onClick={updateWorldTest}>
+                 Update World
+                </Button>
+                </Stack>
+                </Box>  
         </Fragment>      
     );
 }

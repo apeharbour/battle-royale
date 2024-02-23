@@ -16,6 +16,7 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import GameAbi from "./abis/GamePunk.json";
 
 import img1 from "./images/6.png";
 import img2 from "./images/8.png";
@@ -23,8 +24,11 @@ import img3 from "./images/7.png";
 import img4 from "./images/4.png";
 import img5 from "./images/5.png";
 
-const REGISTRATION_ADDRESS = "0x9f6B8fB16545878d8711F3E7e8fd9B6C570F2FcC";
-const REGISTRATION_ABI = RegistrationPunkAbi.abi;
+// const REGISTRATION_ADDRESS = "0x9f6B8fB16545878d8711F3E7e8fd9B6C570F2FcC";
+// const REGISTRATION_ABI = RegistrationPunkAbi.abi;
+
+const GAME_ADDRESS = "0xdbe95A967Ce8fc1a74d4Ae8E67686b091079E73A";
+const GAME_ABI = GameAbi.abi;
 
 const punkShips = [
   { name: "Sailing Ship", movement: 6, shoot: 2, image: img1 },
@@ -40,39 +44,64 @@ export default function Registration(props) {
   const [player, setPlayer] = useState(null);
   const [selectedYacht, setSelectedYacht] = useState(null);
   const [showYachtSelectError, setShowYachtSelectError] = useState(false);
+  const [testGameId, setTestGameId] = useState(0);
+
+  // useEffect(() => {
+  //   const fetchContract = async () => {
+  //     const provider = new ethers.BrowserProvider(window.ethereum);
+  //     const signer = await provider.getSigner();
+  //     const contract = new ethers.Contract(
+  //       REGISTRATION_ADDRESS,
+  //       REGISTRATION_ABI,
+  //       signer
+  //     );
+  //     setContract(contract);
+  //     setProvider(provider);
+  //     setPlayer(signer.address);
+  //   };
+
+  //   fetchContract();
+  // }, []);
+
 
   useEffect(() => {
     const fetchContract = async () => {
       const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = await provider.getSigner();
-      const contract = new ethers.Contract(
-        REGISTRATION_ADDRESS,
-        REGISTRATION_ABI,
-        signer
-      );
+      const contract = new ethers.Contract(GAME_ADDRESS, GAME_ABI, signer);
       setContract(contract);
       setProvider(provider);
       setPlayer(signer.address);
+      // console.log("Player address:", signer.address);
     };
 
     fetchContract();
-  }, []);
+  }, []); 
 
   const handleCardClick = (ship) => {
     setSelectedYacht(ship);
     setShowYachtSelectError(false);
   };
 
+  // const register = async () => {
+  //   if (contract !== null) {
+  //     console.log("Adding ship");
+  //     const tx = await contract
+  //       .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
+  //       .catch(console.error);
+  //     await tx.wait();
+  //   }
+  //   console.log("Added ship");
+  // };
+
   const register = async () => {
     if (contract !== null) {
       console.log("Adding ship");
-      const tx = await contract
-        .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
-        .catch(console.error);
+      const tx = await contract.addShip(player, testGameId, selectedYacht.movement, selectedYacht.shoot).catch(console.error);
       await tx.wait();
-    }
-    console.log("Added ship");
-  };
+      console.log("Added ship");
+  }
+}
 
   return (
     <Fragment>

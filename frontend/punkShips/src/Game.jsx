@@ -23,7 +23,7 @@ import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
 
-const GAME_ADDRESS = "0x10dc42828B50d3b4B72C54600280E9B628eD5f73";
+const GAME_ADDRESS = "0xdbe95A967Ce8fc1a74d4Ae8E67686b091079E73A";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
@@ -370,19 +370,19 @@ export default function Game(props) {
     console.log("Shot Direction: ", shotDirection);
     console.log("Shot Distance: ", shotDistance);
 
-    if (contract) {
-      setRandomInt(generateRandomInt());
-      const moveHash = ethers.solidityPackedKeccak256(
-        ['uint8', 'uint8', 'uint8', 'uint8', 'uint8', 'uint256'],
-        [direction, distance, shotDirection, shotDistance, gameId, randomInt]
-      )
+    // if (contract) {
+    //   setRandomInt(generateRandomInt());
+    //   const moveHash = ethers.solidityPackedKeccak256(
+    //     ['uint8', 'uint8', 'uint8', 'uint8', 'uint8', 'uint256'],
+    //     [direction, distance, shotDirection, shotDistance, gameId, randomInt]
+    //   )
 
-      const tx = await contract.commitMove(moveHash, gameId).catch(console.error)
-      await tx.wait()
+    //   const tx = await contract.commitMove(moveHash, gameId).catch(console.error)
+    //   await tx.wait()
 
-      console.log(tx)
-      console.log(moveHash)
-    }
+    //   console.log(tx)
+    //   console.log(moveHash)
+    // }
 
     if (contract) {
       const tx = await contract

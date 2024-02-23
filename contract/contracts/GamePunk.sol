@@ -104,21 +104,21 @@ contract GamePunk is  Ownable {
     address public registrationContract;
 
        // Modifier to restrict the call to the registration contract
-    modifier onlyRegistrationContract() {
-        require(msg.sender == registrationContract, "Caller is not the registration contract");
-        _;
-    }
+    // modifier onlyRegistrationContract() {
+    //     require(msg.sender == registrationContract, "Caller is not the registration contract");
+    //     _;
+    // }
 
     constructor(address _mapAddress) Ownable(msg.sender) {
         map = MapPunk(_mapAddress);
     }
 
     // Function to set the registration contract's address
-    function setRegistrationContract(address _registrationContract) external onlyOwner {
-        registrationContract = _registrationContract;
-    }
+    // function setRegistrationContract(address _registrationContract) external onlyOwner {
+    //     registrationContract = _registrationContract;
+    // }
 
-  function startNewGame(uint8 gameId, uint8 _radius) public onlyRegistrationContract () {
+  function startNewGame(uint8 gameId, uint8 _radius) public onlyOwner () {
     require(gameId < 255, "Maximum number of games reached");
     require(!games[gameId].gameInProgress, "Game with this ID already in progress");
     games[gameId].gameInProgress = true;
@@ -212,50 +212,50 @@ contract GamePunk is  Ownable {
         emit MapInitialized(_radius,gameId);
     }
 
-    function addShip(uint8 gameId, address[] memory playerAddresses, uint8[] memory speeds, uint8[] memory ranges) public  onlyRegistrationContract {
-                require(gameId < 255, "Maximum number of games reached");
-                require(games[gameId].gameInProgress, "Game not in progress");
-                require(playerAddresses.length == speeds.length && playerAddresses.length == ranges.length, "Array length mismatch");
-                
-                for (uint i = 0; i < playerAddresses.length; i++) {
-                    address playerAddress = playerAddresses[i];
-                    uint8 speed = speeds[i];
-                    uint8 range = ranges[i];
-                    if (games[gameId].ships[playerAddress].captain != address(0)) {
-                        revert ShipAlreadyAdded(playerAddress, games[gameId].ships[playerAddress].coordinate.q, games[gameId].ships[playerAddress].coordinate.r);
-                    }
-                    SharedStructs.Coordinate memory coord = map.getRandomCoordinatePair(gameId);
-    
-                    while (isCoordinateTaken(coord, gameId)) {
-                         coord = map.getRandomCoordinatePair(gameId);
-                    }
-                    Ship memory ship = Ship(
-                    coord,
-                    SharedStructs.Directions.E,
-                    0,
-                    SharedStructs.Directions.E,
-                    0,
-                    false,
-                    playerAddress,
-                    speed,
-                    range,
-                    gameId 
-                    );
-
-                    games[gameId].ships[playerAddress] = ship;
-                    games[gameId].players.push(playerAddress);
-
-                    emit PlayerAdded(playerAddress, gameId, coord.q, coord.r, speed, range);
-                }
-    }
-
-    function isCoordinateTaken(SharedStructs.Coordinate memory coord, uint8 gameId) internal view returns (bool) {
-        for (uint i = 0; i < games[gameId].players.length; i++) {
-            if (games[gameId].ships[games[gameId].players[i]].coordinate.q == coord.q && games[gameId].ships[games[gameId].players[i]].coordinate.r == coord.r) {
-                return true;
-            }
+  function addShip(address playerAddress, uint8 gameId, uint8 _speed, uint8 _range) public returns (bool) {
+                require(games[gameId].stopAddingShips == false && games[gameId].gameInProgress == true, 'Game has not started yet!');
+        if (
+            games[gameId].ships[playerAddress].coordinate.q > 0 &&
+            games[gameId].ships[playerAddress].coordinate.r > 0
+        ) {
+            revert ShipAlreadyAdded(
+                playerAddress,
+                games[gameId].ships[playerAddress].coordinate.q,
+                games[gameId].ships[playerAddress].coordinate.r
+            );
         }
-        return false;
+        SharedStructs.Coordinate memory coord;
+        bool alreadyTaken = false;
+        do {
+            coord = map.getRandomCoordinatePair(gameId);
+            console.log("New rnd pair %s, %s", coord.q, coord.r);
+            for (uint8 i = 0; i < games[gameId].players.length; i++) {
+                console.log("in loop %s, address: %s", i, games[gameId].players[i]);
+                if (
+                    games[gameId].ships[games[gameId].players[i]].coordinate.q == coord.q &&
+                    games[gameId].ships[games[gameId].players[i]].coordinate.r == coord.r
+                ) {
+                    alreadyTaken = true;
+                    break;
+                }
+            }
+        } while (alreadyTaken);
+        Ship memory ship = Ship(
+            coord,
+            SharedStructs.Directions.E,
+            0,
+            SharedStructs.Directions.E,
+            0,
+            false,
+            playerAddress,
+            _speed,
+            _range,
+            gameId
+        );
+        games[gameId].ships[playerAddress] = ship;
+        games[gameId].players.push(playerAddress);
+        emit PlayerAdded(playerAddress, gameId, coord.q, coord.r, _speed, _range);
+        return true;
     }
 
     function sinkShip(address captain, uint8 gameId) internal {
