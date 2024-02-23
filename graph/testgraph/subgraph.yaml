@@ -1,0 +1,39 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Contract
+    network: sepolia
+    source:
+      address: "0xdbe95A967Ce8fc1a74d4Ae8E67686b091079E73A"
+      abi: Contract
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - CloseStream
+        - Deposit
+        - ExecuteTransaction
+        - OpenStream
+        - Owner
+        - Withdraw
+      abis:
+        - name: Contract
+          file: ./abis/Contract.json
+      eventHandlers:
+        - event: CloseStream(indexed address)
+          handler: handleCloseStream
+        - event: Deposit(indexed address,uint256,uint256)
+          handler: handleDeposit
+        - event: ExecuteTransaction(indexed address,address,uint256,bytes,uint256,bytes32,bytes)
+          handler: handleExecuteTransaction
+        - event: OpenStream(indexed address,uint256,uint256)
+          handler: handleOpenStream
+        - event: Owner(indexed address,bool)
+          handler: handleOwner
+        - event: Withdraw(indexed address,uint256,string)
+          handler: handleWithdraw
+      file: ./src/contract.ts
