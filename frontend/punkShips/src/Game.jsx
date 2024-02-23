@@ -1,6 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import { Box, Button, Grid, Stack, TextField, Typography } from "@mui/material";
+import { Box, Grid, Stack, TextField, Typography } from "@mui/material";
+import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { useQuery, gql } from "@apollo/client";
 import { useLocation } from "react-router-dom";
@@ -22,8 +23,7 @@ import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
-
-const GAME_ADDRESS = "0x10dc42828B50d3b4B72C54600280E9B628eD5f73";
+const GAME_ADDRESS = "0x8D8703f2fe61d367e215817A81BDa4bba5210C8e";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
@@ -39,8 +39,8 @@ const CustomButton = styled(Button)({
     backgroundColor: "rgba(195, 208, 243, 0.5)",
   },
   "&.Mui-disabled": {
-    cursor: "not-allowed",    
-  }
+    cursor: "not-allowed",
+  },
 });
 
 const GET_GAME = gql`
@@ -136,8 +136,6 @@ export default function Game(props) {
   const [contract, setContract] = useState(null);
   const [provider, setProvider] = useState(null);
   const [gamePlayer, setGamePlayer] = useState(null);
-  const [registrationContractAddress, setRegistrationContractAdress] =
-    useState("");
   const [cells, setCells] = useState([]);
   const [ships, setShips] = useState([]);
   const [myShip, setMyShip] = useState(undefined);
@@ -147,6 +145,7 @@ export default function Game(props) {
   const [viewBoxValues, setViewBoxValues] = useState("2 -20 135 135");
   const [showSubmitButton, setShowSubmitButton] = useState(false);
   const [randomInt, setRandomInt] = useState(generateRandomInt());
+  const gameId = id;
 
   useEffect(() => {
     const fetchContract = async () => {
@@ -160,7 +159,7 @@ export default function Game(props) {
     };
 
     fetchContract();
-  }, []);  
+  }, []);
 
   const enrichCell = (cell, allCells) => {
     const s = (cell.q + cell.r) * -1;
@@ -316,15 +315,7 @@ export default function Game(props) {
     setCells([...updatedCells]);
   };
 
-  const registrationContract = async () => {
-    if (contract) {
-      const tx = await contract
-        .setRegistrationContract(registrationContractAddress)
-        .catch(console.error);
-      await tx.wait();
-    }
-  };
-
+  //To determine the distance between two cells
   const distance = (a, b) => {
     const q1 = a.q,
       r1 = a.r;
@@ -336,6 +327,7 @@ export default function Game(props) {
     );
   };
 
+  //To determine the direction of the moves in the map
   const determineDirection = (deltaQ, deltaR) => {
     // Normalize the deltas to -1, 0, or 1
     const sign = (num) => (num === 0 ? 0 : num > 0 ? 1 : -1);
@@ -351,11 +343,55 @@ export default function Game(props) {
     return 6;
   };
 
+  //Helper Function to generate secret random number for hashing moves
   function generateRandomInt() {
     return Math.floor(Math.random() * 99) + 1;
   }
 
-  const submitMoves = async () => {
+  //To store players moves in the dynamoDB
+  const storePlayerMove = async ({
+    gameId,
+    playerAddress,
+    moveHash,
+    secretValue,
+    travelDirection,
+    travelDistance,
+    shotDirection,
+    shotDistance,
+  }) => {
+    const apiEndpoint =
+      "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/storePlayerMoves";
+    const moveData = {
+      gameId,
+      playerAddress,
+      moveHash,
+      secretValue,
+      travelDirection,
+      travelDistance,
+      shotDirection,
+      shotDistance,
+    };
+
+    try {
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(moveData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      console.log("Move stored successfully via API");
+    } catch (error) {
+      console.error("Error storing move via API", error);
+    }
+  };
+
+  const commitMoves = async () => {
     let qTravel = travelEndpoint.q - myShip.q;
     let rTravel = travelEndpoint.r - myShip.r;
     let travelDirection = determineDirection(qTravel, rTravel);
@@ -373,29 +409,40 @@ export default function Game(props) {
     if (contract) {
       setRandomInt(generateRandomInt());
       const moveHash = ethers.solidityPackedKeccak256(
-        ['uint8', 'uint8', 'uint8', 'uint8', 'uint8', 'uint256'],
-        [direction, distance, shotDirection, shotDistance, gameId, randomInt]
-      )
-
-      const tx = await contract.commitMove(moveHash, gameId).catch(console.error)
-      await tx.wait()
-
-      console.log(tx)
-      console.log(moveHash)
-    }
-
-    if (contract) {
-      const tx = await contract
-        .revealMove(
+        ["uint8", "uint8", "uint8", "uint8", "uint256"],
+        [
           travelDirection,
           travelDistance,
           shotDirection,
           shotDistance,
-          id
-        )
-        .catch(console.error);
-      await tx.wait();
-      console.log(tx);
+          randomInt,
+        ]
+      );
+
+      try {
+        const tx = await contract
+          .commitMove(moveHash, gameId)
+          .catch(console.error);
+        await tx.wait();
+        console.log(tx);
+        console.log(moveHash);
+
+        await storePlayerMove({
+          gameId,
+          playerAddress: gamePlayer,
+          moveHash,
+          secretValue: randomInt,
+          travelDirection,
+          travelDistance,
+          shotDirection,
+          shotDistance,
+        });
+      } catch (error) {
+        console.error(
+          "Error in submitting moves or storing in DynamoDB",
+          error
+        );
+      }
       const updatedCells = cells
         .map(clearHighlights)
         .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
@@ -407,61 +454,24 @@ export default function Game(props) {
     }
   };
 
-  const allowSubmit = async () => {
-    if (contract) {
-      const tx = await contract.allowSubmitMoves(id).catch(console.error);
-      await tx.wait();
-      console.log(tx);
-    }
-  };
-
-  const updateWorld = async () => {
-    if (contract) {
-      const tx = await contract.updateWorld(id);
-      await tx.wait();
-      allowSubmit();
-
-      updateData(data);
-    }
-  };
-
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error : {error.message}</p>;
 
   return (
     <Fragment>
       <Grid container spacing={2}>
-        <Grid item xs={4}>
+        <Grid item xs={12}>
           <Typography variant="h5">Game {id}</Typography>
-        </Grid>
-        <Grid item xs={8}>
-          <Stack spacing={2} direction="row">
-            {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
-            gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
-              <Stack spacing={2} direction="row">
-                <TextField
-                  variant="outlined"
-                  value={registrationContractAddress}
-                  onChange={(e) =>
-                    setRegistrationContractAdress(e.target.value)
-                  }
-                />
-                <Button variant="contained" onClick={registrationContract}>
-                  Set
-                </Button>
-              </Stack>
-            ) : null}
-          </Stack>
         </Grid>
         <Grid item xs={3}>
           {myShip && myShip.range && (
             <ShipStatus range={myShip.range} speed={myShip.shotRange} />
           )}
 
-           <Logs gameId={id} />
+          <Logs gameId={id} />
         </Grid>
         <Grid item xs={6}>
-          <HexGrid width={800} height={800} viewBox="7 -20 120 120">
+          <HexGrid width={800} height={800} viewBox="18 -20 120 120">
             <defs>
               <marker
                 id="arrowheadMove"
@@ -531,27 +541,18 @@ export default function Game(props) {
           </HexGrid>
         </Grid>
         <Grid item xs={3}>
-           
-        {gamePlayer === "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266" ||
-      gamePlayer === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" ? (
-          <Stack spacing={4}>
-            <Button variant="contained" onClick={allowSubmit}>
-              Allow players to submit
-            </Button>
-            <Button variant="contained" onClick={updateWorld}>
-              Update World
-            </Button>
-          </Stack>
-        
-      ) : null}  
           <img src={timer} alt="Timer" />
-        
-            <Box mt={2} mb={2}>
-              <CustomButton variant="contained" onClick={submitMoves} disabled={!showSubmitButton}>
-                Submit Moves
-              </CustomButton>
-            </Box>
-          
+
+          <Box mt={2} mb={2}>
+            <CustomButton
+              variant="contained"
+              onClick={commitMoves}
+              disabled={!showSubmitButton}
+            >
+              Commit Moves
+            </CustomButton>
+          </Box>
+
           <PlayerStatus ships={ships} />
         </Grid>
       </Grid>

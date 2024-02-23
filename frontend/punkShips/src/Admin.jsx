@@ -4,9 +4,9 @@ import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { TextField, Button, Stack } from "@mui/material";
 
-const GAME_ADDRESS = "0x10dc42828B50d3b4B72C54600280E9B628eD5f73";
+const GAME_ADDRESS = "0x8D8703f2fe61d367e215817A81BDa4bba5210C8e";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x9f6B8fB16545878d8711F3E7e8fd9B6C570F2FcC";
+const REGISTRATION_ADDRESS = "0x8AE86b9FCCe0340B8aeb35B2285005303691A420";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Admin(props) {
@@ -54,13 +54,16 @@ export default function Admin(props) {
           const tx = await regiContract.closeRegistration(8,6).catch(console.error);
           await tx.wait();
 
-          const lastGameIdBigInt = await regiContract.lastGameId();
-          const lastGameId = Number(lastGameIdBigInt);
-          console.log(lastGameId);
+        //   const lastGameIdBigInt = await regiContract.lastGameId();
+        //   const lastGameId = Number(lastGameIdBigInt);
+        //   console.log(lastGameId);
 
-          for (let gameId = 1; gameId <= lastGameId; gameId++) {
-            triggerLambdaFunction(gameId);
-        }
+        //   for (let gameId = 1; gameId <= lastGameId; gameId++) {
+        //     triggerLambdaFunction(gameId);
+        // }
+
+        triggerLambdaFunction(2);
+      
         }
       };
 
@@ -68,10 +71,11 @@ export default function Admin(props) {
         const apiEndpoint = 'https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated';
         const postData = {
             gameId: gameId.toString(),
-            scheduleTime: "0 */1 * * *" // Cron expression for every 1 hours
+            scheduleRate: "10 minutes" 
         };
-    
+       
         try {
+            console.log('Sending API Request for Game ID:', gameId, postData);
             const response = await fetch(apiEndpoint, {
                 method: 'POST',
                 headers: {
@@ -86,6 +90,7 @@ export default function Admin(props) {
             console.error('API Call Error for Game ID:', gameId, error);
         }
     };
+    
     
 
     return (

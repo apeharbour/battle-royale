@@ -798,6 +798,49 @@ export class GamePunk extends ethereum.SmartContract {
     return new GamePunk("GamePunk", address);
   }
 
+  addShip(
+    playerAddress: Address,
+    gameId: i32,
+    _speed: i32,
+    _range: i32
+  ): boolean {
+    let result = super.call(
+      "addShip",
+      "addShip(address,uint8,uint8,uint8):(bool)",
+      [
+        ethereum.Value.fromAddress(playerAddress),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_speed)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_range))
+      ]
+    );
+
+    return result[0].toBoolean();
+  }
+
+  try_addShip(
+    playerAddress: Address,
+    gameId: i32,
+    _speed: i32,
+    _range: i32
+  ): ethereum.CallResult<boolean> {
+    let result = super.tryCall(
+      "addShip",
+      "addShip(address,uint8,uint8,uint8):(bool)",
+      [
+        ethereum.Value.fromAddress(playerAddress),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_speed)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_range))
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBoolean());
+  }
+
   games(param0: BigInt): GamePunk__gamesResult {
     let result = super.call(
       "games",
@@ -1076,20 +1119,20 @@ export class AddShipCall__Inputs {
     this._call = call;
   }
 
+  get playerAddress(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
   get gameId(): i32 {
-    return this._call.inputValues[0].value.toI32();
+    return this._call.inputValues[1].value.toI32();
   }
 
-  get playerAddresses(): Array<Address> {
-    return this._call.inputValues[1].value.toAddressArray();
+  get _speed(): i32 {
+    return this._call.inputValues[2].value.toI32();
   }
 
-  get speeds(): Array<i32> {
-    return this._call.inputValues[2].value.toI32Array();
-  }
-
-  get ranges(): Array<i32> {
-    return this._call.inputValues[3].value.toI32Array();
+  get _range(): i32 {
+    return this._call.inputValues[3].value.toI32();
   }
 }
 
@@ -1098,6 +1141,10 @@ export class AddShipCall__Outputs {
 
   constructor(call: AddShipCall) {
     this._call = call;
+  }
+
+  get value0(): boolean {
+    return this._call.outputValues[0].value.toBoolean();
   }
 }
 
