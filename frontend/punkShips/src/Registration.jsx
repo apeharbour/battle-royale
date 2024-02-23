@@ -99,9 +99,9 @@ export default function Registration(props) {
       const tx = await contract
         .addShip(
           player,
+          testGameId,
           selectedYacht.movement,
-          selectedYacht.shoot,
-          testGameId
+          selectedYacht.shoot
         )
         .catch(console.error);
       await tx.wait();
