@@ -23,7 +23,7 @@ import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
-const GAME_ADDRESS = "0x8D8703f2fe61d367e215817A81BDa4bba5210C8e";
+const GAME_ADDRESS = "0xcC3176613eE9e95F280ad7c3e1591DE377f01d8d";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
@@ -407,42 +407,46 @@ export default function Game(props) {
     console.log("Shot Distance: ", shotDistance);
 
     if (contract) {
-      setRandomInt(generateRandomInt());
-      const moveHash = ethers.solidityPackedKeccak256(
-        ["uint8", "uint8", "uint8", "uint8", "uint256"],
-        [
-          travelDirection,
-          travelDistance,
-          shotDirection,
-          shotDistance,
-          randomInt,
-        ]
-      );
+      // setRandomInt(generateRandomInt());
+      // const moveHash = ethers.solidityPackedKeccak256(
+      //   ["uint8", "uint8", "uint8", "uint8", "uint256"],
+      //   [
+      //     travelDirection,
+      //     travelDistance,
+      //     shotDirection,
+      //     shotDistance,
+      //     randomInt,
+      //   ]
+      // );
 
-      try {
-        const tx = await contract
-          .commitMove(moveHash, gameId)
-          .catch(console.error);
-        await tx.wait();
-        console.log(tx);
-        console.log(moveHash);
+      // try {
+      //   const tx = await contract
+      //     .commitMove(moveHash, gameId)
+      //     .catch(console.error);
+      //   await tx.wait();
+      //   console.log(tx);
+      //   console.log(moveHash);
 
-        await storePlayerMove({
-          gameId,
-          playerAddress: gamePlayer,
-          moveHash,
-          secretValue: randomInt,
-          travelDirection,
-          travelDistance,
-          shotDirection,
-          shotDistance,
-        });
-      } catch (error) {
-        console.error(
-          "Error in submitting moves or storing in DynamoDB",
-          error
-        );
-      }
+      //   await storePlayerMove({
+      //     gameId,
+      //     playerAddress: gamePlayer,
+      //     moveHash,
+      //     secretValue: randomInt,
+      //     travelDirection,
+      //     travelDistance,
+      //     shotDirection,
+      //     shotDistance,
+      //   });
+      // } catch (error) {
+      //   console.error(
+      //     "Error in submitting moves or storing in DynamoDB",
+      //     error
+      //   );
+      // }
+
+      const tx = await contract.revealMove(travelDirection, travelDistance, shotDirection, shotDistance, gameId).catch(console.error);
+      await tx.wait();
+      console.log(tx);
       const updatedCells = cells
         .map(clearHighlights)
         .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
@@ -549,7 +553,7 @@ export default function Game(props) {
               onClick={commitMoves}
               disabled={!showSubmitButton}
             >
-              Commit Moves
+              Submit Moves
             </CustomButton>
           </Box>
 
