@@ -25,11 +25,8 @@ import img3 from "./images/7.png";
 import img4 from "./images/4.png";
 import img5 from "./images/5.png";
 
-// const REGISTRATION_ADDRESS = "0x8AE86b9FCCe0340B8aeb35B2285005303691A420";
-// const REGISTRATION_ABI = RegistrationPunkAbi.abi;
-
-const GAME_ADDRESS = "0x794a3E47a440649DF90AB37A48028fD1a46eA695";
-const GAME_ABI = GameAbi.abi;
+ const REGISTRATION_ADDRESS = "0x384AbD2924fE5aA8ab0C231AB67235F5484f2b8E";
+ const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 const punkShips = [
   { name: "Sailing Ship", movement: 6, shoot: 2, image: img1 },
@@ -47,67 +44,38 @@ export default function Registration(props) {
   const [showYachtSelectError, setShowYachtSelectError] = useState(false);
   const [testGameId, setTestGameId] = useState(0);
 
-  // useEffect(() => {
-  //   const fetchContract = async () => {
-  //     const provider = new ethers.BrowserProvider(window.ethereum);
-  //     const signer = await provider.getSigner();
-  //     const contract = new ethers.Contract(
-  //       REGISTRATION_ADDRESS,
-  //       REGISTRATION_ABI,
-  //       signer
-  //     );
-  //     setContract(contract);
-  //     setProvider(provider);
-  //     setPlayer(signer.address);
-  //   };
+   useEffect(() => {
+     const fetchContract = async () => {
+       const provider = new ethers.BrowserProvider(window.ethereum);
+       const signer = await provider.getSigner();
+       const contract = new ethers.Contract(
+         REGISTRATION_ADDRESS,
+         REGISTRATION_ABI,
+         signer
+       );
+       setContract(contract);
+       setProvider(provider);
+       setPlayer(signer.address);
+     };
 
-  //   fetchContract();
-  // }, []);
-
-  useEffect(() => {
-    const fetchContract = async () => {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(GAME_ADDRESS, GAME_ABI, signer);
-      setContract(contract);
-      setProvider(provider);
-      setPlayer(signer.address);
-      // console.log("Player address:", signer.address);
-    };
-
-    fetchContract();
-  }, []);
+     fetchContract();
+   }, []);
 
   const handleCardClick = (ship) => {
     setSelectedYacht(ship);
     setShowYachtSelectError(false);
   };
 
-  // const register = async () => {
-  //   if (contract !== null) {
-  //     console.log("Adding ship");
-  //     const tx = await contract
-  //       .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
-  //       .catch(console.error);
-  //     await tx.wait();
-  //   }
-  //   console.log("Added ship");
-  // };
-
-  const register = async () => {
-    if (contract !== null) {
-      const tx = await contract
-        .addShip(
-          player,
-          testGameId,
-          selectedYacht.movement,
-          selectedYacht.shoot
-        )
-        .catch(console.error);
-      await tx.wait();
-      console.log("Added ship");
-    }
-  };
+   const register = async () => {
+     if (contract !== null) {
+       console.log("Adding ship");
+       const tx = await contract
+         .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
+         .catch(console.error);
+       await tx.wait();
+     }
+     console.log("Added ship");
+   };
 
   return (
     <Fragment>
@@ -168,14 +136,6 @@ export default function Registration(props) {
               ))}
             </Grid>
             <Grid item xs={5} mt={30}>
-              <Box mb={5}>
-                <TextField
-                  variant="outlined"
-                  value={testGameId}
-                  label="Game ID"
-                  onChange={(e) => setTestGameId(e.target.value)}
-                />
-              </Box>
               <Button
                 variant="outlined"
                 onClick={register}

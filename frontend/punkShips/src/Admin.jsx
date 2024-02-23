@@ -4,9 +4,9 @@ import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { Box, TextField, Button, Stack } from "@mui/material";
 
-const GAME_ADDRESS = "0x794a3E47a440649DF90AB37A48028fD1a46eA695";
+const GAME_ADDRESS = "0xD1E897b8F83a403c59a84FbE53978DF471C14AF2";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x8AE86b9FCCe0340B8aeb35B2285005303691A420";
+const REGISTRATION_ADDRESS = "0x384AbD2924fE5aA8ab0C231AB67235F5484f2b8E";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Admin(props) {
@@ -71,7 +71,7 @@ export default function Admin(props) {
       //     triggerLambdaFunction(gameId);
       // }
 
-      triggerLambdaFunction(2);
+      triggerLambdaFunction(1);
     }
   };
 

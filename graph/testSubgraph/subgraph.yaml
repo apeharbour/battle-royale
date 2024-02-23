@@ -6,14 +6,15 @@ dataSources:
     name: GamePunk
     network: sepolia
     source:
+      address: "0xD1E897b8F83a403c59a84FbE53978DF471C14AF2"
       abi: GamePunk
-      address: "0x794a3E47a440649DF90AB37A48028fD1a46eA695"
-      startBlock: 5347537
+      startBlock: 5348310
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
+        - Cell
         - CommitPhaseStarted
         - GameEnded
         - GameStarted
@@ -23,6 +24,7 @@ dataSources:
         - MapShrink
         - MoveCommitted
         - MoveSubmitted
+        - NewRound
         - OwnershipTransferred
         - PlayerAdded
         - PlayerDefeated
@@ -35,17 +37,12 @@ dataSources:
         - ShipSunkOutOfMap
         - SubmitPhaseStarted
         - WorldUpdated
-        - Game
-        - Player
-        - Round
-        - Move
-        - Shot
-        - Island
-        - Cell
       abis:
         - name: GamePunk
           file: ./abis/GamePunk.json
       eventHandlers:
+        - event: Cell(uint8,uint8,uint8,bool)
+          handler: handleCell
         - event: CommitPhaseStarted(uint8)
           handler: handleCommitPhaseStarted
         - event: GameEnded(uint8)
@@ -64,6 +61,8 @@ dataSources:
           handler: handleMoveCommitted
         - event: MoveSubmitted(indexed address,uint8,uint256,uint8,uint8,uint8,uint8)
           handler: handleMoveSubmitted
+        - event: NewRound(uint8,uint256,uint8)
+          handler: handleNewRound
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
         - event: PlayerAdded(indexed address,uint8,uint8,uint8,uint8,uint8)
@@ -88,10 +87,4 @@ dataSources:
           handler: handleSubmitPhaseStarted
         - event: WorldUpdated(uint8)
           handler: handleWorldUpdated
-        - event: Island(uint8,uint8,uint8)
-          handler: handleIsland
-        - event: Cell(uint8,uint8,uint8,bool)
-          handler: handleCell
-        - event: NewRound(uint8,uint256,uint8)
-          handler: handleNewRound
       file: ./src/game-punk.ts
