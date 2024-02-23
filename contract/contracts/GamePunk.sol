@@ -104,26 +104,26 @@ contract GamePunk is  Ownable {
     address public registrationContract;
 
        // Modifier to restrict the call to the registration contract
-    modifier onlyRegistrationContract() {
-        require(msg.sender == registrationContract, "Caller is not the registration contract");
-        _;
-    }
+    // modifier onlyRegistrationContract() {
+    //     require(msg.sender == registrationContract, "Caller is not the registration contract");
+    //     _;
+    // }
 
     constructor(address _mapAddress) Ownable(msg.sender) {
         map = MapPunk(_mapAddress);
     }
 
     // Function to set the registration contract's address
-    function setRegistrationContract(address _registrationContract) external onlyOwner {
-        registrationContract = _registrationContract;
-    }
+    // function setRegistrationContract(address _registrationContract) external onlyOwner {
+    //     registrationContract = _registrationContract;
+    // }
 
-  function startNewGame(uint8 gameId, uint8 _radius) public onlyRegistrationContract () {
+  function startNewGame(uint8 gameId, uint8 _radius) public onlyOwner () {
     require(gameId < 255, "Maximum number of games reached");
     require(!games[gameId].gameInProgress, "Game with this ID already in progress");
     games[gameId].gameInProgress = true;
     initGame(_radius, gameId);
-    allowCommitMoves(gameId);
+    allowSubmitMoves(gameId);
     emit GameStarted(gameId);
 }
 
@@ -133,82 +133,67 @@ contract GamePunk is  Ownable {
         emit GameEnded(gameId);    
     }   
 
-    //function to let players commit moves
-    function allowCommitMoves(uint8 gameId) internal {
-         require(games[gameId].gameInProgress == true, 'Game has not started yet!');
-         games[gameId].letCommitMoves = true;
-    }
-
     // function to let players submit moves
-    //  function allowSubmitMoves(uint8 gameId) public onlyOwner {
-    //     require(games[gameId].gameInProgress == true, 'Game has not started yet!');
-    //     games[gameId].letCommitMoves = false;
-    //     games[gameId].letSubmitMoves = true;
-    //     emit SubmitPhaseStarted(gameId, games[gameId].round);       
-    // } 
-
-    //Commit moves
-    function commitMove(bytes32 moveHash, uint8 gameId) public {
-        require(games[gameId].letCommitMoves == true, 'Commit moves has not started yet!');
-        games[gameId].moveHashes[msg.sender] = moveHash;
-        emit MoveCommitted(msg.sender, gameId);
-    }
+     function allowSubmitMoves(uint8 gameId) internal {
+        require(games[gameId].gameInProgress == true, 'Game has not started yet!');
+        // games[gameId].letCommitMoves = false;
+        games[gameId].letSubmitMoves = true;
+        emit SubmitPhaseStarted(gameId, games[gameId].round);       
+    } 
 
   //Submit moves
-  function submitMove(
-     SharedStructs.Directions[] memory _travelDirections,
-        uint8[] memory _travelDistances,
-        SharedStructs.Directions[] memory _shotDirections,
-        uint8[] memory _shotDistances,
-        uint256[] memory secrets,
-        address[] memory playerAddresses,
-        uint8 gameId
-) public onlyOwner {
+  function revealMove(
+    SharedStructs.Directions _travelDirection, 
+    uint8 _travelDistance, 
+    SharedStructs.Directions _shotDirection, 
+    uint8 _shotDistance,
+    //uint256 secret,
+    uint8 gameId
+) public {
+    require(games[gameId].letSubmitMoves == true, 'Submit moves has not started yet!');
     require(games[gameId].gameInProgress == true, 'Game has not started yet!');
-        require(
-            _travelDirections.length == playerAddresses.length &&
-            _travelDistances.length == playerAddresses.length &&
-            _shotDirections.length == playerAddresses.length &&
-            _shotDistances.length == playerAddresses.length &&
-            secrets.length == playerAddresses.length,
-            "Array lengths must match"
+
+    // bytes32 moveHash = keccak256(abi.encodePacked(_travelDirection, _travelDistance, _shotDirection, _shotDistance, secret));
+
+    // if(games[gameId].moveHashes[msg.sender] == moveHash){
+        Ship storage ship = games[gameId].ships[msg.sender];
+        ship.travelDirection = _travelDirection;
+        if(_travelDistance > ship.yachtSpeed) {
+            ship.travelDistance = ship.yachtSpeed;
+        } else {
+            ship.travelDistance = _travelDistance;
+        }        
+        ship.shotDirection = _shotDirection;
+        if(_shotDistance > ship.yachtRange) {
+            ship.shotDistance = ship.yachtRange;
+        } else {
+            ship.shotDistance = _shotDistance;
+        }
+        ship.publishedMove = true;
+   // }
+     // calculate cells
+        SharedStructs.Coordinate memory shipCoord = ship.coordinate;
+        SharedStructs.Coordinate memory dest = map.move(
+            shipCoord,
+            _travelDirection,
+            _travelDistance
+        );
+        SharedStructs.Coordinate memory shotDestination = map.move(
+            dest,
+            _shotDirection,
+            _shotDistance
         );
 
-     for (uint i = 0; i < playerAddresses.length; i++) {
-            bytes32 moveHash = keccak256(abi.encodePacked(
-                _travelDirections[i],
-                _travelDistances[i],
-                _shotDirections[i],
-                _shotDistances[i],
-                secrets[i]
-            ));
-
-            SharedStructs.Coordinate memory dest;
-            SharedStructs.Coordinate memory shotDestination;
-
-            if (games[gameId].moveHashes[playerAddresses[i]] == moveHash) {
-                Ship storage ship = games[gameId].ships[playerAddresses[i]];
-                ship.travelDirection = _travelDirections[i];
-                ship.travelDistance = _travelDistances[i] > ship.yachtSpeed ? ship.yachtSpeed : _travelDistances[i];
-                ship.shotDirection = _shotDirections[i];
-                ship.shotDistance = _shotDistances[i] > ship.yachtRange ? ship.yachtRange : _shotDistances[i];
-                ship.publishedMove = true;
-
-                // Calculate cells
-                dest = map.move(ship.coordinate, _travelDirections[i], ship.travelDistance);
-                shotDestination = map.move(dest, _shotDirections[i], ship.shotDistance);
-
-                emit MoveSubmitted(
-                    playerAddresses[i],
-                    gameId,
-                    games[gameId].round,
-                    dest.q,
-                    dest.r,
-                    shotDestination.q,
-                    shotDestination.r
-                );
-            }
-        }
+        // }
+        emit MoveSubmitted(
+            msg.sender,
+            gameId,
+            games[gameId].round,
+            dest.q,
+            dest.r,
+            shotDestination.q,
+            shotDestination.r
+        );
 }
 
     function initGame(uint8 _radius, uint8 gameId) internal {
@@ -218,17 +203,16 @@ contract GamePunk is  Ownable {
             delete games[gameId].ships[games[gameId].players[i]];
         }
         delete games[gameId].players;
+        addNewRound(gameId);
 
       SharedStructs.Cell[] memory cells = map.initMap(_radius, gameId);
         for (uint j = 0; j < cells.length; j++) {
             emit Cell(gameId, cells[j].q, cells[j].r, cells[j].island);
         }
-        
-        addNewRound(gameId);
         emit MapInitialized(_radius,gameId);
     }
 
-    function addShip(address playerAddress, uint8 gameId, uint8 _speed, uint8 _range) public  onlyRegistrationContract returns (bool) {
+  function addShip(address playerAddress, uint8 gameId, uint8 _speed, uint8 _range) public returns (bool) {
                 require(games[gameId].stopAddingShips == false && games[gameId].gameInProgress == true, 'Game has not started yet!');
         if (
             games[gameId].ships[playerAddress].coordinate.q > 0 &&
@@ -415,12 +399,10 @@ function updateWorld(uint8 gameId) public onlyOwner {
     // Check for winner, emit events accordingly
     if (games[gameId].players.length == 0) {
         emit GameWinner(address(0) ,gameId);
-        games[gameId].stopAddingShips = true;
-        endGame(gameId);           
+        games[gameId].stopAddingShips = true;           
     } else if (games[gameId].players.length == 1) {
         emit GameWinner(games[gameId].players[0], gameId);
         games[gameId].stopAddingShips = true;
-        endGame(gameId);
     } else {
         emit GameUpdated(false, games[gameId].players[0],gameId);
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
@@ -429,8 +411,9 @@ function updateWorld(uint8 gameId) public onlyOwner {
             games[gameId].ships[games[gameId].players[i]].shotDirection = SharedStructs.Directions.NO_MOVE;
             games[gameId].ships[games[gameId].players[i]].shotDistance = 0;
         }
+        games[gameId].letSubmitMoves = false;
         addNewRound(gameId);
-        allowCommitMoves(gameId);
+        allowSubmitMoves(gameId);
     }
 
     emit WorldUpdated(gameId);  // Emitting the WorldUpdated event
