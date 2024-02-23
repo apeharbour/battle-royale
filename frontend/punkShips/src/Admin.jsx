@@ -105,6 +105,14 @@ export default function Admin(props) {
         console.log(tx);
       }
     }
+
+    const updateWorldTest = async () => {
+      if (gameContract){
+        const tx = await gameContract.updateWorld(testWorld).catch(console.error);
+        await tx.wait();
+        console.log(tx);
+      }
+    }
     
 
     return (
