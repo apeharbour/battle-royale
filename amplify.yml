@@ -15,7 +15,7 @@ applications:
         files:
             - '**/*'
         discard-paths: yes
-        baseDirectory: frontend/battle-royale-ui/dist
+        baseDirectory: dist
       cache:
         paths:
             - 'node_modules/**/*'
