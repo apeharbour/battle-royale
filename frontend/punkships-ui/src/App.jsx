@@ -11,12 +11,9 @@ import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import Switch from "@mui/material/Switch";
-import Box from "@mui/material/Box";
 
 import "./App.css";
 import { CssBaseline } from "@mui/material";
-
-import ship1Master from "../../../contract/assets/ship1mast.svg"
 
 function App() {
   const [ships, setShips] = useState([]);
@@ -94,7 +91,6 @@ function App() {
   };
 
   return (
-    // <Container maxWidth="xl" sx={{ backgroundColor: "black"}}>
     <ThemeProvider theme={darkTheme}>
       <CssBaseline />
       <Grid
@@ -111,12 +107,10 @@ function App() {
 
         {ships.map((ship, index) => (
           <Grid item key={`ship${index}`} 
-          // sx={{ backgroundColor: "black" }}
           >
             <Card
               key={ship.name}
               className="card"
-              // sx={{ backgroundColor: "black" }}
             >
               <CardMedia
                 sx={{ width: 320, height: 240 }}
@@ -128,7 +122,6 @@ function App() {
                   gutterBottom
                   variant="h5"
                   component="div"
-                  // sx={{ color: "lightgray" }}
                 >
                   {ship.name}
                 </Typography>
@@ -147,16 +140,12 @@ function App() {
                   label={`${getAttribute(ship.attributes, "shipType")}`}
                   color="success"
                 />
-                {/* <Typography variant="body" color="lightgray">
-          Range: {getAttribute(ship.attributes, 'range')}, Shot range: {getAttribute(ship.attributes, 'shootingRange')}, Ship type: {getAttribute(ship.attributes, 'shipType')}
-        </Typography> */}
               </CardContent>
             </Card>
           </Grid>
         ))}
       </Grid>
     </ThemeProvider>
-    // </Container>
   );
 }
 
