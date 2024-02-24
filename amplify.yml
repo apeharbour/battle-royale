@@ -15,7 +15,7 @@ applications:
         files:
             - '**/*'
         discard-paths: yes
-        baseDirectory: dist
+        baseDirectory: frontend/battle-royale-ui/dist
       cache:
         paths:
             - 'node_modules/**/*'
@@ -33,7 +33,7 @@ applications:
         files:
             - '**/*'
         discard-paths: yes
-        baseDirectory: dist
+        baseDirectory: frontend/punkships-ui/dist
       cache:
         paths:
             - 'node_modules/**/*'    
