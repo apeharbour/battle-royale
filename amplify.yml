@@ -1,0 +1,40 @@
+version: 1
+applications:
+  - appRoot: frontend/battle-royale-ui
+    frontend:
+      buildPath: / # Run install and build from the monorepo project root
+      phases:
+        preBuild:
+          commands:
+            - npm -g install pnpm
+            - pnpm --filter battle-royale-ui install --frozen-lockfile
+        build:
+          commands:
+            - pnpm --filter battle-royale-ui build
+      artifacts:
+        files:
+            - '**/*'
+        discard-paths: yes
+        baseDirectory: frontend/battle-royale-ui/dist
+      cache:
+        paths:
+            - 'node_modules/**/*'
+  - appRoot: frontend/punkships-ui
+    frontend:
+      buildPath: / # Run install and build from the monorepo project root
+      phases:
+        preBuild:
+          commands:
+            - npm -g install pnpm
+            - pnpm --filter punkships-ui install --frozen-lockfile
+        build:
+          commands:
+            - pnpm --filter punkships-ui build
+      artifacts:
+        files:
+            - '**/*'
+        discard-paths: yes
+        baseDirectory: frontend/punkships-ui/dist
+      cache:
+        paths:
+            - 'node_modules/**/*'    

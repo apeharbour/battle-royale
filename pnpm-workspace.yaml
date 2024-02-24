@@ -1,0 +1,9 @@
+packages:
+  # all packages in subdirs of AWSLambda/
+  - 'AWSlambda/**'
+  # all packages in subdirs of contract/
+  - 'contract/*'
+  # various frontend packages
+  - 'frontend/**'
+  # various subgraphs
+  - 'graph/**'
