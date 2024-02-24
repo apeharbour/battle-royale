@@ -1,7 +1,7 @@
 {
-  "name": "battle-royale",
+  "name": "smart-contracts",
   "version": "1.0.0",
-  "description": "On-chain Battle Royale Game",
+  "description": "On-chain Battle Royale Smart contracts",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
