@@ -11,11 +11,11 @@
   },
   "dependencies": {
     "@apollo/client": "^3.9.5",
-    "@emotion/react": "^11.11.3",
+    "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.0",
     "@fontsource/merriweather": "^5.0.8",
-    "@mui/icons-material": "^5.15.10",
-    "@mui/material": "^5.15.10",
+    "@mui/icons-material": "^5.15.11",
+    "@mui/material": "^5.15.11",
     "ethers": "^6.11.1",
     "graphql": "^16.8.1",
     "react": "^18.2.0",
@@ -24,7 +24,7 @@
     "react-router-dom": "^6.22.1"
   },
   "devDependencies": {
-    "@types/react": "^18.2.58",
+    "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.2.1",
     "eslint": "^8.57.0",
