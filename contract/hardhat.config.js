@@ -1,6 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-ignition");
-require('dotenv').config();
+require("dotenv").config();
 
 const INFURA_API_KEY = process.env.INFURA_API;
 const Alchemy_Key = process.env.ALCHEMY_API_KEY;
@@ -11,25 +11,27 @@ module.exports = {
     settings: {
       optimizer: {
         enabled: true,
-        runs: 200
-      }
-    }
+        runs: 200,
+      },
+      viaIR: true,
+    },
   },
   etherscan: {
     apiKey: {
       sepolia: process.env.ETHERSCAN_API_KEY,
-    }
+    },
   },
   networks: {
     sepolia: {
       url: process.env.SEPOLIA_URL,
-      accounts: [process.env.SEPOLIA_PRIVATE_KEY]
-    },
-    localhost: {
-      url: "http://0.0.0.0:8545",
+      accounts: [process.env.SEPOLIA_PRIVATE_KEY],
     },
     hardhat: {
       chainId: 1337,
+      mining: {
+        auto: false,
+        interval: 5000,
+      },
     },
-  },    
+  },
 };

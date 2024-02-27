@@ -4,5 +4,11 @@
       "address": "0x70ed0fEfd513ba2B7F622867eB6ba4Ad77a9c874",
       "startBlock": 5343179
     }
+  },
+  "localhost": {
+    "GamePunk": {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+      "startBlock": 0
+    }
   }
 }

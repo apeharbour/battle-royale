@@ -4,7 +4,9 @@
   "description": "On-chain Battle Royale Smart contracts",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "blockchain-local": "npx hardhat node",
+    "deploy-local": "npx hardhat ignition deploy igntion/modules/GamePunk.js"
   },
   "repository": {
     "type": "git",
@@ -17,12 +19,12 @@
   },
   "homepage": "https://github.com/apeharbour/battle-royale#readme",
   "devDependencies": {
-    "@nomicfoundation/hardhat-ignition": "^0.11.2",
-    "@nomicfoundation/hardhat-toolbox": "^3.0.0",
-    "@openzeppelin/contracts": "^5.0.0",
-    "hardhat": "^2.19.0"
+    "@nomicfoundation/hardhat-ignition": "^0.14.0",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.0.1",
+    "hardhat": "^2.20.1"
   },
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.4.5"
   }
 }
