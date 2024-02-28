@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "graph:local:up": "podman-compose -f ./graph/docker-compose.yml up -d",
+    "graph:local:down": "podman-compose -f ./graph/docker-compose.yml down && podman volume rm graph_ipfs_data graph_postgres_data"
   },
   "keywords": [],
   "author": "",

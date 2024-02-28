@@ -28,10 +28,10 @@ module.exports = {
     },
     hardhat: {
       chainId: 1337,
-      mining: {
-        auto: false,
-        interval: 5000,
-      },
+      // mining: {
+      //   auto: false,
+      //   interval: 5000,
+      // },
     },
   },
 };

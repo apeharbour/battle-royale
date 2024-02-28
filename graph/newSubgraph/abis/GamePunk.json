@@ -607,24 +607,24 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "playerAddress",
+        "type": "address"
+      },
+      {
         "internalType": "uint8",
         "name": "gameId",
         "type": "uint8"
       },
       {
-        "internalType": "address[]",
-        "name": "playerAddresses",
-        "type": "address[]"
+        "internalType": "uint8",
+        "name": "_speed",
+        "type": "uint8"
       },
       {
-        "internalType": "uint8[]",
-        "name": "speeds",
-        "type": "uint8[]"
-      },
-      {
-        "internalType": "uint8[]",
-        "name": "ranges",
-        "type": "uint8[]"
+        "internalType": "uint8",
+        "name": "_range",
+        "type": "uint8"
       }
     ],
     "name": "addShip",
@@ -1043,13 +1043,13 @@
         "type": "uint8[]"
       },
       {
-        "internalType": "uint256[]",
-        "name": "secrets",
-        "type": "uint256[]"
+        "internalType": "bytes32[]",
+        "name": "_secrets",
+        "type": "bytes32[]"
       },
       {
         "internalType": "address[]",
-        "name": "playerAddresses",
+        "name": "_playerAddresses",
         "type": "address[]"
       },
       {
