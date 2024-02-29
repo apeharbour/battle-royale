@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "infra:local:up": "npx hardhat node",
+    "infra:local:up": "npx hardhat node --hostname 0.0.0.0",
     "infra:local:down": "pkill -SIGINT hardhat node",
     "deploy:local": "yes | npx hardhat ignition deploy ignition/modules/GamePunk.js --network localhost --reset && ./updateGraphNetworks.sh"
   },
