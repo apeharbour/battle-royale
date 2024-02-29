@@ -71,7 +71,7 @@ export default function Admin(props) {
       //     triggerLambdaFunction(gameId);
       // }
 
-      triggerLambdaFunction(1);
+      triggerLambdaFunction(3);
     }
   };
 

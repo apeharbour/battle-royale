@@ -616,24 +616,24 @@ const contractABI = [
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "playerAddress",
+        "type": "address"
+      },
+      {
         "internalType": "uint8",
         "name": "gameId",
         "type": "uint8"
       },
       {
-        "internalType": "address[]",
-        "name": "playerAddresses",
-        "type": "address[]"
+        "internalType": "uint8",
+        "name": "_speed",
+        "type": "uint8"
       },
       {
-        "internalType": "uint8[]",
-        "name": "speeds",
-        "type": "uint8[]"
-      },
-      {
-        "internalType": "uint8[]",
-        "name": "ranges",
-        "type": "uint8[]"
+        "internalType": "uint8",
+        "name": "_range",
+        "type": "uint8"
       }
     ],
     "name": "addShip",
@@ -1052,13 +1052,13 @@ const contractABI = [
         "type": "uint8[]"
       },
       {
-        "internalType": "uint256[]",
-        "name": "secrets",
-        "type": "uint256[]"
+        "internalType": "bytes32[]",
+        "name": "_secrets",
+        "type": "bytes32[]"
       },
       {
         "internalType": "address[]",
-        "name": "playerAddresses",
+        "name": "_playerAddresses",
         "type": "address[]"
       },
       {
@@ -1139,7 +1139,7 @@ const contractABI = [
     "type": "function"
   }
 ]; 
-const contractAddress = '0x03A9c20c0228e849dba1d1AA1BadD918eC9ac55A';
+const contractAddress = '0xD1E897b8F83a403c59a84FbE53978DF471C14AF2';
 
 exports.handler = async (event) => {
     const url = "https://eth-sepolia.g.alchemy.com/v2/S1MSWAqlr5h1kcztMrV5h9I3-ibEaQWK";
