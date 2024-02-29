@@ -1,13 +1,13 @@
 {
   "sepolia": {
     "GamePunk": {
-      "address": "0x70ed0fEfd513ba2B7F622867eB6ba4Ad77a9c874",
-      "startBlock": 5343179
+      "address": "0x0000000000000000000000000000000000000000",
+      "startBlock": 0
     }
   },
   "localhost": {
     "GamePunk": {
-      "address": "0x84eA74d481Ee0A5332c457a4d796187F6Ba67fEB",
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       "startBlock": 0
     }
   }

@@ -1,0 +1,14 @@
+{
+  "name": "graph-infra",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "infra:local:up": "podman-compose -f ./docker-compose.yml up",
+    "infra:local:down": "podman-compose -f ./docker-compose.yml down && podman volume rm infrastructure_ipfs_data infrastructure_postgres_data"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

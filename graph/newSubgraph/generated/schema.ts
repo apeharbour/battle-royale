@@ -8,7 +8,7 @@ import {
   store,
   Bytes,
   BigInt,
-  BigDecimal
+  BigDecimal,
 } from "@graphprotocol/graph-ts";
 
 export class CommitPhaseStarted extends Entity {
@@ -23,7 +23,7 @@ export class CommitPhaseStarted extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type CommitPhaseStarted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type CommitPhaseStarted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("CommitPhaseStarted", id.toBytes().toHexString(), this);
     }
@@ -31,13 +31,13 @@ export class CommitPhaseStarted extends Entity {
 
   static loadInBlock(id: Bytes): CommitPhaseStarted | null {
     return changetype<CommitPhaseStarted | null>(
-      store.get_in_block("CommitPhaseStarted", id.toHexString())
+      store.get_in_block("CommitPhaseStarted", id.toHexString()),
     );
   }
 
   static load(id: Bytes): CommitPhaseStarted | null {
     return changetype<CommitPhaseStarted | null>(
-      store.get("CommitPhaseStarted", id.toHexString())
+      store.get("CommitPhaseStarted", id.toHexString()),
     );
   }
 
@@ -119,7 +119,7 @@ export class GameEnded extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type GameEnded must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type GameEnded must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("GameEnded", id.toBytes().toHexString(), this);
     }
@@ -127,13 +127,13 @@ export class GameEnded extends Entity {
 
   static loadInBlock(id: Bytes): GameEnded | null {
     return changetype<GameEnded | null>(
-      store.get_in_block("GameEnded", id.toHexString())
+      store.get_in_block("GameEnded", id.toHexString()),
     );
   }
 
   static load(id: Bytes): GameEnded | null {
     return changetype<GameEnded | null>(
-      store.get("GameEnded", id.toHexString())
+      store.get("GameEnded", id.toHexString()),
     );
   }
 
@@ -215,7 +215,7 @@ export class GameStarted extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type GameStarted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type GameStarted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("GameStarted", id.toBytes().toHexString(), this);
     }
@@ -223,13 +223,13 @@ export class GameStarted extends Entity {
 
   static loadInBlock(id: Bytes): GameStarted | null {
     return changetype<GameStarted | null>(
-      store.get_in_block("GameStarted", id.toHexString())
+      store.get_in_block("GameStarted", id.toHexString()),
     );
   }
 
   static load(id: Bytes): GameStarted | null {
     return changetype<GameStarted | null>(
-      store.get("GameStarted", id.toHexString())
+      store.get("GameStarted", id.toHexString()),
     );
   }
 
@@ -311,7 +311,7 @@ export class GameUpdated extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type GameUpdated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type GameUpdated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("GameUpdated", id.toBytes().toHexString(), this);
     }
@@ -319,13 +319,13 @@ export class GameUpdated extends Entity {
 
   static loadInBlock(id: Bytes): GameUpdated | null {
     return changetype<GameUpdated | null>(
-      store.get_in_block("GameUpdated", id.toHexString())
+      store.get_in_block("GameUpdated", id.toHexString()),
     );
   }
 
   static load(id: Bytes): GameUpdated | null {
     return changetype<GameUpdated | null>(
-      store.get("GameUpdated", id.toHexString())
+      store.get("GameUpdated", id.toHexString()),
     );
   }
 
@@ -433,7 +433,7 @@ export class GameWinner extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type GameWinner must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type GameWinner must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("GameWinner", id.toBytes().toHexString(), this);
     }
@@ -441,13 +441,13 @@ export class GameWinner extends Entity {
 
   static loadInBlock(id: Bytes): GameWinner | null {
     return changetype<GameWinner | null>(
-      store.get_in_block("GameWinner", id.toHexString())
+      store.get_in_block("GameWinner", id.toHexString()),
     );
   }
 
   static load(id: Bytes): GameWinner | null {
     return changetype<GameWinner | null>(
-      store.get("GameWinner", id.toHexString())
+      store.get("GameWinner", id.toHexString()),
     );
   }
 
@@ -542,7 +542,7 @@ export class MapInitialized extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type MapInitialized must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type MapInitialized must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("MapInitialized", id.toBytes().toHexString(), this);
     }
@@ -550,13 +550,13 @@ export class MapInitialized extends Entity {
 
   static loadInBlock(id: Bytes): MapInitialized | null {
     return changetype<MapInitialized | null>(
-      store.get_in_block("MapInitialized", id.toHexString())
+      store.get_in_block("MapInitialized", id.toHexString()),
     );
   }
 
   static load(id: Bytes): MapInitialized | null {
     return changetype<MapInitialized | null>(
-      store.get("MapInitialized", id.toHexString())
+      store.get("MapInitialized", id.toHexString()),
     );
   }
 
@@ -651,7 +651,7 @@ export class MapShrink extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type MapShrink must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type MapShrink must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("MapShrink", id.toBytes().toHexString(), this);
     }
@@ -659,13 +659,13 @@ export class MapShrink extends Entity {
 
   static loadInBlock(id: Bytes): MapShrink | null {
     return changetype<MapShrink | null>(
-      store.get_in_block("MapShrink", id.toHexString())
+      store.get_in_block("MapShrink", id.toHexString()),
     );
   }
 
   static load(id: Bytes): MapShrink | null {
     return changetype<MapShrink | null>(
-      store.get("MapShrink", id.toHexString())
+      store.get("MapShrink", id.toHexString()),
     );
   }
 
@@ -747,7 +747,7 @@ export class MoveCommitted extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type MoveCommitted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type MoveCommitted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("MoveCommitted", id.toBytes().toHexString(), this);
     }
@@ -755,13 +755,13 @@ export class MoveCommitted extends Entity {
 
   static loadInBlock(id: Bytes): MoveCommitted | null {
     return changetype<MoveCommitted | null>(
-      store.get_in_block("MoveCommitted", id.toHexString())
+      store.get_in_block("MoveCommitted", id.toHexString()),
     );
   }
 
   static load(id: Bytes): MoveCommitted | null {
     return changetype<MoveCommitted | null>(
-      store.get("MoveCommitted", id.toHexString())
+      store.get("MoveCommitted", id.toHexString()),
     );
   }
 
@@ -856,7 +856,7 @@ export class MoveSubmitted extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type MoveSubmitted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type MoveSubmitted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("MoveSubmitted", id.toBytes().toHexString(), this);
     }
@@ -864,13 +864,13 @@ export class MoveSubmitted extends Entity {
 
   static loadInBlock(id: Bytes): MoveSubmitted | null {
     return changetype<MoveSubmitted | null>(
-      store.get_in_block("MoveSubmitted", id.toHexString())
+      store.get_in_block("MoveSubmitted", id.toHexString()),
     );
   }
 
   static load(id: Bytes): MoveSubmitted | null {
     return changetype<MoveSubmitted | null>(
-      store.get("MoveSubmitted", id.toHexString())
+      store.get("MoveSubmitted", id.toHexString()),
     );
   }
 
@@ -965,7 +965,7 @@ export class OwnershipTransferred extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type OwnershipTransferred must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type OwnershipTransferred must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("OwnershipTransferred", id.toBytes().toHexString(), this);
     }
@@ -973,13 +973,13 @@ export class OwnershipTransferred extends Entity {
 
   static loadInBlock(id: Bytes): OwnershipTransferred | null {
     return changetype<OwnershipTransferred | null>(
-      store.get_in_block("OwnershipTransferred", id.toHexString())
+      store.get_in_block("OwnershipTransferred", id.toHexString()),
     );
   }
 
   static load(id: Bytes): OwnershipTransferred | null {
     return changetype<OwnershipTransferred | null>(
-      store.get("OwnershipTransferred", id.toHexString())
+      store.get("OwnershipTransferred", id.toHexString()),
     );
   }
 
@@ -1074,7 +1074,7 @@ export class PlayerAdded extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type PlayerAdded must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type PlayerAdded must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("PlayerAdded", id.toBytes().toHexString(), this);
     }
@@ -1082,13 +1082,13 @@ export class PlayerAdded extends Entity {
 
   static loadInBlock(id: Bytes): PlayerAdded | null {
     return changetype<PlayerAdded | null>(
-      store.get_in_block("PlayerAdded", id.toHexString())
+      store.get_in_block("PlayerAdded", id.toHexString()),
     );
   }
 
   static load(id: Bytes): PlayerAdded | null {
     return changetype<PlayerAdded | null>(
-      store.get("PlayerAdded", id.toHexString())
+      store.get("PlayerAdded", id.toHexString()),
     );
   }
 
@@ -1183,7 +1183,7 @@ export class PlayerDefeated extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type PlayerDefeated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type PlayerDefeated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("PlayerDefeated", id.toBytes().toHexString(), this);
     }
@@ -1191,13 +1191,13 @@ export class PlayerDefeated extends Entity {
 
   static loadInBlock(id: Bytes): PlayerDefeated | null {
     return changetype<PlayerDefeated | null>(
-      store.get_in_block("PlayerDefeated", id.toHexString())
+      store.get_in_block("PlayerDefeated", id.toHexString()),
     );
   }
 
   static load(id: Bytes): PlayerDefeated | null {
     return changetype<PlayerDefeated | null>(
-      store.get("PlayerDefeated", id.toHexString())
+      store.get("PlayerDefeated", id.toHexString()),
     );
   }
 
@@ -1290,12 +1290,12 @@ export class ShipCollidedWithIsland extends Entity {
     let id = this.get("id");
     assert(
       id != null,
-      "Cannot save ShipCollidedWithIsland entity without an ID"
+      "Cannot save ShipCollidedWithIsland entity without an ID",
     );
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type ShipCollidedWithIsland must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ShipCollidedWithIsland must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("ShipCollidedWithIsland", id.toBytes().toHexString(), this);
     }
@@ -1303,13 +1303,13 @@ export class ShipCollidedWithIsland extends Entity {
 
   static loadInBlock(id: Bytes): ShipCollidedWithIsland | null {
     return changetype<ShipCollidedWithIsland | null>(
-      store.get_in_block("ShipCollidedWithIsland", id.toHexString())
+      store.get_in_block("ShipCollidedWithIsland", id.toHexString()),
     );
   }
 
   static load(id: Bytes): ShipCollidedWithIsland | null {
     return changetype<ShipCollidedWithIsland | null>(
-      store.get("ShipCollidedWithIsland", id.toHexString())
+      store.get("ShipCollidedWithIsland", id.toHexString()),
     );
   }
 
@@ -1404,7 +1404,7 @@ export class ShipHit extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type ShipHit must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ShipHit must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("ShipHit", id.toBytes().toHexString(), this);
     }
@@ -1412,7 +1412,7 @@ export class ShipHit extends Entity {
 
   static loadInBlock(id: Bytes): ShipHit | null {
     return changetype<ShipHit | null>(
-      store.get_in_block("ShipHit", id.toHexString())
+      store.get_in_block("ShipHit", id.toHexString()),
     );
   }
 
@@ -1524,7 +1524,7 @@ export class ShipMoved extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type ShipMoved must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ShipMoved must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("ShipMoved", id.toBytes().toHexString(), this);
     }
@@ -1532,13 +1532,13 @@ export class ShipMoved extends Entity {
 
   static loadInBlock(id: Bytes): ShipMoved | null {
     return changetype<ShipMoved | null>(
-      store.get_in_block("ShipMoved", id.toHexString())
+      store.get_in_block("ShipMoved", id.toHexString()),
     );
   }
 
   static load(id: Bytes): ShipMoved | null {
     return changetype<ShipMoved | null>(
-      store.get("ShipMoved", id.toHexString())
+      store.get("ShipMoved", id.toHexString()),
     );
   }
 
@@ -1685,7 +1685,7 @@ export class ShipMovedInGame extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type ShipMovedInGame must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ShipMovedInGame must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("ShipMovedInGame", id.toBytes().toHexString(), this);
     }
@@ -1693,13 +1693,13 @@ export class ShipMovedInGame extends Entity {
 
   static loadInBlock(id: Bytes): ShipMovedInGame | null {
     return changetype<ShipMovedInGame | null>(
-      store.get_in_block("ShipMovedInGame", id.toHexString())
+      store.get_in_block("ShipMovedInGame", id.toHexString()),
     );
   }
 
   static load(id: Bytes): ShipMovedInGame | null {
     return changetype<ShipMovedInGame | null>(
-      store.get("ShipMovedInGame", id.toHexString())
+      store.get("ShipMovedInGame", id.toHexString()),
     );
   }
 
@@ -1794,7 +1794,7 @@ export class ShipShot extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type ShipShot must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ShipShot must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("ShipShot", id.toBytes().toHexString(), this);
     }
@@ -1802,7 +1802,7 @@ export class ShipShot extends Entity {
 
   static loadInBlock(id: Bytes): ShipShot | null {
     return changetype<ShipShot | null>(
-      store.get_in_block("ShipShot", id.toHexString())
+      store.get_in_block("ShipShot", id.toHexString()),
     );
   }
 
@@ -1953,7 +1953,7 @@ export class ShipSunk extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type ShipSunk must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ShipSunk must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("ShipSunk", id.toBytes().toHexString(), this);
     }
@@ -1961,7 +1961,7 @@ export class ShipSunk extends Entity {
 
   static loadInBlock(id: Bytes): ShipSunk | null {
     return changetype<ShipSunk | null>(
-      store.get_in_block("ShipSunk", id.toHexString())
+      store.get_in_block("ShipSunk", id.toHexString()),
     );
   }
 
@@ -2060,7 +2060,7 @@ export class ShipSunkOutOfMap extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type ShipSunkOutOfMap must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type ShipSunkOutOfMap must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("ShipSunkOutOfMap", id.toBytes().toHexString(), this);
     }
@@ -2068,13 +2068,13 @@ export class ShipSunkOutOfMap extends Entity {
 
   static loadInBlock(id: Bytes): ShipSunkOutOfMap | null {
     return changetype<ShipSunkOutOfMap | null>(
-      store.get_in_block("ShipSunkOutOfMap", id.toHexString())
+      store.get_in_block("ShipSunkOutOfMap", id.toHexString()),
     );
   }
 
   static load(id: Bytes): ShipSunkOutOfMap | null {
     return changetype<ShipSunkOutOfMap | null>(
-      store.get("ShipSunkOutOfMap", id.toHexString())
+      store.get("ShipSunkOutOfMap", id.toHexString()),
     );
   }
 
@@ -2169,7 +2169,7 @@ export class SubmitPhaseStarted extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type SubmitPhaseStarted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type SubmitPhaseStarted must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("SubmitPhaseStarted", id.toBytes().toHexString(), this);
     }
@@ -2177,13 +2177,13 @@ export class SubmitPhaseStarted extends Entity {
 
   static loadInBlock(id: Bytes): SubmitPhaseStarted | null {
     return changetype<SubmitPhaseStarted | null>(
-      store.get_in_block("SubmitPhaseStarted", id.toHexString())
+      store.get_in_block("SubmitPhaseStarted", id.toHexString()),
     );
   }
 
   static load(id: Bytes): SubmitPhaseStarted | null {
     return changetype<SubmitPhaseStarted | null>(
-      store.get("SubmitPhaseStarted", id.toHexString())
+      store.get("SubmitPhaseStarted", id.toHexString()),
     );
   }
 
@@ -2278,7 +2278,7 @@ export class WorldUpdated extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type WorldUpdated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type WorldUpdated must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("WorldUpdated", id.toBytes().toHexString(), this);
     }
@@ -2286,13 +2286,13 @@ export class WorldUpdated extends Entity {
 
   static loadInBlock(id: Bytes): WorldUpdated | null {
     return changetype<WorldUpdated | null>(
-      store.get_in_block("WorldUpdated", id.toHexString())
+      store.get_in_block("WorldUpdated", id.toHexString()),
     );
   }
 
   static load(id: Bytes): WorldUpdated | null {
     return changetype<WorldUpdated | null>(
-      store.get("WorldUpdated", id.toHexString())
+      store.get("WorldUpdated", id.toHexString()),
     );
   }
 
@@ -2374,7 +2374,7 @@ export class Game extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type Game must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Game must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("Game", id.toBytes().toHexString(), this);
     }
@@ -2382,7 +2382,7 @@ export class Game extends Entity {
 
   static loadInBlock(id: Bytes): Game | null {
     return changetype<Game | null>(
-      store.get_in_block("Game", id.toHexString())
+      store.get_in_block("Game", id.toHexString()),
     );
   }
 
@@ -2484,30 +2484,24 @@ export class Game extends Entity {
   get players(): PlayerLoader {
     return new PlayerLoader(
       "Game",
-      this.get("id")!
-        .toBytes()
-        .toHexString(),
-      "players"
+      this.get("id")!.toBytes().toHexString(),
+      "players",
     );
   }
 
   get rounds(): RoundLoader {
     return new RoundLoader(
       "Game",
-      this.get("id")!
-        .toBytes()
-        .toHexString(),
-      "rounds"
+      this.get("id")!.toBytes().toHexString(),
+      "rounds",
     );
   }
 
   get cells(): CellLoader {
     return new CellLoader(
       "Game",
-      this.get("id")!
-        .toBytes()
-        .toHexString(),
-      "cells"
+      this.get("id")!.toBytes().toHexString(),
+      "cells",
     );
   }
 }
@@ -2524,7 +2518,7 @@ export class Player extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type Player must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Player must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("Player", id.toBytes().toHexString(), this);
     }
@@ -2532,7 +2526,7 @@ export class Player extends Entity {
 
   static loadInBlock(id: Bytes): Player | null {
     return changetype<Player | null>(
-      store.get_in_block("Player", id.toHexString())
+      store.get_in_block("Player", id.toHexString()),
     );
   }
 
@@ -2670,7 +2664,7 @@ export class Round extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type Round must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Round must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("Round", id.toBytes().toHexString(), this);
     }
@@ -2678,7 +2672,7 @@ export class Round extends Entity {
 
   static loadInBlock(id: Bytes): Round | null {
     return changetype<Round | null>(
-      store.get_in_block("Round", id.toHexString())
+      store.get_in_block("Round", id.toHexString()),
     );
   }
 
@@ -2758,20 +2752,16 @@ export class Round extends Entity {
   get moves(): MoveLoader {
     return new MoveLoader(
       "Round",
-      this.get("id")!
-        .toBytes()
-        .toHexString(),
-      "moves"
+      this.get("id")!.toBytes().toHexString(),
+      "moves",
     );
   }
 
   get shots(): ShotLoader {
     return new ShotLoader(
       "Round",
-      this.get("id")!
-        .toBytes()
-        .toHexString(),
-      "shots"
+      this.get("id")!.toBytes().toHexString(),
+      "shots",
     );
   }
 }
@@ -2788,7 +2778,7 @@ export class Move extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type Move must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Move must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("Move", id.toBytes().toHexString(), this);
     }
@@ -2796,7 +2786,7 @@ export class Move extends Entity {
 
   static loadInBlock(id: Bytes): Move | null {
     return changetype<Move | null>(
-      store.get_in_block("Move", id.toHexString())
+      store.get_in_block("Move", id.toHexString()),
     );
   }
 
@@ -2921,7 +2911,7 @@ export class Shot extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type Shot must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Shot must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("Shot", id.toBytes().toHexString(), this);
     }
@@ -2929,7 +2919,7 @@ export class Shot extends Entity {
 
   static loadInBlock(id: Bytes): Shot | null {
     return changetype<Shot | null>(
-      store.get_in_block("Shot", id.toHexString())
+      store.get_in_block("Shot", id.toHexString()),
     );
   }
 
@@ -3042,87 +3032,6 @@ export class Shot extends Entity {
   }
 }
 
-export class Island extends Entity {
-  constructor(id: Bytes) {
-    super();
-    this.set("id", Value.fromBytes(id));
-  }
-
-  save(): void {
-    let id = this.get("id");
-    assert(id != null, "Cannot save Island entity without an ID");
-    if (id) {
-      assert(
-        id.kind == ValueKind.BYTES,
-        `Entities of type Island must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
-      );
-      store.set("Island", id.toBytes().toHexString(), this);
-    }
-  }
-
-  static loadInBlock(id: Bytes): Island | null {
-    return changetype<Island | null>(
-      store.get_in_block("Island", id.toHexString())
-    );
-  }
-
-  static load(id: Bytes): Island | null {
-    return changetype<Island | null>(store.get("Island", id.toHexString()));
-  }
-
-  get id(): Bytes {
-    let value = this.get("id");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set id(value: Bytes) {
-    this.set("id", Value.fromBytes(value));
-  }
-
-  get game(): Bytes {
-    let value = this.get("game");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set game(value: Bytes) {
-    this.set("game", Value.fromBytes(value));
-  }
-
-  get q(): i32 {
-    let value = this.get("q");
-    if (!value || value.kind == ValueKind.NULL) {
-      return 0;
-    } else {
-      return value.toI32();
-    }
-  }
-
-  set q(value: i32) {
-    this.set("q", Value.fromI32(value));
-  }
-
-  get r(): i32 {
-    let value = this.get("r");
-    if (!value || value.kind == ValueKind.NULL) {
-      return 0;
-    } else {
-      return value.toI32();
-    }
-  }
-
-  set r(value: i32) {
-    this.set("r", Value.fromI32(value));
-  }
-}
-
 export class Cell extends Entity {
   constructor(id: Bytes) {
     super();
@@ -3135,7 +3044,7 @@ export class Cell extends Entity {
     if (id) {
       assert(
         id.kind == ValueKind.BYTES,
-        `Entities of type Cell must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`
+        `Entities of type Cell must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
       );
       store.set("Cell", id.toBytes().toHexString(), this);
     }
@@ -3143,7 +3052,7 @@ export class Cell extends Entity {
 
   static loadInBlock(id: Bytes): Cell | null {
     return changetype<Cell | null>(
-      store.get_in_block("Cell", id.toHexString())
+      store.get_in_block("Cell", id.toHexString()),
     );
   }
 

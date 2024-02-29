@@ -2,13 +2,13 @@ specVersion: 0.0.5
 schema:
   file: schema.graphql
 dataSources:
-  - kind: ethereum
+  - kind: ethereum/contract
     name: GamePunk
-    network: sepolia
+    network: mainnet
     source:
       abi: GamePunk
-      address: "0x03A9c20c0228e849dba1d1AA1BadD918eC9ac55A"
-      startBlock: 5341868
+      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -40,11 +40,10 @@ dataSources:
         - Round
         - Move
         - Shot
-        - Island
         - Cell
       abis:
         - name: GamePunk
-          file: GamePunk\abis\GamePunk.json
+          file: GamePunk/abis/GamePunk.json
       eventHandlers:
         - event: CommitPhaseStarted(uint8)
           handler: handleCommitPhaseStarted
@@ -88,10 +87,8 @@ dataSources:
           handler: handleSubmitPhaseStarted
         - event: WorldUpdated(uint8)
           handler: handleWorldUpdated
-        - event: Island(uint8,uint8,uint8)
-          handler: handleIsland
         - event: Cell(uint8,uint8,uint8,bool)
           handler: handleCell
         - event: NewRound(uint8,uint256,uint8)
           handler: handleNewRound
-      file: GamePunk\GamePunk.wasm
+      file: GamePunk/GamePunk.wasm

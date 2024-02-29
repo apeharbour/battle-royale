@@ -7,7 +7,7 @@ import {
   Entity,
   Bytes,
   Address,
-  BigInt
+  BigInt,
 } from "@graphprotocol/graph-ts";
 
 export class Cell extends ethereum.Event {
@@ -139,32 +139,6 @@ export class GameWinner__Params {
 
   get gameId(): i32 {
     return this._event.parameters[1].value.toI32();
-  }
-}
-
-export class Island extends ethereum.Event {
-  get params(): Island__Params {
-    return new Island__Params(this);
-  }
-}
-
-export class Island__Params {
-  _event: Island;
-
-  constructor(event: Island) {
-    this._event = event;
-  }
-
-  get gameId(): i32 {
-    return this._event.parameters[0].value.toI32();
-  }
-
-  get q(): i32 {
-    return this._event.parameters[1].value.toI32();
-  }
-
-  get r(): i32 {
-    return this._event.parameters[2].value.toI32();
   }
 }
 
@@ -632,7 +606,7 @@ export class GamePunk__gamesResult {
     value2: boolean,
     value3: boolean,
     value4: boolean,
-    value5: boolean
+    value5: boolean,
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -647,7 +621,7 @@ export class GamePunk__gamesResult {
     map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
     map.set(
       "value1",
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value1))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value1)),
     );
     map.set("value2", ethereum.Value.fromBoolean(this.value2));
     map.set("value3", ethereum.Value.fromBoolean(this.value3));
@@ -722,7 +696,7 @@ export class GamePunk__getCellsResultValue0Struct extends ethereum.Tuple {
 export class GamePunk__getShipsResultValue0Struct extends ethereum.Tuple {
   get coordinate(): GamePunk__getShipsResultValue0CoordinateStruct {
     return changetype<GamePunk__getShipsResultValue0CoordinateStruct>(
-      this[0].toTuple()
+      this[0].toTuple(),
     );
   }
 
@@ -802,7 +776,7 @@ export class GamePunk extends ethereum.SmartContract {
     let result = super.call(
       "games",
       "games(uint256):(uint256,uint8,bool,bool,bool,bool)",
-      [ethereum.Value.fromUnsignedBigInt(param0)]
+      [ethereum.Value.fromUnsignedBigInt(param0)],
     );
 
     return new GamePunk__gamesResult(
@@ -811,7 +785,7 @@ export class GamePunk extends ethereum.SmartContract {
       result[2].toBoolean(),
       result[3].toBoolean(),
       result[4].toBoolean(),
-      result[5].toBoolean()
+      result[5].toBoolean(),
     );
   }
 
@@ -819,7 +793,7 @@ export class GamePunk extends ethereum.SmartContract {
     let result = super.tryCall(
       "games",
       "games(uint256):(uint256,uint8,bool,bool,bool,bool)",
-      [ethereum.Value.fromUnsignedBigInt(param0)]
+      [ethereum.Value.fromUnsignedBigInt(param0)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -832,22 +806,22 @@ export class GamePunk extends ethereum.SmartContract {
         value[2].toBoolean(),
         value[3].toBoolean(),
         value[4].toBoolean(),
-        value[5].toBoolean()
-      )
+        value[5].toBoolean(),
+      ),
     );
   }
 
   getCell(
     _coord: GamePunk__getCellInput_coordStruct,
-    gameId: i32
+    gameId: i32,
   ): GamePunk__getCellResultValue0Struct {
     let result = super.call(
       "getCell",
       "getCell((uint8,uint8),uint8):((uint8,uint8,bool,bool))",
       [
         ethereum.Value.fromTuple(_coord),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
-      ]
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+      ],
     );
 
     return changetype<GamePunk__getCellResultValue0Struct>(result[0].toTuple());
@@ -855,53 +829,53 @@ export class GamePunk extends ethereum.SmartContract {
 
   try_getCell(
     _coord: GamePunk__getCellInput_coordStruct,
-    gameId: i32
+    gameId: i32,
   ): ethereum.CallResult<GamePunk__getCellResultValue0Struct> {
     let result = super.tryCall(
       "getCell",
       "getCell((uint8,uint8),uint8):((uint8,uint8,bool,bool))",
       [
         ethereum.Value.fromTuple(_coord),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
-      ]
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      changetype<GamePunk__getCellResultValue0Struct>(value[0].toTuple())
+      changetype<GamePunk__getCellResultValue0Struct>(value[0].toTuple()),
     );
   }
 
   getCells(gameId: i32): Array<GamePunk__getCellsResultValue0Struct> {
     let result = super.call("getCells", "getCells(uint8):((uint8,uint8)[])", [
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
     ]);
 
     return result[0].toTupleArray<GamePunk__getCellsResultValue0Struct>();
   }
 
   try_getCells(
-    gameId: i32
+    gameId: i32,
   ): ethereum.CallResult<Array<GamePunk__getCellsResultValue0Struct>> {
     let result = super.tryCall(
       "getCells",
       "getCells(uint8):((uint8,uint8)[])",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTupleArray<GamePunk__getCellsResultValue0Struct>()
+      value[0].toTupleArray<GamePunk__getCellsResultValue0Struct>(),
     );
   }
 
   getRadius(gameId: i32): i32 {
     let result = super.call("getRadius", "getRadius(uint8):(uint8)", [
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
     ]);
 
     return result[0].toI32();
@@ -909,7 +883,7 @@ export class GamePunk extends ethereum.SmartContract {
 
   try_getRadius(gameId: i32): ethereum.CallResult<i32> {
     let result = super.tryCall("getRadius", "getRadius(uint8):(uint8)", [
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -922,26 +896,26 @@ export class GamePunk extends ethereum.SmartContract {
     let result = super.call(
       "getShips",
       "getShips(uint8):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint8)[])",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))],
     );
 
     return result[0].toTupleArray<GamePunk__getShipsResultValue0Struct>();
   }
 
   try_getShips(
-    gameId: i32
+    gameId: i32,
   ): ethereum.CallResult<Array<GamePunk__getShipsResultValue0Struct>> {
     let result = super.tryCall(
       "getShips",
       "getShips(uint8):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint8)[])",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTupleArray<GamePunk__getShipsResultValue0Struct>()
+      value[0].toTupleArray<GamePunk__getShipsResultValue0Struct>(),
     );
   }
 
@@ -949,7 +923,7 @@ export class GamePunk extends ethereum.SmartContract {
     _start: GamePunk__moveInput_startStruct,
     _dir: i32,
     _distance: i32,
-    gameId: i32
+    gameId: i32,
   ): GamePunk__moveResultValue0Struct {
     let result = super.call(
       "move",
@@ -958,8 +932,8 @@ export class GamePunk extends ethereum.SmartContract {
         ethereum.Value.fromTuple(_start),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_dir)),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_distance)),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
-      ]
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+      ],
     );
 
     return changetype<GamePunk__moveResultValue0Struct>(result[0].toTuple());
@@ -969,7 +943,7 @@ export class GamePunk extends ethereum.SmartContract {
     _start: GamePunk__moveInput_startStruct,
     _dir: i32,
     _distance: i32,
-    gameId: i32
+    gameId: i32,
   ): ethereum.CallResult<GamePunk__moveResultValue0Struct> {
     let result = super.tryCall(
       "move",
@@ -978,15 +952,15 @@ export class GamePunk extends ethereum.SmartContract {
         ethereum.Value.fromTuple(_start),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_dir)),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_distance)),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))
-      ]
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      changetype<GamePunk__moveResultValue0Struct>(value[0].toTuple())
+      changetype<GamePunk__moveResultValue0Struct>(value[0].toTuple()),
     );
   }
 
@@ -1009,7 +983,7 @@ export class GamePunk extends ethereum.SmartContract {
     let result = super.call(
       "registrationContract",
       "registrationContract():(address)",
-      []
+      [],
     );
 
     return result[0].toAddress();
@@ -1019,7 +993,7 @@ export class GamePunk extends ethereum.SmartContract {
     let result = super.tryCall(
       "registrationContract",
       "registrationContract():(address)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -1076,20 +1050,20 @@ export class AddShipCall__Inputs {
     this._call = call;
   }
 
+  get playerAddress(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
   get gameId(): i32 {
-    return this._call.inputValues[0].value.toI32();
+    return this._call.inputValues[1].value.toI32();
   }
 
-  get playerAddresses(): Array<Address> {
-    return this._call.inputValues[1].value.toAddressArray();
+  get _speed(): i32 {
+    return this._call.inputValues[2].value.toI32();
   }
 
-  get speeds(): Array<i32> {
-    return this._call.inputValues[2].value.toI32Array();
-  }
-
-  get ranges(): Array<i32> {
-    return this._call.inputValues[3].value.toI32Array();
+  get _range(): i32 {
+    return this._call.inputValues[3].value.toI32();
   }
 }
 
@@ -1288,11 +1262,11 @@ export class SubmitMoveCall__Inputs {
     return this._call.inputValues[3].value.toI32Array();
   }
 
-  get secrets(): Array<BigInt> {
-    return this._call.inputValues[4].value.toBigIntArray();
+  get _secrets(): Array<Bytes> {
+    return this._call.inputValues[4].value.toBytesArray();
   }
 
-  get playerAddresses(): Array<Address> {
+  get _playerAddresses(): Array<Address> {
     return this._call.inputValues[5].value.toAddressArray();
   }
 
@@ -1358,7 +1332,7 @@ export class TravelCall__Inputs {
 
   get _startCell(): TravelCall_startCellStruct {
     return changetype<TravelCall_startCellStruct>(
-      this._call.inputValues[0].value.toTuple()
+      this._call.inputValues[0].value.toTuple(),
     );
   }
 

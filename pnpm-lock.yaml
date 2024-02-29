@@ -167,6 +167,8 @@ importers:
         specifier: ^5.1.4
         version: 5.1.4
 
+  graph/infrastructure: {}
+
   graph/newSubgraph:
     dependencies:
       '@graphprotocol/graph-cli':

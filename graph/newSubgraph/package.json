@@ -8,7 +8,8 @@
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ newSubgraph/newSubgraph",
     "create-local": "graph create --node http://localhost:8020/ newSubgraph/newSubgraph",
     "remove-local": "graph remove --node http://localhost:8020/ newSubgraph/newSubgraph",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 newSubgraph/newSubgraph",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 newSubgraph/newSubgraph --version-label v1 --network localhost",
+    "deploy:local": "pnpm run codegen && pnpnm run create-local && pnpm run deploy-local",
     "test": "graph test"
   },
   "dependencies": {
