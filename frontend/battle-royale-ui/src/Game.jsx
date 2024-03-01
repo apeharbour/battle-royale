@@ -454,6 +454,30 @@ export default function Game(props) {
     }
   };
 
+  const disableEventBridgeRule = async (gameId) => {
+    try {
+      const response = await fetch('https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/disableEventBridge', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ gameId }),
+      });
+  
+      if (!response.ok) {
+        throw new Error(`Error: ${response.status}`);
+      }
+  
+      const data = await response.json();
+      console.log('Success:', data);
+      // Handle success response
+    } catch (error) {
+      console.error('Error calling the API:', error.message);
+      // Handle error response
+    }
+  };
+  
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error : {error.message}</p>;
 

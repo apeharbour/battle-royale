@@ -71,7 +71,7 @@ export default function Admin(props) {
       //     triggerLambdaFunction(gameId);
       // }
 
-      triggerLambdaFunction(3);
+      triggerLambdaFunction(4);
     }
   };
 
@@ -80,7 +80,7 @@ export default function Admin(props) {
       "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated";
     const postData = {
       gameId: gameId.toString(),
-      scheduleRate: "10 minutes",
+      scheduleRate: "5 minutes",
     };
 
     try {
