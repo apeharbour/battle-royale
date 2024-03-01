@@ -7,12 +7,16 @@
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ battleroyale/punkships",
     "create-local": "graph create --node http://localhost:8020/ battleroyale/punkships",
     "remove-local": "graph remove --node http://localhost:8020/ battleroyale/punkships",
-    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 battleroyale/punkships",
+    "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 battleroyale/punkships --version-label v1 --network localhost",
+    "deploy:local": "pnpm run codegen && pnpm run create-local && pnpm run deploy-local",
     "test": "graph test"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.68.4",
-    "@graphprotocol/graph-ts": "0.32.0"
+    "@graphprotocol/graph-ts": "0.33.0",
+    "as-base64": "^0.2.0"
   },
-  "devDependencies": { "matchstick-as": "0.5.0" }
+  "devDependencies": {
+    "matchstick-as": "0.6.0"
+  }
 }

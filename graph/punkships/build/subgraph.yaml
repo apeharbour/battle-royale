@@ -2,7 +2,7 @@ specVersion: 1.0.0
 indexerHints:
   prune: auto
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: Punkships
@@ -23,7 +23,7 @@ dataSources:
         - Mint
       abis:
         - name: Punkships
-          file: ./abis/Punkships.json
+          file: Punkships/abis/Punkships.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
@@ -35,4 +35,4 @@ dataSources:
           handler: handleTransfer
         - event: Mint(indexed address,indexed uint256,string)
           handler: handleMint
-      file: ./src/punkships.ts
+      file: Punkships/Punkships.wasm

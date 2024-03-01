@@ -35,6 +35,7 @@ string constant SHIP_YACHT = '<g transform="scale(10)"> <g id="border" class="bo
 /// @custom:security-contact security@laidback.ventures
 contract Punkships is ERC721, ERC721Burnable, Ownable {
     error InvalidPosition(uint8 position);
+    event Mint(address indexed owner, uint256 indexed id, string tokenURI);
 
     uint256 private _nextTokenId;
 
@@ -54,6 +55,7 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
     function safeMint(address to) public {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
+        emit Mint(to, tokenId, tokenURI(tokenId));
     }
 
     function getByte(
