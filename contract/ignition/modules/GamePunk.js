@@ -6,8 +6,8 @@ module.exports = buildModule("BattleRoyale", (m) => {
 
   const punkships = m.contract("Punkships", [m.getAccount(0)]);
   const map = m.contract("MapPunk", [INITIAL_SEED]);
-  const game = m.contract("GamePunk", [map]);
-  const registration = m.contract("RegistrationPunk", [game]);
+  const game = m.contract("GamePunk", [map, punkships]);
+  const registration = m.contract("RegistrationPunk", [game, punkships]);
 
   m.call(game, "setRegistrationContract", [registration])
 

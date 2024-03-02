@@ -1,5 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-ignition");
+require("@nomicfoundation/hardhat-ignition-ethers")
 require("dotenv").config();
 
 const INFURA_API_KEY = process.env.INFURA_API;
