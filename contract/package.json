@@ -5,8 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "blockchain-local": "npx hardhat node",
-    "deploy-local": "npx hardhat ignition deploy igntion/modules/GamePunk.js"
+    "infra:local:up": "npx hardhat node --hostname 0.0.0.0",
+    "infra:local:down": "pkill -SIGINT hardhat node",
+    "deploy:local": "yes | npx hardhat ignition deploy ignition/modules/GamePunk.js --network localhost --reset && ./updateGraphNetworks.sh"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^0.14.0",
     "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.14.0",
     "@openzeppelin/contracts": "^5.0.1",
     "hardhat": "^2.20.1"
   },

@@ -251,12 +251,12 @@ type Shot @entity {
   destinationR: Int!
 }
 
-type Island @entity(immutable: true) {
-  id: Bytes!
-  game: Game!
-  q: Int!
-  r: Int!
-}
+# type Island @entity(immutable: true) {
+#   id: Bytes!
+#   game: Game!
+#   q: Int!
+#   r: Int!
+# }
 
 type Cell @entity(immutable: true) {
   id: Bytes!

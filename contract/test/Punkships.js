@@ -23,37 +23,88 @@ describe("Punkships", function () {
     });
   });
 
+  describe("#safeMint", function () {
+    it("Should mint 1", async function () {
+      const [owner] = await ethers.getSigners()
+
+      const { punkships }  = await loadFixture(deployPunkships);
+      await punkships.safeMint(owner.address);
+
+      const balance = await punkships.balanceOf(owner.address);
+      expect(balance).to.equal(1, 'Not enough ships.');
+
+    })
+  });
+
   describe("#tokenURI", function () {
-    it("Should return tokenURI 0", async function () {
+    it("Should fail to for non minted tokenURI 0", async function () {
       const { punkships }  = await loadFixture(deployPunkships);
+      expect(punkships.tokenURI(0)).to.be.revertedWithCustomError(punkships, "ShipNotMinted");
+    });
+
+    it("should return for minted tokenURI 0", async function () {
+      const { punkships }  = await loadFixture(deployPunkships);
+      const [owner] = await ethers.getSigners()
+      await punkships.safeMint(owner.address);
+
       const tokenURI = await punkships.tokenURI(0);
-      expect(true).to.equal(true);
-    });
-    it("Should return tokenURI 1", async function () {
-      const { punkships }  = await loadFixture(deployPunkships);
-      const tokenURI = await punkships.tokenURI(1);
-      expect(true).to.be.true;
-    });
-    it("Should return tokenURI 2", async function () {
-      const { punkships }  = await loadFixture(deployPunkships);
-      const tokenURI = await punkships.tokenURI(2);
-      expect(true).to.be.true;
-    });
-    it("Should return tokenURI 3", async function () {
-      const { punkships }  = await loadFixture(deployPunkships);
-      const tokenURI = await punkships.tokenURI(3);
-      expect(true).to.be.true;
-    });
-    it("Should return tokenURI 4", async function () {
-      const { punkships }  = await loadFixture(deployPunkships);
-      const tokenURI = await punkships.tokenURI(4);
-      expect(true).to.be.true;
-    });
-    it("Should return tokenURI 5", async function () {
-      const { punkships }  = await loadFixture(deployPunkships);
-      const tokenURI = await punkships.tokenURI(5);
-      expect(true).to.be.true;
+      const startOfTokenURI = tokenURI.slice(0, 29);
+      expect(startOfTokenURI).to.equal("data:application/json;base64,")
     });
   });
 
+  describe("#getRange", function () {
+    it("Should fail to for non minted tokenURI 0", async function () {
+      const { punkships }  = await loadFixture(deployPunkships);
+      expect(punkships.getRange(0)).to.be.revertedWithCustomError(punkships, "ShipNotMinted");
+    });
+
+    it("should return for minted tokenURI 0", async function () {
+      const { punkships }  = await loadFixture(deployPunkships);
+      const [owner] = await ethers.getSigners()
+      await punkships.safeMint(owner.address);
+
+      const range = await punkships.getRange(0);
+      expect(range).to.equal(2)
+    });
+
+    it("should return for minted tokenURI 1", async function () {
+      const { punkships }  = await loadFixture(deployPunkships);
+      const [owner] = await ethers.getSigners()
+      await punkships.safeMint(owner.address);
+      await punkships.safeMint(owner.address);
+
+      const range = await punkships.getRange(1);
+      expect(range).to.equal(5)
+    });
+  });
+
+  describe("#getShootingRange", function () {
+    it("Should fail to for non minted tokenURI 0", async function () {
+      const { punkships }  = await loadFixture(deployPunkships);
+      expect(punkships.getShootingRange(0)).to.be.revertedWithCustomError(punkships, "ShipNotMinted");
+    });
+
+    it("should return for minted tokenURI 0", async function () {
+      const { punkships }  = await loadFixture(deployPunkships);
+      const [owner] = await ethers.getSigners()
+      await punkships.safeMint(owner.address);
+
+      const shootingRange = await punkships.getShootingRange(0);
+      expect(shootingRange).to.equal(6)
+    });
+
+    it("should return for minted tokenURI 1", async function () {
+      const { punkships }  = await loadFixture(deployPunkships);
+      const [owner] = await ethers.getSigners()
+      await punkships.safeMint(owner.address);
+      await punkships.safeMint(owner.address);
+
+      const shootingRange = await punkships.getShootingRange(1);
+      expect(shootingRange).to.equal(3)
+    });
+
+  });
+
 });
+

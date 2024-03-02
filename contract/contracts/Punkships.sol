@@ -22,6 +22,8 @@ enum ShipType {
     shipYacht
 }
 
+error ShipNotMinted(uint256 tokenId);
+
 string constant SVG_HEADER = '<?xml version="1.0" ?><svg xmlns="http://www.w3.org/2000/svg" width="320" height="240" version="1.1">';
 string constant SVG_FOOTER = "</svg>";
 string constant SIGNETS = '<g id="signets" transform="scale(10)"> <g id="signet1" class="signet1"> <path d="M15 13 h1 v1 h-1 z" /> <path d="M15 12 h1 v1 h-1 z" /> <path d="M15 11 h1 v1 h-1 z" /> <path d="M14 14 h1 v1 h-1 z" /> </g> </g>';
@@ -35,10 +37,18 @@ string constant SHIP_YACHT = '<g transform="scale(10)"> <g id="border" class="bo
 /// @custom:security-contact security@laidback.ventures
 contract Punkships is ERC721, ERC721Burnable, Ownable {
     error InvalidPosition(uint8 position);
+    event Mint(address indexed owner, uint256 indexed id, string tokenURI);
 
     uint256 private _nextTokenId;
 
     mapping (ShipType => uint256[2]) private bitMasks;
+
+    modifier onlyMinted(uint256 tokenId) {
+        if (_ownerOf(tokenId) == address(0)) {
+            revert ShipNotMinted(tokenId);
+        }
+        _;
+    }
 
     constructor(
         address initialOwner
@@ -54,6 +64,7 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
     function safeMint(address to) public {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
+        emit Mint(to, tokenId, tokenURI(tokenId));
     }
 
     function getByte(
@@ -174,35 +185,27 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             );
     }
 
-    function createSignets(uint256 signets, uint8 rows, uint8 cols) private pure returns (bool[] memory) {
+    // function createSignets(uint256 signets, uint8 rows, uint8 cols) private pure returns (bool[] memory) {
 
-        // uint256 signetMask = 4503036747775;
-        uint256 signetMask = 562914773446720;
+    //     // uint256 signetMask = 4503036747775;
+    //     uint256 signetMask = 562914773446720;
 
-        uint256 signet1 = signets & signetMask;
+    //     uint256 signet1 = signets & signetMask;
 
-        bool[] memory signetsArray = new bool[](rows * cols);
-        for (uint8 i = 0; i < rows*cols; i++) {
-            signetsArray[i] = ((signet1 & (1 << i)) > 0);
-        }
-        return signetsArray;
-    }
+    //     bool[] memory signetsArray = new bool[](rows * cols);
+    //     for (uint8 i = 0; i < rows*cols; i++) {
+    //         signetsArray[i] = ((signet1 & (1 << i)) > 0);
+    //     }
+    //     return signetsArray;
+    // }
 
     function createSignetsV2(ShipType shipType, uint256 random) private view returns (bool[] memory) {
-
-        console.log("shipType %s", uint8(shipType));
-        console.log("random %s", random);
-        console.log("bitmask1 %s", bitMasks[shipType][0]);
-        console.log("bitmask2 %s", bitMasks[shipType][1]);
 
         uint256[] memory signets = new uint256[](2);
         
         signets[0] = random & bitMasks[shipType][0];
-        console.log("signet1 %s", signets[0]);
 
         signets[1] = uint256(keccak256(abi.encodePacked(random))) & bitMasks[shipType][1];
-        // signets[1] = random & bitMasks[shipType][1];
-        console.log("signet2 %s", signets[1]);
 
         // ten rows can be set (rows 5-15), each 32 columns wide
         bool[] memory signetsArray = new bool[](10 * 32);
@@ -217,11 +220,45 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         return signetsArray;
     }
 
-    function tokenURI(
-        uint256 tokenId
-    ) public view override returns (string memory) {
+    function _getRange(uint256 tokenId) private pure returns (uint8) {
         uint8[5] memory ranges = [6, 5, 4, 3, 2];
+
+        uint256 random = uint256(keccak256(abi.encodePacked(tokenId)));
+
+        ShipType shipType = ShipType(
+            getByte(0, random) % (uint8(type(ShipType).max) + 1)
+        );
+        return ranges[uint8(shipType)];
+    }
+
+    function getRange(uint256 tokenId) external view onlyMinted(tokenId) returns (uint8) {
+        return _getRange(tokenId);
+    }
+
+    function _getShootingRange(uint256 tokenId) private pure returns (uint8) {
         uint8[5] memory shootingRanges = [2, 3, 4, 5, 6];
+
+        uint256 random = uint256(keccak256(abi.encodePacked(tokenId)));
+
+        ShipType shipType = ShipType(
+            getByte(0, random) % (uint8(type(ShipType).max) + 1)
+        );
+        return shootingRanges[uint8(shipType)];
+    }
+
+    function getShootingRange(uint256 tokenId) external view onlyMinted(tokenId) returns (uint8) {
+        return _getShootingRange(tokenId);
+    }
+
+    function _getShipType(uint256 tokenId) private pure returns (ShipType) {
+        uint256 random = uint256(keccak256(abi.encodePacked(tokenId)));
+        ShipType shipType = ShipType(
+            getByte(0, random) % (uint8(type(ShipType).max) + 1)
+        );
+        return shipType;
+    }
+
+    function _getShipTypeName(uint256 tokenId) private pure returns (string memory) {
         string[5] memory shipNames = [
             "Boat",
             "Sloop",
@@ -229,14 +266,24 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             "Frigate",
             "Yacht"
         ];
-        console.log("tokenURI %s", tokenId);
+        return shipNames[uint8(_getShipType(tokenId))];
+    }
+
+    function getShipTypeName(uint256 tokenId) public view onlyMinted(tokenId) returns (string memory) {
+        return _getShipTypeName(tokenId);
+    }
+
+    function tokenURI(uint256 tokenId) public view override onlyMinted(tokenId) returns (string memory) {
+        return _tokenURI(tokenId);
+    }
+
+    function _tokenURI(
+        uint256 tokenId
+    ) internal view returns (string memory) {
 
         uint256 random = uint256(keccak256(abi.encodePacked(tokenId)));
 
-        ShipType shipType = ShipType(
-            getByte(0, random) % (uint8(type(ShipType).max) + 1)
-        );
-        console.log("shipType at creation %s", uint8(shipType));
+        ShipType shipType = _getShipType(tokenId);
         bool flag = getByte(1, random) % 2 > 0 ? true : false;
         Color memory colorHull = getColor(2, random);
         Color memory colorWindowRow = getColor(5, random);
@@ -249,9 +296,7 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         Color memory colorSignet2 = getColor(26, random);
         Color memory colorSignet3 = getColor(29, random);
 
-        // uint256 signetAllSet = 562949953421311;
-        uint256 signetAllSet = type(uint256).max;
-        console.log("allset %s", signetAllSet);
+        // uint256 signetAllSet = type(uint256).max;
 
         // bool[] memory signets = createSignets(random, 7, 7);
         bool[] memory signets = createSignetsV2(shipType, random);
@@ -276,15 +321,17 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             '{"name": "Punkship #',
             Strings.toString(tokenId),
             '", "description": "Punkships are randomized and unique ships. Use them for the punkship game", "attributes": [{"trait_type": "range", "value": "',
-            Strings.toString(ranges[uint8(shipType)]),
+            Strings.toString(_getRange(tokenId)),
             '"}, {"trait_type": "shootingRange", "value": "',
-            Strings.toString(shootingRanges[uint8(shipType)]),
+            Strings.toString(_getShootingRange(tokenId)),
             '"}, {"trait_type": "shipType", "value": "',
-            shipNames[uint8(shipType)],
+            _getShipTypeName(tokenId),
             '"}], "image": "data:image/svg+xml;base64,',
             Base64.encode(bytes(svg)),
             '"}'
         );
+
+        // console.log("metadata: %s", metadataJson);
 
         // Base64 encode and create data URI from svg
         string memory metadataBase64Encoded = Base64.encode(
@@ -294,6 +341,7 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             "data:application/json;base64,",
             metadataBase64Encoded
         );
+
 
         return metadataDataUri;
     }

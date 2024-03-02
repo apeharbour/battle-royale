@@ -1,0 +1,14 @@
+{
+  "name": "graph-infra",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "infra:local:up": "docker-compose -f ./docker-compose.yml up",
+    "infra:local:down": "docker-compose -f ./docker-compose.yml down && docker volume rm infrastructure_ipfs_data infrastructure_postgres_data && docker network rm infrastructure_default"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
+}

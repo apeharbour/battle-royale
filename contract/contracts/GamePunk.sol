@@ -7,6 +7,15 @@ import "./Random.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 error ShipAlreadyAdded(address player, uint8 q, uint8 r);
+error NotOwnerOfShip(address player, uint256 tokenId);
+
+interface IPunkships {
+    function safeMint(address to, uint256 tokenId) external;
+    function getRange(uint256 tokenId) external pure returns (uint8);
+    function getShootingRange(uint256 tokenId) external pure returns (uint8);
+    function getShipTypeName(uint256 tokenId) external pure returns (string memory);
+    function ownerOf(uint256 tokenId) external pure returns (address);
+}
 
 contract GamePunk is Ownable {
     //Events
@@ -101,6 +110,7 @@ contract GamePunk is Ownable {
     }
     mapping(uint256 => GameInstance) public games;
     MapPunk immutable map;
+    IPunkships immutable punkships;
     address public registrationContract;
 
     // Modifier to restrict the call to the registration contract
@@ -112,8 +122,9 @@ contract GamePunk is Ownable {
         _;
     }
 
-    constructor(address _mapAddress) Ownable(msg.sender) {
+    constructor(address _mapAddress, address _punkshipsAddress) Ownable(msg.sender) {
         map = MapPunk(_mapAddress);
+        punkships = IPunkships(_punkshipsAddress);
     }
 
     // Function to set the registration contract's address
@@ -279,13 +290,18 @@ contract GamePunk is Ownable {
     function addShip(
         address playerAddress,
         uint8 gameId,
-        uint8 _speed,
-        uint8 _range
+        uint256 _punkshipId
     ) public onlyRegistrationContract {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
         );
+
+        if (punkships.ownerOf(_punkshipId) != playerAddress) {
+            revert NotOwnerOfShip(playerAddress, _punkshipId);
+        }
+
+
         if (
             games[gameId].ships[playerAddress].coordinate.q > 0 &&
             games[gameId].ships[playerAddress].coordinate.r > 0
@@ -324,6 +340,10 @@ contract GamePunk is Ownable {
                 }
             }
         } while (alreadyTaken);
+
+        uint8 range = punkships.getRange(_punkshipId);
+        uint8 shootingRange = punkships.getShootingRange(_punkshipId);
+
         Ship memory ship = Ship(
             coord,
             SharedStructs.Directions.E,
@@ -332,10 +352,12 @@ contract GamePunk is Ownable {
             0,
             false,
             playerAddress,
-            _speed,
-            _range,
+            range,
+            shootingRange,
             gameId
         );
+
+
         games[gameId].ships[playerAddress] = ship;
         games[gameId].players.push(playerAddress);
         emit PlayerAdded(
@@ -343,8 +365,8 @@ contract GamePunk is Ownable {
             gameId,
             coord.q,
             coord.r,
-            _speed,
-            _range
+            range,
+            shootingRange
         );
     }
 

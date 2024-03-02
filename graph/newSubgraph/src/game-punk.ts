@@ -21,7 +21,7 @@ import {
   ShipSunkOutOfMap as ShipSunkOutOfMapEvent,
   SubmitPhaseStarted as SubmitPhaseStartedEvent,
   WorldUpdated as WorldUpdatedEvent,
-  Island as IslandEvent,
+  // Island as IslandEvent,
   Cell as CellEvent,
   NewRound as NewRoundEvent
 } from "../generated/GamePunk/GamePunk"
@@ -53,7 +53,7 @@ import {
   SubmitPhaseStarted,
   WorldUpdated,
   Cell,
-  Island
+  // Island
 } from "../generated/schema"
 
 import { log } from '@graphprotocol/graph-ts'
@@ -581,17 +581,17 @@ export function handleWorldUpdated(event: WorldUpdatedEvent): void {
   entity.save()
 }
 
-export function handleIsland(event: IslandEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
-  const islandId = gameId.concatI32(event.params.q).concatI32(event.params.r)
+// export function handleIsland(event: IslandEvent): void {
+//   const gameId = event.address.concatI32(event.params.gameId)
+//   const islandId = gameId.concatI32(event.params.q).concatI32(event.params.r)
 
-  let entity = new Island(islandId)
-  entity.q = event.params.q
-  entity.r = event.params.r
-  entity.game = gameId
+//   let entity = new Island(islandId)
+//   entity.q = event.params.q
+//   entity.r = event.params.r
+//   entity.game = gameId
 
-  entity.save()
-}
+//   entity.save()
+// }
 export function handleCell(event: CellEvent): void {
   const gameId = event.address.concatI32(event.params.gameId)
   const cellId = gameId.concatI32(event.params.q).concatI32(event.params.r)
