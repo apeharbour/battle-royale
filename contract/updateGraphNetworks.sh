@@ -19,3 +19,10 @@ echo "ABIs updated in graph/newSubgraph/abis"
 cp ../graph/newSubgraph/networks.json ../graph/punkships/networks.json
 cp ../graph/newSubgraph/abis/GamePunk.json ../graph/punkships/abis/GamePunk.json
 cp ../graph/newSubgraph/abis/Punkships.json ../graph/punkships/abis/Punkships.json
+echo "ABIs updated in graph/punkships/abis"
+
+# Copy ABIs to the frontend
+cp ignition/deployments/chain-1337/artifacts/BattleRoyale\#GamePunk.json ../frontend/battle-royale-ui/src/abis/GamePunk.json
+cp ignition/deployments/chain-1337/artifacts/BattleRoyale\#RegistrationPunk.json ../frontend/battle-royale-ui/src/abis/RegistrationPunk.json
+cp ignition/deployments/chain-1337/artifacts/BattleRoyale\#Punkships.json ../frontend/battle-royale-ui/src/abis/Punkships.json
+echo "ABIs updated in frontend/battle-royale-ui/src/abis"

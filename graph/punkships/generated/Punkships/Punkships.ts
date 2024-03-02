@@ -181,6 +181,67 @@ export class Punkships extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
+  getRange(tokenId: BigInt): i32 {
+    let result = super.call("getRange", "getRange(uint256):(uint8)", [
+      ethereum.Value.fromUnsignedBigInt(tokenId),
+    ]);
+
+    return result[0].toI32();
+  }
+
+  try_getRange(tokenId: BigInt): ethereum.CallResult<i32> {
+    let result = super.tryCall("getRange", "getRange(uint256):(uint8)", [
+      ethereum.Value.fromUnsignedBigInt(tokenId),
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toI32());
+  }
+
+  getShipType(tokenId: BigInt): i32 {
+    let result = super.call("getShipType", "getShipType(uint256):(uint8)", [
+      ethereum.Value.fromUnsignedBigInt(tokenId),
+    ]);
+
+    return result[0].toI32();
+  }
+
+  try_getShipType(tokenId: BigInt): ethereum.CallResult<i32> {
+    let result = super.tryCall("getShipType", "getShipType(uint256):(uint8)", [
+      ethereum.Value.fromUnsignedBigInt(tokenId),
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toI32());
+  }
+
+  getShootingRange(tokenId: BigInt): i32 {
+    let result = super.call(
+      "getShootingRange",
+      "getShootingRange(uint256):(uint8)",
+      [ethereum.Value.fromUnsignedBigInt(tokenId)],
+    );
+
+    return result[0].toI32();
+  }
+
+  try_getShootingRange(tokenId: BigInt): ethereum.CallResult<i32> {
+    let result = super.tryCall(
+      "getShootingRange",
+      "getShootingRange(uint256):(uint8)",
+      [ethereum.Value.fromUnsignedBigInt(tokenId)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toI32());
+  }
+
   isApprovedForAll(owner: Address, operator: Address): boolean {
     let result = super.call(
       "isApprovedForAll",

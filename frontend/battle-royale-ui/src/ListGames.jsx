@@ -23,9 +23,13 @@ const GET_GAMES = gql`
 export default function ListGames(props) {
   const [sortedGames, setSortedGames] = useState([]);
 
-  const { loading, error, data } = useQuery(GET_GAMES, {
-    pollInterval: 5000,
-  });
+  // const { loading, error, data } = useQuery(GET_GAMES, {
+  //   pollInterval: 5000,
+  // });
+
+  const data = [ { gameStarteds: [ { id: 1, gameId: 1 }, { id: 2, gameId: 2 } ] } ];
+  const loading = false;
+  const error = null;
 
   useEffect(() => {
     if (data && data.gameStarteds) {

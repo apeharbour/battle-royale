@@ -1,5 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
+import { useQuery, gql } from "@apollo/client";
 import {
   Accordion,
   AccordionSummary,
@@ -15,7 +16,10 @@ import {
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
+import GameAbi from "./abis/GamePunk.json";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import img1 from "./images/6.png";
@@ -24,7 +28,7 @@ import img3 from "./images/7.png";
 import img4 from "./images/4.png";
 import img5 from "./images/5.png";
 
- const REGISTRATION_ADDRESS = "0x3454f751b401880D04AFBF02dAfD871614497233";
+ const REGISTRATION_ADDRESS = "0x384AbD2924fE5aA8ab0C231AB67235F5484f2b8E";
  const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 const punkShips = [
@@ -36,45 +40,100 @@ const punkShips = [
 ];
 
 export default function Registration(props) {
-  const [contract, setContract] = useState(null);
+  const [registrationContract, setRegistrationContract] = useState(null);
+  const [punkshipsContract, setPunkshipsContract] = useState(null);
   const [provider, setProvider] = useState(null);
   const [player, setPlayer] = useState(null);
   const [selectedYacht, setSelectedYacht] = useState(null);
   const [showYachtSelectError, setShowYachtSelectError] = useState(false);
   const [testGameId, setTestGameId] = useState(0);
+  const [punkShips, setPunkships] = useState([]);
 
-   useEffect(() => {
-     const fetchContract = async () => {
-       const provider = new ethers.BrowserProvider(window.ethereum);
-       const signer = await provider.getSigner();
-       const contract = new ethers.Contract(
-         REGISTRATION_ADDRESS,
-         REGISTRATION_ABI,
-         signer
-       );
-       setContract(contract);
-       setProvider(provider);
-       setPlayer(signer.address);
-     };
+  const { loading, error, data, refetch } = useQuery(GET_SHIPS, {
+    variables: { accountAddress: NULL_ADDRESS },
+  });
 
-     fetchContract();
-   }, []);
+  useEffect(() => {
+    const fetchContract = async () => {
+      console.log("Fetching contract");
+      console.log("Environment: ", import.meta.env);
+
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      setProvider(provider);
+
+      console.log("Provider: ", provider);
+
+      const signer = await provider.getSigner();
+      console.log("Signer addr: ", signer.address);
+      setPlayer(signer.address);
+try {
+
+  console.log("Registration address: ", REGISTRATION_ADDRESS);
+  // console.log("Registration ABI: ", REGISTRATION_ABI);
+
+  const registrationContract = new ethers.Contract(
+    REGISTRATION_ADDRESS,
+    REGISTRATION_ABI,
+    signer
+    );
+    console.log("Registration contract: ", registrationContract);
+    setRegistrationContract(registrationContract);
+  } catch (error) {
+    console.log("Error: ", error);
+  }
+    };
+
+    fetchContract();
+  }, []);
+
+  useEffect(() => {
+    //refetch if player changes
+    console.log("Player changed: ", player, ". Refetching...");
+    if (player) {
+      refetch({ accountAddress: player });
+    }
+  }, [player]);
+
+  useEffect(() => {
+    console.log("Data changed: ", data, ", player: ", player);
+    if (!data || data && !data.account) { setPunkships([]); }
+
+    else if (data.account) {
+      const ships = data.account.punkships.map((ship) => {
+        const movement = ship.attributes.find((attr) => attr.trait === "range").value;
+        const shoot = ship.attributes.find((attr) => attr.trait === "shootingRange").value;
+        const shipType = ship.attributes.find((attr) => attr.trait === "shipType").value;
+        return {
+          tokenId: ship.tokeId,
+          movement: movement,
+          shoot: shoot,
+          name: shipType,
+          image: ship.image,
+        };
+      });
+      
+      setPunkships(ships);
+    }
+  }, [data]);
 
   const handleCardClick = (ship) => {
     setSelectedYacht(ship);
     setShowYachtSelectError(false);
   };
 
-   const register = async () => {
-     if (contract !== null) {
-       console.log("Adding ship");
-       const tx = await contract
-         .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
-         .catch(console.error);
-       await tx.wait();
-     }
-     console.log("Added ship");
-   };
+  const register = async () => {
+    if (registrationContract !== null) {
+      console.log("Adding ship");
+      const tx = await registrationContract
+        .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
+        .catch(console.error);
+      await tx.wait();
+    }
+    console.log("Added ship");
+  };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {JSON.stringify(error)}</p>;
 
   return (
     <Fragment>

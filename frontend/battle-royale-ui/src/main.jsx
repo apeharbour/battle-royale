@@ -9,7 +9,7 @@ import {
 import App from "./App.jsx";
 import "./index.css";
 
-const SUBGRAPH_URL = 'https://subgraph.satsuma-prod.com/7a321097545d/jayants-personal--362208/testsubgraph/api';
+const SUBGRAPH_URL = import.meta.env.VITE_SUBGRAPH_URL_PUNKSHIPS;
 
 
 const client = new ApolloClient({

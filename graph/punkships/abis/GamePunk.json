@@ -5,10 +5,31 @@
         "internalType": "address",
         "name": "_mapAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_punkshipsAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "NotOwnerOfShip",
+    "type": "error"
   },
   {
     "inputs": [
@@ -617,14 +638,9 @@
         "type": "uint8"
       },
       {
-        "internalType": "uint8",
-        "name": "_speed",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_range",
-        "type": "uint8"
+        "internalType": "uint256",
+        "name": "_punkshipId",
+        "type": "uint256"
       }
     ],
     "name": "addShip",

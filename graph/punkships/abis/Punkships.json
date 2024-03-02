@@ -147,6 +147,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ShipNotMinted",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -350,7 +361,7 @@
         "type": "uint8"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -361,15 +372,15 @@
         "type": "uint256"
       }
     ],
-    "name": "getShipType",
+    "name": "getShipTypeName",
     "outputs": [
       {
-        "internalType": "enum ShipType",
+        "internalType": "string",
         "name": "",
-        "type": "uint8"
+        "type": "string"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -388,7 +399,7 @@
         "type": "uint8"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
