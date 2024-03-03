@@ -1,6 +1,12 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@tanstack/react-query";
+import { graphql } from "./gql/gql";
+import { useAccount } from "wagmi";
+// import { GraphQLClient } from "graphql-request";
+import { request, gql } from 'graphql-request'
+
+
 import {
   Accordion,
   AccordionSummary,
@@ -31,13 +37,33 @@ import img5 from "./images/5.png";
  const REGISTRATION_ADDRESS = "0x384AbD2924fE5aA8ab0C231AB67235F5484f2b8E";
  const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
-const punkShips = [
-  { name: "Sailing Ship", movement: 6, shoot: 2, image: img1 },
-  { name: "Three-master", movement: 5, shoot: 3, image: img2 },
-  { name: "Four-master", movement: 4, shoot: 4, image: img3 },
-  { name: "Five-master", movement: 3, shoot: 5, image: img4 },
-  { name: "Superyacht", movement: 2, shoot: 6, image: img5 },
-];
+const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
+const ACCOUNT_ADDRESS = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
+
+// const GET_SHIPS = graphql(`
+const GET_SHIPS = gql`
+  query getPunkships($accountAddress: ID!) {
+    account(id: $accountAddress) {
+      id
+      punkships {
+        tokenId
+        attributes {
+          trait
+          value
+        }
+        image
+      }
+    }
+  }
+`;
+
+// const punkShips = [
+//   { name: "Sailing Ship", movement: 6, shoot: 2, image: img1 },
+//   { name: "Three-master", movement: 5, shoot: 3, image: img2 },
+//   { name: "Four-master", movement: 4, shoot: 4, image: img3 },
+//   { name: "Five-master", movement: 3, shoot: 5, image: img4 },
+//   { name: "Superyacht", movement: 2, shoot: 6, image: img5 },
+// ];
 
 export default function Registration(props) {
   const [registrationContract, setRegistrationContract] = useState(null);
@@ -49,60 +75,79 @@ export default function Registration(props) {
   const [testGameId, setTestGameId] = useState(0);
   const [punkShips, setPunkships] = useState([]);
 
-  const { loading, error, data, refetch } = useQuery(GET_SHIPS, {
-    variables: { accountAddress: NULL_ADDRESS },
+  // const { loading, error, data, refetch } = useQuery(GET_SHIPS, {
+  //   variables: { accountAddress: NULL_ADDRESS },
+  // });
+
+  const account = useAccount();
+
+  // const gqlClient = new GraphQLClient(import.meta.env.VITE_SUBGRAPH_URL_GAME);
+  // console.log("GQL Client: ", gqlClient);
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["ships"],
+    queryFn: async () =>
+      request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_SHIPS, {
+        accountAddress: account.address,
+      }),
   });
 
+  //   useEffect(() => {
+  //     const fetchContract = async () => {
+  //       console.log("Fetching contract");
+  //       console.log("Environment: ", import.meta.env);
+
+  //       const provider = new ethers.BrowserProvider(window.ethereum);
+  //       setProvider(provider);
+
+  //       console.log("Provider: ", provider);
+
+  //       const signer = await provider.getSigner();
+  //       console.log("Signer addr: ", signer.address);
+  //       setPlayer(signer.address);
+  // try {
+
+  //   console.log("Registration address: ", REGISTRATION_ADDRESS);
+  //   // console.log("Registration ABI: ", REGISTRATION_ABI);
+
+  //   const registrationContract = new ethers.Contract(
+  //     REGISTRATION_ADDRESS,
+  //     REGISTRATION_ABI,
+  //     signer
+  //     );
+  //     console.log("Registration contract: ", registrationContract);
+  //     setRegistrationContract(registrationContract);
+  //   } catch (error) {
+  //     console.log("Error: ", error);
+  //   }
+  //     };
+
+  //     fetchContract();
+  //   }, []);
+
+  // useEffect(() => {
+  //   //refetch if player changes
+  //   console.log("Player changed: ", player, ". Refetching...");
+  //   if (player) {
+  //     refetch({ accountAddress: player });
+  //   }
+  // }, [player]);
+
   useEffect(() => {
-    const fetchContract = async () => {
-      console.log("Fetching contract");
-      console.log("Environment: ", import.meta.env);
-
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      setProvider(provider);
-
-      console.log("Provider: ", provider);
-
-      const signer = await provider.getSigner();
-      console.log("Signer addr: ", signer.address);
-      setPlayer(signer.address);
-try {
-
-  console.log("Registration address: ", REGISTRATION_ADDRESS);
-  // console.log("Registration ABI: ", REGISTRATION_ABI);
-
-  const registrationContract = new ethers.Contract(
-    REGISTRATION_ADDRESS,
-    REGISTRATION_ABI,
-    signer
-    );
-    console.log("Registration contract: ", registrationContract);
-    setRegistrationContract(registrationContract);
-  } catch (error) {
-    console.log("Error: ", error);
-  }
-    };
-
-    fetchContract();
-  }, []);
-
-  useEffect(() => {
-    //refetch if player changes
-    console.log("Player changed: ", player, ". Refetching...");
-    if (player) {
-      refetch({ accountAddress: player });
-    }
-  }, [player]);
-
-  useEffect(() => {
-    console.log("Data changed: ", data, ", player: ", player);
-    if (!data || data && !data.account) { setPunkships([]); }
-
-    else if (data.account) {
+    console.log("Data changed: ", data, ", player: ", account.address);
+    if (!data || (data && !data.account)) {
+      setPunkships([]);
+    } else if (data.account) {
       const ships = data.account.punkships.map((ship) => {
-        const movement = ship.attributes.find((attr) => attr.trait === "range").value;
-        const shoot = ship.attributes.find((attr) => attr.trait === "shootingRange").value;
-        const shipType = ship.attributes.find((attr) => attr.trait === "shipType").value;
+        const movement = ship.attributes.find(
+          (attr) => attr.trait === "range"
+        ).value;
+        const shoot = ship.attributes.find(
+          (attr) => attr.trait === "shootingRange"
+        ).value;
+        const shipType = ship.attributes.find(
+          (attr) => attr.trait === "shipType"
+        ).value;
         return {
           tokenId: ship.tokeId,
           movement: movement,
@@ -111,7 +156,7 @@ try {
           image: ship.image,
         };
       });
-      
+
       setPunkships(ships);
     }
   }, [data]);
@@ -132,19 +177,18 @@ try {
     console.log("Added ship");
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error: {JSON.stringify(error)}</p>;
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error: {JSON.stringify(error)}</p>;
 
   return (
     <Fragment>
-      <Accordion sx={{ width: "200%" }}>
+      <Accordion >
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
-          sx={{ backgroundColor: "cyan" }}
         >
           <Typography variant="h6">Register with Punk Ships</Typography>
         </AccordionSummary>
-        <AccordionDetails sx={{ backgroundColor: "cyan" }}>
+        <AccordionDetails>
           <Grid container spacing={2}>
             <Grid item xs={7}>
               {punkShips.map((ship, index) => (
@@ -153,7 +197,6 @@ try {
                   sx={{
                     display: "flex",
                     border: selectedYacht === ship ? "2px solid blue" : "none",
-                    backgroundColor: "cyan",
                   }}
                   onClick={() => handleCardClick(ship)}
                 >

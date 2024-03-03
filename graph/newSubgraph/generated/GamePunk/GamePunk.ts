@@ -1023,6 +1023,10 @@ export class ConstructorCall__Inputs {
   get _mapAddress(): Address {
     return this._call.inputValues[0].value.toAddress();
   }
+
+  get _punkshipsAddress(): Address {
+    return this._call.inputValues[1].value.toAddress();
+  }
 }
 
 export class ConstructorCall__Outputs {
@@ -1058,12 +1062,8 @@ export class AddShipCall__Inputs {
     return this._call.inputValues[1].value.toI32();
   }
 
-  get _speed(): i32 {
-    return this._call.inputValues[2].value.toI32();
-  }
-
-  get _range(): i32 {
-    return this._call.inputValues[3].value.toI32();
+  get _punkshipId(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
   }
 }
 

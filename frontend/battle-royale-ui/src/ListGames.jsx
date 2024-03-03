@@ -10,6 +10,7 @@ import {
 import { useQuery, gql } from "@apollo/client";
 import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
 import Registration from "./Registration";
+import { useAccount } from "wagmi";
 
 const GET_GAMES = gql`
   query getGames {
@@ -22,6 +23,8 @@ const GET_GAMES = gql`
 
 export default function ListGames(props) {
   const [sortedGames, setSortedGames] = useState([]);
+
+  const account = useAccount();
 
   // const { loading, error, data } = useQuery(GET_GAMES, {
   //   pollInterval: 5000,

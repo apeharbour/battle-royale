@@ -200,23 +200,27 @@ export class Punkships extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toI32());
   }
 
-  getShipType(tokenId: BigInt): i32 {
-    let result = super.call("getShipType", "getShipType(uint256):(uint8)", [
-      ethereum.Value.fromUnsignedBigInt(tokenId),
-    ]);
+  getShipTypeName(tokenId: BigInt): string {
+    let result = super.call(
+      "getShipTypeName",
+      "getShipTypeName(uint256):(string)",
+      [ethereum.Value.fromUnsignedBigInt(tokenId)],
+    );
 
-    return result[0].toI32();
+    return result[0].toString();
   }
 
-  try_getShipType(tokenId: BigInt): ethereum.CallResult<i32> {
-    let result = super.tryCall("getShipType", "getShipType(uint256):(uint8)", [
-      ethereum.Value.fromUnsignedBigInt(tokenId),
-    ]);
+  try_getShipTypeName(tokenId: BigInt): ethereum.CallResult<string> {
+    let result = super.tryCall(
+      "getShipTypeName",
+      "getShipTypeName(uint256):(string)",
+      [ethereum.Value.fromUnsignedBigInt(tokenId)],
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toI32());
+    return ethereum.CallResult.fromValue(value[0].toString());
   }
 
   getShootingRange(tokenId: BigInt): i32 {
