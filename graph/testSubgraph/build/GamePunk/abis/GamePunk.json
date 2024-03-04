@@ -1068,9 +1068,9 @@
         "type": "uint8[]"
       },
       {
-        "internalType": "bytes32[]",
+        "internalType": "uint8[]",
         "name": "_secrets",
-        "type": "bytes32[]"
+        "type": "uint8[]"
       },
       {
         "internalType": "address[]",

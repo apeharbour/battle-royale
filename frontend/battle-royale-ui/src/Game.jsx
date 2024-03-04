@@ -23,7 +23,7 @@ import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
-const GAME_ADDRESS = "0xD1E897b8F83a403c59a84FbE53978DF471C14AF2";
+const GAME_ADDRESS = "0x1D6CDc348B3631e9C444CdEfe7Da09048e4F88FD";
 const GAME_ABI = GameAbi.abi;
 const TRAVELLING = 0;
 const SHOOTING = 1;
@@ -144,7 +144,6 @@ export default function Game(props) {
   const [state, setState] = useState(TRAVELLING);
   const [viewBoxValues, setViewBoxValues] = useState("2 -20 135 135");
   const [showSubmitButton, setShowSubmitButton] = useState(false);
-  const [randomInt, setRandomInt] = useState(generateRandomInt());
   const gameId = id;
 
   useEffect(() => {
@@ -407,9 +406,9 @@ export default function Game(props) {
     console.log("Shot Distance: ", shotDistance);
 
     if (contract) {
-       setRandomInt(generateRandomInt());
+       let randomInt = generateRandomInt();
        const moveHash = ethers.solidityPackedKeccak256(
-         ["uint8", "uint8", "uint8", "uint8", "uint256"],
+         ["uint8", "uint8", "uint8", "uint8", "uint8"],
          [
            travelDirection,
            travelDistance,
