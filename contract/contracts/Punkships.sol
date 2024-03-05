@@ -142,6 +142,41 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         return signetGroup;
     }
 
+    function createSvg(uint256 tokenId) private view returns (string memory) {
+        uint256 random = uint256(keccak256(abi.encodePacked(tokenId)));
+
+        ShipType shipType = _getShipType(tokenId);
+        bool flag = getByte(1, random) % 2 > 0 ? true : false;
+        Color memory colorHull = getColor(2, random);
+        Color memory colorWindowRow = getColor(5, random);
+        Color memory colorWindow = getColor(8, random);
+        Color memory colorMast = getColor(11, random);
+        Color memory colorSail1 = getColor(14, random);
+        Color memory colorSail2 = getColor(17, random);
+        Color memory colorFlag = getColor(20, random);
+        Color memory colorSignet1 = getColor(23, random);
+        Color memory colorSignet2 = getColor(26, random);
+        Color memory colorSignet3 = getColor(29, random);
+
+        bool[] memory signets = createSignetsV2(shipType, random);
+
+        return createSvg(
+            colorSail1,
+            colorSail2,
+            colorHull,
+            colorWindowRow,
+            colorWindow,
+            colorMast,
+            colorFlag,
+            colorSignet1,
+            colorSignet2,
+            colorSignet3,
+            flag,
+            shipType,
+            signets
+        );
+    }
+
     function createSvg(
         Color memory sailTop,
         Color memory sailBottom,
@@ -185,19 +220,16 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             );
     }
 
-    // function createSignets(uint256 signets, uint8 rows, uint8 cols) private pure returns (bool[] memory) {
+    function _getImage(uint256 tokenId) private view returns (string memory) {
+        return string.concat(
+            "data:image/svg+xml;base64,",
+            Base64.encode(bytes(createSvg(tokenId)))
+        );
+    }
 
-    //     // uint256 signetMask = 4503036747775;
-    //     uint256 signetMask = 562914773446720;
-
-    //     uint256 signet1 = signets & signetMask;
-
-    //     bool[] memory signetsArray = new bool[](rows * cols);
-    //     for (uint8 i = 0; i < rows*cols; i++) {
-    //         signetsArray[i] = ((signet1 & (1 << i)) > 0);
-    //     }
-    //     return signetsArray;
-    // }
+    function getImage(uint256 tokenId) external view onlyMinted(tokenId) returns (string memory) {
+        return _getImage(tokenId);
+    }
 
     function createSignetsV2(ShipType shipType, uint256 random) private view returns (bool[] memory) {
 
@@ -281,41 +313,41 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         uint256 tokenId
     ) internal view returns (string memory) {
 
-        uint256 random = uint256(keccak256(abi.encodePacked(tokenId)));
+        // uint256 random = uint256(keccak256(abi.encodePacked(tokenId)));
 
-        ShipType shipType = _getShipType(tokenId);
-        bool flag = getByte(1, random) % 2 > 0 ? true : false;
-        Color memory colorHull = getColor(2, random);
-        Color memory colorWindowRow = getColor(5, random);
-        Color memory colorWindow = getColor(8, random);
-        Color memory colorMast = getColor(11, random);
-        Color memory colorSail1 = getColor(14, random);
-        Color memory colorSail2 = getColor(17, random);
-        Color memory colorFlag = getColor(20, random);
-        Color memory colorSignet1 = getColor(23, random);
-        Color memory colorSignet2 = getColor(26, random);
-        Color memory colorSignet3 = getColor(29, random);
+        // ShipType shipType = _getShipType(tokenId);
+        // bool flag = getByte(1, random) % 2 > 0 ? true : false;
+        // Color memory colorHull = getColor(2, random);
+        // Color memory colorWindowRow = getColor(5, random);
+        // Color memory colorWindow = getColor(8, random);
+        // Color memory colorMast = getColor(11, random);
+        // Color memory colorSail1 = getColor(14, random);
+        // Color memory colorSail2 = getColor(17, random);
+        // Color memory colorFlag = getColor(20, random);
+        // Color memory colorSignet1 = getColor(23, random);
+        // Color memory colorSignet2 = getColor(26, random);
+        // Color memory colorSignet3 = getColor(29, random);
 
-        // uint256 signetAllSet = type(uint256).max;
+        // // uint256 signetAllSet = type(uint256).max;
 
-        // bool[] memory signets = createSignets(random, 7, 7);
-        bool[] memory signets = createSignetsV2(shipType, random);
+        // // bool[] memory signets = createSignets(random, 7, 7);
+        // bool[] memory signets = createSignetsV2(shipType, random);
 
-        string memory svg = createSvg(
-            colorSail1,
-            colorSail2,
-            colorHull,
-            colorWindowRow,
-            colorWindow,
-            colorMast,
-            colorFlag,
-            colorSignet1,
-            colorSignet2,
-            colorSignet3,
-            flag,
-            shipType,
-            signets
-        );
+        // string memory svg = createSvg(
+        //     colorSail1,
+        //     colorSail2,
+        //     colorHull,
+        //     colorWindowRow,
+        //     colorWindow,
+        //     colorMast,
+        //     colorFlag,
+        //     colorSignet1,
+        //     colorSignet2,
+        //     colorSignet3,
+        //     flag,
+        //     shipType,
+        //     signets
+        // );
 
         string memory metadataJson = string.concat(
             '{"name": "Punkship #',
@@ -326,8 +358,8 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             Strings.toString(_getShootingRange(tokenId)),
             '"}, {"trait_type": "shipType", "value": "',
             _getShipTypeName(tokenId),
-            '"}], "image": "data:image/svg+xml;base64,',
-            Base64.encode(bytes(svg)),
+            '"}], "image": ,"',
+            _getImage(tokenId),
             '"}'
         );
 
