@@ -19,6 +19,11 @@ interface IPunkships {
 
 contract RegistrationPunk is Ownable {
 
+    event RegistrationStarted(uint256 firstGameId);
+    event PlayerRegistered(address player, uint256 punkshipId, uint8 speed, uint8 range);
+    event PlayerAdded(address player, uint8 gameId, uint256 punkshipId);
+    event RegistrationClosed(uint256 gameId);
+
     IGamePunk public gamePunk;
     IPunkships public punkships;
 
@@ -31,8 +36,8 @@ contract RegistrationPunk is Ownable {
     struct Player {
         bool registered;
         uint256 punkshipId;
-        uint8 speed;
-        uint8 range;
+        // uint8 speed;
+        // uint8 range;
     }
 
     constructor(address _gamePunkAddress, address _punkshipsAddress) Ownable(msg.sender) {
@@ -48,6 +53,7 @@ contract RegistrationPunk is Ownable {
             delete registeredPlayers[registeredPlayerAddresses[i]];
         }
         delete registeredPlayerAddresses;
+        emit RegistrationStarted(lastGameId);
     }
 
     function registerPlayer(uint256 _punkshipId) public {
@@ -55,7 +61,8 @@ contract RegistrationPunk is Ownable {
         require(!registeredPlayers[msg.sender].registered, "Player already registered");
         require(punkships.ownerOf(_punkshipId) == msg.sender, "You do not own this ship");
 
-        registeredPlayers[msg.sender] = Player(true, _punkshipId, punkships.getRange(_punkshipId), punkships.getShootingRange(_punkshipId));
+        // registeredPlayers[msg.sender] = Player(true, _punkshipId, punkships.getRange(_punkshipId), punkships.getShootingRange(_punkshipId));
+        registeredPlayers[msg.sender] = Player(true, _punkshipId);
         registeredPlayerAddresses.push(msg.sender);
     }
 
@@ -72,12 +79,14 @@ contract RegistrationPunk is Ownable {
         Player storage player = registeredPlayers[playerAddress];
         
         gamePunk.addShip(playerAddress,lastGameId, player.punkshipId);
+        emit PlayerAdded(playerAddress, lastGameId, player.punkshipId);
 
         gamePlayerCount++;
        
         if (gamePlayerCount == _maxPlayersPerGame) {
             lastGameId++;
             gamePlayerCount = 0;
+            emit RegistrationClosed(lastGameId);
         }
     }
 }
