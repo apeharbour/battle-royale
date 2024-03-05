@@ -14,27 +14,6 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - CommitPhaseStarted
-        - GameEnded
-        - GameStarted
-        - GameUpdated
-        - GameWinner
-        - MapInitialized
-        - MapShrink
-        - MoveCommitted
-        - MoveSubmitted
-        - OwnershipTransferred
-        - PlayerAdded
-        - PlayerDefeated
-        - ShipCollidedWithIsland
-        - ShipHit
-        - ShipMoved
-        - ShipMovedInGame
-        - ShipShot
-        - ShipSunk
-        - ShipSunkOutOfMap
-        - SubmitPhaseStarted
-        - WorldUpdated
         - Game
         - Player
         - Round
