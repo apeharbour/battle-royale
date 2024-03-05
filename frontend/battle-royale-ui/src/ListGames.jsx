@@ -7,16 +7,19 @@ import {
   CardContent,
   Typography,
 } from "@mui/material";
-import { useQuery, gql } from "@apollo/client";
+
 import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
 import Registration from "./Registration";
+import { useQuery } from "@tanstack/react-query";
+import { request, gql } from 'graphql-request'
 import { useAccount } from "wagmi";
 
 const GET_GAMES = gql`
   query getGames {
-    gameStarteds {
+    games {
       id
       gameId
+      state
     }
   }
 `;
@@ -26,25 +29,31 @@ export default function ListGames(props) {
 
   const account = useAccount();
 
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["ships", account.address],
+    queryFn: async () =>
+      request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAMES),
+  });
+
+
   // const { loading, error, data } = useQuery(GET_GAMES, {
   //   pollInterval: 5000,
   // });
 
-  const data = [ { gameStarteds: [ { id: 1, gameId: 1 }, { id: 2, gameId: 2 } ] } ];
-  const loading = false;
-  const error = null;
+  // const data = [ { gameStarteds: [ { id: 1, gameId: 1 }, { id: 2, gameId: 2 } ] } ];
+  // const loading = false;
+  // const error = null;
 
   useEffect(() => {
-    if (data && data.gameStarteds) {
-      const sorted = data.gameStarteds
-        .slice()
+    if (data && data.games) {
+      const sorted = data.games
         .sort((a, b) => a.gameId - b.gameId);
       setSortedGames(sorted);
     }
   }, [data]);
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error : {error.message}</p>;
+  if (isLoading) return <p>Loading...</p>;
+  if (isError) return <p>Error : {error.message}</p>;
 
   return (
     <Grid container spacing={2}>

@@ -22,10 +22,7 @@ import {
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
-import GameAbi from "./abis/GamePunk.json";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import img1 from "./images/6.png";
@@ -34,8 +31,12 @@ import img3 from "./images/7.png";
 import img4 from "./images/4.png";
 import img5 from "./images/5.png";
 
- const REGISTRATION_ADDRESS = "0x384AbD2924fE5aA8ab0C231AB67235F5484f2b8E";
- const REGISTRATION_ABI = RegistrationPunkAbi.abi;
+const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
+const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
+const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
+const REGISTRATION_ABI = RegistrationPunkAbi.abi;
+const GAME_ABI = GameAbi.abi;
+const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
 const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ACCOUNT_ADDRESS = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
@@ -66,8 +67,7 @@ const GET_SHIPS = gql`
 // ];
 
 export default function Registration(props) {
-  const [registrationContract, setRegistrationContract] = useState(null);
-  const [punkshipsContract, setPunkshipsContract] = useState(null);
+  const [contract, setContract] = useState(null);
   const [provider, setProvider] = useState(null);
   const [player, setPlayer] = useState(null);
   const [selectedYacht, setSelectedYacht] = useState(null);
@@ -166,29 +166,30 @@ export default function Registration(props) {
     setShowYachtSelectError(false);
   };
 
-  const register = async () => {
-    if (registrationContract !== null) {
-      console.log("Adding ship");
-      const tx = await registrationContract
-        .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
-        .catch(console.error);
-      await tx.wait();
-    }
-    console.log("Added ship");
-  };
+   const register = async () => {
+     if (contract !== null) {
+       console.log("Adding ship");
+       const tx = await contract
+         .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
+         .catch(console.error);
+       await tx.wait();
+     }
+     console.log("Added ship");
+   };
 
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error: {JSON.stringify(error)}</p>;
 
   return (
     <Fragment>
-      <Accordion >
+      <Accordion sx={{ width: "200%" }}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
+          sx={{ backgroundColor: "cyan" }}
         >
           <Typography variant="h6">Register with Punk Ships</Typography>
         </AccordionSummary>
-        <AccordionDetails>
+        <AccordionDetails sx={{ backgroundColor: "cyan" }}>
           <Grid container spacing={2}>
             <Grid item xs={7}>
               {punkShips.map((ship, index) => (
@@ -197,6 +198,7 @@ export default function Registration(props) {
                   sx={{
                     display: "flex",
                     border: selectedYacht === ship ? "2px solid blue" : "none",
+                    backgroundColor: "cyan",
                   }}
                   onClick={() => handleCardClick(ship)}
                 >
