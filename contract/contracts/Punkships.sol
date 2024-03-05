@@ -358,7 +358,7 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             Strings.toString(_getShootingRange(tokenId)),
             '"}, {"trait_type": "shipType", "value": "',
             _getShipTypeName(tokenId),
-            '"}], "image": ,"',
+            '"}], "image": "',
             _getImage(tokenId),
             '"}'
         );
