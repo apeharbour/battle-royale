@@ -88,6 +88,10 @@ const GET_GAME = gql`
           destinationR
         }
       }
+    },
+    gameWinners{
+      winner
+      gameId
     }
   }
 `;
@@ -139,6 +143,7 @@ export default function Game(props) {
   const [cells, setCells] = useState([]);
   const [ships, setShips] = useState([]);
   const [myShip, setMyShip] = useState(undefined);
+  const [currentGameRound, setCurrentGameRound] = useState(0);
   const [travelEndpoint, setTravelEndpoint] = useState(undefined);
   const [shotEndpoint, setShotEndpoint] = useState(undefined);
   const [state, setState] = useState(TRAVELLING);
@@ -236,6 +241,11 @@ export default function Game(props) {
     );
     console.log("Updated Cells: ", updatedCells);
     setCells([...updatedCells]);
+
+    //set Game Round
+    const lastGameRoundIndex = game.rounds.length -1;
+    const gameRound = game.rounds[lastGameRoundIndex].round;
+     setCurrentGameRound(gameRound);
   };
 
   const { loading, error, data } = useQuery(GET_GAME, {
@@ -256,6 +266,17 @@ export default function Game(props) {
       updateData(data);
     }
   }, [gamePlayer, data]);
+
+  useEffect(() => {
+    if(data){
+      const { gameWinners } = data;
+      if(gameWinners.length > 0) {
+      const gameWinner = gameWinners[0];
+      const { gameId } = gameWinner;
+      disableEventBridgeRule(gameId);
+    }      
+    }
+  }, [data])
 
   const handleMouseEnter = (event, source) => {
     cells.forEach((cell) => {
@@ -484,7 +505,10 @@ export default function Game(props) {
     <Fragment>
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <Typography variant="h5">Game {id}</Typography>
+          <Stack spacing={4} direction={"row"} alignContent={"center"}>
+          <Typography variant="h5" >Game {id}</Typography>
+          <Typography variant="h5">Round {currentGameRound}</Typography>
+          </Stack>
         </Grid>
         <Grid item xs={3}>
           {myShip && myShip.range && (
@@ -572,7 +596,7 @@ export default function Game(props) {
               onClick={commitMoves}
               disabled={!showSubmitButton}
             >
-              Submit Moves
+              Commit Moves
             </CustomButton>
           </Box>
 
