@@ -58,7 +58,7 @@ const PlayerStatus = ({ ships }) => {
                   key={index}
                 >
                   <TableCell component="th" scope="row">
-                    <ShipImage src={findShipImage(player.range, player.shotRange)} alt={`Player Ship`} />
+                    <ShipImage src={player.image} alt={`Player Ship`} />
                   </TableCell>
                   <TableCell align="right">{player.range}</TableCell>
                   <TableCell align="right">{player.shotRange}</TableCell>

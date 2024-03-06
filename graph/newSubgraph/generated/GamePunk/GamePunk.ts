@@ -23,8 +23,8 @@ export class Cell__Params {
     this._event = event;
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[0].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 
   get q(): i32 {
@@ -53,8 +53,8 @@ export class CommitPhaseStarted__Params {
     this._event = event;
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[0].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
@@ -71,8 +71,8 @@ export class GameEnded__Params {
     this._event = event;
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[0].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
@@ -89,8 +89,8 @@ export class GameStarted__Params {
     this._event = event;
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[0].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
@@ -115,8 +115,8 @@ export class GameUpdated__Params {
     return this._event.parameters[1].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[2].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -137,8 +137,8 @@ export class GameWinner__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -159,8 +159,8 @@ export class MapInitialized__Params {
     return this._event.parameters[0].value.toI32();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -177,8 +177,8 @@ export class MapShrink__Params {
     this._event = event;
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[0].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
@@ -199,8 +199,8 @@ export class MoveCommitted__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -221,8 +221,8 @@ export class MoveSubmitted__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 
   get roundId(): BigInt {
@@ -259,8 +259,8 @@ export class NewRound__Params {
     this._event = event;
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[0].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 
   get roundId(): BigInt {
@@ -311,24 +311,32 @@ export class PlayerAdded__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get punkshipId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 
   get q(): i32 {
-    return this._event.parameters[2].value.toI32();
-  }
-
-  get r(): i32 {
     return this._event.parameters[3].value.toI32();
   }
 
-  get speed(): i32 {
+  get r(): i32 {
     return this._event.parameters[4].value.toI32();
   }
 
-  get range(): i32 {
+  get speed(): i32 {
     return this._event.parameters[5].value.toI32();
+  }
+
+  get range(): i32 {
+    return this._event.parameters[6].value.toI32();
+  }
+
+  get image(): string {
+    return this._event.parameters[7].value.toString();
   }
 }
 
@@ -349,8 +357,8 @@ export class PlayerDefeated__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -371,8 +379,8 @@ export class ShipCollidedWithIsland__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 
   get q(): i32 {
@@ -405,8 +413,8 @@ export class ShipHit__Params {
     return this._event.parameters[1].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[2].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -443,8 +451,8 @@ export class ShipMoved__Params {
     return this._event.parameters[4].value.toI32();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[5].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[5].value.toBigInt();
   }
 }
 
@@ -465,8 +473,8 @@ export class ShipMovedInGame__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -503,8 +511,8 @@ export class ShipShot__Params {
     return this._event.parameters[4].value.toI32();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[5].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[5].value.toBigInt();
   }
 }
 
@@ -525,8 +533,8 @@ export class ShipSunk__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -547,8 +555,8 @@ export class ShipSunkOutOfMap__Params {
     return this._event.parameters[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[1].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
   }
 }
 
@@ -565,8 +573,8 @@ export class SubmitPhaseStarted__Params {
     this._event = event;
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[0].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 
   get round(): BigInt {
@@ -587,8 +595,8 @@ export class WorldUpdated__Params {
     this._event = event;
   }
 
-  get gameId(): i32 {
-    return this._event.parameters[0].value.toI32();
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
   }
 }
 
@@ -732,8 +740,8 @@ export class GamePunk__getShipsResultValue0Struct extends ethereum.Tuple {
     return this[8].toI32();
   }
 
-  get gameId(): i32 {
-    return this[9].toI32();
+  get gameId(): BigInt {
+    return this[9].toBigInt();
   }
 }
 
@@ -813,14 +821,14 @@ export class GamePunk extends ethereum.SmartContract {
 
   getCell(
     _coord: GamePunk__getCellInput_coordStruct,
-    gameId: i32,
+    gameId: BigInt,
   ): GamePunk__getCellResultValue0Struct {
     let result = super.call(
       "getCell",
-      "getCell((uint8,uint8),uint8):((uint8,uint8,bool,bool))",
+      "getCell((uint8,uint8),uint256):((uint8,uint8,bool,bool))",
       [
         ethereum.Value.fromTuple(_coord),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+        ethereum.Value.fromUnsignedBigInt(gameId),
       ],
     );
 
@@ -829,14 +837,14 @@ export class GamePunk extends ethereum.SmartContract {
 
   try_getCell(
     _coord: GamePunk__getCellInput_coordStruct,
-    gameId: i32,
+    gameId: BigInt,
   ): ethereum.CallResult<GamePunk__getCellResultValue0Struct> {
     let result = super.tryCall(
       "getCell",
-      "getCell((uint8,uint8),uint8):((uint8,uint8,bool,bool))",
+      "getCell((uint8,uint8),uint256):((uint8,uint8,bool,bool))",
       [
         ethereum.Value.fromTuple(_coord),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+        ethereum.Value.fromUnsignedBigInt(gameId),
       ],
     );
     if (result.reverted) {
@@ -848,21 +856,21 @@ export class GamePunk extends ethereum.SmartContract {
     );
   }
 
-  getCells(gameId: i32): Array<GamePunk__getCellsResultValue0Struct> {
-    let result = super.call("getCells", "getCells(uint8):((uint8,uint8)[])", [
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+  getCells(gameId: BigInt): Array<GamePunk__getCellsResultValue0Struct> {
+    let result = super.call("getCells", "getCells(uint256):((uint8,uint8)[])", [
+      ethereum.Value.fromUnsignedBigInt(gameId),
     ]);
 
     return result[0].toTupleArray<GamePunk__getCellsResultValue0Struct>();
   }
 
   try_getCells(
-    gameId: i32,
+    gameId: BigInt,
   ): ethereum.CallResult<Array<GamePunk__getCellsResultValue0Struct>> {
     let result = super.tryCall(
       "getCells",
-      "getCells(uint8):((uint8,uint8)[])",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))],
+      "getCells(uint256):((uint8,uint8)[])",
+      [ethereum.Value.fromUnsignedBigInt(gameId)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -873,17 +881,17 @@ export class GamePunk extends ethereum.SmartContract {
     );
   }
 
-  getRadius(gameId: i32): i32 {
-    let result = super.call("getRadius", "getRadius(uint8):(uint8)", [
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+  getRadius(gameId: BigInt): i32 {
+    let result = super.call("getRadius", "getRadius(uint256):(uint8)", [
+      ethereum.Value.fromUnsignedBigInt(gameId),
     ]);
 
     return result[0].toI32();
   }
 
-  try_getRadius(gameId: i32): ethereum.CallResult<i32> {
-    let result = super.tryCall("getRadius", "getRadius(uint8):(uint8)", [
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+  try_getRadius(gameId: BigInt): ethereum.CallResult<i32> {
+    let result = super.tryCall("getRadius", "getRadius(uint256):(uint8)", [
+      ethereum.Value.fromUnsignedBigInt(gameId),
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -892,23 +900,23 @@ export class GamePunk extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toI32());
   }
 
-  getShips(gameId: i32): Array<GamePunk__getShipsResultValue0Struct> {
+  getShips(gameId: BigInt): Array<GamePunk__getShipsResultValue0Struct> {
     let result = super.call(
       "getShips",
-      "getShips(uint8):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint8)[])",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))],
+      "getShips(uint256):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint256)[])",
+      [ethereum.Value.fromUnsignedBigInt(gameId)],
     );
 
     return result[0].toTupleArray<GamePunk__getShipsResultValue0Struct>();
   }
 
   try_getShips(
-    gameId: i32,
+    gameId: BigInt,
   ): ethereum.CallResult<Array<GamePunk__getShipsResultValue0Struct>> {
     let result = super.tryCall(
       "getShips",
-      "getShips(uint8):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint8)[])",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId))],
+      "getShips(uint256):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint256)[])",
+      [ethereum.Value.fromUnsignedBigInt(gameId)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -923,16 +931,16 @@ export class GamePunk extends ethereum.SmartContract {
     _start: GamePunk__moveInput_startStruct,
     _dir: i32,
     _distance: i32,
-    gameId: i32,
+    gameId: BigInt,
   ): GamePunk__moveResultValue0Struct {
     let result = super.call(
       "move",
-      "move((uint8,uint8),uint8,uint8,uint8):((uint8,uint8))",
+      "move((uint8,uint8),uint8,uint8,uint256):((uint8,uint8))",
       [
         ethereum.Value.fromTuple(_start),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_dir)),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_distance)),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+        ethereum.Value.fromUnsignedBigInt(gameId),
       ],
     );
 
@@ -943,16 +951,16 @@ export class GamePunk extends ethereum.SmartContract {
     _start: GamePunk__moveInput_startStruct,
     _dir: i32,
     _distance: i32,
-    gameId: i32,
+    gameId: BigInt,
   ): ethereum.CallResult<GamePunk__moveResultValue0Struct> {
     let result = super.tryCall(
       "move",
-      "move((uint8,uint8),uint8,uint8,uint8):((uint8,uint8))",
+      "move((uint8,uint8),uint8,uint8,uint256):((uint8,uint8))",
       [
         ethereum.Value.fromTuple(_start),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_dir)),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_distance)),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(gameId)),
+        ethereum.Value.fromUnsignedBigInt(gameId),
       ],
     );
     if (result.reverted) {
@@ -1058,8 +1066,8 @@ export class AddShipCall__Inputs {
     return this._call.inputValues[0].value.toAddress();
   }
 
-  get gameId(): i32 {
-    return this._call.inputValues[1].value.toI32();
+  get gameId(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 
   get _punkshipId(): BigInt {
@@ -1096,8 +1104,8 @@ export class CommitMoveCall__Inputs {
     return this._call.inputValues[0].value.toBytes();
   }
 
-  get gameId(): i32 {
-    return this._call.inputValues[1].value.toI32();
+  get gameId(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
   }
 }
 
@@ -1126,8 +1134,8 @@ export class EndGameCall__Inputs {
     this._call = call;
   }
 
-  get gameId(): i32 {
-    return this._call.inputValues[0].value.toI32();
+  get gameId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
   }
 }
 
@@ -1212,8 +1220,8 @@ export class StartNewGameCall__Inputs {
     this._call = call;
   }
 
-  get gameId(): i32 {
-    return this._call.inputValues[0].value.toI32();
+  get gameId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
   }
 
   get _radius(): i32 {
@@ -1270,8 +1278,8 @@ export class SubmitMoveCall__Inputs {
     return this._call.inputValues[5].value.toAddressArray();
   }
 
-  get gameId(): i32 {
-    return this._call.inputValues[6].value.toI32();
+  get gameId(): BigInt {
+    return this._call.inputValues[6].value.toBigInt();
   }
 }
 
@@ -1344,8 +1352,8 @@ export class TravelCall__Inputs {
     return this._call.inputValues[2].value.toI32();
   }
 
-  get gameId(): i32 {
-    return this._call.inputValues[3].value.toI32();
+  get gameId(): BigInt {
+    return this._call.inputValues[3].value.toBigInt();
   }
 }
 
@@ -1384,8 +1392,8 @@ export class UpdateWorldCall__Inputs {
     this._call = call;
   }
 
-  get gameId(): i32 {
-    return this._call.inputValues[0].value.toI32();
+  get gameId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
   }
 }
 

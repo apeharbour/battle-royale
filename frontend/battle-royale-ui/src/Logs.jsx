@@ -77,21 +77,26 @@ const StatTypography = styled(Typography)({
   margin: "8px 0",
 });
 
-export default function ShipStatus(props) {
-  const { loading, error, data } = useQuery(GET_GAME, {
-    pollInterval: 5000,
-    variables: { gameId: props.gameId, first: 1000, skip: 0 },
-    fetchPolicy: "network-only",
-    onCompleted: (data) => {
-      console.log("Data2:", data);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
-  });
+export default function Logs(props) {
+  // const { loading, error, data } = useQuery(GET_GAME, {
+  //   pollInterval: 5000,
+  //   variables: { gameId: props.gameId, first: 1000, skip: 0 },
+  //   fetchPolicy: "network-only",
+  //   onCompleted: (data) => {
+  //     console.log("Data2:", data);
+  //   },
+  //   onError: (error) => {
+  //     console.log(error);
+  //   },
+  // });
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error : {error.message}</p>;
+  // if (loading) return <p>Loading...</p>;
+  // if (error) return <p>Error : {error.message}</p>;
+
+  const data = props.gameData
+
+
+  console.log("Data: ", props);
 
   return (
     <ShipPaper elevation={4}>

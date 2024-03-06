@@ -1,7 +1,7 @@
 # Manuelly created objects
 type Game @entity {
   id: Bytes!
-  gameId: Int
+  gameId: BigInt
   radius: Int
   centerQ: Int
   centerR: Int
@@ -17,8 +17,10 @@ type Player @entity {
   address: Bytes!
   q: Int!
   r: Int!
+  tokenId: BigInt!
   range: Int!
   shotRange: Int!
+  image: String!
   game: Game!
   state: PlayerState!
   kills: Int
@@ -56,13 +58,6 @@ type Shot @entity {
   destinationQ: Int!
   destinationR: Int!
 }
-
-# type Island @entity(immutable: true) {
-#   id: Bytes!
-#   game: Game!
-#   q: Int!
-#   r: Int!
-# }
 
 type Cell @entity(immutable: true) {
   id: Bytes!

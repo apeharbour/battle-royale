@@ -16,22 +16,17 @@ async function main() {
     "BattleRoyale#RegistrationPunk": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
   }
 
-  const registration = await hre.ethers.getContractAt(
-    "RegistrationPunk",
-    deployedAddresses["BattleRoyale#RegistrationPunk"]
+  const punkships = await hre.ethers.getContractAt(
+    "Punkships",
+    deployedAddresses["BattleRoyale#Punkships"]
   );
 
-  await registration
-    .startRegistration()
-    .then((tx) => {
-      return tx.wait();
-    })
-    .then((receipt) => {
-      console.log(`Started registration in block ${receipt.blockNumber}.`);
-    })
-    .catch(console.error);
-}
+  const SHIPS_TO_MINT = 5;
 
+  const tokenUri = await punkships.tokenURI(1);
+  console.log(tokenUri);
+
+}
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

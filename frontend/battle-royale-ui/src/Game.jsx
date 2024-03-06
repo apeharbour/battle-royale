@@ -3,7 +3,11 @@ import { ethers } from "ethers";
 import { Box, Grid, Stack, TextField, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
-import { useQuery, gql } from "@apollo/client";
+// import { useQuery, gql } from "@apollo/client";
+import { useQuery } from "@tanstack/react-query";
+import { request, gql } from 'graphql-request'
+import { useAccount } from "wagmi";
+
 import { useLocation } from "react-router-dom";
 import {
   Hex,
@@ -13,17 +17,49 @@ import {
   Layout,
   Path,
   Text,
+  Pattern
 } from "react-hexgrid";
 import Coordinates from "./Coordinates";
 import { useLayoutContext } from "react-hexgrid/lib/Layout";
 import GameAbi from "./abis/GamePunk.json";
 import Timer from "./Timer";
+import log from "./images/log.png";
+import timer from "./images/Timer.png";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 
-const GAME_ADDRESS = "0x1D6CDc348B3631e9C444CdEfe7Da09048e4F88FD";
+import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
+import GameAbi from "./abis/GamePunk.json";
+import PunkshipsAbi from "./abis/Punkships.json";
+
+import water from "./images/tiles/water.png";
+import island0 from "./images/tiles/island0.png";
+import island1 from "./images/tiles/island1.png";
+import island2 from "./images/tiles/island2.png";
+import island3 from "./images/tiles/island3.png";
+import island4 from "./images/tiles/island4.png";
+import island5 from "./images/tiles/island5.png";
+import island6 from "./images/tiles/island6.png";
+import island7 from "./images/tiles/island7.png";
+import island8 from "./images/tiles/island8.png";
+import island9 from "./images/tiles/island9.png";
+import island10 from "./images/tiles/island10.png";
+import island11 from "./images/tiles/island11.png";
+import island12 from "./images/tiles/island12.png";
+import island13 from "./images/tiles/island13.png";
+import island14 from "./images/tiles/island14.png";
+
+
+const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
+const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
+const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
+const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
+const PUNKSHIPS_ABI = PunkshipsAbi.abi;
+
+import shipImage from "./images/4.png"
+
 const TRAVELLING = 0;
 const SHOOTING = 1;
 const DONE = 2;
@@ -61,6 +97,7 @@ const GET_GAME = gql`
         kills
         range
         shotRange
+        image
       }
       currentRound {
         round
@@ -95,41 +132,62 @@ const GET_GAME = gql`
   }
 `;
 
-function Ship({ q, r, s, mine }) {
-  const { layout } = useLayoutContext();
-  const hex = new Hex(q, r, s);
-  const point = HexUtils.hexToPixel(hex, layout);
-  const size = 5;
-  const shipColor = mine ? "red" : "black";
+function Ship({ship}) {
+  const { q, r, s, mine, image } = ship;
+
+  // update boder color based on player
+  const shipColor = mine ? "black" : "white";
+  const b64Image = image.split(",")[1];
+  const svgString = atob(b64Image);
+  const updatedSvgString = svgString.replace(/.border { fill: #fff }/g, `.border { fill: ${shipColor} }`);
+  const b64UpdatedSvgString = btoa(updatedSvgString);
+  const dataURL = `data:image/svg+xml;base64,${b64UpdatedSvgString}`;
+
   return (
-    <svg
-      x={point.x - size / 2}
-      y={point.y - size / 2}
-      height={size}
-      width={size}
-      viewBox="0 0 199.502 199.502"
-    >
-      <g>
-        <path
-          d="M198.773,118.615c-0.663-0.86-1.687-1.364-2.772-1.364h-54.559c-1.198,0-2.312,0.614-2.955,1.624l-7.858,12.376h-22.128
-				V53.122l32.801-13.12c1.328-0.533,2.199-1.82,2.199-3.25s-0.872-2.717-2.199-3.25L108.501,20.38V8.751h-7v14v28v80.5h-24.5v-10.5
-				h17.5c1.359,0,2.594-0.786,3.17-2.017c0.576-1.231,0.388-2.683-0.484-3.727c-0.061-0.073-6.186-8.242-6.186-38.006
-				c0-29.528,6.175-37.987,6.187-38.006c0.871-1.044,1.059-2.497,0.484-3.727c-0.576-1.23-1.812-2.017-3.17-2.017H42.001
-				c-1.313,0-2.514,0.733-3.114,1.901c-0.3,0.588-7.386,14.689-7.386,41.849s7.085,41.262,7.386,41.85
-				c0.6,1.167,1.801,1.9,3.114,1.9h14v10.5h-52.5c-1.537,0-2.892,1.001-3.345,2.468c-0.453,1.468,0.104,3.059,1.372,3.924
-				l49.528,33.769c15.642,10.664,43.764,19.339,62.691,19.339h64.754c1.589,0,2.981-1.072,3.386-2.61l17.5-66.5
-				C199.662,120.592,199.436,119.475,198.773,118.615z M108.501,27.921l22.077,8.83l-22.077,8.83V27.921z M44.3,113.751
-				c-1.772-4.505-5.799-16.922-5.799-36.75c0-19.833,4.03-32.254,5.797-36.75h44.551c-2.221,5.898-4.848,17.041-4.848,36.75
-				s2.627,30.852,4.849,36.75H73.501h-14H44.3z M70.001,120.751v10.5h-7v-10.5H70.001z M175.803,183.751h-62.055
-				c-17.736,0-44.09-8.13-58.746-18.122l-40.155-27.378h44.654h14h28h7h24.052c1.198,0,2.312-0.614,2.955-1.624l7.858-12.376h48.094
-				L175.803,183.751z"
-          style={{ fill: shipColor }}
-        />
-        <circle cx="84.001" cy="155.751" r="7" />
-        <circle cx="115.501" cy="155.751" r="7" />
-        <circle cx="147.001" cy="155.751" r="7" />
-      </g>
-    </svg>
+    <g>
+    <Hexagon q={q} r={r} s={s} key={ship.address} fill={`pat-${ship.address}`} />
+    <Pattern id={`pat-${ship.address}`} link={dataURL} size={{x: 3.5, y: 3.5}} />
+    </g>
+
+    // <foreignObject x={point.x - size / 2} y={point.y - size / 2} height={size} width={size}>
+      // <g dangerouslySetInnerHTML={{ __html: stringValue }} />
+    // </foreignObject>
+
+    // <svg
+    //   x={point.x - size / 2}
+    //   y={point.y - size / 2}
+    //   height={size}
+    //   width={size}
+    //   viewBox="0 0 199.502 199.502"
+    // >
+    //   <defs>
+    //     <g id="ship">
+    //       {svgString}
+    //     </g>
+    //   </defs>
+    //   <use href="#ship" />
+    //   {/* <g>
+    //     <path
+    //       d="M198.773,118.615c-0.663-0.86-1.687-1.364-2.772-1.364h-54.559c-1.198,0-2.312,0.614-2.955,1.624l-7.858,12.376h-22.128
+		// 		V53.122l32.801-13.12c1.328-0.533,2.199-1.82,2.199-3.25s-0.872-2.717-2.199-3.25L108.501,20.38V8.751h-7v14v28v80.5h-24.5v-10.5
+		// 		h17.5c1.359,0,2.594-0.786,3.17-2.017c0.576-1.231,0.388-2.683-0.484-3.727c-0.061-0.073-6.186-8.242-6.186-38.006
+		// 		c0-29.528,6.175-37.987,6.187-38.006c0.871-1.044,1.059-2.497,0.484-3.727c-0.576-1.23-1.812-2.017-3.17-2.017H42.001
+		// 		c-1.313,0-2.514,0.733-3.114,1.901c-0.3,0.588-7.386,14.689-7.386,41.849s7.085,41.262,7.386,41.85
+		// 		c0.6,1.167,1.801,1.9,3.114,1.9h14v10.5h-52.5c-1.537,0-2.892,1.001-3.345,2.468c-0.453,1.468,0.104,3.059,1.372,3.924
+		// 		l49.528,33.769c15.642,10.664,43.764,19.339,62.691,19.339h64.754c1.589,0,2.981-1.072,3.386-2.61l17.5-66.5
+		// 		C199.662,120.592,199.436,119.475,198.773,118.615z M108.501,27.921l22.077,8.83l-22.077,8.83V27.921z M44.3,113.751
+		// 		c-1.772-4.505-5.799-16.922-5.799-36.75c0-19.833,4.03-32.254,5.797-36.75h44.551c-2.221,5.898-4.848,17.041-4.848,36.75
+		// 		s2.627,30.852,4.849,36.75H73.501h-14H44.3z M70.001,120.751v10.5h-7v-10.5H70.001z M175.803,183.751h-62.055
+		// 		c-17.736,0-44.09-8.13-58.746-18.122l-40.155-27.378h44.654h14h28h7h24.052c1.198,0,2.312-0.614,2.955-1.624l7.858-12.376h48.094
+		// 		L175.803,183.751z"
+    //       style={{ fill: shipColor }}
+    //     />
+    //     <circle cx="84.001" cy="155.751" r="7" />
+    //     <circle cx="115.501" cy="155.751" r="7" />
+    //     <circle cx="147.001" cy="155.751" r="7" />
+    //   </g> */}
+    //   {/* <image href={image} width="100%" height="100%"/> */}
+    // </svg>
   );
 }
 
@@ -150,19 +208,21 @@ export default function Game(props) {
   const [showSubmitButton, setShowSubmitButton] = useState(false);
   const gameId = id;
 
-  useEffect(() => {
-    const fetchContract = async () => {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const contract = new ethers.Contract(GAME_ADDRESS, GAME_ABI, signer);
-      setContract(contract);
-      setProvider(provider);
-      setGamePlayer(signer.address);
-      // console.log("Player address:", signer.address);
-    };
+  // useEffect(() => {
+  //   const fetchContract = async () => {
+  //     const provider = new ethers.BrowserProvider(window.ethereum);
+  //     const signer = await provider.getSigner();
+  //     const contract = new ethers.Contract(GAME_ADDRESS, GAME_ABI, signer);
+  //     setContract(contract);
+  //     setProvider(provider);
+  //     setGamePlayer(signer.address);
+  //     // console.log("Player address:", signer.address);
+  //   };
 
-    fetchContract();
-  }, []);
+  //   fetchContract();
+  // }, []);
+
+  const account = useAccount();
 
   const enrichCell = (cell, allCells) => {
     const s = (cell.q + cell.r) * -1;
@@ -199,7 +259,9 @@ export default function Game(props) {
 
   const enrichShip = (ship) => {
     const s = (ship.q + ship.r) * -1;
-    const mine = ship.address.toLowerCase() === gamePlayer.toLowerCase();
+    console.log("Ship address:", ship.address, ", Account address:", account.address, ", Mine:", ship.address.toLowerCase() === account.address.toLowerCase());
+    console.log("Ship: ", ship);
+    const mine = ship.address.toLowerCase() === account.address.toLowerCase();
     const newCell = { ...ship, s, mine };
     return newCell;
   };
@@ -254,24 +316,33 @@ export default function Game(props) {
     setCurrentGameRound(gameRound);
   };
 
-  const { loading, error, data } = useQuery(GET_GAME, {
-    pollInterval: 5000,
-    variables: { gameId: id, first: 1000, skip: 0 },
-    fetchPolicy: "network-only",
-    onCompleted: (data) => {
-      console.log("Data2:", data);
-      updateData(data);
-    },
-    onError: (error) => {
-      console.log(error);
-    },
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ["game"],
+    queryFn: async () =>
+      request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
+        gameId: id, first: 1000, skip: 0,
+      })
   });
 
+  // const { loading, error, data } = useQuery(GET_GAME, {
+  //   pollInterval: 5000,
+  //   variables: { gameId: id, first: 1000, skip: 0 },
+  //   fetchPolicy: "network-only",
+  //   onCompleted: (data) => {
+  //     console.log("Data2:", data);
+  //     updateData(data);
+  //   },
+  //   onError: (error) => {
+  //     console.log(error);
+  //   },
+  // });
+
   useEffect(() => {
-    if (gamePlayer && data) {
+    console.log("Account: ", account.address, ", Data: ", data)
+    if (!!account.address && data) {
       updateData(data);
     }
-  }, [gamePlayer, data]);
+  }, [account.address, data]);
 
   useEffect(() => {
     if (data) {
@@ -520,10 +591,10 @@ export default function Game(props) {
         </Grid>
         <Grid item xs={3}>
           {myShip && myShip.range && (
-            <ShipStatus range={myShip.range} speed={myShip.shotRange} />
+            <ShipStatus ship={myShip} />
           )}
 
-          <Logs gameId={id} />
+          <Logs gameData={data} gameId={id} />
         </Grid>
         <Grid item xs={6}>
           <HexGrid width={800} height={800} viewBox="18 -20 120 120">
@@ -571,15 +642,33 @@ export default function Game(props) {
                   s={s}
                   onMouseEnter={handleMouseEnter}
                   onClick={handleMouseClick}
+                  fill={state === "water" ? 'pat-water' : `pat-island${(q + r) % 15}`}
                   // onMouseLeave={handleMouseLeave}
                 >
-                  <Coordinates q={q} r={r} />
+                  {/* <Coordinates q={q} r={r} /> */}
                 </Hexagon>
               ))}
 
-              {ships.map(({ q, r, s, mine, address, state }, index) => (
-                <Ship q={q} r={r} s={s} mine={mine} key={index} />
+              {ships.map((ship, index) => (
+                <Ship ship={ship} key={index} />
               ))}
+
+              <Pattern id="pat-water" link={water} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island0" link={island0} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island1" link={island1} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island2" link={island2} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island3" link={island3} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island4" link={island4} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island5" link={island5} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island6" link={island6} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island7" link={island7} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island8" link={island8} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island9" link={island9} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island10" link={island10} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island11" link={island11} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island12" link={island12} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island13" link={island13} size={{x:4, y: 4}}/>
+              <Pattern id="pat-island14" link={island14} size={{x:4, y: 4}}/>
 
               <Path
                 start={myShip}

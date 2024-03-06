@@ -14,6 +14,7 @@ interface IPunkships {
     function getRange(uint256 tokenId) external pure returns (uint8);
     function getShootingRange(uint256 tokenId) external pure returns (uint8);
     function getShipTypeName(uint256 tokenId) external pure returns (string memory);
+    function getImage(uint256 tokenId) external pure returns (string memory);
     function ownerOf(uint256 tokenId) external pure returns (address);
 }
 
@@ -21,42 +22,44 @@ contract GamePunk is Ownable {
     //Events
     event PlayerAdded(
         address indexed player,
-        uint8 gameId,
+        uint256 gameId,
+        uint256 punkshipId,
         uint8 q,
         uint8 r,
         uint8 speed,
-        uint8 range
+        uint8 range,
+        string image
     );
-    event PlayerDefeated(address indexed player, uint8 gameId);
+    event PlayerDefeated(address indexed player, uint256 gameId);
     event GameUpdated(
         bool indexed gameStatus,
         address indexed winnerAddress,
-        uint8 gameId
+        uint256 gameId
     );
-    event GameWinner(address indexed winner, uint8 gameId);
-    event GameStarted(uint8 gameId);
-    event GameEnded(uint8 gameId);
-    event NewRound(uint8 gameId, uint256 roundId, uint8 radius);
-    event CommitPhaseStarted(uint8 gameId);
-    event SubmitPhaseStarted(uint8 gameId, uint256 round);
-    event MoveCommitted(address indexed player, uint8 gameId);
+    event GameWinner(address indexed winner, uint256 gameId);
+    event GameStarted(uint256 gameId);
+    event GameEnded(uint256 gameId);
+    event NewRound(uint256 gameId, uint256 roundId, uint8 radius);
+    event CommitPhaseStarted(uint256 gameId);
+    event SubmitPhaseStarted(uint256 gameId, uint256 round);
+    event MoveCommitted(address indexed player, uint256 gameId);
     event MoveSubmitted(
         address indexed player,
-        uint8 gameId,
+        uint256 gameId,
         uint256 roundId,
         uint8 destQ,
         uint8 destR,
         uint8 shotQ,
         uint8 shotR
     );
-    event MapInitialized(uint8 radius, uint8 gameId);
+    event MapInitialized(uint8 radius, uint256 gameId);
     event ShipMoved(
         address indexed captain,
         uint8 initialQ,
         uint8 initialR,
         uint8 q,
         uint8 r,
-        uint8 gameId
+        uint256 gameId
     );
     event ShipShot(
         address indexed captain,
@@ -64,25 +67,25 @@ contract GamePunk is Ownable {
         uint8 fromR,
         uint8 shotQ,
         uint8 shotR,
-        uint8 gameId
+        uint256 gameId
     );
     event ShipHit(
         address indexed victim,
         address indexed attacker,
-        uint8 gameId
+        uint256 gameId
     );
     event ShipCollidedWithIsland(
         address indexed captain,
-        uint8 gameId,
+        uint256 gameId,
         uint8 q,
         uint8 r
     );
-    event ShipSunk(address indexed captain, uint8 gameId);
-    event ShipSunkOutOfMap(address indexed captain, uint8 gameId);
-    event WorldUpdated(uint8 gameId);
-    event ShipMovedInGame(address indexed captain, uint8 gameId);
-    event MapShrink(uint8 gameId);
-    event Cell(uint8 gameId, uint8 q, uint8 r, bool island);
+    event ShipSunk(address indexed captain, uint256 gameId);
+    event ShipSunkOutOfMap(address indexed captain, uint256 gameId);
+    event WorldUpdated(uint256 gameId);
+    event ShipMovedInGame(address indexed captain, uint256 gameId);
+    event MapShrink(uint256 gameId);
+    event Cell(uint256 gameId, uint8 q, uint8 r, bool island);
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -94,7 +97,7 @@ contract GamePunk is Ownable {
         address captain;
         uint8 yachtSpeed;
         uint8 yachtRange;
-        uint8 gameId;
+        uint256 gameId;
     }
 
     struct GameInstance {
@@ -135,7 +138,7 @@ contract GamePunk is Ownable {
     }
 
     function startNewGame(
-        uint8 gameId,
+        uint256 gameId,
         uint8 _radius
     ) public onlyRegistrationContract {
         require(gameId < 255, "Maximum number of games reached");
@@ -149,7 +152,7 @@ contract GamePunk is Ownable {
         emit GameStarted(gameId);
     }
 
-    function endGame(uint8 gameId) public onlyOwner {
+    function endGame(uint256 gameId) public onlyOwner {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -159,7 +162,7 @@ contract GamePunk is Ownable {
     }
 
     //function to let players commit moves
-    function allowCommitMoves(uint8 gameId) internal {
+    function allowCommitMoves(uint256 gameId) internal {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -169,7 +172,7 @@ contract GamePunk is Ownable {
     }
 
     // function to let players submit moves
-    //  function allowSubmitMoves(uint8 gameId) internal {
+    //  function allowSubmitMoves(uint256 gameId) internal {
     //     require(games[gameId].gameInProgress == true, 'Game has not started yet!');
     //     // games[gameId].letCommitMoves = false;
     //     games[gameId].letSubmitMoves = true;
@@ -177,7 +180,7 @@ contract GamePunk is Ownable {
     // }
 
     //commit moves
-    function commitMove(bytes32 moveHash, uint8 gameId) public {
+    function commitMove(bytes32 moveHash, uint256 gameId) public {
         require(
             games[gameId].letCommitMoves == true,
             "Commit moves has not started yet!"
@@ -194,7 +197,7 @@ contract GamePunk is Ownable {
         uint8[] memory _shotDistances,
         uint8[] memory _secrets,
         address[] memory _playerAddresses,
-        uint8 gameId
+        uint256 gameId
     ) public {
         require(
             games[gameId].gameInProgress == true,
@@ -268,7 +271,7 @@ contract GamePunk is Ownable {
         }
     }
 
-    function initGame(uint8 _radius, uint8 gameId) internal {
+    function initGame(uint8 _radius, uint256 gameId) internal {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -289,7 +292,7 @@ contract GamePunk is Ownable {
 
     function addShip(
         address playerAddress,
-        uint8 gameId,
+        uint256 gameId,
         uint256 _punkshipId
     ) public onlyRegistrationContract {
         require(
@@ -343,6 +346,7 @@ contract GamePunk is Ownable {
 
         uint8 range = punkships.getRange(_punkshipId);
         uint8 shootingRange = punkships.getShootingRange(_punkshipId);
+        string memory image = punkships.getImage(_punkshipId);
 
         Ship memory ship = Ship(
             coord,
@@ -363,14 +367,16 @@ contract GamePunk is Ownable {
         emit PlayerAdded(
             playerAddress,
             gameId,
+            _punkshipId,
             coord.q,
             coord.r,
             range,
-            shootingRange
+            shootingRange,
+            image
         );
     }
 
-    function sinkShip(address captain, uint8 gameId) internal {
+    function sinkShip(address captain, uint256 gameId) internal {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -386,7 +392,7 @@ contract GamePunk is Ownable {
         sinkShip(captain, playerIndex, gameId);
     }
 
-    function sinkShip(address captain, uint8 index, uint8 gameId) internal {
+    function sinkShip(address captain, uint8 index, uint256 gameId) internal {
         require(
             index < games[gameId].players.length,
             "Index value out of range"
@@ -402,13 +408,13 @@ contract GamePunk is Ownable {
 
     function isShipOutsideMap(
         SharedStructs.Coordinate memory shipCoord,
-        uint8 gameId
+        uint256 gameId
     ) internal view returns (bool) {
         SharedStructs.Cell memory cell = map.getCell(shipCoord, gameId);
         return !cell.exists;
     }
 
-    function updateWorld(uint8 gameId) public onlyOwner {
+    function updateWorld(uint256 gameId) public onlyOwner {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -621,7 +627,7 @@ contract GamePunk is Ownable {
         emit WorldUpdated(gameId); // Emitting the WorldUpdated event
     }
 
-    function addNewRound(uint8 gameId) internal returns (uint256) {
+    function addNewRound(uint256 gameId) internal returns (uint256) {
         uint8 currentRadius = map.gameRadii(gameId);
         games[gameId].round++;
         emit NewRound(gameId, games[gameId].round, currentRadius);
@@ -645,7 +651,7 @@ contract GamePunk is Ownable {
         return string(str);
     }
 
-    function getShips(uint8 gameId) public view returns (Ship[] memory) {
+    function getShips(uint256 gameId) public view returns (Ship[] memory) {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -658,7 +664,7 @@ contract GamePunk is Ownable {
         return returnShips;
     }
 
-    function getRadius(uint8 gameId) public view returns (uint8) {
+    function getRadius(uint256 gameId) public view returns (uint8) {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -668,7 +674,7 @@ contract GamePunk is Ownable {
 
     function getCell(
         SharedStructs.Coordinate memory _coord,
-        uint8 gameId
+        uint256 gameId
     ) public view returns (SharedStructs.Cell memory) {
         require(
             games[gameId].gameInProgress == true,
@@ -681,7 +687,7 @@ contract GamePunk is Ownable {
         SharedStructs.Coordinate memory _start,
         SharedStructs.Directions _dir,
         uint8 _distance,
-        uint8 gameId
+        uint256 gameId
     ) external view returns (SharedStructs.Coordinate memory) {
         require(
             games[gameId].gameInProgress == true,
@@ -694,7 +700,7 @@ contract GamePunk is Ownable {
         SharedStructs.Coordinate memory _startCell,
         SharedStructs.Directions _direction,
         uint8 _distance,
-        uint8 gameId
+        uint256 gameId
     ) external {
         require(
             games[gameId].gameInProgress == true,
@@ -716,7 +722,7 @@ contract GamePunk is Ownable {
     }
 
     function getCells(
-        uint8 gameId
+        uint256 gameId
     ) public view returns (SharedStructs.Coordinate[] memory) {
         require(
             games[gameId].gameInProgress == true,

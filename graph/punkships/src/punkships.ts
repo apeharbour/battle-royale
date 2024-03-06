@@ -147,11 +147,13 @@ export function handleMint(event: MintEvent): void {
   contract.name = "Punkships";
   contract.symbol = "PNKS";
   contract.save();
+  log.info('Contract {} saved', [contract.id.toHex()]);
 
   // save new owner's account
   const account = new Account(event.params.owner);
   account.contract = contract.id;
   account.save();
+  log.info('Account {} saved', [account.id.toHex()]);
 
   // save token
   const tokenId = contract.id.concatI32(event.params.id.toI32());
@@ -160,11 +162,13 @@ export function handleMint(event: MintEvent): void {
   token.owner = event.params.owner;
   token.tokenId = event.params.id;
   token.tokenURI = event.params.tokenURI;
-
+  log.info('Token {}\'s attributes set', [token.tokenId.toI32().toString()]);
+  
   const metadata = decodeMetadata(event.params.tokenURI, token.id);
   if(metadata.isSet('image') && metadata.get('image') != ''){
     token.image = metadata.get('image');
   };
+  log.info('Token {}\'s image set', [token.tokenId.toI32().toString()]);
 
   token.save();
 }

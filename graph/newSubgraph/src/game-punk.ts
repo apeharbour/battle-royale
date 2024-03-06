@@ -1,4 +1,4 @@
-import { BigInt, Bytes, store } from "@graphprotocol/graph-ts"
+import { BigInt, ByteArray, Bytes, store } from "@graphprotocol/graph-ts"
 import {
   CommitPhaseStarted as CommitPhaseStartedEvent,
   GameEnded as GameEndedEvent,
@@ -71,7 +71,8 @@ function createNewRound(_gameId: Bytes, _roundId: BigInt, _radius: i32): Round {
 }
 
 export function handleNewRound(event: NewRoundEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
+  // const gameId = Bytes.fromI32(event.params.gameId.toI32())
 
   const round = createNewRound(gameId, event.params.roundId, event.params.radius);
 
@@ -88,7 +89,7 @@ export function handleGameStarted(event: GameStartedEvent): void {}
 export function handleGameUpdated(event: GameUpdatedEvent): void {}
 
 export function handleGameWinner(event: GameWinnerEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.winner)
 
   let player = new Player(playerId)
@@ -102,7 +103,7 @@ export function handleGameWinner(event: GameWinnerEvent): void {
 }
 
 export function handleMapInitialized(event: MapInitializedEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const roundId = gameId.concatI32(0)
 
   let game = Game.load(gameId)
@@ -125,7 +126,7 @@ export function handleMapInitialized(event: MapInitializedEvent): void {
 }
 
 export function handleMapShrink(event: MapShrinkEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
 
   const game = Game.load(gameId)
   if (game) {
@@ -141,7 +142,7 @@ export function handleMapShrink(event: MapShrinkEvent): void {
 export function handleMoveCommitted(event: MoveCommittedEvent): void {}
 
 export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.transaction.from)
 
   let game = Game.load(gameId)
@@ -174,7 +175,7 @@ export function handleOwnershipTransferred(
 }
 
 export function handlePlayerAdded(event: PlayerAddedEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.player)
 
   let player = new Player(playerId)
@@ -185,6 +186,8 @@ export function handlePlayerAdded(event: PlayerAddedEvent): void {
   player.r = event.params.r
   player.range = event.params.range
   player.shotRange = event.params.speed
+  player.tokenId = event.params.punkshipId
+  player.image = event.params.image
   player.game = gameId
   player.state = PlayerState.ACTIVE
   player.kills = 0
@@ -198,7 +201,7 @@ export function handlePlayerDefeated(event: PlayerDefeatedEvent): void {}
 export function handleShipCollidedWithIsland(
   event: ShipCollidedWithIslandEvent
 ): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
   // update player state and position
@@ -211,7 +214,7 @@ export function handleShipCollidedWithIsland(
 }
 
 export function handleShipHit(event: ShipHitEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   
   const victimId = gameId.concat(event.params.victim)
   let victim = new Player(victimId)
@@ -228,7 +231,7 @@ export function handleShipHit(event: ShipHitEvent): void {
 
 export function handleShipMoved(event: ShipMovedEvent): void {
   // update player position
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
   log.info('GameId {}, playerId {}, player addr {}', [gameId.toHexString(), playerId.toHex(), event.params.captain.toHexString()])
@@ -242,7 +245,7 @@ export function handleShipMoved(event: ShipMovedEvent): void {
 export function handleShipMovedInGame(event: ShipMovedInGameEvent): void {}
 
 export function handleShipShot(event: ShipShotEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
 
   let game = Game.load(gameId)
 
@@ -264,7 +267,7 @@ export function handleShipShot(event: ShipShotEvent): void {
 }
 
 export function handleShipSunk(event: ShipSunkEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
   let player = new Player(playerId)
@@ -273,7 +276,7 @@ export function handleShipSunk(event: ShipSunkEvent): void {
 }
 
 export function handleShipSunkOutOfMap(event: ShipSunkOutOfMapEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
   let player = new Player(playerId)
@@ -288,7 +291,7 @@ export function handleSubmitPhaseStarted(event: SubmitPhaseStartedEvent): void {
 export function handleWorldUpdated(event: WorldUpdatedEvent): void {}
 
 export function handleCell(event: CellEvent): void {
-  const gameId = event.address.concatI32(event.params.gameId)
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const cellId = gameId.concatI32(event.params.q).concatI32(event.params.r)
 
   let entity = new Cell(cellId)

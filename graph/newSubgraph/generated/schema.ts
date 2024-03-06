@@ -52,17 +52,21 @@ export class Game extends Entity {
     this.set("id", Value.fromBytes(value));
   }
 
-  get gameId(): i32 {
+  get gameId(): BigInt | null {
     let value = this.get("gameId");
     if (!value || value.kind == ValueKind.NULL) {
-      return 0;
+      return null;
     } else {
-      return value.toI32();
+      return value.toBigInt();
     }
   }
 
-  set gameId(value: i32) {
-    this.set("gameId", Value.fromI32(value));
+  set gameId(value: BigInt | null) {
+    if (!value) {
+      this.unset("gameId");
+    } else {
+      this.set("gameId", Value.fromBigInt(<BigInt>value));
+    }
   }
 
   get radius(): i32 {
@@ -235,6 +239,19 @@ export class Player extends Entity {
     this.set("r", Value.fromI32(value));
   }
 
+  get tokenId(): BigInt {
+    let value = this.get("tokenId");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set tokenId(value: BigInt) {
+    this.set("tokenId", Value.fromBigInt(value));
+  }
+
   get range(): i32 {
     let value = this.get("range");
     if (!value || value.kind == ValueKind.NULL) {
@@ -259,6 +276,19 @@ export class Player extends Entity {
 
   set shotRange(value: i32) {
     this.set("shotRange", Value.fromI32(value));
+  }
+
+  get image(): string {
+    let value = this.get("image");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set image(value: string) {
+    this.set("image", Value.fromString(value));
   }
 
   get game(): Bytes {

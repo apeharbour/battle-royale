@@ -5,8 +5,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
 interface IGamePunk {
-    function startNewGame(uint8 gameId, uint8 radius) external;
-    function addShip(address players, uint8 gameId, uint256 tokenId) external;
+    function startNewGame(uint256 gameId, uint8 radius) external;
+    function addShip(address players, uint256 gameId, uint256 tokenId) external;
 }
 
 interface IPunkships {
@@ -19,10 +19,14 @@ interface IPunkships {
 
 contract RegistrationPunk is Ownable {
 
-    event RegistrationStarted(uint256 firstGameId);
-    event PlayerRegistered(address player, uint256 punkshipId, uint8 speed, uint8 range);
-    event PlayerAdded(address player, uint8 gameId, uint256 punkshipId);
-    event RegistrationClosed(uint256 gameId);
+    event RegistrationStarted(uint256 registrationPhase, uint256 firstGameId);
+    event PlayerRegistered(uint256 registrationPhase, address player, uint256 punkshipId);
+    event PlayerAdded(uint256 registrationPhase, address player, uint256 gameId, uint256 punkshipId);
+    event RegistrationClosed(uint256 registrationPhase, uint256 gameId);
+
+    error RegistrationClosedError();
+    error PlayerAlreadyRegisteredError();
+    error PlayerNotOwnerOfShipError();
 
     IGamePunk public gamePunk;
     IPunkships public punkships;
@@ -30,14 +34,12 @@ contract RegistrationPunk is Ownable {
     mapping(address => Player) public registeredPlayers;
     address[] private registeredPlayerAddresses;
     bool public registrationClosed = true;
-    uint8 public lastGameId = 0;
-    uint8 public registrationPhase = 0;
+    uint256 public lastGameId;
+    uint256 public registrationPhase;
 
     struct Player {
         bool registered;
         uint256 punkshipId;
-        // uint8 speed;
-        // uint8 range;
     }
 
     constructor(address _gamePunkAddress, address _punkshipsAddress) Ownable(msg.sender) {
@@ -46,24 +48,26 @@ contract RegistrationPunk is Ownable {
     }
 
      function startRegistration() public onlyOwner {
-        registrationClosed = false;
+        registrationPhase += 1;
         lastGameId += 1;
+        registrationClosed = false;
 
          for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
             delete registeredPlayers[registeredPlayerAddresses[i]];
         }
         delete registeredPlayerAddresses;
-        emit RegistrationStarted(lastGameId);
+        emit RegistrationStarted(registrationPhase, lastGameId);
     }
 
     function registerPlayer(uint256 _punkshipId) public {
-        require(!registrationClosed, "Registration is closed");
-        require(!registeredPlayers[msg.sender].registered, "Player already registered");
-        require(punkships.ownerOf(_punkshipId) == msg.sender, "You do not own this ship");
+        if (registrationClosed) revert RegistrationClosedError();
+        if (registeredPlayers[msg.sender].registered) revert PlayerAlreadyRegisteredError();
+        if (punkships.ownerOf(_punkshipId) != msg.sender) revert PlayerNotOwnerOfShipError();
 
         // registeredPlayers[msg.sender] = Player(true, _punkshipId, punkships.getRange(_punkshipId), punkships.getShootingRange(_punkshipId));
         registeredPlayers[msg.sender] = Player(true, _punkshipId);
         registeredPlayerAddresses.push(msg.sender);
+        emit PlayerRegistered(registrationPhase, msg.sender, _punkshipId);
     }
 
   function closeRegistration(uint8 _maxPlayersPerGame, uint8 _radius) public onlyOwner {
@@ -79,14 +83,14 @@ contract RegistrationPunk is Ownable {
         Player storage player = registeredPlayers[playerAddress];
         
         gamePunk.addShip(playerAddress,lastGameId, player.punkshipId);
-        emit PlayerAdded(playerAddress, lastGameId, player.punkshipId);
+        emit PlayerAdded(registrationPhase, playerAddress, lastGameId, player.punkshipId);
 
         gamePlayerCount++;
        
         if (gamePlayerCount == _maxPlayersPerGame) {
             lastGameId++;
             gamePlayerCount = 0;
-            emit RegistrationClosed(lastGameId);
+            emit RegistrationClosed(registrationPhase, lastGameId);
         }
     }
 }

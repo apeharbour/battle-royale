@@ -1,29 +1,21 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { ethers } from "ethers";
 import { useQuery } from "@tanstack/react-query";
-import { graphql } from "./gql/gql";
-import { useAccount } from "wagmi";
-// import { GraphQLClient } from "graphql-request";
 import { request, gql } from 'graphql-request'
+import { useAccount, useWriteContract } from "wagmi";
 
 
 import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
-  Box,
   Button,
   Card,
   CardContent,
   CardMedia,
-  Container,
   Grid,
-  TextField,
   Typography,
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import img1 from "./images/6.png";
 import img2 from "./images/8.png";
@@ -166,16 +158,24 @@ export default function Registration(props) {
     setShowYachtSelectError(false);
   };
 
-   const register = async () => {
-     if (contract !== null) {
-       console.log("Adding ship");
-       const tx = await contract
-         .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
-         .catch(console.error);
-       await tx.wait();
-     }
-     console.log("Added ship");
-   };
+  const register = () => {
+    console.log("Registering ship: ", selectedYacht);
+    writeContract({
+      abi: REGISTRATION_ABI,
+      address: REGISTRATION_ADDRESS,
+      functionName: "registerPlayer",
+      params: [BigInt(selectedYacht.tokenId)],
+    })
+
+    // if (registrationContract !== null) {
+    //   console.log("Adding ship");
+    //   const tx = await registrationContract
+    //     .registerPlayer(selectedYacht.movement, selectedYacht.shoot)
+    //     .catch(console.error);
+    //   await tx.wait();
+    // }
+    console.log("Added ship");
+  };
 
   if (isLoading) return <p>Loading...</p>;
   if (isError) return <p>Error: {JSON.stringify(error)}</p>;
