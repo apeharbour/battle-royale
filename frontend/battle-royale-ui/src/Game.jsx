@@ -58,7 +58,7 @@ const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
-import shipImage from "./images/4.png"
+const hexagonSize = 5;
 
 const TRAVELLING = 0;
 const SHOOTING = 1;
@@ -132,7 +132,7 @@ const GET_GAME = gql`
   }
 `;
 
-function Ship({ship}) {
+function Ship({ship, size}) {
   const { q, r, s, mine, image } = ship;
 
   // update boder color based on player
@@ -146,7 +146,7 @@ function Ship({ship}) {
   return (
     <g>
     <Hexagon q={q} r={r} s={s} key={ship.address} fill={`pat-${ship.address}`} />
-    <Pattern id={`pat-${ship.address}`} link={dataURL} size={{x: 3.5, y: 3.5}} />
+    <Pattern id={`pat-${ship.address}`} link={dataURL} size={{x: size-0.5, y: size-0.5}} />
     </g>
 
     // <foreignObject x={point.x - size / 2} y={point.y - size / 2} height={size} width={size}>
@@ -630,7 +630,7 @@ export default function Game(props) {
                 />
               </marker>
             </defs>
-            <Layout size={{ x: 4, y: 4 }} spacing={1.05} flat={false}>
+            <Layout size={{ x: hexagonSize, y: hexagonSize }} spacing={1.02} flat={false}>
               {cells.map(({ id, q, r, s, state, highlighted }) => (
                 <Hexagon
                   className={[state, highlighted ? "highlighted" : ""].join(
@@ -650,25 +650,25 @@ export default function Game(props) {
               ))}
 
               {ships.map((ship, index) => (
-                <Ship ship={ship} key={index} />
+                <Ship ship={ship} size={hexagonSize} key={index} />
               ))}
 
-              <Pattern id="pat-water" link={water} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island0" link={island0} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island1" link={island1} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island2" link={island2} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island3" link={island3} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island4" link={island4} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island5" link={island5} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island6" link={island6} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island7" link={island7} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island8" link={island8} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island9" link={island9} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island10" link={island10} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island11" link={island11} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island12" link={island12} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island13" link={island13} size={{x:4, y: 4}}/>
-              <Pattern id="pat-island14" link={island14} size={{x:4, y: 4}}/>
+              <Pattern id="pat-water" link={water} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island0" link={island0} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island1" link={island1} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island2" link={island2} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island3" link={island3} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island4" link={island4} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island5" link={island5} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island6" link={island6} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island7" link={island7} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island8" link={island8} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island9" link={island9} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island10" link={island10} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island11" link={island11} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island12" link={island12} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island13" link={island13} size={{x:hexagonSize, y: hexagonSize}}/>
+              <Pattern id="pat-island14" link={island14} size={{x:hexagonSize, y: hexagonSize}}/>
 
               <Path
                 start={myShip}
