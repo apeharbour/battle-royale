@@ -17,8 +17,7 @@ import {
 import Coordinates from "./Coordinates";
 import { useLayoutContext } from "react-hexgrid/lib/Layout";
 import GameAbi from "./abis/GamePunk.json";
-import log from "./images/log.png";
-import timer from "./images/Timer.png";
+import Timer from "./Timer";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
@@ -88,8 +87,8 @@ const GET_GAME = gql`
           destinationR
         }
       }
-    },
-    gameWinners{
+    }
+    gameWinners {
       winner
       gameId
     }
@@ -174,7 +173,11 @@ export default function Game(props) {
     const hex = new Hex(cell.q, cell.r, s);
     const neighbors = HexUtils.neighbors(hex);
 
-    const allNeighborCells = allCells.filter((c) => neighbors.some((n) => HexUtils.equals(n, new Hex(c.q, c.r, (c.q + c.r) * -1)) ))
+    const allNeighborCells = allCells.filter((c) =>
+      neighbors.some((n) =>
+        HexUtils.equals(n, new Hex(c.q, c.r, (c.q + c.r) * -1))
+      )
+    );
 
     /* neigbor code is a 6 bit number where each bit represents a neighbor cell
     The codes are as follows:
@@ -185,9 +188,10 @@ export default function Game(props) {
     0b010000: North East
     0b100000: East */
     // FIXME: doesn't work for cells on the edge of the map because the ring of neighbors is not complete
-    const neighborCode = allNeighborCells.reduce((acc, c, i) => 
-        acc + (c.island ? Math.pow(2, i) : 0), 0
-    )
+    const neighborCode = allNeighborCells.reduce(
+      (acc, c, i) => acc + (c.island ? Math.pow(2, i) : 0),
+      0
+    );
 
     const newCell = { ...cell, s, state, highlighted, neighborCode };
     return newCell;
@@ -233,7 +237,9 @@ export default function Game(props) {
     console.log("My Ship: ", myShip1);
 
     // process cells
-    const cells = game.cells.map((c) => { return enrichCell(c, game.cells)});
+    const cells = game.cells.map((c) => {
+      return enrichCell(c, game.cells);
+    });
 
     setCells([...cells]);
     const updatedCells = cells.map((c) =>
@@ -243,9 +249,9 @@ export default function Game(props) {
     setCells([...updatedCells]);
 
     //set Game Round
-    const lastGameRoundIndex = game.rounds.length -1;
+    const lastGameRoundIndex = game.rounds.length - 1;
     const gameRound = game.rounds[lastGameRoundIndex].round;
-     setCurrentGameRound(gameRound);
+    setCurrentGameRound(gameRound);
   };
 
   const { loading, error, data } = useQuery(GET_GAME, {
@@ -268,15 +274,15 @@ export default function Game(props) {
   }, [gamePlayer, data]);
 
   useEffect(() => {
-    if(data){
+    if (data) {
       const { gameWinners } = data;
-      if(gameWinners.length > 0) {
-      const gameWinner = gameWinners[0];
-      const { gameId } = gameWinner;
-      disableEventBridgeRule(gameId);
-    }      
+      if (gameWinners.length > 0) {
+        const gameWinner = gameWinners[0];
+        const { gameId } = gameWinner;
+        disableEventBridgeRule(gameId);
+      }
     }
-  }, [data])
+  }, [data]);
 
   const handleMouseEnter = (event, source) => {
     cells.forEach((cell) => {
@@ -427,42 +433,42 @@ export default function Game(props) {
     console.log("Shot Distance: ", shotDistance);
 
     if (contract) {
-       let randomInt = generateRandomInt();
-       const moveHash = ethers.solidityPackedKeccak256(
-         ["uint8", "uint8", "uint8", "uint8", "uint8"],
-         [
-           travelDirection,
-           travelDistance,
-           shotDirection,
-           shotDistance,
-           randomInt,
-         ]
-       );
+      let randomInt = generateRandomInt();
+      const moveHash = ethers.solidityPackedKeccak256(
+        ["uint8", "uint8", "uint8", "uint8", "uint8"],
+        [
+          travelDirection,
+          travelDistance,
+          shotDirection,
+          shotDistance,
+          randomInt,
+        ]
+      );
 
-       try {
-         const tx = await contract
-           .commitMove(moveHash, gameId)
-           .catch(console.error);
-         await tx.wait();
-         console.log(tx);
-         console.log(moveHash);
+      try {
+        const tx = await contract
+          .commitMove(moveHash, gameId)
+          .catch(console.error);
+        await tx.wait();
+        console.log(tx);
+        console.log(moveHash);
 
-         await storePlayerMove({
-           gameId,
-           playerAddress: gamePlayer,
+        await storePlayerMove({
+          gameId,
+          playerAddress: gamePlayer,
           moveHash,
           secretValue: randomInt,
-           travelDirection,
+          travelDirection,
           travelDistance,
-           shotDirection,
-           shotDistance,
-      });
-       } catch (error) {
-       console.error(
-           "Error in submitting moves or storing in DynamoDB",
-         error
-         );
-       }
+          shotDirection,
+          shotDistance,
+        });
+      } catch (error) {
+        console.error(
+          "Error in submitting moves or storing in DynamoDB",
+          error
+        );
+      }
       const updatedCells = cells
         .map(clearHighlights)
         .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
@@ -476,27 +482,29 @@ export default function Game(props) {
 
   const disableEventBridgeRule = async (gameId) => {
     try {
-      const response = await fetch('https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/disableEventBridge', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ gameId }),
-      });
-  
+      const response = await fetch(
+        "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/disableEventBridge",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ gameId }),
+        }
+      );
+
       if (!response.ok) {
         throw new Error(`Error: ${response.status}`);
       }
-  
+
       const data = await response.json();
-      console.log('Success:', data);
+      console.log("Success:", data);
       // Handle success response
     } catch (error) {
-      console.error('Error calling the API:', error.message);
+      console.error("Error calling the API:", error.message);
       // Handle error response
     }
   };
-  
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error : {error.message}</p>;
@@ -506,8 +514,8 @@ export default function Game(props) {
       <Grid container spacing={2}>
         <Grid item xs={12}>
           <Stack spacing={4} direction={"row"} alignContent={"center"}>
-          <Typography variant="h5" >Game {id}</Typography>
-          <Typography variant="h5">Round {currentGameRound}</Typography>
+            <Typography variant="h5">Game {id}</Typography>
+            <Typography variant="h5">Round {currentGameRound}</Typography>
           </Stack>
         </Grid>
         <Grid item xs={3}>
@@ -588,8 +596,7 @@ export default function Game(props) {
           </HexGrid>
         </Grid>
         <Grid item xs={3}>
-          <img src={timer} alt="Timer" />
-
+          <Timer gameId={id}/>
           <Box mt={2} mb={2}>
             <CustomButton
               variant="contained"
