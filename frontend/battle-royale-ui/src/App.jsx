@@ -1,5 +1,7 @@
 import { Fragment, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import '@fontsource-variable/pixelify-sans';
+
 // import "./App.css";
 import ListGames from "./ListGames";
 import Game from "./Game";
