@@ -5,7 +5,7 @@ import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 // import { useQuery, gql } from "@apollo/client";
 import { useQuery } from "@tanstack/react-query";
-import { request, gql } from 'graphql-request'
+import { request, gql } from "graphql-request";
 import { useAccount } from "wagmi";
 
 import { useLocation } from "react-router-dom";
@@ -17,7 +17,7 @@ import {
   Layout,
   Path,
   Text,
-  Pattern
+  Pattern,
 } from "react-hexgrid";
 import Coordinates from "./Coordinates";
 import { useLayoutContext } from "react-hexgrid/lib/Layout";
@@ -33,23 +33,10 @@ import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
 import PunkshipsAbi from "./abis/Punkships.json";
 
-import water from "./images/tiles/water.png";
-import island0 from "./images/tiles/island0.png";
-import island1 from "./images/tiles/island1.png";
-import island2 from "./images/tiles/island2.png";
-import island3 from "./images/tiles/island3.png";
-import island4 from "./images/tiles/island4.png";
-import island5 from "./images/tiles/island5.png";
-import island6 from "./images/tiles/island6.png";
-import island7 from "./images/tiles/island7.png";
-import island8 from "./images/tiles/island8.png";
-import island9 from "./images/tiles/island9.png";
-import island10 from "./images/tiles/island10.png";
-import island11 from "./images/tiles/island11.png";
-import island12 from "./images/tiles/island12.png";
-import island13 from "./images/tiles/island13.png";
-import island14 from "./images/tiles/island14.png";
+import * as imagesClean from "./assets/tiles/clean/index.js";
+import * as imagesPixel from "./assets/tiles/pixel/index.js";
 
+import island99 from "./assets/tiles/clean/island99.png";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
@@ -58,7 +45,9 @@ const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
-const hexagonSize = 5;
+const hexagonSize = { x: 5, y: 5 };
+const waterSize = { x: 4.33, y: 5 };
+const islandSize = { x: 4.33, y: 5 };
 
 const TRAVELLING = 0;
 const SHOOTING = 1;
@@ -132,25 +121,40 @@ const GET_GAME = gql`
   }
 `;
 
-function Ship({ship, size}) {
+function Ship({ ship, size }) {
   const { q, r, s, mine, image } = ship;
 
   // update boder color based on player
   const shipColor = mine ? "black" : "white";
   const b64Image = image.split(",")[1];
   const svgString = atob(b64Image);
-  const updatedSvgString = svgString.replace(/.border { fill: #fff }/g, `.border { fill: ${shipColor} }`);
+  const updatedSvgString = svgString.replace(
+    /.border { fill: #fff }/g,
+    `.border { fill: ${shipColor} }`
+  );
   const b64UpdatedSvgString = btoa(updatedSvgString);
   const dataURL = `data:image/svg+xml;base64,${b64UpdatedSvgString}`;
 
+  const shipSize = { x: size.x -0.5, y: size.y -0.5 };
+
   return (
     <g>
-    <Hexagon q={q} r={r} s={s} key={ship.address} fill={`pat-${ship.address}`} />
-    <Pattern id={`pat-${ship.address}`} link={dataURL} size={{x: size-0.5, y: size-0.5}} />
+      <Hexagon
+        q={q}
+        r={r}
+        s={s}
+        key={ship.address}
+        fill={`pat-${ship.address}`}
+      />
+      <Pattern
+        id={`pat-${ship.address}`}
+        link={dataURL}
+        size={shipSize}
+      />
     </g>
 
     // <foreignObject x={point.x - size / 2} y={point.y - size / 2} height={size} width={size}>
-      // <g dangerouslySetInnerHTML={{ __html: stringValue }} />
+    // <g dangerouslySetInnerHTML={{ __html: stringValue }} />
     // </foreignObject>
 
     // <svg
@@ -169,17 +173,17 @@ function Ship({ship, size}) {
     //   {/* <g>
     //     <path
     //       d="M198.773,118.615c-0.663-0.86-1.687-1.364-2.772-1.364h-54.559c-1.198,0-2.312,0.614-2.955,1.624l-7.858,12.376h-22.128
-		// 		V53.122l32.801-13.12c1.328-0.533,2.199-1.82,2.199-3.25s-0.872-2.717-2.199-3.25L108.501,20.38V8.751h-7v14v28v80.5h-24.5v-10.5
-		// 		h17.5c1.359,0,2.594-0.786,3.17-2.017c0.576-1.231,0.388-2.683-0.484-3.727c-0.061-0.073-6.186-8.242-6.186-38.006
-		// 		c0-29.528,6.175-37.987,6.187-38.006c0.871-1.044,1.059-2.497,0.484-3.727c-0.576-1.23-1.812-2.017-3.17-2.017H42.001
-		// 		c-1.313,0-2.514,0.733-3.114,1.901c-0.3,0.588-7.386,14.689-7.386,41.849s7.085,41.262,7.386,41.85
-		// 		c0.6,1.167,1.801,1.9,3.114,1.9h14v10.5h-52.5c-1.537,0-2.892,1.001-3.345,2.468c-0.453,1.468,0.104,3.059,1.372,3.924
-		// 		l49.528,33.769c15.642,10.664,43.764,19.339,62.691,19.339h64.754c1.589,0,2.981-1.072,3.386-2.61l17.5-66.5
-		// 		C199.662,120.592,199.436,119.475,198.773,118.615z M108.501,27.921l22.077,8.83l-22.077,8.83V27.921z M44.3,113.751
-		// 		c-1.772-4.505-5.799-16.922-5.799-36.75c0-19.833,4.03-32.254,5.797-36.75h44.551c-2.221,5.898-4.848,17.041-4.848,36.75
-		// 		s2.627,30.852,4.849,36.75H73.501h-14H44.3z M70.001,120.751v10.5h-7v-10.5H70.001z M175.803,183.751h-62.055
-		// 		c-17.736,0-44.09-8.13-58.746-18.122l-40.155-27.378h44.654h14h28h7h24.052c1.198,0,2.312-0.614,2.955-1.624l7.858-12.376h48.094
-		// 		L175.803,183.751z"
+    // 		V53.122l32.801-13.12c1.328-0.533,2.199-1.82,2.199-3.25s-0.872-2.717-2.199-3.25L108.501,20.38V8.751h-7v14v28v80.5h-24.5v-10.5
+    // 		h17.5c1.359,0,2.594-0.786,3.17-2.017c0.576-1.231,0.388-2.683-0.484-3.727c-0.061-0.073-6.186-8.242-6.186-38.006
+    // 		c0-29.528,6.175-37.987,6.187-38.006c0.871-1.044,1.059-2.497,0.484-3.727c-0.576-1.23-1.812-2.017-3.17-2.017H42.001
+    // 		c-1.313,0-2.514,0.733-3.114,1.901c-0.3,0.588-7.386,14.689-7.386,41.849s7.085,41.262,7.386,41.85
+    // 		c0.6,1.167,1.801,1.9,3.114,1.9h14v10.5h-52.5c-1.537,0-2.892,1.001-3.345,2.468c-0.453,1.468,0.104,3.059,1.372,3.924
+    // 		l49.528,33.769c15.642,10.664,43.764,19.339,62.691,19.339h64.754c1.589,0,2.981-1.072,3.386-2.61l17.5-66.5
+    // 		C199.662,120.592,199.436,119.475,198.773,118.615z M108.501,27.921l22.077,8.83l-22.077,8.83V27.921z M44.3,113.751
+    // 		c-1.772-4.505-5.799-16.922-5.799-36.75c0-19.833,4.03-32.254,5.797-36.75h44.551c-2.221,5.898-4.848,17.041-4.848,36.75
+    // 		s2.627,30.852,4.849,36.75H73.501h-14H44.3z M70.001,120.751v10.5h-7v-10.5H70.001z M175.803,183.751h-62.055
+    // 		c-17.736,0-44.09-8.13-58.746-18.122l-40.155-27.378h44.654h14h28h7h24.052c1.198,0,2.312-0.614,2.955-1.624l7.858-12.376h48.094
+    // 		L175.803,183.751z"
     //       style={{ fill: shipColor }}
     //     />
     //     <circle cx="84.001" cy="155.751" r="7" />
@@ -223,6 +227,10 @@ export default function Game(props) {
   // }, []);
 
   const account = useAccount();
+  const images = props.design === 0 ? imagesClean : imagesPixel;
+  console.log("Images: ", images);
+  console.log("Objects", Object.entries(images));
+  console.log("Using theme: ", props.design === 0 ? "clean" : "pixel");
 
   const enrichCell = (cell, allCells) => {
     const s = (cell.q + cell.r) * -1;
@@ -259,7 +267,14 @@ export default function Game(props) {
 
   const enrichShip = (ship) => {
     const s = (ship.q + ship.r) * -1;
-    console.log("Ship address:", ship.address, ", Account address:", account.address, ", Mine:", ship.address.toLowerCase() === account.address.toLowerCase());
+    console.log(
+      "Ship address:",
+      ship.address,
+      ", Account address:",
+      account.address,
+      ", Mine:",
+      ship.address.toLowerCase() === account.address.toLowerCase()
+    );
     console.log("Ship: ", ship);
     const mine = ship.address.toLowerCase() === account.address.toLowerCase();
     const newCell = { ...ship, s, mine };
@@ -320,8 +335,10 @@ export default function Game(props) {
     queryKey: ["game"],
     queryFn: async () =>
       request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
-        gameId: id, first: 1000, skip: 0,
-      })
+        gameId: id,
+        first: 1000,
+        skip: 0,
+      }),
   });
 
   // const { loading, error, data } = useQuery(GET_GAME, {
@@ -338,7 +355,7 @@ export default function Game(props) {
   // });
 
   useEffect(() => {
-    console.log("Account: ", account.address, ", Data: ", data)
+    console.log("Account: ", account.address, ", Data: ", data);
     if (!!account.address && data) {
       updateData(data);
     }
@@ -504,9 +521,9 @@ export default function Game(props) {
     console.log("Shot Distance: ", shotDistance);
 
     if (contract) {
-      let randomInt = generateRandomInt();
+      setRandomInt(generateRandomInt());
       const moveHash = ethers.solidityPackedKeccak256(
-        ["uint8", "uint8", "uint8", "uint8", "uint8"],
+        ["uint8", "uint8", "uint8", "uint8", "uint256"],
         [
           travelDirection,
           travelDistance,
@@ -580,6 +597,16 @@ export default function Game(props) {
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error : {error.message}</p>;
 
+  const getFillPattern = (state, neighborCode) => {
+    if (state === "island") {
+      return `pat-island${neighborCode % 15}`;
+      // return `pat-island99`;
+
+    } else {
+      return `pat-water${neighborCode}`;
+    }
+  };
+
   return (
     <Fragment>
       <Grid container spacing={2}>
@@ -590,9 +617,7 @@ export default function Game(props) {
           </Stack>
         </Grid>
         <Grid item xs={3}>
-          {myShip && myShip.range && (
-            <ShipStatus ship={myShip} />
-          )}
+          {myShip && myShip.range && <ShipStatus ship={myShip} />}
 
           <Logs gameData={data} gameId={id} />
         </Grid>
@@ -630,45 +655,437 @@ export default function Game(props) {
                 />
               </marker>
             </defs>
-            <Layout size={{ x: hexagonSize, y: hexagonSize }} spacing={1.02} flat={false}>
-              {cells.map(({ id, q, r, s, state, highlighted }) => (
-                <Hexagon
-                  className={[state, highlighted ? "highlighted" : ""].join(
-                    " "
-                  )}
-                  key={id}
-                  q={q}
-                  r={r}
-                  s={s}
-                  onMouseEnter={handleMouseEnter}
-                  onClick={handleMouseClick}
-                  fill={state === "water" ? 'pat-water' : `pat-island${(q + r) % 15}`}
-                  // onMouseLeave={handleMouseLeave}
-                >
-                  {/* <Coordinates q={q} r={r} /> */}
-                </Hexagon>
-              ))}
+            <Layout size={hexagonSize} spacing={1.02} flat={false}>
+              {cells.map(
+                ({ id, q, r, s, state, highlighted, neighborCode }) => (
+                  <Hexagon
+                    className={[state, highlighted ? "highlighted" : ""].join(
+                      " "
+                    )}
+                    key={id}
+                    q={q}
+                    r={r}
+                    s={s}
+                    onMouseEnter={handleMouseEnter}
+                    onClick={handleMouseClick}
+                    fill={getFillPattern(state, neighborCode)}
+                    // onMouseLeave={handleMouseLeave}
+                  >
+                    {/* <Coordinates q={q} r={r} /> */}
+                  </Hexagon>
+                )
+              )}
+
+              <Pattern
+                id="pat-water0"
+                link={images["water0"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water1"
+                link={images["water1"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water2"
+                link={images["water2"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water3"
+                link={images["water3"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water4"
+                link={images["water4"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water5"
+                link={images["water5"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water6"
+                link={images["water6"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water7"
+                link={images["water7"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water8"
+                link={images["water8"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water9"
+                link={images["water9"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water10"
+                link={images["water10"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water11"
+                link={images["water11"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water12"
+                link={images["water12"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water13"
+                link={images["water13"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water14"
+                link={images["water14"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water15"
+                link={images["water15"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water16"
+                link={images["water16"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water17"
+                link={images["water17"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water18"
+                link={images["water18"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water19"
+                link={images["water19"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water20"
+                link={images["water20"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water21"
+                link={images["water21"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water22"
+                link={images["water22"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water23"
+                link={images["water23"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water24"
+                link={images["water24"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water25"
+                link={images["water25"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water26"
+                link={images["water26"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water27"
+                link={images["water27"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water28"
+                link={images["water28"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water29"
+                link={images["water29"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water30"
+                link={images["water30"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water31"
+                link={images["water31"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water32"
+                link={images["water32"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water33"
+                link={images["water33"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water34"
+                link={images["water34"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water35"
+                link={images["water35"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water36"
+                link={images["water36"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water37"
+                link={images["water37"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water38"
+                link={images["water38"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water39"
+                link={images["water39"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water40"
+                link={images["water40"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water41"
+                link={images["water41"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water42"
+                link={images["water42"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water43"
+                link={images["water43"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water44"
+                link={images["water44"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water45"
+                link={images["water45"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water46"
+                link={images["water46"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water47"
+                link={images["water47"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water48"
+                link={images["water48"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water49"
+                link={images["water49"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water50"
+                link={images["water50"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water51"
+                link={images["water51"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water52"
+                link={images["water52"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water53"
+                link={images["water53"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water54"
+                link={images["water54"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water55"
+                link={images["water55"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water56"
+                link={images["water56"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water57"
+                link={images["water57"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water58"
+                link={images["water58"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water59"
+                link={images["water59"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water60"
+                link={images["water60"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water61"
+                link={images["water61"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water62"
+                link={images["water62"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water63"
+                link={images["water63"]}
+                size={waterSize}
+              />
+              <Pattern
+                id="pat-water64"
+                link={images["water64"]}
+                size={waterSize}
+              />
+
+              <Pattern
+                id="pat-island0"
+                link={images["island0"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island1"
+                link={images["island1"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island2"
+                link={images["island2"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island3"
+                link={images["island3"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island4"
+                link={images["island4"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island5"
+                link={images["island5"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island6"
+                link={images["island6"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island7"
+                link={images["island7"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island8"
+                link={images["island8"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island9"
+                link={images["island9"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island10"
+                link={images["island10"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island11"
+                link={images["island11"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island12"
+                link={images["island12"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island13"
+                link={images["island13"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island14"
+                link={images["island14"]}
+                size={islandSize}
+              />
+              <Pattern
+                id="pat-island99"
+                link={island99}
+                size={waterSize}
+              />
 
               {ships.map((ship, index) => (
                 <Ship ship={ship} size={hexagonSize} key={index} />
               ))}
-
-              <Pattern id="pat-water" link={water} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island0" link={island0} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island1" link={island1} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island2" link={island2} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island3" link={island3} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island4" link={island4} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island5" link={island5} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island6" link={island6} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island7" link={island7} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island8" link={island8} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island9" link={island9} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island10" link={island10} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island11" link={island11} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island12" link={island12} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island13" link={island13} size={{x:hexagonSize, y: hexagonSize}}/>
-              <Pattern id="pat-island14" link={island14} size={{x:hexagonSize, y: hexagonSize}}/>
 
               <Path
                 start={myShip}

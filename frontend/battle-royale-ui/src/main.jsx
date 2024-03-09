@@ -1,7 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { ApolloClient, InMemoryCache, ApolloProvider } from "@apollo/client";
-// import { MetaMaskProvider } from "@metamask/sdk-react";
+
+// Supports weights 400-700
+import '@fontsource-variable/pixelify-sans';
+
 
 import App from "./App.jsx";
 // import "./index.css";

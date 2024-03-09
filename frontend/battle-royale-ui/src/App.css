@@ -54,7 +54,8 @@ svg g.water .hexagon {
 }
 
 svg g.island .hexagon {
-  fill: #e69138
+  /* fill: #e69138 */
+  fill: #ABC6F3;
 }
 
 svg .highlighted .hexagon {
