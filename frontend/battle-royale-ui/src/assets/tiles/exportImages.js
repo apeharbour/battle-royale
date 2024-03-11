@@ -7,12 +7,12 @@
 //     To make a polygon visible, set the class to "visible"
 //     The codes are as follows:
 //       bitmask: polygon-id
-//       0b000001: west
-//       0b000010: southwest
+//       0b000001: east
+//       0b000010: northeast
 //       0b000100: northwest
-//       0b001000: southeast
-//       0b010000: norheast
-//       0b100000: east
+//       0b001000: west
+//       0b010000: southwest
+//       0b100000: southeast
 // 2d. The loop index also determines the file name to save the tile as
 // 3. Save each tile as a separate png file 
 
@@ -21,15 +21,14 @@ var svg2png = require('svg2png');
 var path = require('path');
 
 const svg = fs.readFileSync('hexagon_tile.svg', 'utf8');
-// console.log('svg', svg);
 
 var polygons = [
+    'east',
+    'northeast',
+    'northwest',
     'west',
     'southwest',
-    'northwest',
-    'southeast',
-    'northeast',
-    'east'
+    'southeast'
     ];
 
 let tiles = [...Array(64).keys()]

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import { Box, Grid, Stack, TextField, Typography } from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 // import { useQuery, gql } from "@apollo/client";
@@ -16,7 +16,6 @@ import {
   Hexagon,
   Layout,
   Path,
-  Text,
   Pattern,
 } from "react-hexgrid";
 import Coordinates from "./Coordinates";
@@ -28,6 +27,8 @@ import timer from "./images/Timer.png";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
+import Coordinates from "./Coordinates.jsx"
+
 
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
@@ -37,6 +38,7 @@ import * as imagesClean from "./assets/tiles/clean/index.js";
 import * as imagesPixel from "./assets/tiles/pixel/index.js";
 
 import island99 from "./assets/tiles/clean/island99.png";
+import Ship from "./Ship.jsx";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
@@ -121,85 +123,11 @@ const GET_GAME = gql`
   }
 `;
 
-function Ship({ ship, size }) {
-  const { q, r, s, mine, image } = ship;
-
-  // update boder color based on player
-  const shipColor = mine ? "black" : "white";
-  const b64Image = image.split(",")[1];
-  const svgString = atob(b64Image);
-  const updatedSvgString = svgString.replace(
-    /.border { fill: #fff }/g,
-    `.border { fill: ${shipColor} }`
-  );
-  const b64UpdatedSvgString = btoa(updatedSvgString);
-  const dataURL = `data:image/svg+xml;base64,${b64UpdatedSvgString}`;
-
-  const shipSize = { x: size.x -0.5, y: size.y -0.5 };
-
-  return (
-    <g>
-      <Hexagon
-        q={q}
-        r={r}
-        s={s}
-        key={ship.address}
-        fill={`pat-${ship.address}`}
-      />
-      <Pattern
-        id={`pat-${ship.address}`}
-        link={dataURL}
-        size={shipSize}
-      />
-    </g>
-
-    // <foreignObject x={point.x - size / 2} y={point.y - size / 2} height={size} width={size}>
-    // <g dangerouslySetInnerHTML={{ __html: stringValue }} />
-    // </foreignObject>
-
-    // <svg
-    //   x={point.x - size / 2}
-    //   y={point.y - size / 2}
-    //   height={size}
-    //   width={size}
-    //   viewBox="0 0 199.502 199.502"
-    // >
-    //   <defs>
-    //     <g id="ship">
-    //       {svgString}
-    //     </g>
-    //   </defs>
-    //   <use href="#ship" />
-    //   {/* <g>
-    //     <path
-    //       d="M198.773,118.615c-0.663-0.86-1.687-1.364-2.772-1.364h-54.559c-1.198,0-2.312,0.614-2.955,1.624l-7.858,12.376h-22.128
-    // 		V53.122l32.801-13.12c1.328-0.533,2.199-1.82,2.199-3.25s-0.872-2.717-2.199-3.25L108.501,20.38V8.751h-7v14v28v80.5h-24.5v-10.5
-    // 		h17.5c1.359,0,2.594-0.786,3.17-2.017c0.576-1.231,0.388-2.683-0.484-3.727c-0.061-0.073-6.186-8.242-6.186-38.006
-    // 		c0-29.528,6.175-37.987,6.187-38.006c0.871-1.044,1.059-2.497,0.484-3.727c-0.576-1.23-1.812-2.017-3.17-2.017H42.001
-    // 		c-1.313,0-2.514,0.733-3.114,1.901c-0.3,0.588-7.386,14.689-7.386,41.849s7.085,41.262,7.386,41.85
-    // 		c0.6,1.167,1.801,1.9,3.114,1.9h14v10.5h-52.5c-1.537,0-2.892,1.001-3.345,2.468c-0.453,1.468,0.104,3.059,1.372,3.924
-    // 		l49.528,33.769c15.642,10.664,43.764,19.339,62.691,19.339h64.754c1.589,0,2.981-1.072,3.386-2.61l17.5-66.5
-    // 		C199.662,120.592,199.436,119.475,198.773,118.615z M108.501,27.921l22.077,8.83l-22.077,8.83V27.921z M44.3,113.751
-    // 		c-1.772-4.505-5.799-16.922-5.799-36.75c0-19.833,4.03-32.254,5.797-36.75h44.551c-2.221,5.898-4.848,17.041-4.848,36.75
-    // 		s2.627,30.852,4.849,36.75H73.501h-14H44.3z M70.001,120.751v10.5h-7v-10.5H70.001z M175.803,183.751h-62.055
-    // 		c-17.736,0-44.09-8.13-58.746-18.122l-40.155-27.378h44.654h14h28h7h24.052c1.198,0,2.312-0.614,2.955-1.624l7.858-12.376h48.094
-    // 		L175.803,183.751z"
-    //       style={{ fill: shipColor }}
-    //     />
-    //     <circle cx="84.001" cy="155.751" r="7" />
-    //     <circle cx="115.501" cy="155.751" r="7" />
-    //     <circle cx="147.001" cy="155.751" r="7" />
-    //   </g> */}
-    //   {/* <image href={image} width="100%" height="100%"/> */}
-    // </svg>
-  );
-}
 
 export default function Game(props) {
   const { pathname } = useLocation();
   const id = parseInt(pathname.split("/")[1]);
   const [contract, setContract] = useState(null);
-  const [provider, setProvider] = useState(null);
   const [gamePlayer, setGamePlayer] = useState(null);
   const [cells, setCells] = useState([]);
   const [ships, setShips] = useState([]);
@@ -208,7 +136,6 @@ export default function Game(props) {
   const [travelEndpoint, setTravelEndpoint] = useState(undefined);
   const [shotEndpoint, setShotEndpoint] = useState(undefined);
   const [state, setState] = useState(TRAVELLING);
-  const [viewBoxValues, setViewBoxValues] = useState("2 -20 135 135");
   const [showSubmitButton, setShowSubmitButton] = useState(false);
   const gameId = id;
 
@@ -228,41 +155,35 @@ export default function Game(props) {
 
   const account = useAccount();
   const images = props.design === 0 ? imagesClean : imagesPixel;
-  console.log("Images: ", images);
-  console.log("Objects", Object.entries(images));
-  console.log("Using theme: ", props.design === 0 ? "clean" : "pixel");
 
   const enrichCell = (cell, allCells) => {
     const s = (cell.q + cell.r) * -1;
     const state = cell.island ? "island" : "water";
     const highlighted = false;
 
-    // check if there are islands as neighbors
+    // check if there are islands as neighbors, set island=false for non-existant cells
     const hex = new Hex(cell.q, cell.r, s);
-    const neighbors = HexUtils.neighbors(hex);
-
-    const allNeighborCells = allCells.filter((c) =>
-      neighbors.some((n) =>
-        HexUtils.equals(n, new Hex(c.q, c.r, (c.q + c.r) * -1))
-      )
-    );
-
+    const neighbors = HexUtils.neighbors(hex).map((n) => {
+        const sameCell = allCells.filter((c) => c.q === n.q && c.r === n.r)
+        const isIsland = sameCell.length === 0 ? false : sameCell[0].island;
+        return {...n, island: isIsland}
+      });
+      
     /* neigbor code is a 6 bit number where each bit represents a neighbor cell
     The codes are as follows:
-    0b000001: West
-    0b000010: South West
+    0b000001: East
+    0b000010: North East
     0b000100: North West
-    0b001000: South East
-    0b010000: North East
-    0b100000: East */
-    // FIXME: doesn't work for cells on the edge of the map because the ring of neighbors is not complete
-    const neighborCode = allNeighborCells.reduce(
+    0b001000: West
+    0b010000: South West
+    0b100000: South East 
+    */
+    const neighborCode = neighbors.reduce(
       (acc, c, i) => acc + (c.island ? Math.pow(2, i) : 0),
       0
     );
 
-    const newCell = { ...cell, s, state, highlighted, neighborCode };
-    return newCell;
+    return { ...cell, s, state, highlighted, neighborCode };
   };
 
   const enrichShip = (ship) => {
@@ -670,8 +591,9 @@ export default function Game(props) {
                     onClick={handleMouseClick}
                     fill={getFillPattern(state, neighborCode)}
                     // onMouseLeave={handleMouseLeave}
+
                   >
-                    {/* <Coordinates q={q} r={r} /> */}
+                    <Coordinates q={q} r={r} />
                   </Hexagon>
                 )
               )}
