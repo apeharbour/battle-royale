@@ -9,36 +9,17 @@ import { request, gql } from "graphql-request";
 import { useAccount } from "wagmi";
 
 import { useLocation } from "react-router-dom";
-import {
-  Hex,
-  HexGrid,
-  HexUtils,
-  Hexagon,
-  Layout,
-  Path,
-  Pattern,
-} from "react-hexgrid";
-import Coordinates from "./Coordinates";
-import { useLayoutContext } from "react-hexgrid/lib/Layout";
-import GameAbi from "./abis/GamePunk.json";
-import Timer from "./Timer";
-import log from "./images/log.png";
+import { Hex, HexUtils, } from "react-hexgrid";
 import timer from "./images/Timer.png";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
-import Coordinates from "./Coordinates.jsx"
 
 
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
 import PunkshipsAbi from "./abis/Punkships.json";
 
-import * as imagesClean from "./assets/tiles/clean/index.js";
-import * as imagesPixel from "./assets/tiles/pixel/index.js";
-
-import island99 from "./assets/tiles/clean/island99.png";
-import Ship from "./Ship.jsx";
 import Board from "./Board.jsx";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
@@ -47,13 +28,6 @@ const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
-
-// const hexagonSize = { x: 5, y: 5 };
-// const waterSize = { x: 4.33, y: 5 };
-// const islandSize = { x: 4.33, y: 5 };
-const hexagonSize = { x: 10, y: 10 };
-const waterSize = { x: 8.67, y: 10 };
-const islandSize = { x: 8.67, y: 10 };
 
 const TRAVELLING = 0;
 const SHOOTING = 1;

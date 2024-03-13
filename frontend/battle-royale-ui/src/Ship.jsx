@@ -4,12 +4,15 @@ export default function Ship({ ship, size }) {
     const { q, r, s, mine, image } = ship;
   
     // update boder color based on player
-    const shipColor = mine ? "black" : "white";
+    const shipColor = mine ? "url(#borderGradient)" : "white";
     const b64Image = image.split(",")[1];
     const svgString = atob(b64Image);
     const updatedSvgString = svgString.replace(
       /.border { fill: #fff }/g,
       `.border { fill: ${shipColor} }`
+    ).replace(
+      RegExp("</linearGradient></defs>", "g"),
+      '</linearGradient><linearGradient id="borderGradient" gradientUnits="userSpaceOnUse"> <stop offset="0%" stop-color="yellow"/> <stop offset="100%" stop-color="red"> <animate attributeName="offset" values=".95;.80;.60;.40;.20;0;.20;.40;.60;.80;.95" dur="5s" repeatCount="indefinite" /> </stop> </linearGradient></defs>'
     );
     const b64UpdatedSvgString = btoa(updatedSvgString);
     const dataURL = `data:image/svg+xml;base64,${b64UpdatedSvgString}`;
