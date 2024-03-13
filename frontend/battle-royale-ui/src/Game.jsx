@@ -29,10 +29,6 @@ const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
-const TRAVELLING = 0;
-const SHOOTING = 1;
-const DONE = 2;
-
 const CustomButton = styled(Button)({
   backgroundColor: "rgba(215, 227, 249, 0.5)",
   borderRadius: "20px",
@@ -110,7 +106,11 @@ export default function Game(props) {
   const [cells, setCells] = useState([]);
   const [ships, setShips] = useState([]);
   const [myShip, setMyShip] = useState(undefined);
-  const [showSubmitButton, setShowSubmitButton] = useState(false);
+  const [randomInt, setRandomInt] = useState(generateRandomInt());
+
+  const [travelEndpoint, setTravelEndpoint] = useState(undefined);
+  const [shotEndpoint, setShotEndpoint] = useState(undefined);
+
   const gameId = id;
 
   const account = useAccount();
@@ -249,11 +249,34 @@ export default function Game(props) {
     }
   };
 
-  const commitMoves = async (travelDirection, travelDistance, shotDirection, shotDistance) => {
+  // const determineDirection = (deltaQ, deltaR) => {
+  const determineDirection = (origin, destination) => {
+
+    const deltaQ = destination.q - origin.q;
+    const deltaR = destination.r - origin.r;
+
+    // Normalize the deltas to -1, 0, or 1
+    const sign = (num) => (num === 0 ? 0 : num > 0 ? 1 : -1);
+    const normDeltaQ = sign(deltaQ);
+    const normDeltaR = sign(deltaR);
+
+    if (normDeltaQ === 1 && normDeltaR === 0) return 0;
+    if (normDeltaQ === 1 && normDeltaR === -1) return 1;
+    if (normDeltaQ === 0 && normDeltaR === -1) return 2;
+    if (normDeltaQ === -1 && normDeltaR === 0) return 3;
+    if (normDeltaQ === -1 && normDeltaR === 1) return 4;
+    if (normDeltaQ === 0 && normDeltaR === 1) return 5;
+    return 6;
+  };
+
+  const commitMoves = async () => {
 
     // calculate distances and directions
-    // const travelDistance = HexUtils.distance(myShip, travelEndpoint);
-    // const shotDistance = HexUtils.distance(travelEndpoint, shotEndpoint);
+    const travelDistance = HexUtils.distance(myShip, travelEndpoint);
+    const shotDistance = HexUtils.distance(travelEndpoint, shotEndpoint);
+
+    const travelDirection = determineDirection(myShip, travelEndpoint);
+    const shotDirection = determineDirection(travelEndpoint, shotEndpoint);
 
     // let qTravel = travelEndpoint.q - myShip.q;
     // let rTravel = travelEndpoint.r - myShip.r;
@@ -268,52 +291,53 @@ export default function Game(props) {
     console.log("Shot Direction: ", shotDirection);
     console.log("Shot Distance: ", shotDistance);
 
-    if (contract) {
-      setRandomInt(generateRandomInt());
-      const moveHash = ethers.solidityPackedKeccak256(
-        ["uint8", "uint8", "uint8", "uint8", "uint256"],
-        [
-          travelDirection,
-          travelDistance,
-          shotDirection,
-          shotDistance,
-          randomInt,
-        ]
-      );
+    setTravelEndpoint(undefined);
+    setShotEndpoint(undefined);
 
-      try {
-        const tx = await contract
-          .commitMove(moveHash, gameId)
-          .catch(console.error);
-        await tx.wait();
-        console.log(tx);
-        console.log(moveHash);
+    // if (contract) {
+    //   setRandomInt(generateRandomInt());
+    //   const moveHash = ethers.solidityPackedKeccak256(
+    //     ["uint8", "uint8", "uint8", "uint8", "uint256"],
+    //     [
+    //       travelDirection,
+    //       travelDistance,
+    //       shotDirection,
+    //       shotDistance,
+    //       randomInt,
+    //     ]
+    //   );
 
-        await storePlayerMove({
-          gameId,
-          playerAddress: gamePlayer,
-          moveHash,
-          secretValue: randomInt,
-          travelDirection,
-          travelDistance,
-          shotDirection,
-          shotDistance,
-        });
-      } catch (error) {
-        console.error(
-          "Error in submitting moves or storing in DynamoDB",
-          error
-        );
-      }
-      const updatedCells = cells
-        .map(clearHighlights)
-        .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
-      setTravelEndpoint(undefined);
-      setShotEndpoint(undefined);
-      setCells([...updatedCells]);
-      setState(TRAVELLING);
-      setShowSubmitButton(false);
-    }
+    //   try {
+    //     const tx = await contract
+    //       .commitMove(moveHash, gameId)
+    //       .catch(console.error);
+    //     await tx.wait();
+    //     console.log(tx);
+    //     console.log(moveHash);
+
+    //     await storePlayerMove({
+    //       gameId,
+    //       playerAddress: gamePlayer,
+    //       moveHash,
+    //       secretValue: randomInt,
+    //       travelDirection,
+    //       travelDistance,
+    //       shotDirection,
+    //       shotDistance,
+    //     });
+    //   } catch (error) {
+    //     console.error(
+    //       "Error in submitting moves or storing in DynamoDB",
+    //       error
+    //     );
+    //   }
+    //   const updatedCells = cells
+    //     .map(clearHighlights)
+    //     .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
+    //   setTravelEndpoint(undefined);
+    //   setShotEndpoint(undefined);
+    //   setCells([...updatedCells]);
+    // }
   };
 
   const disableEventBridgeRule = async (gameId) => {
@@ -356,15 +380,15 @@ export default function Game(props) {
         </Grid>
 
         <Grid item xs={6} sx={{border: "1px solid yellow"}}>
-          <Board design={props.design} center={new Hex(5, 5, -5)} cells={cells} ships={ships} myShip={myShip} canSubmit={showSubmitButton} setCanSubmit={setShowSubmitButton}/>
-Ì        </Grid>
+          <Board design={props.design} center={new Hex(5, 5, -5)} cells={cells} ships={ships} myShip={myShip} travelEndpoint={travelEndpoint} setTravelEndpoint={setTravelEndpoint} shotEndpoint={shotEndpoint} setShotEndpoint={setShotEndpoint}/>
+        </Grid>
         <Grid item xs={3}>
           <Timer gameId={id}/>
           <Box mt={2} mb={2}>
             <CustomButton
               variant="contained"
               onClick={commitMoves}
-              disabled={!showSubmitButton}
+              disabled={!shotEndpoint || !travelEndpoint}
             >
               Commit Moves
             </CustomButton>

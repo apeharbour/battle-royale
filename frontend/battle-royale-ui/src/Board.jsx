@@ -31,29 +31,17 @@ export default function Board({
   cells,
   ships,
   myShip,
-  setCanSubmit,
+  travelEndpoint,
+  setTravelEndpoint,
+  shotEndpoint,
+  setShotEndpoint,
 }) {
-  const [travelEndpoint, setTravelEndpoint] = useState(undefined);
-  const [shotEndpoint, setShotEndpoint] = useState(undefined);
   const [state, setState] = useState(TRAVELLING);
   const [highlightedCells, setHighlightedCells] = useState([]);
+  const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
+  const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
 
   const images = design === 0 ? imagesClean : imagesPixel;
-
-  const determineDirection = (deltaQ, deltaR) => {
-    // Normalize the deltas to -1, 0, or 1
-    const sign = (num) => (num === 0 ? 0 : num > 0 ? 1 : -1);
-    const normDeltaQ = sign(deltaQ);
-    const normDeltaR = sign(deltaR);
-
-    if (normDeltaQ === 1 && normDeltaR === 0) return 0;
-    if (normDeltaQ === 1 && normDeltaR === -1) return 1;
-    if (normDeltaQ === 0 && normDeltaR === -1) return 2;
-    if (normDeltaQ === -1 && normDeltaR === 0) return 3;
-    if (normDeltaQ === -1 && normDeltaR === 1) return 4;
-    if (normDeltaQ === 0 && normDeltaR === 1) return 5;
-    return 6;
-  };
 
   const getFillPattern = (state, neighborCode) => {
     if (state === "island") {
@@ -68,14 +56,18 @@ export default function Board({
       if (HexUtils.equals(source.state.hex, cell)) {
         if (isHighlighted(cell)) {
           if (state === TRAVELLING) {
-            setTravelEndpoint(cell);
+            setTempTravelEndpoint(cell);
           } else if (state === SHOOTING) {
-            setShotEndpoint(cell);
+            setTempShotEndpoint(cell);
           }
         }
       }
     });
   };
+
+  /* handleMouseClick only sets the travelEndpoint and shotEndpoint
+   * a separate useEffect block updates the state of the board 
+   * based on the state of travelEndpoint and shotEndpoint */
 
   const handleMouseClick = (event, source) => {
     const selectedCell = cells.filter((c) =>
@@ -83,35 +75,46 @@ export default function Board({
     )[0];
 
     if (state === DONE) {
+      setTravelEndpoint(undefined);
+      setShotEndpoint(undefined);
+    } else if (state === TRAVELLING && isHighlighted(selectedCell)) {
+      setTravelEndpoint(selectedCell);
+    } else if (state === SHOOTING && isHighlighted(selectedCell)) {
+      setShotEndpoint(selectedCell);
+    }
+  };
+
+  /* update state based on the state of travelEndpoint and shotEndpoint */
+  useEffect(() => {
+    if (!!travelEndpoint && !!shotEndpoint) {
+      // SHOOTING -> DONE
+      console.log("Setting state to DONE");
+      setState(DONE);
       clearHighlights();
+    } else if (!travelEndpoint) {
+      // DONE -> TRAVELLING
+      console.log("Setting state to TRAVELLING");
+      setState(TRAVELLING);
+      clearHighlights();
+      setTempTravelEndpoint(undefined);
+      setTempShotEndpoint(undefined);
       const highlights = cells.filter((cell) =>
         isReachable(cell, myShip, myShip.range)
       );
       setHighlightedCells([...highlights]);
 
-      setTravelEndpoint(undefined);
-      setShotEndpoint(undefined);
-      setState(TRAVELLING);
-      setCanSubmit(false);
-    } else if (state === TRAVELLING && isHighlighted(selectedCell)) {
-      console.log(
-        `Selected cell (${selectedCell.q},${selectedCell.r}) is highlighted`
-      );
+    } else if (!!travelEndpoint && !shotEndpoint) {
+      // TRAVELLING -> SHOOTING
+      console.log("Setting state to SHOOTING");
       clearHighlights();
       const highlights = cells.filter((cell) =>
-        isReachable(cell, selectedCell, myShip.shotRange)
+        isReachable(cell, travelEndpoint, myShip.shotRange)
       );
       setHighlightedCells([...highlights]);
-      setTravelEndpoint(selectedCell);
+
       setState(SHOOTING);
-      setCanSubmit(false);
-    } else if (state === SHOOTING && isHighlighted(selectedCell)) {
-      clearHighlights();
-      setShotEndpoint(selectedCell);
-      setState(DONE);
-      setCanSubmit(true);
     }
-  };
+  }, [travelEndpoint, shotEndpoint]);
 
   const clearHighlights = () => {
     setHighlightedCells([]);
@@ -204,12 +207,12 @@ export default function Board({
 
         <ShipPath
           start={myShip}
-          end={travelEndpoint}
+          end={tempTravelEndpoint}
           ship={myShip && myShip.image ? myShip.image : ""}
         />
         <ShootPath
-          start={travelEndpoint}
-          end={shotEndpoint}
+          start={tempTravelEndpoint}
+          end={tempShotEndpoint}
         />
       </Layout>
     </HexGrid>

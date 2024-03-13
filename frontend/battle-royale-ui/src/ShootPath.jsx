@@ -8,15 +8,12 @@ export default function ShootPath({ start, end, ...props }) {
   const [shipMarker, setShipMarker] = useState("");
 
   useEffect(() => {
-    console.log("ShipPath component changed", pathRef);
-    console.log("start", start);
     if (pathRef.current) {
       // Access the SVG <path> element directly
       const svgPathElement = pathRef.current.querySelector("path");
       if (svgPathElement) {
         // Now you can access the 'd' attribute or any other attributes
         const pathData = svgPathElement.getAttribute("d");
-        console.log("SVG Path Data:", pathData);
         setPathData(pathData);
         if (start && start.address) {
           setShipMarker(`url(#pat-${start.address})`);
@@ -25,8 +22,6 @@ export default function ShootPath({ start, end, ...props }) {
       }
     }
   }, [start, end]); // Empty dependency array means this runs once after the initial render
-
-  console.log("start", start);
 
   return (
     <g ref={pathRef}>
