@@ -4,9 +4,9 @@ import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { Box, TextField, Button, Stack } from "@mui/material";
 
-const GAME_ADDRESS = "0xD1E897b8F83a403c59a84FbE53978DF471C14AF2";
+const GAME_ADDRESS = "0x1D6CDc348B3631e9C444CdEfe7Da09048e4F88FD";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x384AbD2924fE5aA8ab0C231AB67235F5484f2b8E";
+const REGISTRATION_ADDRESS = "0x3454f751b401880D04AFBF02dAfD871614497233";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Admin(props) {
@@ -63,15 +63,15 @@ export default function Admin(props) {
         .catch(console.error);
       await tx.wait();
 
-      //   const lastGameIdBigInt = await regiContract.lastGameId();
-      //   const lastGameId = Number(lastGameIdBigInt);
-      //   console.log(lastGameId);
+         const lastGameIdBigInt = await regiContract.lastGameId();
+         const lastGameId = Number(lastGameIdBigInt);
+         console.log(lastGameId);
 
-      //   for (let gameId = 1; gameId <= lastGameId; gameId++) {
-      //     triggerLambdaFunction(gameId);
-      // }
+         for (let gameId = 1; gameId <= lastGameId; gameId++) {
+           triggerLambdaFunction(gameId);
+       }
 
-      triggerLambdaFunction(1);
+      //triggerLambdaFunction(6);
     }
   };
 
@@ -80,7 +80,7 @@ export default function Admin(props) {
       "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated";
     const postData = {
       gameId: gameId.toString(),
-      scheduleRate: "10 minutes",
+      scheduleRate: "5 minutes",
     };
 
     try {

@@ -192,7 +192,7 @@ contract GamePunk is Ownable {
         uint8[] memory _travelDistances,
         SharedStructs.Directions[] memory _shotDirections,
         uint8[] memory _shotDistances,
-        bytes32[] memory _secrets,
+        uint8[] memory _secrets,
         address[] memory _playerAddresses,
         uint8 gameId
     ) public {

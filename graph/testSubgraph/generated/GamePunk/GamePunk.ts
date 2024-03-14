@@ -1288,8 +1288,8 @@ export class SubmitMoveCall__Inputs {
     return this._call.inputValues[3].value.toI32Array();
   }
 
-  get _secrets(): Array<Bytes> {
-    return this._call.inputValues[4].value.toBytesArray();
+  get _secrets(): Array<i32> {
+    return this._call.inputValues[4].value.toI32Array();
   }
 
   get _playerAddresses(): Array<Address> {

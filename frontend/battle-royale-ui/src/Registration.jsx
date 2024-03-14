@@ -16,7 +16,6 @@ import {
 } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
-import GameAbi from "./abis/GamePunk.json";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import img1 from "./images/6.png";
@@ -25,7 +24,7 @@ import img3 from "./images/7.png";
 import img4 from "./images/4.png";
 import img5 from "./images/5.png";
 
- const REGISTRATION_ADDRESS = "0x384AbD2924fE5aA8ab0C231AB67235F5484f2b8E";
+ const REGISTRATION_ADDRESS = "0x3454f751b401880D04AFBF02dAfD871614497233";
  const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 const punkShips = [
