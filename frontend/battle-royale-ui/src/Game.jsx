@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Stack, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { useQuery } from "@tanstack/react-query";
@@ -108,7 +108,7 @@ export default function Game(props) {
 
   const gameId = id;
 
-  const {enqueueSnackbar} = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
   const account = useAccount();
   const {
@@ -120,10 +120,9 @@ export default function Game(props) {
     status: txStatus,
   } = useWriteContract();
 
-
   /* Enrich the cell data with additional properties:
    * s: the cube coordinate s
-   * state: the state of the cell (water, island) 
+   * state: the state of the cell (water, island)
    * highlighted: whether the cell is highlighted
    * neighborCode: a 6 bit number where each bit represents a neighbor cell
    */
@@ -165,7 +164,7 @@ export default function Game(props) {
     return newCell;
   };
 
-  /* extract the various pieces of data from the 
+  /* extract the various pieces of data from the
    * subgraph and set the state of the game
    */
   const updateData = (data) => {
@@ -284,27 +283,22 @@ export default function Game(props) {
     // if (contract) {
     //   setRandomInt(generateRandomInt());
     const randomInt = generateRandomInt();
-      const moveHash = ethers.solidityPackedKeccak256(
-        ["uint8", "uint8", "uint8", "uint8", "uint256"],
-        [
-          travelDirection,
-          travelDistance,
-          shotDirection,
-          shotDistance,
-          randomInt,
-        ]
-      );
+    const moveHash = ethers.solidityPackedKeccak256(
+      ["uint8", "uint8", "uint8", "uint8", "uint256"],
+      [travelDirection, travelDistance, shotDirection, shotDistance, BigInt(randomInt)]
+    );
 
-      console.log("Move Hash: ", moveHash);
+    console.log("Move Hash: ", moveHash);
 
-      console.log(`Commiting Move: , { gameId: ${gameId}, travel: { direction: ${travelDirection}, distance: ${travelDistance} }, shot: { direction: ${shotDirection}, distance: ${shotDistance} }, moveHash: ${moveHash} }`);
-      writeContract({
-        abi: GAME_ABI,
-        address: GAME_ADDRESS,
-        functionName: "commitMove",
-        args: [moveHash, BigInt(gameId)],
-      });
-
+    console.log(
+      `Commiting Move: , { gameId: ${gameId}, travel: { direction: ${travelDirection}, distance: ${travelDistance} }, shot: { direction: ${shotDirection}, distance: ${shotDistance} }, moveHash: ${moveHash} }`
+    );
+    writeContract({
+      abi: GAME_ABI,
+      address: GAME_ADDRESS,
+      functionName: "commitMove",
+      args: [moveHash, BigInt(gameId)],
+    });
 
     //   try {
     //     const tx = await contract
@@ -366,17 +360,23 @@ export default function Game(props) {
   };
 
   if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
-  if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
-  if (txIsPending) enqueueSnackbar("Transaction pending...", { variant: "info" });
-  if (txIsError) enqueueSnackbar("Error: " + JSON.stringify(txError), { variant: "error" });
-  if (txStatus === "success") enqueueSnackbar("Transaction successful!", { variant: "success" });
+  if (isError)
+    enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
+  if (txIsPending)
+    enqueueSnackbar("Transaction pending...", { variant: "info" });
+  if (txIsError)
+    enqueueSnackbar("Error: " + JSON.stringify(txError), { variant: "error" });
+  if (txStatus === "success")
+    enqueueSnackbar("Transaction successful!", { variant: "success" });
 
   return (
     <Fragment>
-      <Grid container spacing={2}>
+      <Grid container spacing={2} p={4}>
         <Grid item xs={3}>
-          {myShip && myShip.range && <ShipStatus ship={myShip} />}
-          {data && <Logs gameData={data} gameId={id} /> } 
+          <Stack spacing={2}>
+            {myShip && myShip.range && <ShipStatus ship={myShip} />}
+            {data && <Logs gameData={data} gameId={id} />}
+          </Stack>
         </Grid>
 
         <MainBoardArea
@@ -405,7 +405,6 @@ export default function Game(props) {
           <PlayerStatus ships={ships} />
         </Grid>
       </Grid>
-
     </Fragment>
   );
 }
