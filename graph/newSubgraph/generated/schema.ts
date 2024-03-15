@@ -134,6 +134,23 @@ export class Game extends Entity {
     this.set("state", Value.fromString(value));
   }
 
+  get winner(): Bytes | null {
+    let value = this.get("winner");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set winner(value: Bytes | null) {
+    if (!value) {
+      this.unset("winner");
+    } else {
+      this.set("winner", Value.fromBytes(<Bytes>value));
+    }
+  }
+
   get players(): PlayerLoader {
     return new PlayerLoader(
       "Game",

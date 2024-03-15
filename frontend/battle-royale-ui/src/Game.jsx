@@ -21,6 +21,7 @@ import PunkshipsAbi from "./abis/Punkships.json";
 
 import Board from "./Board.jsx";
 import MainBoardArea from "./MainBoardArea.jsx";
+import Timer from "./Timer.jsx";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
@@ -89,10 +90,6 @@ const GET_GAME = gql`
           destinationR
         }
       }
-    }
-    gameWinners {
-      winner
-      gameId
     }
   }
 `;
@@ -170,25 +167,13 @@ export default function Game(props) {
     });
 
     setCells([...cells]);
-    const updatedCells = cells.map((c) =>
-      highlightReachableCells(c, myShip1, myShip1.range)
-    );
-    console.log("Updated Cells: ", updatedCells);
-    setCells([...updatedCells]);
-
-    //set Game Round
-    const lastGameRoundIndex = game.rounds.length - 1;
-    const gameRound = game.rounds[lastGameRoundIndex].round;
-    setCurrentGameRound(gameRound);
   };
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["game"],
+  const { data, isLoading, isFetching, isError, error } = useQuery({
+    queryKey: ["game", id],
     queryFn: async () =>
       request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
         gameId: id,
-        first: 1000,
-        skip: 0,
       }),
   });
 
@@ -274,14 +259,6 @@ export default function Game(props) {
     const travelDirection = determineDirection(myShip, travelEndpoint);
     const shotDirection = determineDirection(travelEndpoint, shotEndpoint);
 
-    // let qTravel = travelEndpoint.q - myShip.q;
-    // let rTravel = travelEndpoint.r - myShip.r;
-    // let travelDirection = determineDirection(qTravel, rTravel);
-
-    // let qShot = shotEndpoint.q - travelEndpoint.q;
-    // let rShot = shotEndpoint.r - travelEndpoint.r;
-    // let shotDirection = determineDirection(qShot, rShot);
-
     console.log("Travel Direction: ", travelDirection);
     console.log("Travel Distance: ", travelDistance);
     console.log("Shot Direction: ", shotDirection);
@@ -362,15 +339,15 @@ export default function Game(props) {
     }
   };
 
-  if (loading) return <p>Loading...</p>;
-  if (error) return <p>Error : {error.message}</p>;
+  // if (isFetching) return <p>Loading...</p>;
+  if (isError) return <p>Error : {error.message}</p>;
 
   return (
     <Fragment>
       <Grid container spacing={2}>
         <Grid item xs={3}>
           {myShip && myShip.range && <ShipStatus ship={myShip} />}
-          <Logs gameData={data} gameId={id} />
+          {data && <Logs gameData={data} gameId={id} /> } 
         </Grid>
 
         <MainBoardArea
@@ -400,6 +377,7 @@ export default function Game(props) {
           <PlayerStatus ships={ships} />
         </Grid>
       </Grid>
+
     </Fragment>
   );
 }

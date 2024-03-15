@@ -99,6 +99,7 @@ export function handleGameWinner(event: GameWinnerEvent): void {
   // update game state
   let game = new Game(gameId)
   game.state = GameState.FINISHED
+  game.winner = playerId
   game.save()
 }
 
