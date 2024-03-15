@@ -1,6 +1,6 @@
 import { Fragment, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import '@fontsource-variable/pixelify-sans';
+import "@fontsource-variable/pixelify-sans";
 
 // import "./App.css";
 import ListGames from "./ListGames";
@@ -16,13 +16,11 @@ import {
   createTheme,
 } from "@mui/material";
 import { Web3Provider } from "./Web3Provider";
+import { SnackbarProvider } from "notistack";
 
-const DESIGN_CLEAN = 0;
-const DESIGN_PIXEL = 1;
 
 function App() {
   const [darkMode, setDarkMode] = useState(true);
-  const [design, setDesign] = useState(DESIGN_CLEAN);
 
   // create a darkTheme function to handle dark theme using createTheme
   const theme = createTheme({
@@ -33,11 +31,6 @@ function App() {
       fontFamily: "Pixelify Sans Variable",
     },
   });
-
-  const toggleDesign = (e) => {
-    console.log("toggleDesign: switch to", e.target.checked ? "clean" : "pixel");
-    e.target.checked ? setDesign(DESIGN_CLEAN) : setDesign(DESIGN_PIXEL)
-  }
 
   const toggleDarkMode = () => {
     setDarkMode(!darkMode);
@@ -50,20 +43,24 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Web3Provider theme={theme}>
-        <AccountAppBar toggleDarkMode={toggleDarkMode} design={design} toggleDesign={toggleDesign}/>
-        {/* <Header /> */}
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<ListGames />} />
-            <Route path=":gameId" element={<Game design={design} />} />
-            <Route path="/admin" element={<Admin />} />
-          </Routes>
-        </BrowserRouter>
-      </Web3Provider>
-    </ThemeProvider>
+    <SnackbarProvider maxSnack={3}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Web3Provider theme={theme}>
+          <AccountAppBar
+            toggleDarkMode={toggleDarkMode}
+          />
+          {/* <Header /> */}
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<ListGames />} />
+              <Route path=":gameId" element={<Game />} />
+              <Route path="/admin" element={<Admin />} />
+            </Routes>
+          </BrowserRouter>
+        </Web3Provider>
+      </ThemeProvider>
+    </SnackbarProvider>
   );
 }
 

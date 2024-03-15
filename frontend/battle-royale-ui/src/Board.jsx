@@ -10,8 +10,8 @@ import {
 } from "react-hexgrid";
 import ShipPath from "./ShipPath.jsx";
 
-import * as imagesClean from "./assets/tiles/clean/index.js";
-import * as imagesPixel from "./assets/tiles/pixel/index.js";
+import * as images from "./assets/tiles/clean/index.js";
+// import * as imagesPixel from "./assets/tiles/pixel/index.js";
 
 import Coordinates from "./Coordinates.jsx";
 import Ship from "./Ship.jsx";
@@ -27,7 +27,6 @@ const SHOOTING = 1;
 const DONE = 2;
 
 export default function Board({
-  design,
   center,
   cells,
   ships,
@@ -46,7 +45,7 @@ export default function Board({
   const dimensions = useResizeObserver(parentRef);
   const [hexGridSize, setHexGridSize] = useState(500);
 
-  const images = design === 0 ? imagesClean : imagesPixel;
+  // const images = design === 0 ? imagesClean : imagesPixel;
 
   const getFillPattern = (state, neighborCode) => {
     if (state === "island") {

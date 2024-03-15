@@ -2,6 +2,7 @@ import React, { useState, useEffect, Fragment } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useWriteContract } from "wagmi";
+import { useSnackbar } from "notistack";
 
 import {
   Accordion,
@@ -16,7 +17,6 @@ import {
   Box,
   Chip,
 } from "@mui/material";
-import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
@@ -32,7 +32,6 @@ const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ACCOUNT_ADDRESS = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
 
-// const GET_SHIPS = graphql(`
 const GET_SHIPS = gql`
   query getPunkships($accountAddress: ID!) {
     account(id: $accountAddress) {
@@ -49,18 +48,12 @@ const GET_SHIPS = gql`
   }
 `;
 
-// const punkShips = [
-//   { name: "Sailing Ship", movement: 6, shoot: 2, image: img1 },
-//   { name: "Three-master", movement: 5, shoot: 3, image: img2 },
-//   { name: "Four-master", movement: 4, shoot: 4, image: img3 },
-//   { name: "Five-master", movement: 3, shoot: 5, image: img4 },
-//   { name: "Superyacht", movement: 2, shoot: 6, image: img5 },
-// ];
-
 export default function Registration(props) {
   const [selectedYacht, setSelectedYacht] = useState(null);
   const [showYachtSelectError, setShowYachtSelectError] = useState(false);
   const [punkShips, setPunkships] = useState([]);
+
+  const { enqueueSnackbar } = useSnackbar();
 
   const account = useAccount();
   const {
@@ -81,7 +74,6 @@ export default function Registration(props) {
   });
 
   useEffect(() => {
-    console.log("Data changed: ", data, ", player: ", account.address);
     if (!data || (data && !data.account)) {
       setPunkships([]);
     } else if (data.account) {
@@ -125,8 +117,12 @@ export default function Registration(props) {
     console.log("Added ship");
   };
 
-  if (isFetching) return <p>Loading...</p>;
-  if (isError) return <p>Error: {JSON.stringify(error)}</p>;
+  if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
+  if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
+  if (txIsPending) enqueueSnackbar("Transaction pending...", { variant: "info" });
+  if (txIsError) enqueueSnackbar("Error: " + JSON.stringify(txError), { variant: "error" });
+  if (txStatus === "success") enqueueSnackbar("Transaction successful!", { variant: "success" });
+
 
   return (
     <Fragment>
@@ -176,21 +172,6 @@ export default function Registration(props) {
               )}
             </Grid>
 
-            <Grid item xs={12}>
-              <Typography variant="h6">
-                Transaction status: {txStatus}
-              </Typography>
-
-              {txHash && <Typography>Transaction hash: {txHash}</Typography>}
-              {txIsPending && (
-                <Typography>Transaction is pending: {txHash}</Typography>
-              )}
-              {txIsError && (
-                <Typography>
-                  Transaction error: {JSON.stringify(txError)}
-                </Typography>
-              )}
-            </Grid>
           </Grid>
         </AccordionDetails>
       </Accordion>

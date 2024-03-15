@@ -4,9 +4,8 @@ import ReactDOM from "react-dom/client";
 // Supports weights 400-700
 import App from "./App.jsx";
 
-
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-        <App />
+    <App />
   </React.StrictMode>
 );

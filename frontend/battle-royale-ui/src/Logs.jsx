@@ -3,38 +3,7 @@
 import React from "react";
 import { Box, Paper, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useQuery, gql } from "@apollo/client";
 
-const GET_GAME = gql`
-  query getGame($gameId: Int!) {
-    games(where: { gameId: $gameId }) {
-      gameId
-      state
-      rounds {
-        round
-        shrunk
-        moves {
-          player {
-            address
-          }
-          originQ
-          originR
-          destinationQ
-          destinationR
-        }
-        shots {
-          player {
-            address
-          }
-          originQ
-          originR
-          destinationQ
-          destinationR
-        }
-      }
-    }
-  }
-`;
 
 const ShipPaper = styled(Paper)({
     maxWidth: "240px",
@@ -77,27 +46,7 @@ const StatTypography = styled(Typography)({
   margin: "8px 0",
 });
 
-export default function Logs(props) {
-  // const { loading, error, data } = useQuery(GET_GAME, {
-  //   pollInterval: 5000,
-  //   variables: { gameId: props.gameId, first: 1000, skip: 0 },
-  //   fetchPolicy: "network-only",
-  //   onCompleted: (data) => {
-  //     console.log("Data2:", data);
-  //   },
-  //   onError: (error) => {
-  //     console.log(error);
-  //   },
-  // });
-
-  // if (loading) return <p>Loading...</p>;
-  // if (error) return <p>Error : {error.message}</p>;
-
-  const data = props.gameData
-
-
-  console.log("Data: ", props);
-
+export default function Logs({gameData: data, ...props}) {
   return (
     <ShipPaper elevation={4}>
       <TopSection>

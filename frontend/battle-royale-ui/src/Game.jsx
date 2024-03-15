@@ -3,12 +3,12 @@ import { ethers } from "ethers";
 import { Box, Grid, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
-// import { useQuery, gql } from "@apollo/client";
 import { useQuery } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount } from "wagmi";
+import { useAccount, useWriteContract } from "wagmi";
 
 import { useLocation } from "react-router-dom";
+import { useSnackbar } from "notistack";
 import { Hex, HexUtils } from "react-hexgrid";
 import timer from "./images/Timer.png";
 import ShipStatus from "./ShipStatus";
@@ -19,7 +19,6 @@ import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
 import PunkshipsAbi from "./abis/Punkships.json";
 
-import Board from "./Board.jsx";
 import MainBoardArea from "./MainBoardArea.jsx";
 import Timer from "./Timer.jsx";
 
@@ -109,8 +108,25 @@ export default function Game(props) {
 
   const gameId = id;
 
-  const account = useAccount();
+  const {enqueueSnackbar} = useSnackbar();
 
+  const account = useAccount();
+  const {
+    writeContract,
+    hash: txHash,
+    isPending: txIsPending,
+    error: txError,
+    isError: txIsError,
+    status: txStatus,
+  } = useWriteContract();
+
+
+  /* Enrich the cell data with additional properties:
+   * s: the cube coordinate s
+   * state: the state of the cell (water, island) 
+   * highlighted: whether the cell is highlighted
+   * neighborCode: a 6 bit number where each bit represents a neighbor cell
+   */
   const enrichCell = (cell, allCells) => {
     const s = (cell.q + cell.r) * -1;
     const state = cell.island ? "island" : "water";
@@ -149,6 +165,9 @@ export default function Game(props) {
     return newCell;
   };
 
+  /* extract the various pieces of data from the 
+   * subgraph and set the state of the game
+   */
   const updateData = (data) => {
     const { games } = data;
     const game = games[0];
@@ -177,8 +196,8 @@ export default function Game(props) {
       }),
   });
 
+  /* transform and enrich data from the subgraph whenever it changes */
   useEffect(() => {
-    console.log("Account: ", account.address, ", Data: ", data);
     if (!!account.address && data) {
       updateData(data);
     }
@@ -259,26 +278,33 @@ export default function Game(props) {
     const travelDirection = determineDirection(myShip, travelEndpoint);
     const shotDirection = determineDirection(travelEndpoint, shotEndpoint);
 
-    console.log("Travel Direction: ", travelDirection);
-    console.log("Travel Distance: ", travelDistance);
-    console.log("Shot Direction: ", shotDirection);
-    console.log("Shot Distance: ", shotDistance);
-
     setTravelEndpoint(undefined);
     setShotEndpoint(undefined);
 
     // if (contract) {
     //   setRandomInt(generateRandomInt());
-    //   const moveHash = ethers.solidityPackedKeccak256(
-    //     ["uint8", "uint8", "uint8", "uint8", "uint256"],
-    //     [
-    //       travelDirection,
-    //       travelDistance,
-    //       shotDirection,
-    //       shotDistance,
-    //       randomInt,
-    //     ]
-    //   );
+    const randomInt = generateRandomInt();
+      const moveHash = ethers.solidityPackedKeccak256(
+        ["uint8", "uint8", "uint8", "uint8", "uint256"],
+        [
+          travelDirection,
+          travelDistance,
+          shotDirection,
+          shotDistance,
+          randomInt,
+        ]
+      );
+
+      console.log("Move Hash: ", moveHash);
+
+      console.log(`Commiting Move: , { gameId: ${gameId}, travel: { direction: ${travelDirection}, distance: ${travelDistance} }, shot: { direction: ${shotDirection}, distance: ${shotDistance} }, moveHash: ${moveHash} }`);
+      writeContract({
+        abi: GAME_ABI,
+        address: GAME_ADDRESS,
+        functionName: "commitMove",
+        args: [moveHash, BigInt(gameId)],
+      });
+
 
     //   try {
     //     const tx = await contract
@@ -339,8 +365,11 @@ export default function Game(props) {
     }
   };
 
-  // if (isFetching) return <p>Loading...</p>;
-  if (isError) return <p>Error : {error.message}</p>;
+  if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
+  if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
+  if (txIsPending) enqueueSnackbar("Transaction pending...", { variant: "info" });
+  if (txIsError) enqueueSnackbar("Error: " + JSON.stringify(txError), { variant: "error" });
+  if (txStatus === "success") enqueueSnackbar("Transaction successful!", { variant: "success" });
 
   return (
     <Fragment>
@@ -351,7 +380,6 @@ export default function Game(props) {
         </Grid>
 
         <MainBoardArea
-          design={props.design}
           center={new Hex(5, 5, -5)}
           cells={cells}
           ships={ships}
@@ -363,7 +391,7 @@ export default function Game(props) {
         />
 
         <Grid item xs={3}>
-          <Timer gameId={id}/>
+          {/* <Timer gameId={id}/> */}
           <Box mt={2} mb={2}>
             <CustomButton
               variant="contained"

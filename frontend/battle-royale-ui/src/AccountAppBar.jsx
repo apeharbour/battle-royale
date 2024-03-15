@@ -16,7 +16,7 @@ import { ConnectKitButton } from "connectkit";
 import { Stack, Switch } from "@mui/material";
 
 
-export default function AccountAppBar({ toggleDarkMode, design, toggleDesign, onConnect, onDisconnect, signer }) {
+export default function AccountAppBar({ toggleDarkMode }) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
 
@@ -32,11 +32,6 @@ export default function AccountAppBar({ toggleDarkMode, design, toggleDesign, on
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           PUNKSHIPS
         </Typography>
-        <Stack direction="row" spacing={1} sx={{ verticalAlign: "middle" }}>
-          <Typography gutterBottom >Pixel</Typography>
-          <Switch checked={design === 0} onChange={toggleDesign} />
-          <Typography>Clean</Typography>
-        </Stack>
         <IconButton aria-label="darkmode" onClick={toggleDarkMode}>
           {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
