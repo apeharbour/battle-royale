@@ -16,6 +16,7 @@ import * as imagesPixel from "./assets/tiles/pixel/index.js";
 import Coordinates from "./Coordinates.jsx";
 import Ship from "./Ship.jsx";
 import ShootPath from "./ShootPath.jsx";
+import useResizeObserver from "./utils/useResizeObserver.jsx";
 
 const hexagonSize = { x: 5, y: 5 };
 const waterSize = { x: 4.33, y: 5 };
@@ -35,11 +36,15 @@ export default function Board({
   setTravelEndpoint,
   shotEndpoint,
   setShotEndpoint,
+  parentRef,
 }) {
   const [state, setState] = useState(TRAVELLING);
   const [highlightedCells, setHighlightedCells] = useState([]);
   const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
   const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
+
+  const dimensions = useResizeObserver(parentRef);
+  const [hexGridSize, setHexGridSize] = useState(500);
 
   const images = design === 0 ? imagesClean : imagesPixel;
 
@@ -68,7 +73,6 @@ export default function Board({
   /* handleMouseClick only sets the travelEndpoint and shotEndpoint
    * a separate useEffect block updates the state of the board 
    * based on the state of travelEndpoint and shotEndpoint */
-
   const handleMouseClick = (event, source) => {
     const selectedCell = cells.filter((c) =>
       HexUtils.equals(source.state.hex, c)
@@ -84,16 +88,22 @@ export default function Board({
     }
   };
 
+
+  /* track the parents dimensions */
+  useEffect(() => {
+    if (dimensions) {
+      setHexGridSize(Math.min(dimensions.width, dimensions.height));
+    }
+  }, [dimensions]);
+
   /* update state based on the state of travelEndpoint and shotEndpoint */
   useEffect(() => {
     if (!!travelEndpoint && !!shotEndpoint) {
       // SHOOTING -> DONE
-      console.log("Setting state to DONE");
       setState(DONE);
       clearHighlights();
     } else if (!travelEndpoint) {
       // DONE -> TRAVELLING
-      console.log("Setting state to TRAVELLING");
       setState(TRAVELLING);
       clearHighlights();
       setTempTravelEndpoint(undefined);
@@ -105,7 +115,6 @@ export default function Board({
 
     } else if (!!travelEndpoint && !shotEndpoint) {
       // TRAVELLING -> SHOOTING
-      console.log("Setting state to SHOOTING");
       clearHighlights();
       const highlights = cells.filter((cell) =>
         isReachable(cell, travelEndpoint, myShip.shotRange)
@@ -155,7 +164,7 @@ export default function Board({
   const shift = HexUtils.hexToPixel(center, layout.props.value.layout);
 
   return (
-    <HexGrid width={500} height={500}>
+    <HexGrid width={hexGridSize} height={hexGridSize}>
       <Layout
         size={hexagonSize}
         spacing={1.02}

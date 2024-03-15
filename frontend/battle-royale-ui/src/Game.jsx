@@ -9,18 +9,18 @@ import { request, gql } from "graphql-request";
 import { useAccount } from "wagmi";
 
 import { useLocation } from "react-router-dom";
-import { Hex, HexUtils, } from "react-hexgrid";
+import { Hex, HexUtils } from "react-hexgrid";
 import timer from "./images/Timer.png";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
-
 
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
 import PunkshipsAbi from "./abis/Punkships.json";
 
 import Board from "./Board.jsx";
+import MainBoardArea from "./MainBoardArea.jsx";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
@@ -97,7 +97,6 @@ const GET_GAME = gql`
   }
 `;
 
-
 export default function Game(props) {
   const { pathname } = useLocation();
   const id = parseInt(pathname.split("/")[1]);
@@ -123,20 +122,20 @@ export default function Game(props) {
     // check if there are islands as neighbors, set island=false for non-existant cells
     const hex = new Hex(cell.q, cell.r, s);
     const neighbors = HexUtils.neighbors(hex).map((n) => {
-        const sameCell = allCells.filter((c) => c.q === n.q && c.r === n.r)
-        const isIsland = sameCell.length === 0 ? false : sameCell[0].island;
-        return {...n, island: isIsland}
-      });
-      
+      const sameCell = allCells.filter((c) => c.q === n.q && c.r === n.r);
+      const isIsland = sameCell.length === 0 ? false : sameCell[0].island;
+      return { ...n, island: isIsland };
+    });
+
     /* neigbor code is a 6 bit number where each bit represents a neighbor cell
      * The cells start at north east and then run counter clockwise
-     * The codes are as follows: 
+     * The codes are as follows:
      * 0b000001: East
      * 0b000010: North East
      * 0b000100: North West
      * 0b001000: West
      * 0b010000: South West
-     * 0b100000: South East 
+     * 0b100000: South East
      */
     const neighborCode = neighbors.reduce(
       (acc, c, i) => acc + (c.island ? Math.pow(2, i) : 0),
@@ -200,7 +199,6 @@ export default function Game(props) {
     }
   }, [account.address, data]);
 
-
   //Helper Function to generate secret random number for hashing moves
   function generateRandomInt() {
     return Math.floor(Math.random() * 99) + 1;
@@ -251,7 +249,6 @@ export default function Game(props) {
 
   // const determineDirection = (deltaQ, deltaR) => {
   const determineDirection = (origin, destination) => {
-
     const deltaQ = destination.q - origin.q;
     const deltaR = destination.r - origin.r;
 
@@ -270,7 +267,6 @@ export default function Game(props) {
   };
 
   const commitMoves = async () => {
-
     // calculate distances and directions
     const travelDistance = HexUtils.distance(myShip, travelEndpoint);
     const shotDistance = HexUtils.distance(travelEndpoint, shotEndpoint);
@@ -372,16 +368,23 @@ export default function Game(props) {
   return (
     <Fragment>
       <Grid container spacing={2}>
-
-
         <Grid item xs={3}>
           {myShip && myShip.range && <ShipStatus ship={myShip} />}
           <Logs gameData={data} gameId={id} />
         </Grid>
 
-        <Grid item xs={6} sx={{border: "1px solid yellow"}}>
-          <Board design={props.design} center={new Hex(5, 5, -5)} cells={cells} ships={ships} myShip={myShip} travelEndpoint={travelEndpoint} setTravelEndpoint={setTravelEndpoint} shotEndpoint={shotEndpoint} setShotEndpoint={setShotEndpoint}/>
-        </Grid>
+        <MainBoardArea
+          design={props.design}
+          center={new Hex(5, 5, -5)}
+          cells={cells}
+          ships={ships}
+          myShip={myShip}
+          travelEndpoint={travelEndpoint}
+          setTravelEndpoint={setTravelEndpoint}
+          shotEndpoint={shotEndpoint}
+          setShotEndpoint={setShotEndpoint}
+        />
+
         <Grid item xs={3}>
           <Timer gameId={id}/>
           <Box mt={2} mb={2}>
