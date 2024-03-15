@@ -1,8 +1,8 @@
 #root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
+  /* max-width: 1280px;
+  margin: 0 auto; */
+  /* padding: 2rem;
+  text-align: center; */
 }
 
 
@@ -54,16 +54,13 @@ svg g.water .hexagon {
 }
 
 svg g.island .hexagon {
-  fill: #e69138
+  /* fill: #e69138 */
+  fill: #ABC6F3;
 }
 
 svg .highlighted .hexagon {
   /* fill: rgb(114, 195, 239); */
-  filter: brightness(200%);
-}
-
-svg .unfocused .hexagon {
-  
+  filter: brightness(170%);
 }
 
 svg .myShip .hexagon {

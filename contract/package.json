@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "infra:local:up": "npx hardhat node --hostname 0.0.0.0",
     "infra:local:down": "pkill -SIGINT hardhat node",
-    "deploy:local": "yes | npx hardhat ignition deploy ignition/modules/GamePunk.js --network localhost --reset && ./updateGraphNetworks.sh"
+    "deploy:local": "yes | npx hardhat ignition deploy ignition/modules/GamePunk.js --network localhost --reset && ./updateGraphNetworks.sh",
+    "run:local": "npx hardhat run scripts/01_mintPunkship.js --network localhost && npx hardhat run scripts/02_startRegistration.js --network localhost && npx hardhat run scripts/03_registerPlayer.js --network localhost && npx hardhat run scripts/04_closeRegistration.js --network localhost"
   },
   "repository": {
     "type": "git",

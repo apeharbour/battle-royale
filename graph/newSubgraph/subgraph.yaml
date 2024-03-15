@@ -14,27 +14,6 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - CommitPhaseStarted
-        - GameEnded
-        - GameStarted
-        - GameUpdated
-        - GameWinner
-        - MapInitialized
-        - MapShrink
-        - MoveCommitted
-        - MoveSubmitted
-        - OwnershipTransferred
-        - PlayerAdded
-        - PlayerDefeated
-        - ShipCollidedWithIsland
-        - ShipHit
-        - ShipMoved
-        - ShipMovedInGame
-        - ShipShot
-        - ShipSunk
-        - ShipSunkOutOfMap
-        - SubmitPhaseStarted
-        - WorldUpdated
         - Game
         - Player
         - Round
@@ -45,50 +24,51 @@ dataSources:
         - name: GamePunk
           file: ./abis/GamePunk.json
       eventHandlers:
-        - event: CommitPhaseStarted(uint8)
+        - event: CommitPhaseStarted(uint256)
           handler: handleCommitPhaseStarted
-        - event: GameEnded(uint8)
+        - event: GameEnded(uint256)
           handler: handleGameEnded
-        - event: GameStarted(uint8)
+        - event: GameStarted(uint256)
           handler: handleGameStarted
-        - event: GameUpdated(indexed bool,indexed address,uint8)
+        - event: GameUpdated(indexed bool,indexed address,uint256)
           handler: handleGameUpdated
-        - event: GameWinner(indexed address,uint8)
+        - event: GameWinner(indexed address,uint256)
           handler: handleGameWinner
-        - event: MapInitialized(uint8,uint8)
+        - event: MapInitialized(uint8,uint256)
           handler: handleMapInitialized
-        - event: MapShrink(uint8)
+        - event: MapShrink(uint256)
           handler: handleMapShrink
-        - event: MoveCommitted(indexed address,uint8)
+        - event: MoveCommitted(indexed address,uint256)
           handler: handleMoveCommitted
-        - event: MoveSubmitted(indexed address,uint8,uint256,uint8,uint8,uint8,uint8)
+        - event: MoveSubmitted(indexed address,uint256,uint256,uint8,uint8,uint8,uint8)
           handler: handleMoveSubmitted
         - event: OwnershipTransferred(indexed address,indexed address)
           handler: handleOwnershipTransferred
-        - event: PlayerAdded(indexed address,uint8,uint8,uint8,uint8,uint8)
+        - event: PlayerAdded(indexed
+            address,uint256,uint256,uint8,uint8,uint8,uint8,string)
           handler: handlePlayerAdded
-        - event: PlayerDefeated(indexed address,uint8)
+        - event: PlayerDefeated(indexed address,uint256)
           handler: handlePlayerDefeated
-        - event: ShipCollidedWithIsland(indexed address,uint8,uint8,uint8)
+        - event: ShipCollidedWithIsland(indexed address,uint256,uint8,uint8)
           handler: handleShipCollidedWithIsland
-        - event: ShipHit(indexed address,indexed address,uint8)
+        - event: ShipHit(indexed address,indexed address,uint256)
           handler: handleShipHit
-        - event: ShipMoved(indexed address,uint8,uint8,uint8,uint8,uint8)
+        - event: ShipMoved(indexed address,uint8,uint8,uint8,uint8,uint256)
           handler: handleShipMoved
-        - event: ShipMovedInGame(indexed address,uint8)
+        - event: ShipMovedInGame(indexed address,uint256)
           handler: handleShipMovedInGame
-        - event: ShipShot(indexed address,uint8,uint8,uint8,uint8,uint8)
+        - event: ShipShot(indexed address,uint8,uint8,uint8,uint8,uint256)
           handler: handleShipShot
-        - event: ShipSunk(indexed address,uint8)
+        - event: ShipSunk(indexed address,uint256)
           handler: handleShipSunk
-        - event: ShipSunkOutOfMap(indexed address,uint8)
+        - event: ShipSunkOutOfMap(indexed address,uint256)
           handler: handleShipSunkOutOfMap
-        - event: SubmitPhaseStarted(uint8,uint256)
+        - event: SubmitPhaseStarted(uint256,uint256)
           handler: handleSubmitPhaseStarted
-        - event: WorldUpdated(uint8)
+        - event: WorldUpdated(uint256)
           handler: handleWorldUpdated
-        - event: Cell(uint8,uint8,uint8,bool)
+        - event: Cell(uint256,uint8,uint8,bool)
           handler: handleCell
-        - event: NewRound(uint8,uint256,uint8)
+        - event: NewRound(uint256,uint256,uint8)
           handler: handleNewRound
       file: ./src/game-punk.ts

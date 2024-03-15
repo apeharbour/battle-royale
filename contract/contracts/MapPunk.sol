@@ -115,9 +115,7 @@ contract MapPunk {
 
     function initCell(
         SharedStructs.Coordinate memory _coordinate,
-        uint8 gameId,
-        bool island,
-        bool exits
+        uint256 gameId
     ) private {
         SharedStructs.Cell storage cell = gameHexCells[gameId][_coordinate.r][
             _coordinate.q
@@ -130,7 +128,7 @@ contract MapPunk {
 
     function initMap(
         uint8 _radius,
-        uint8 gameId
+        uint256 gameId
     ) public returns (SharedStructs.Cell[] memory) {
         if (_radius > MAX_RADIUS) {
             revert MapSizeMustBeInRange(_radius, MAX_RADIUS);
@@ -165,13 +163,13 @@ contract MapPunk {
                     island,
                     true
                 );
-                initCell(currentRing[c], gameId, island, true);
+                initCell(currentRing[c], gameId);
             }
         }
         return cells;
     }
 
-    function deleteOutermostRing(uint8 gameId, uint8 shrinkNo) public {
+    function deleteOutermostRing(uint256 gameId, uint8 shrinkNo) public {
         uint8 gameRadius = gameRadii[gameId];
         uint8 actualRadius = gameRadius - shrinkNo;
         SharedStructs.Coordinate[] memory outerRing = ring(
@@ -185,7 +183,7 @@ contract MapPunk {
     }
 
     function getRandomCoordinatePair(
-        uint8 gameId
+        uint256 gameId
     ) public returns (SharedStructs.Coordinate memory) {
         uint8 gameRadius = gameRadii[gameId];
         SharedStructs.Coordinate memory coord;
@@ -204,7 +202,7 @@ contract MapPunk {
 
     function getCell(
         SharedStructs.Coordinate memory _coord,
-        uint8 gameId
+        uint256 gameId
     ) public view returns (SharedStructs.Cell memory) {
         return gameHexCells[gameId][_coord.r][_coord.q];
     }
@@ -213,7 +211,7 @@ contract MapPunk {
         SharedStructs.Coordinate memory _startCell,
         SharedStructs.Directions _direction,
         uint8 _distance,
-        uint8 gameId
+        uint256 gameId
     ) external view returns (bool, SharedStructs.Coordinate memory) {
         for (uint8 i = 0; i < _distance; i++) {
             _startCell = neighbor(_startCell, _direction);
@@ -241,14 +239,14 @@ contract MapPunk {
 
     function deleteCell(
         SharedStructs.Coordinate calldata _coord,
-        uint8 gameId
+        uint256 gameId
     ) external {
         gameHexCells[gameId][_coord.r][_coord.q].exists = false;
     }
 
     function isIsland(
         SharedStructs.Coordinate memory _coord,
-        uint8 gameId
+        uint256 gameId
     ) public view returns (bool) {
         SharedStructs.Cell memory c = getCell(_coord, gameId);
 

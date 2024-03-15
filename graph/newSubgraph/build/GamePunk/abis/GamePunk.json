@@ -5,10 +5,31 @@
         "internalType": "address",
         "name": "_mapAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_punkshipsAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "NotOwnerOfShip",
+    "type": "error"
   },
   {
     "inputs": [
@@ -58,9 +79,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -89,9 +110,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "CommitPhaseStarted",
@@ -102,9 +123,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "GameEnded",
@@ -115,9 +136,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "GameStarted",
@@ -140,9 +161,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "GameUpdated",
@@ -159,9 +180,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "GameWinner",
@@ -178,9 +199,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "MapInitialized",
@@ -191,9 +212,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "MapShrink",
@@ -210,9 +231,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "MoveCommitted",
@@ -229,9 +250,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -272,9 +293,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -322,9 +343,15 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "punkshipId",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -349,6 +376,12 @@
         "internalType": "uint8",
         "name": "range",
         "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "image",
+        "type": "string"
       }
     ],
     "name": "PlayerAdded",
@@ -365,9 +398,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "PlayerDefeated",
@@ -384,9 +417,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -421,9 +454,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipHit",
@@ -464,9 +497,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipMoved",
@@ -483,9 +516,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipMovedInGame",
@@ -526,9 +559,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipShot",
@@ -545,9 +578,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipSunk",
@@ -564,9 +597,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipSunkOutOfMap",
@@ -577,9 +610,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -596,9 +629,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "WorldUpdated",
@@ -612,19 +645,14 @@
         "type": "address"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
-        "internalType": "uint8",
-        "name": "_speed",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_range",
-        "type": "uint8"
+        "internalType": "uint256",
+        "name": "_punkshipId",
+        "type": "uint256"
       }
     ],
     "name": "addShip",
@@ -640,9 +668,9 @@
         "type": "bytes32"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "commitMove",
@@ -653,9 +681,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "endGame",
@@ -727,9 +755,9 @@
         "type": "tuple"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "getCell",
@@ -768,9 +796,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "getCells",
@@ -799,9 +827,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "getRadius",
@@ -818,9 +846,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "getShips",
@@ -885,9 +913,9 @@
             "type": "uint8"
           },
           {
-            "internalType": "uint8",
+            "internalType": "uint256",
             "name": "gameId",
-            "type": "uint8"
+            "type": "uint256"
           }
         ],
         "internalType": "struct GamePunk.Ship[]",
@@ -928,9 +956,9 @@
         "type": "uint8"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "move",
@@ -1005,9 +1033,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "internalType": "uint8",
@@ -1043,9 +1071,9 @@
         "type": "uint8[]"
       },
       {
-        "internalType": "bytes32[]",
+        "internalType": "uint8[]",
         "name": "_secrets",
-        "type": "bytes32[]"
+        "type": "uint8[]"
       },
       {
         "internalType": "address[]",
@@ -1053,9 +1081,9 @@
         "type": "address[]"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "submitMove",
@@ -1106,9 +1134,9 @@
         "type": "uint8"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "travel",
@@ -1119,9 +1147,9 @@
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "updateWorld",

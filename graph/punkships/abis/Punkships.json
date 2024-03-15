@@ -147,6 +147,17 @@
     "type": "error"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "ShipNotMinted",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {
@@ -342,15 +353,15 @@
         "type": "uint256"
       }
     ],
-    "name": "getRange",
+    "name": "getImage",
     "outputs": [
       {
-        "internalType": "uint8",
+        "internalType": "string",
         "name": "",
-        "type": "uint8"
+        "type": "string"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -361,15 +372,34 @@
         "type": "uint256"
       }
     ],
-    "name": "getShipType",
+    "name": "getRange",
     "outputs": [
       {
-        "internalType": "enum ShipType",
+        "internalType": "uint8",
         "name": "",
         "type": "uint8"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getShipTypeName",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -388,7 +418,7 @@
         "type": "uint8"
       }
     ],
-    "stateMutability": "pure",
+    "stateMutability": "view",
     "type": "function"
   },
   {

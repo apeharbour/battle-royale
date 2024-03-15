@@ -1,9 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Pixelify+Sans&display=swap');
-
-
 :root {
   /* Existing root definitions */
-  font-family: 'Pixelify Sans', sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color-scheme: light dark;
