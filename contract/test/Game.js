@@ -4,35 +4,41 @@ const {
 } = require('@nomicfoundation/hardhat-network-helpers')
 const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs')
 const { expect } = require('chai')
+const GamePunk = require('../ignition/modules/GamePunk')
 
 describe('Game', function () {
+  // async function deployGame() {
+  //   // Contracts are deployed using the first signer/account by default
+  //   const [owner, player1, player2] = await ethers.getSigners()
+
+  //   const Map = await hre.ethers.getContractFactory('MapPunk')
+  //   const map = await Map.deploy(owner.address)
+
+  //   const Game = await hre.ethers.getContractFactory('GamePunk')
+  //   const game = await Game.deploy(map.address)
+
+  //   return { game }
+  // }
+
+  // async function deployGameAndInitMap() {
+  //   // Contracts are deployed using the first signer/account by default
+  //   const [owner, player1, player2] = await ethers.getSigners()
+
+  //   const Map = await hre.ethers.getContractFactory('MapPunk')
+  //   const map = await Map.deploy(owner.address)
+
+  //   const Game = await hre.ethers.getContractFactory('GamePunk')
+  //   const game = await Game.deploy(map.address)
+
+  //   const tx = await game.initGame(5)
+  //   await tx.wait()
+
+  //   return { game, owner, player1, player2}
+  // }
+
   async function deployGame() {
-    // Contracts are deployed using the first signer/account by default
-    const [owner, player1, player2] = await ethers.getSigners()
-
-    const Map = await hre.ethers.getContractFactory('Map')
-    const map = await Map.deploy(owner.address)
-
-    const Game = await hre.ethers.getContractFactory('Game')
-    const game = await Game.deploy(map.address)
-
-    return { game }
-  }
-
-  async function deployGameAndInitMap() {
-    // Contracts are deployed using the first signer/account by default
-    const [owner, player1, player2] = await ethers.getSigners()
-
-    const Map = await hre.ethers.getContractFactory('Map')
-    const map = await Map.deploy(owner.address)
-
-    const Game = await hre.ethers.getContractFactory('Game')
-    const game = await Game.deploy(map.address)
-
-    const tx = await game.initGame(5)
-    await tx.wait()
-
-    return { game, owner, player1, player2}
+    const { game, registration } = await ignition.deploy(GamePunk);
+      return { game, registration };
   }
 
   describe('Map', function () {
@@ -118,5 +124,25 @@ describe('Game', function () {
     })
 
 
+  })
+
+  describe.only('Hashing', function () {
+    it('should hash a move', async function () {
+      const [owner, player1, player2] = await ethers.getSigners()
+
+      const { game } = await loadFixture(deployGame);
+      const moveHash = await game.encodeCommitment(1, 1, 1, 1, 1, player1.address);
+
+      console.log('solidity #:', moveHash);
+      
+      const ethersHash = ethers.solidityPackedKeccak256(
+        ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
+        [1, 1, 1, 1, 1, player1.address]
+      );
+
+      console.log('ethers #:', ethersHash);
+
+      expect(moveHash).to.equal(ethersHash);
+    })
   })
 })

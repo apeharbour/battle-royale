@@ -42,7 +42,7 @@ contract GamePunk is Ownable {
     event NewRound(uint256 gameId, uint256 roundId, uint8 radius);
     event CommitPhaseStarted(uint256 gameId);
     event SubmitPhaseStarted(uint256 gameId, uint256 round);
-    event MoveCommitted(address indexed player, uint256 gameId);
+    event MoveCommitted(address indexed player, uint256 gameId, bytes32 moveHash);
     event MoveSubmitted(
         address indexed player,
         uint256 gameId,
@@ -186,7 +186,28 @@ contract GamePunk is Ownable {
             "Commit moves has not started yet!"
         );
         games[gameId].moveHashes[msg.sender] = moveHash;
-        emit MoveCommitted(msg.sender, gameId);
+        emit MoveCommitted(msg.sender, gameId, moveHash);
+    }
+
+    function encodeCommitment(
+        SharedStructs.Directions _travelDirection,
+        uint8 _travelDistance,
+        SharedStructs.Directions _shotDirection,
+        uint8 _shotDistance,
+        uint8 _secret,
+        address _playerAddress
+    ) public pure returns (bytes32) {
+        return
+            keccak256(
+                abi.encodePacked(
+                    _travelDirection,
+                    _travelDistance,
+                    _shotDirection,
+                    _shotDistance,
+                    _secret,
+                    _playerAddress
+                )
+            );
     }
 
     //SubmitMove
@@ -222,15 +243,16 @@ contract GamePunk is Ownable {
 
         for (uint i = 0; i < _playerAddresses.length; i++) {
             // Calculate move hash
-            bytes32 moveHash = keccak256(
-                abi.encodePacked(
+            bytes32 moveHash = encodeCommitment(
                     _travelDirections[i],
                     _travelDistances[i],
                     _shotDirections[i],
                     _shotDistances[i],
-                    _secrets[i]
-                )
-            );
+                    _secrets[i],
+                    _playerAddresses[i]
+                );
+
+            console.log("hashes match %s", games[gameId].moveHashes[_playerAddresses[i]] == moveHash);
 
             // Check if moveHash matches the stored hash for this player
             if (games[gameId].moveHashes[_playerAddresses[i]] == moveHash) {

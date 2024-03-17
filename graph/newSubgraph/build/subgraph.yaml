@@ -17,7 +17,7 @@ dataSources:
         - Game
         - Player
         - Round
-        - Move
+        - Travel
         - Shot
         - Cell
       abis:
@@ -38,7 +38,7 @@ dataSources:
           handler: handleMapInitialized
         - event: MapShrink(uint256)
           handler: handleMapShrink
-        - event: MoveCommitted(indexed address,uint256)
+        - event: MoveCommitted(indexed address,uint256,bytes32)
           handler: handleMoveCommitted
         - event: MoveSubmitted(indexed address,uint256,uint256,uint8,uint8,uint8,uint8)
           handler: handleMoveSubmitted

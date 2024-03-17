@@ -51,7 +51,7 @@ const shortenAddress = (address) => {
 }
 
 
-export default function Logs({gameData: data, ...props}) {
+export default function Logs({gameData: dat a, ...props}) {
   return (
     <Paper elevation={4}>
       <Card>

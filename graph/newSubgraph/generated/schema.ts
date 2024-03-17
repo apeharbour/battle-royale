@@ -452,14 +452,6 @@ export class Round extends Entity {
       "moves",
     );
   }
-
-  get shots(): ShotLoader {
-    return new ShotLoader(
-      "Round",
-      this.get("id")!.toBytes().toHexString(),
-      "shots",
-    );
-  }
 }
 
 export class Move extends Entity {
@@ -540,6 +532,99 @@ export class Move extends Entity {
 
   set player(value: Bytes) {
     this.set("player", Value.fromBytes(value));
+  }
+
+  get commitment(): Bytes | null {
+    let value = this.get("commitment");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set commitment(value: Bytes | null) {
+    if (!value) {
+      this.unset("commitment");
+    } else {
+      this.set("commitment", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get travel(): Bytes | null {
+    let value = this.get("travel");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set travel(value: Bytes | null) {
+    if (!value) {
+      this.unset("travel");
+    } else {
+      this.set("travel", Value.fromBytes(<Bytes>value));
+    }
+  }
+
+  get shot(): Bytes | null {
+    let value = this.get("shot");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set shot(value: Bytes | null) {
+    if (!value) {
+      this.unset("shot");
+    } else {
+      this.set("shot", Value.fromBytes(<Bytes>value));
+    }
+  }
+}
+
+export class Travel extends Entity {
+  constructor(id: Bytes) {
+    super();
+    this.set("id", Value.fromBytes(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save Travel entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.BYTES,
+        `Entities of type Travel must have an ID of type Bytes but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("Travel", id.toBytes().toHexString(), this);
+    }
+  }
+
+  static loadInBlock(id: Bytes): Travel | null {
+    return changetype<Travel | null>(
+      store.get_in_block("Travel", id.toHexString()),
+    );
+  }
+
+  static load(id: Bytes): Travel | null {
+    return changetype<Travel | null>(store.get("Travel", id.toHexString()));
+  }
+
+  get id(): Bytes {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set id(value: Bytes) {
+    this.set("id", Value.fromBytes(value));
   }
 
   get originQ(): i32 {
@@ -634,45 +719,6 @@ export class Shot extends Entity {
 
   set id(value: Bytes) {
     this.set("id", Value.fromBytes(value));
-  }
-
-  get game(): Bytes {
-    let value = this.get("game");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set game(value: Bytes) {
-    this.set("game", Value.fromBytes(value));
-  }
-
-  get round(): Bytes {
-    let value = this.get("round");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set round(value: Bytes) {
-    this.set("round", Value.fromBytes(value));
-  }
-
-  get player(): Bytes {
-    let value = this.get("player");
-    if (!value || value.kind == ValueKind.NULL) {
-      throw new Error("Cannot return null for a required field.");
-    } else {
-      return value.toBytes();
-    }
-  }
-
-  set player(value: Bytes) {
-    this.set("player", Value.fromBytes(value));
   }
 
   get originQ(): i32 {
@@ -891,23 +937,5 @@ export class MoveLoader extends Entity {
   load(): Move[] {
     let value = store.loadRelated(this._entity, this._id, this._field);
     return changetype<Move[]>(value);
-  }
-}
-
-export class ShotLoader extends Entity {
-  _entity: string;
-  _field: string;
-  _id: string;
-
-  constructor(entity: string, id: string, field: string) {
-    super();
-    this._entity = entity;
-    this._id = id;
-    this._field = field;
-  }
-
-  load(): Shot[] {
-    let value = store.loadRelated(this._entity, this._id, this._field);
-    return changetype<Shot[]>(value);
   }
 }

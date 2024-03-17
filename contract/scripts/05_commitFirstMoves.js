@@ -16,23 +16,15 @@ async function main() {
     "BattleRoyale#RegistrationPunk": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
   }
 
-  const registration = await hre.ethers.getContractAt(
-    "RegistrationPunk",
-    deployedAddresses["BattleRoyale#RegistrationPunk"]
-  );
-
   const game = await hre.ethers.getContractAt(
     "GamePunk",
     deployedAddresses["BattleRoyale#GamePunk"]
   );
 
-  const MAX_PLAYERS = 4;
-  const RADIUS = 5;
-
   const commitMove = async (player, travel, shot, salt, gameId) => {
     const moveHash = ethers.solidityPackedKeccak256(
-      ["uint8", "uint8", "uint8", "uint8", "uint256"],
-      [travel.direction, travel.distance, shot.direction, shot.distance, BigInt(salt)]
+      ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
+      [travel.direction, travel.distance, shot.direction, shot.distance, salt, player.address]
     );
 
     await game.connect(player)
@@ -54,18 +46,6 @@ async function main() {
 
   await Promise.all(hashes);
   console.log("All moves committed.");
-
-  console.log("Player1 address: ", player1.address);
-  console.log("Player2 address: ", player2.address);
-
-  await game.submitMove([1, 0], [1, 1], [1, 0], [1, 1], [1, 2], [player1.address, player2.address], BigInt(1))
-    .then((tx) => {
-      return tx.wait();
-    })
-    .then((receipt) => {
-      console.log(`Submitted moves in block ${receipt.blockNumber}.`);
-    })
-    .catch(console.error);
 }
 
 

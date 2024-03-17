@@ -202,6 +202,10 @@ export class MoveCommitted__Params {
   get gameId(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
+
+  get moveHash(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
 }
 
 export class MoveSubmitted extends ethereum.Event {
@@ -780,6 +784,29 @@ export class GamePunk extends ethereum.SmartContract {
     return new GamePunk("GamePunk", address);
   }
 
+  bytes32ToString(_bytes32: Bytes): string {
+    let result = super.call(
+      "bytes32ToString",
+      "bytes32ToString(bytes32):(string)",
+      [ethereum.Value.fromFixedBytes(_bytes32)],
+    );
+
+    return result[0].toString();
+  }
+
+  try_bytes32ToString(_bytes32: Bytes): ethereum.CallResult<string> {
+    let result = super.tryCall(
+      "bytes32ToString",
+      "bytes32ToString(bytes32):(string)",
+      [ethereum.Value.fromFixedBytes(_bytes32)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
   games(param0: BigInt): GamePunk__gamesResult {
     let result = super.call(
       "games",
@@ -1270,8 +1297,8 @@ export class SubmitMoveCall__Inputs {
     return this._call.inputValues[3].value.toI32Array();
   }
 
-  get _secrets(): Array<Bytes> {
-    return this._call.inputValues[4].value.toBytesArray();
+  get _secrets(): Array<i32> {
+    return this._call.inputValues[4].value.toI32Array();
   }
 
   get _playerAddresses(): Array<Address> {

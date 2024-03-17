@@ -34,7 +34,6 @@ type Round @entity {
   radius: Int!
   shrunk: Boolean!
   moves: [Move!]! @derivedFrom(field: "round")
-  shots: [Shot!]! @derivedFrom(field: "round")
 }
 
 type Move @entity {
@@ -42,18 +41,21 @@ type Move @entity {
   game: Game!
   round: Round!
   player: Player!
+  commitment: Bytes
+  travel: Travel
+  shot: Shot
+}
+
+type Travel @entity {
+  id: Bytes!
   originQ: Int!
   originR: Int!
   destinationQ: Int!
   destinationR: Int!
-  # state:
 }
 
 type Shot @entity {
   id: Bytes!
-  game: Game!
-  round: Round!
-  player: Player!
   originQ: Int!
   originR: Int!
   destinationQ: Int!

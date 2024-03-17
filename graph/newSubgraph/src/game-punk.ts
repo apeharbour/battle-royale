@@ -27,9 +27,10 @@ import {
 } from "../generated/GamePunk/GamePunk"
 import {
   Game,
-  Move,
+  Travel,
   Player,
   Round,
+  Move,
   Shot,
   Cell
 } from "../generated/schema"
@@ -140,31 +141,76 @@ export function handleMapShrink(event: MapShrinkEvent): void {
   }
 }
 
-export function handleMoveCommitted(event: MoveCommittedEvent): void {}
-
-export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
+export function handleMoveCommitted(event: MoveCommittedEvent): void {
+  log.info('Move committed by {}', [event.transaction.from.toHexString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.transaction.from)
 
-  let game = Game.load(gameId)
-
+  const game = Game.load(gameId)
   if (game) {
-    let round = Round.load(game.currentRound)
+    const round = Round.load(game.currentRound)
     if (round) {
       const moveId = round.id.concat(event.transaction.from)
-      let move = new Move(moveId)
+      const move = new Move(moveId)
       move.game = gameId;
       move.round = round.id;
-      move.player = gameId.concat(event.transaction.from)
-      move.destinationQ = event.params.destQ
-      move.destinationR = event.params.destR
+      move.player = playerId;
+      // First move is always empty, we need the event to publish the hash
+      move.commitment = event.params.moveHash;
+      move.save();
+    }
+  }
 
-      let player = Player.load(playerId)
-      if (player) {
-        move.originQ = player.q;
-        move.originR = player.r;
+}
+
+export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
+  log.info('Move submitted by {}', [event.transaction.from.toHexString()])
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
+  const playerId = gameId.concat(event.params.player)
+
+  const game = Game.load(gameId)
+
+  if (game) {
+    const round = Round.load(game.currentRound)
+    if (round) {
+      const moveId = round.id.concat(event.params.player)
+
+      const move = Move.load(moveId)
+      if (move) {
+
+        // save travel
+        const travelId = moveId.concat(Bytes.fromByteArray(ByteArray.fromUTF8('travel')))
+        const travel = new Travel(travelId)
+
+        travel.destinationQ = event.params.destQ;
+        travel.destinationR = event.params.destR;
+
+        let player = Player.load(playerId)
+        if (player) {
+          travel.originQ = player.q;
+          travel.originR = player.r;
+        }
+        travel.save()
+        log.info('Travel saved with id {} for player {} in round {}', [travelId.toHexString(), event.params.player.toHexString(), round.round.toString()])
+        
+        move.travel = travelId;
+        
+        // save shot
+        const shotId = moveId.concat(Bytes.fromByteArray(ByteArray.fromUTF8('shot')))
+        const shot = new Shot(shotId)
+        
+        shot.originQ = event.params.destQ
+        shot.originR = event.params.destR
+        
+        shot.destinationQ = event.params.shotQ
+        shot.destinationR = event.params.shotR;
+        
+        shot.save()
+        log.info('Shot saved with id {} for player {} in round {}', [shotId.toHexString(), event.params.player.toHexString(), round.round.toString()])
+        
+        move.shot = shotId;
+        move.save();
       }
-      move.save()
     }
   }
 }
@@ -250,21 +296,21 @@ export function handleShipShot(event: ShipShotEvent): void {
 
   let game = Game.load(gameId)
 
-  if (game) {
-    let round = Round.load(game.currentRound)
-    if (round) {
-      const shotId = round.id.concat(event.params.captain)
-      let shot = new Shot(shotId)
-      shot.game = gameId;
-      shot.round = round.id;
-      shot.player = gameId.concat(event.params.captain)
-      shot.originQ = event.params.fromQ
-      shot.originR = event.params.fromR
-      shot.destinationQ = event.params.shotQ
-      shot.destinationR = event.params.shotR
-      shot.save()
-    }
-  }
+  // if (game) {
+  //   let round = Round.load(game.currentRound)
+  //   if (round) {
+  //     const shotId = round.id.concat(event.params.captain)
+  //     let shot = new Shot(shotId)
+  //     shot.game = gameId;
+  //     shot.round = round.id;
+  //     shot.player = gameId.concat(event.params.captain)
+  //     shot.originQ = event.params.fromQ
+  //     shot.originR = event.params.fromR
+  //     shot.destinationQ = event.params.shotQ
+  //     shot.destinationR = event.params.shotR
+  //     shot.save()
+  //   }
+  // }
 }
 
 export function handleShipSunk(event: ShipSunkEvent): void {
