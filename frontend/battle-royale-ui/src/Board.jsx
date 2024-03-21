@@ -331,7 +331,7 @@ export default function Board({
             fill={getFillPattern(state, neighborCode)}
             // onMouseLeave={handleMouseLeave}
           >
-            {/* <Coordinates q={q} r={r} /> */}
+            <Coordinates q={q} r={r} />
           </Hexagon>
         ))}
 
