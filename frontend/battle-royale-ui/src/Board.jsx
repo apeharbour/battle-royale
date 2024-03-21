@@ -17,6 +17,7 @@ import Coordinates from "./Coordinates.jsx";
 import Ship from "./Ship.jsx";
 import ShootPath from "./ShootPath.jsx";
 import useResizeObserver from "./utils/useResizeObserver.jsx";
+import Point from "react-hexgrid/lib/models/Point.js";
 
 const hexagonSize = { x: 5, y: 5 };
 const waterSize = { x: 4.33, y: 5 };
@@ -91,7 +92,7 @@ export default function Board({
   /* track the parents dimensions */
   useEffect(() => {
     if (dimensions) {
-      setHexGridSize(Math.min(dimensions.width, dimensions.height));
+      setHexGridSize(Math.min(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width));
     }
   }, [dimensions]);
 
@@ -161,6 +162,8 @@ export default function Board({
     origin: { x: 0, y: 0 },
   });
   const shift = HexUtils.hexToPixel(center, layout.props.value.layout);
+  shift.x *= -1;
+  shift.y *= -1;
 
   return (
     <HexGrid width={hexGridSize} height={hexGridSize}>
@@ -168,7 +171,7 @@ export default function Board({
         size={hexagonSize}
         spacing={1.02}
         flat={false}
-        origin={{ x: shift.x * -1, y: shift.y * -1 }}
+        origin={shift}
       >
         {/* cells */}
         {cells.map(({ id, q, r, s, state, neighborCode }) => (
@@ -186,7 +189,7 @@ export default function Board({
             fill={getFillPattern(state, neighborCode)}
             // onMouseLeave={handleMouseLeave}
           >
-            {/* <Coordinates q={q} r={r} /> */}
+            <Coordinates q={q} r={r} />
           </Hexagon>
         ))}
 

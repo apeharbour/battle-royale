@@ -53,8 +53,8 @@ export default function ShipStatus({ship, ...props}) {
   console.log( {ship} );
 
   return (
-    <Paper elevation={4}>
-      <Card>
+    // <Paper elevation={4}>
+      <Card elevation={4}>
         <CardMedia
           component="img"
           alt="Ship"
@@ -64,11 +64,13 @@ export default function ShipStatus({ship, ...props}) {
           // sx={{ width: 151 }}
         />
         <CardContent sx={{ flex: "1 0 auto" }}>
+          <Stack spacing={1} direction="row">
           <Chip label={`Movement: ${ship.range}`} color='primary'/>
           <Chip label={`Shoot: ${ship.shotRange}`} color='secondary'/>
+          </Stack>
         </CardContent>
       </Card>
-    </Paper>
+    // </Paper>
 
     //   <Stack spacing={2}>
     //     <Typography variant='h6'>{ship.name}</Typography>

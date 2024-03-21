@@ -7,7 +7,7 @@ export default function MainBoardArea({center, cells, ships, myShip, travelEndpo
     const parentRef = useRef();
 
   return (
-    <Grid item xs={6} ref={parentRef} >
+    <Grid item xs={12} sm={4} md={8} ref={parentRef} >
       <Board
         center={center}
         cells={cells}

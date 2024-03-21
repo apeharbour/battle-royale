@@ -1,20 +1,17 @@
 import { Fragment, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "@fontsource-variable/pixelify-sans";
+import {
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
 // import "./App.css";
 import ListGames from "./ListGames";
 import Game from "./Game";
 import Admin from "./Admin";
-import Header from "./Header";
 import AccountAppBar from "./AccountAppBar";
-import {
-  Box,
-  CssBaseline,
-  ThemeProvider,
-  Typography,
-  createTheme,
-} from "@mui/material";
 import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
 
@@ -29,6 +26,9 @@ function App() {
     },
     typography: {
       fontFamily: "Pixelify Sans Variable",
+    },
+    shape: {
+      borderRadius: 30,
     },
   });
 

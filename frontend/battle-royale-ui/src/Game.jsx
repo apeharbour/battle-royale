@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import { Box, Grid, Stack, Typography } from "@mui/material";
+import { Grid, Stack} from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { useQuery } from "@tanstack/react-query";
@@ -10,7 +10,6 @@ import { useAccount, useWriteContract } from "wagmi";
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { Hex, HexUtils } from "react-hexgrid";
-import timer from "./images/Timer.png";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
@@ -74,19 +73,11 @@ const GET_GAME = gql`
           player {
             address
           }
-          originQ
-          originR
-          destinationQ
-          destinationR
-        }
-        shots {
-          player {
-            address
-          }
-          originQ
-          originR
-          destinationQ
-          destinationR
+        game { gameId}
+				round { round}
+				commitment
+				travel  { id, originQ, originR, destinationQ, destinationR }
+				shot { id, originQ, originR, destinationQ, destinationR }
         }
       }
     }
@@ -372,7 +363,7 @@ export default function Game(props) {
   return (
     <Fragment>
       <Grid container spacing={2} p={4}>
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             {myShip && myShip.range && <ShipStatus ship={myShip} />}
             {data && <Logs gameData={data} gameId={id} />}
@@ -390,19 +381,21 @@ export default function Game(props) {
           setShotEndpoint={setShotEndpoint}
         />
 
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={4} md={2}>
           {/* <Timer gameId={id}/> */}
-          <Box mt={2} mb={2}>
-            <CustomButton
+          {/* <Box mt={2} mb={2}> */}
+          <Stack spacing={2}>
+            <Button
               variant="contained"
               onClick={commitMoves}
               disabled={!shotEndpoint || !travelEndpoint}
             >
               Commit Moves
-            </CustomButton>
-          </Box>
+            </Button>
+          {/* </Box> */}
 
           <PlayerStatus ships={ships} />
+          </Stack>
         </Grid>
       </Grid>
     </Fragment>
