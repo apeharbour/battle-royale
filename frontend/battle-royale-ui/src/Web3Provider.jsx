@@ -7,6 +7,7 @@ import {
   optimism,
 } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import punkLogo from "./images/punkLogo.png";
 
@@ -52,6 +53,7 @@ export const Web3Provider = ({ theme, children }) => {
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
+        <ReactQueryDevtools initialIsOpen={false} />
         <ConnectKitProvider theme="auto" mode={theme.palette.mode}>
           {children}
         </ConnectKitProvider>
