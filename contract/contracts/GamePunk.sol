@@ -117,10 +117,10 @@ contract GamePunk is Ownable {
     address public registrationContract;
 
     // Modifier to restrict the call to the registration contract
-    modifier onlyRegistrationContract() {
+    modifier onlyRegistrationContractOrOwner() {
         require(
-            msg.sender == registrationContract,
-            "Caller is not the registration contract"
+            msg.sender == registrationContract || msg.sender == owner(),
+            "Caller is not owner or registration contract"
         );
         _;
     }
@@ -140,8 +140,7 @@ contract GamePunk is Ownable {
     function startNewGame(
         uint256 gameId,
         uint8 _radius
-    ) public onlyRegistrationContract {
-        require(gameId < 255, "Maximum number of games reached");
+    ) public onlyRegistrationContractOrOwner {
         require(
             !games[gameId].gameInProgress,
             "Game with this ID already in progress"
@@ -316,7 +315,7 @@ contract GamePunk is Ownable {
         address playerAddress,
         uint256 gameId,
         uint256 _punkshipId
-    ) public onlyRegistrationContract {
+    ) public onlyRegistrationContractOrOwner {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -442,6 +441,7 @@ contract GamePunk is Ownable {
             "Game has not started yet!"
         );
 
+        // shrink map every 3 rounds
         if (games[gameId].round % 3 == 0) {
             map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
             games[gameId].shrinkNo++;
@@ -483,6 +483,8 @@ contract GamePunk is Ownable {
 
         // Moving ships and handling deaths due to invalid moves
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
+
+            console.log("Processing player %s", games[gameId].players[i]);
             // Skip the moves of removed players
             if (
                 games[gameId].ships[games[gameId].players[i]].captain ==
@@ -502,6 +504,9 @@ contract GamePunk is Ownable {
                         .travelDistance,
                     gameId
                 );
+
+                console.log("Player %s %s when traveling", games[gameId].players[i], dies ? 'dies' : 'lives');
+
                 if (dies) {
                     emit ShipCollidedWithIsland(
                         games[gameId].players[i],
@@ -743,7 +748,7 @@ contract GamePunk is Ownable {
         }
     }
 
-    function getCells(
+    function getCoordinates(
         uint256 gameId
     ) public view returns (SharedStructs.Coordinate[] memory) {
         require(

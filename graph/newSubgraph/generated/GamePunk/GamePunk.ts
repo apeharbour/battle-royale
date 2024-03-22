@@ -695,7 +695,7 @@ export class GamePunk__getCellInput_coordStruct extends ethereum.Tuple {
   }
 }
 
-export class GamePunk__getCellsResultValue0Struct extends ethereum.Tuple {
+export class GamePunk__getCoordinatesResultValue0Struct extends ethereum.Tuple {
   get q(): i32 {
     return this[0].toI32();
   }
@@ -784,27 +784,55 @@ export class GamePunk extends ethereum.SmartContract {
     return new GamePunk("GamePunk", address);
   }
 
-  bytes32ToString(_bytes32: Bytes): string {
+  encodeCommitment(
+    _travelDirection: i32,
+    _travelDistance: i32,
+    _shotDirection: i32,
+    _shotDistance: i32,
+    _secret: i32,
+    _playerAddress: Address,
+  ): Bytes {
     let result = super.call(
-      "bytes32ToString",
-      "bytes32ToString(bytes32):(string)",
-      [ethereum.Value.fromFixedBytes(_bytes32)],
+      "encodeCommitment",
+      "encodeCommitment(uint8,uint8,uint8,uint8,uint8,address):(bytes32)",
+      [
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_travelDirection)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_travelDistance)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_shotDirection)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_shotDistance)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_secret)),
+        ethereum.Value.fromAddress(_playerAddress),
+      ],
     );
 
-    return result[0].toString();
+    return result[0].toBytes();
   }
 
-  try_bytes32ToString(_bytes32: Bytes): ethereum.CallResult<string> {
+  try_encodeCommitment(
+    _travelDirection: i32,
+    _travelDistance: i32,
+    _shotDirection: i32,
+    _shotDistance: i32,
+    _secret: i32,
+    _playerAddress: Address,
+  ): ethereum.CallResult<Bytes> {
     let result = super.tryCall(
-      "bytes32ToString",
-      "bytes32ToString(bytes32):(string)",
-      [ethereum.Value.fromFixedBytes(_bytes32)],
+      "encodeCommitment",
+      "encodeCommitment(uint8,uint8,uint8,uint8,uint8,address):(bytes32)",
+      [
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_travelDirection)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_travelDistance)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_shotDirection)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_shotDistance)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_secret)),
+        ethereum.Value.fromAddress(_playerAddress),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
+    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   games(param0: BigInt): GamePunk__gamesResult {
@@ -883,20 +911,24 @@ export class GamePunk extends ethereum.SmartContract {
     );
   }
 
-  getCells(gameId: BigInt): Array<GamePunk__getCellsResultValue0Struct> {
-    let result = super.call("getCells", "getCells(uint256):((uint8,uint8)[])", [
-      ethereum.Value.fromUnsignedBigInt(gameId),
-    ]);
+  getCoordinates(
+    gameId: BigInt,
+  ): Array<GamePunk__getCoordinatesResultValue0Struct> {
+    let result = super.call(
+      "getCoordinates",
+      "getCoordinates(uint256):((uint8,uint8)[])",
+      [ethereum.Value.fromUnsignedBigInt(gameId)],
+    );
 
-    return result[0].toTupleArray<GamePunk__getCellsResultValue0Struct>();
+    return result[0].toTupleArray<GamePunk__getCoordinatesResultValue0Struct>();
   }
 
-  try_getCells(
+  try_getCoordinates(
     gameId: BigInt,
-  ): ethereum.CallResult<Array<GamePunk__getCellsResultValue0Struct>> {
+  ): ethereum.CallResult<Array<GamePunk__getCoordinatesResultValue0Struct>> {
     let result = super.tryCall(
-      "getCells",
-      "getCells(uint256):((uint8,uint8)[])",
+      "getCoordinates",
+      "getCoordinates(uint256):((uint8,uint8)[])",
       [ethereum.Value.fromUnsignedBigInt(gameId)],
     );
     if (result.reverted) {
@@ -904,7 +936,7 @@ export class GamePunk extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTupleArray<GamePunk__getCellsResultValue0Struct>(),
+      value[0].toTupleArray<GamePunk__getCoordinatesResultValue0Struct>(),
     );
   }
 
