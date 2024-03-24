@@ -86,6 +86,7 @@ contract GamePunk is Ownable {
     event ShipMovedInGame(address indexed captain, uint256 gameId);
     event MapShrink(uint256 gameId);
     event Cell(uint256 gameId, uint8 q, uint8 r, bool island);
+    event CellDeleted(uint256 gameId, uint8 q, uint8 r);
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -443,9 +444,12 @@ contract GamePunk is Ownable {
 
         // shrink map every 3 rounds
         if (games[gameId].round % 3 == 0) {
-            map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
+            SharedStructs.Coordinate[] memory deletedCells = map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
             games[gameId].shrinkNo++;
             emit MapShrink(gameId);
+            for (uint8 i = 0; i < deletedCells.length; i++) {
+                emit CellDeleted(gameId, deletedCells[i].q, deletedCells[i].r);
+            }
 
             // Sink players outside the invalid map cells
             for (uint8 i = 0; i < games[gameId].players.length; i++) {
@@ -454,8 +458,8 @@ contract GamePunk is Ownable {
                     .coordinate;
 
                 if (isShipOutsideMap(shipCoord, gameId)) {
-                    sinkShip(games[gameId].players[i], i, gameId);
                     emit ShipSunkOutOfMap(games[gameId].players[i], gameId); // Emitting event when ship is sunk due to being outside the map
+                    sinkShip(games[gameId].players[i], i, gameId);
 
                     // Adjust the players array
                     games[gameId].players[i] = games[gameId].players[
@@ -484,7 +488,7 @@ contract GamePunk is Ownable {
         // Moving ships and handling deaths due to invalid moves
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
 
-            console.log("Processing player %s", games[gameId].players[i]);
+            // console.log("Processing player %s", games[gameId].players[i]);
             // Skip the moves of removed players
             if (
                 games[gameId].ships[games[gameId].players[i]].captain ==
@@ -505,7 +509,7 @@ contract GamePunk is Ownable {
                     gameId
                 );
 
-                console.log("Player %s %s when traveling", games[gameId].players[i], dies ? 'dies' : 'lives');
+                // console.log("Player %s %s when traveling", games[gameId].players[i], dies ? 'dies' : 'lives');
 
                 if (dies) {
                     emit ShipCollidedWithIsland(

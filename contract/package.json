@@ -8,7 +8,10 @@
     "infra:local:up": "npx hardhat node --hostname 0.0.0.0",
     "infra:local:down": "pkill -SIGINT hardhat node",
     "deploy:local": "yes | npx hardhat ignition deploy ignition/modules/GamePunk.js --network localhost --reset && ./updateGraphNetworks.sh",
-    "run:local": "npx hardhat run scripts/runGame/01_mintPunkship.js --network localhost && npx hardhat run scripts/runGame/02_startRegistration.js --network localhost && npx hardhat run scripts/runGame/03_registerPlayer.js --network localhost && npx hardhat run scripts/runGame/04_closeRegistration.js --network localhost"
+    "run:local:01": "npx hardhat run --network localhost scripts/runGame/01_prepare.js",
+    "run:local:02": "npx hardhat run --network localhost scripts/runGame/02_round1.js",
+    "run:local:03": "npx hardhat run --network localhost scripts/runGame/03_round2.js",
+    "run:local:04": "npx hardhat run --network localhost scripts/runGame/04_round3.js"
   },
   "repository": {
     "type": "git",

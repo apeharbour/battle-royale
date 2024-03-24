@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import { Grid, Stack} from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { useQuery } from "@tanstack/react-query";
@@ -52,6 +52,9 @@ const GET_GAME = gql`
         q
         r
         island
+        deletedInRound {
+          round
+        }
       }
       players {
         address
@@ -69,15 +72,36 @@ const GET_GAME = gql`
       rounds {
         round
         shrunk
+        deletedCells {
+          id
+          q
+          r
+        }
         moves {
           player {
             address
           }
-        game { gameId}
-				round { round}
-				commitment
-				travel  { id, originQ, originR, destinationQ, destinationR }
-				shot { id, originQ, originR, destinationQ, destinationR }
+          game {
+            gameId
+          }
+          round {
+            round
+          }
+          commitment
+          travel {
+            id
+            originQ
+            originR
+            destinationQ
+            destinationR
+          }
+          shot {
+            id
+            originQ
+            originR
+            destinationQ
+            destinationR
+          }
         }
       }
     }
@@ -92,6 +116,7 @@ export default function Game(props) {
   const [cells, setCells] = useState([]);
   const [ships, setShips] = useState([]);
   const [myShip, setMyShip] = useState(undefined);
+  const [round, setRound] = useState(0);
   const [randomInt, setRandomInt] = useState(generateRandomInt());
 
   const [travelEndpoint, setTravelEndpoint] = useState(undefined);
@@ -117,10 +142,27 @@ export default function Game(props) {
    * highlighted: whether the cell is highlighted
    * neighborCode: a 6 bit number where each bit represents a neighbor cell
    */
-  const enrichCell = (cell, allCells) => {
+  const enrichCell = (cell, allCells, currentRound) => {
+    console.log("Enriching cell: ", cell);
     const s = (cell.q + cell.r) * -1;
     const state = cell.island ? "island" : "water";
     const highlighted = false;
+    const deletedThisRound =
+      cell.deletedInRound &&
+      parseInt(cell.deletedInRound.round) === currentRound - 1;
+    const deletedPreviously =
+      cell.deletedInRound &&
+      parseInt(cell.deletedInRound.round) < currentRound - 1;
+    console.log(
+      "round: ",
+      currentRound - 1,
+      "deletedInRound: ",
+      cell.deletedInRound,
+      "deletedPreviously: ",
+      deletedPreviously,
+      "deletedthisRound",
+      deletedThisRound
+    );
 
     // check if there are islands as neighbors, set island=false for non-existant cells
     const hex = new Hex(cell.q, cell.r, s);
@@ -145,7 +187,15 @@ export default function Game(props) {
       0
     );
 
-    return { ...cell, s, state, highlighted, neighborCode };
+    return {
+      ...cell,
+      s,
+      state,
+      highlighted,
+      deletedThisRound,
+      deletedPreviously,
+      neighborCode,
+    };
   };
 
   const enrichShip = (ship) => {
@@ -161,7 +211,11 @@ export default function Game(props) {
   const updateData = (data) => {
     const { games } = data;
     const game = games[0];
-    console.log("Ships: ", game.players);
+    console.log("Game: ", game, "Round: ", game.currentRound.round);
+    const currentRound = game.currentRound.round;
+    setRound(currentRound);
+
+    // console.log("Ships: ", game.players);
 
     // process ships
     const ships = game.players.map(enrichShip);
@@ -172,7 +226,7 @@ export default function Game(props) {
 
     // process cells
     const cells = game.cells.map((c) => {
-      return enrichCell(c, game.cells);
+      return enrichCell(c, game.cells, currentRound);
     });
 
     setCells([...cells]);
@@ -184,6 +238,7 @@ export default function Game(props) {
       request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
         gameId: id,
       }),
+    refetchInterval: 1000,
   });
 
   /* transform and enrich data from the subgraph whenever it changes */
@@ -276,7 +331,13 @@ export default function Game(props) {
     const randomInt = generateRandomInt();
     const moveHash = ethers.solidityPackedKeccak256(
       ["uint8", "uint8", "uint8", "uint8", "uint256"],
-      [travelDirection, travelDistance, shotDirection, shotDistance, BigInt(randomInt)]
+      [
+        travelDirection,
+        travelDistance,
+        shotDirection,
+        shotDistance,
+        BigInt(randomInt),
+      ]
     );
 
     console.log("Move Hash: ", moveHash);
@@ -350,7 +411,7 @@ export default function Game(props) {
     }
   };
 
-  if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
+  // if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
   if (isError)
     enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
   if (txIsPending)
@@ -392,9 +453,9 @@ export default function Game(props) {
             >
               Commit Moves
             </Button>
-          {/* </Box> */}
+            {/* </Box> */}
 
-          <PlayerStatus ships={ships} />
+            <PlayerStatus ships={ships} />
           </Stack>
         </Grid>
       </Grid>

@@ -23,6 +23,7 @@ import {
   WorldUpdated as WorldUpdatedEvent,
   // Island as IslandEvent,
   Cell as CellEvent,
+  CellDeleted as CellDeletedEvent,
   NewRound as NewRoundEvent
 } from "../generated/GamePunk/GamePunk"
 import {
@@ -53,17 +54,19 @@ class GameState {
   static FINISHED: string = "finished";
 }
 
+const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
+
 function shortenAddress(address: Bytes): string {
   return address.toHexString().slice(0, 6) + "..." + address.toHexString().slice(-4)
 }
 
 
 export function handleCommitPhaseStarted(event: CommitPhaseStartedEvent): void {
-  log.debug('Commit phase started for game {}', [event.params.gameId.toString()])
+  log.info('Commit phase started for game {}', [event.params.gameId.toString()])
 }
 
 export function handleGameEnded(event: GameEndedEvent): void {
-  log.debug('Game ended for game {}', [event.params.gameId.toString()])
+  log.info('Game ended for game {}', [event.params.gameId.toString()])
 }
 
 function createNewRound(_gameId: Bytes, _roundId: BigInt, _radius: i32): Round {
@@ -80,7 +83,7 @@ function createNewRound(_gameId: Bytes, _roundId: BigInt, _radius: i32): Round {
 }
 
 export function handleNewRound(event: NewRoundEvent): void {
-  log.debug('New round {} started for game {}', [event.params.roundId.toString(), event.params.gameId.toString()])
+  log.info('New round {} started for game {}', [event.params.roundId.toString(), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   // const gameId = Bytes.fromI32(event.params.gameId.toI32())
 
@@ -95,16 +98,18 @@ export function handleNewRound(event: NewRoundEvent): void {
 }
 
 export function handleGameStarted(event: GameStartedEvent): void {
-  log.debug('Game started for game {}', [event.params.gameId.toString()])
+  log.info('Game started for game {}', [event.params.gameId.toString()])
 }
 
 export function handleGameUpdated(event: GameUpdatedEvent): void {
-  log.debug('Game updated for game {}', [event.params.gameId.toString()])
+  log.info('Game updated for game {}', [event.params.gameId.toString()])
 }
 
 export function handleGameWinner(event: GameWinnerEvent): void {
-  log.debug('Game winner {} for game {}', [shortenAddress(event.params.winner), event.params.gameId.toString()])
+  log.info('Game winner {} for game {}', [shortenAddress(event.params.winner), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
+
+  if (event.params.winner != Bytes.fromHexString(ZERO_ADDRESS)) {
   const playerId = gameId.concat(event.params.winner)
 
   let player = new Player(playerId)
@@ -116,10 +121,15 @@ export function handleGameWinner(event: GameWinnerEvent): void {
   game.state = GameState.FINISHED
   game.winner = playerId
   game.save()
+  } else {
+    let game = new Game(gameId)
+    game.state = GameState.FINISHED
+    game.save()
+  }
 }
 
 export function handleMapInitialized(event: MapInitializedEvent): void {
-  log.debug('Map initialized with radius {} for game {}', [event.params.radius.toString(), event.params.gameId.toString()])
+  log.info('Map initialized with radius {} for game {}', [event.params.radius.toString(), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const roundId = gameId.concatI32(0)
 
@@ -143,11 +153,14 @@ export function handleMapInitialized(event: MapInitializedEvent): void {
 }
 
 export function handleMapShrink(event: MapShrinkEvent): void {
-  log.debug('Map shrunk for game {}', [event.params.gameId.toString()])
+  log.info('Map shrunk for game {}', [event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
 
   const game = Game.load(gameId)
   if (game) {
+    game.radius--
+    game.save()
+
     const round = Round.load(game.currentRound)
     if (round) {
       round.shrunk = true;
@@ -158,7 +171,7 @@ export function handleMapShrink(event: MapShrinkEvent): void {
 }
 
 export function handleMoveCommitted(event: MoveCommittedEvent): void {
-  log.debug('Move committed by {}', [shortenAddress(event.transaction.from)])
+  log.info('Move committed by {}', [shortenAddress(event.transaction.from)])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.transaction.from)
 
@@ -180,7 +193,7 @@ export function handleMoveCommitted(event: MoveCommittedEvent): void {
 }
 
 export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
-  log.debug('Move submitted by {} for player {}', [shortenAddress(event.transaction.from), shortenAddress(event.params.player)])
+  log.info('Move submitted by {} for player {}', [shortenAddress(event.transaction.from), shortenAddress(event.params.player)])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.player)
 
@@ -207,7 +220,7 @@ export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
           travel.originR = player.r;
         }
         travel.save()
-        log.debug('Travel saved with id {} for player {} in round {}', [travelId.toHexString(), event.params.player.toHexString(), round.round.toString()])
+        log.info('Travel saved with id {} for player {} in round {}', [travelId.toHexString(), event.params.player.toHexString(), round.round.toString()])
         
         move.travel = travelId;
         
@@ -222,7 +235,7 @@ export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
         shot.destinationR = event.params.shotR;
         
         shot.save()
-        log.debug('Shot saved with id {} for player {} in round {}', [shotId.toHexString(), event.params.player.toHexString(), round.round.toString()])
+        log.info('Shot saved with id {} for player {} in round {}', [shotId.toHexString(), event.params.player.toHexString(), round.round.toString()])
         
         move.shot = shotId;
         move.save();
@@ -238,12 +251,12 @@ export function handleOwnershipTransferred(
 }
 
 export function handlePlayerAdded(event: PlayerAddedEvent): void {
-  log.debug('Player {} with ship {} added to game {}', [shortenAddress(event.params.player), event.params.punkshipId.toString(), event.params.gameId.toString()])
+  log.info('Player {} with ship {} added to game {}', [shortenAddress(event.params.player), event.params.punkshipId.toString(), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.player)
 
   let player = new Player(playerId)
-  log.debug('Player {} created', [shortenAddress(playerId)])
+  log.info('Player {} created', [shortenAddress(playerId)])
 
   player.address = event.params.player;
   player.q = event.params.q
@@ -261,13 +274,13 @@ export function handlePlayerAdded(event: PlayerAddedEvent): void {
 }
 
 export function handlePlayerDefeated(event: PlayerDefeatedEvent): void {
-  log.debug('Player {} defeated in game {}', [shortenAddress(event.params.player), event.params.gameId.toString()])
+  log.info('Player {} defeated in game {}', [shortenAddress(event.params.player), event.params.gameId.toString()])
 }
 
 export function handleShipCollidedWithIsland(
   event: ShipCollidedWithIslandEvent
 ): void {
-  log.debug('Ship of {} collided with island in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
+  log.info('Ship of {} collided with island in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
@@ -281,7 +294,7 @@ export function handleShipCollidedWithIsland(
 }
 
 export function handleShipHit(event: ShipHitEvent): void {
-  log.debug('Ship of {} hit by {} in game {}', [shortenAddress(event.params.victim), shortenAddress(event.params.attacker), event.params.gameId.toString()])
+  log.info('Ship of {} hit by {} in game {}', [shortenAddress(event.params.victim), shortenAddress(event.params.attacker), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   
   const victimId = gameId.concat(event.params.victim)
@@ -298,7 +311,7 @@ export function handleShipHit(event: ShipHitEvent): void {
 }
 
 export function handleShipMoved(event: ShipMovedEvent): void {
-  log.debug('Ship of {} moved to q {} r {} in game {}', [shortenAddress(event.params.captain), event.params.q.toString(), event.params.r.toString(), event.params.gameId.toString()])
+  log.info('Ship of {} moved to q {} r {} in game {}', [shortenAddress(event.params.captain), event.params.q.toString(), event.params.r.toString(), event.params.gameId.toString()])
   // update player position
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
@@ -310,11 +323,11 @@ export function handleShipMoved(event: ShipMovedEvent): void {
 }
 
 export function handleShipMovedInGame(event: ShipMovedInGameEvent): void {
-  log.debug('Ship of {} moved in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
+  log.info('Ship of {} moved in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
 }
 
 export function handleShipShot(event: ShipShotEvent): void {
-  log.debug('Ship of {} shot in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
+  log.info('Ship of {} shot in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
 
   // let game = Game.load(gameId)
@@ -337,7 +350,7 @@ export function handleShipShot(event: ShipShotEvent): void {
 }
 
 export function handleShipSunk(event: ShipSunkEvent): void {
-  log.debug('Ship of {} sunk in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
+  log.info('Ship of {} sunk in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
@@ -347,27 +360,27 @@ export function handleShipSunk(event: ShipSunkEvent): void {
 }
 
 export function handleShipSunkOutOfMap(event: ShipSunkOutOfMapEvent): void {
-  log.debug('Ship of {} dropped from map in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
+  log.info('Ship of {} dropped from map in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
   let player = new Player(playerId)
-  log.debug('Player {} created', [shortenAddress(playerId)])
+  log.info('Player {} created', [shortenAddress(playerId)])
   player.state = PlayerState.DROPPED
   player.save()
   log.info('Player {} saved in state {}', [shortenAddress(playerId), player.state])
 }
 
 export function handleSubmitPhaseStarted(event: SubmitPhaseStartedEvent): void {
-  log.debug('Submit phase started for game {}', [event.params.gameId.toString()])
+  log.info('Submit phase started for game {}', [event.params.gameId.toString()])
 }
 
 export function handleWorldUpdated(event: WorldUpdatedEvent): void {
-  log.debug('World updated for game {}', [event.params.gameId.toString()])
+  log.info('World updated for game {}', [event.params.gameId.toString()])
 }
 
 export function handleCell(event: CellEvent): void {
-  log.debug('Cell ({}, {}{}) created for game {}', [event.params.q.toString(), event.params.r.toString(), event.params.island ? ', island' : '', event.params.gameId.toString()])
+  log.info('Cell ({}, {}{}) created for game {}', [event.params.q.toString(), event.params.r.toString(), event.params.island ? ', island' : '', event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const cellId = gameId.concatI32(event.params.q).concatI32(event.params.r)
 
@@ -379,3 +392,17 @@ export function handleCell(event: CellEvent): void {
 
   entity.save()
 }
+
+export function handleCellDeleted(event: CellDeletedEvent): void {
+  log.info('Cell ({}, {}) deleted for game {}', [event.params.q.toString(), event.params.r.toString(), event.params.gameId.toString()])
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
+  const cellId = gameId.concatI32(event.params.q).concatI32(event.params.r)
+
+  const game = Game.load(gameId)
+  if (game) {
+      const cell = new Cell(cellId)
+      cell.deletedInRound = game.currentRound
+      cell.save()
+    }
+  }
+

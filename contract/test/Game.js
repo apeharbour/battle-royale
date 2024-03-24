@@ -233,15 +233,69 @@ describe("Game", function () {
         await game.connect(players[i]).commitMove(moveHash, GAME_ID);
       }
 
-      const travelDirs = [dir.NE, dir.SE, dir.E, dir.NW];
-      const travelDists = [3, 3, 1, 1];
-      const shotDirs = [dir.W, dir.E, dir.E, dir.NW];
-      const shotDists = [1, 2, 1, 2];
+      const travelDirs = [travels[0].direction, travels[1].direction, travels[2].direction, travels[3].direction];
+      const travelDists = [travels[0].distance, travels[1].distance, travels[2].distance, travels[3].distance];
+      const shotDirs = [shots[0].direction, shots[1].direction, shots[2].direction, shots[3].direction];
+      const shotDists = [shots[0].distance, shots[1].distance, shots[2].distance, shots[3].distance];
       const secrets = [SALT, SALT, SALT, SALT];
-      const playerAddresses = [player1.address, player2.address, player3.address, player4.address];
+      const playerAddresses = [players[0].address, players[1].address, players[2].address, players[3].address];
 
 
       await expect(game.submitMove(travelDirs, travelDists, shotDirs, shotDists, secrets, playerAddresses, GAME_ID)).to.emit(game, "MoveSubmitted");
+    });
+
+    it.only("should update world state after submitting moves", async function () {
+      const { game, registration, punkships } = await loadFixture(deployGame);
+      const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+
+      await game.startNewGame(GAME_ID, RADIUS);
+
+      const players = [player1, player2, player3, player4];
+
+      for (let i = 0; i < 4; i++) {
+        await game.addShip(players[i].address, GAME_ID, i + 1);
+      }
+
+      const travels = [
+        { direction: dir.NE, distance: 3 },
+        { direction: dir.SE, distance: 3 },
+        { direction: dir.E, distance: 1 },
+        { direction: dir.NW, distance: 1 },
+      ];
+
+      const shots = [
+        { direction: dir.W, distance: 1 },
+        { direction: dir.E, distance: 2 },
+        { direction: dir.E, distance: 1 },
+        { direction: dir.NW, distance: 2 },
+      ];
+
+      for (let i = 0; i < 4; i++) {
+        const moveHash = ethers.solidityPackedKeccak256(
+          ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
+          [travels[i].direction, travels[i].distance, shots[i].direction, shots[i].distance, SALT, players[i].address]
+        );
+        await game.connect(players[i]).commitMove(moveHash, GAME_ID);
+      }
+
+      const travelDirs = [travels[0].direction, travels[1].direction, travels[2].direction, travels[3].direction];
+      const travelDists = [travels[0].distance, travels[1].distance, travels[2].distance, travels[3].distance];
+      const shotDirs = [shots[0].direction, shots[1].direction, shots[2].direction, shots[3].direction];
+      const shotDists = [shots[0].distance, shots[1].distance, shots[2].distance, shots[3].distance];
+      const secrets = [SALT, SALT, SALT, SALT];
+      const playerAddresses = [players[0].address, players[1].address, players[2].address, players[3].address];
+
+
+      await game.submitMove(travelDirs, travelDists, shotDirs, shotDists, secrets, playerAddresses, GAME_ID);
+
+      const tx = game.updateWorld(GAME_ID);
+
+      await expect(tx).to.emit(game, "WorldUpdated").withArgs(GAME_ID);
+      await expect(tx).to.emit(game, "ShipMoved").withArgs(player1.address, 4, 5, 7, 2, GAME_ID);
+      await expect(tx).to.emit(game, "ShipMoved").withArgs(player2.address, 3, 3, 3, 6, GAME_ID);
+      await expect(tx).to.emit(game, "ShipCollidedWithIsland").withArgs(player3.address, GAME_ID, 4, 6);
+      await expect(tx).to.emit(game, "ShipMoved").withArgs(player4.address, 5, 9, 5, 8, GAME_ID);
+
     });
 
   });

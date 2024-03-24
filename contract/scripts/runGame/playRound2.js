@@ -33,6 +33,10 @@ async function main() {
     deployedAddresses["BattleRoyale#GamePunk"]
   );
 
+  const shortenAddress = (address) => {
+    return address.substring(0, 6) + "..." + address.substring(address.length - 4, address.length);
+  }
+
   const commitMove = async (player, travel, shot, salt, gameId) => {
     const moveHash = ethers.solidityPackedKeccak256(
       ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
@@ -45,21 +49,55 @@ async function main() {
         return tx.wait();
       })
       .then((receipt) => {
-        console.log(`Committed move for ${player.address} in block ${receipt.blockNumber} with hash ${moveHash}.`);
+        console.log(`Committed move for ${shortenAddress(player.address)} in block ${receipt.blockNumber} with hash ${shortenAddress(moveHash)}.`);
       })
       .catch(console.error);
     
     return moveHash;
   }
 
+  const players = [player1, player2, player4];
+
+  const travels = [
+    { direction: dir.E, distance: 1 },
+    { direction: dir.W, distance: 1 },
+    { direction: dir.E, distance: 1 },
+  ];
+
+  const shots = [
+    { direction: dir.W, distance: 1 },
+    { direction: dir.W, distance: 1 },
+    { direction: dir.W, distance: 1 },
+  ];
+
+  // commit moves
   let hashes = [];
-  hashes[0] = commitMove(player1, { direction: dir.NE, distance: 3 }, { direction: dir.W, distance: 1 }, SALT, GAME_ID);
-  hashes[1] = commitMove(player2, { direction: dir.SE, distance: 3 }, { direction: dir.E, distance: 2 }, SALT, GAME_ID);
-  hashes[1] = commitMove(player3, { direction: dir.E, distance: 1 }, { direction: dir.E, distance: 1 }, SALT, GAME_ID);
-  hashes[1] = commitMove(player4, { direction: dir.NW, distance: 1 }, { direction: dir.NW, distance: 2 }, SALT, GAME_ID);
+  for (let i = 0; i < players.length; i++) {
+    hashes[i] = commitMove(players[i], travels[i], shots[i], SALT, GAME_ID);
+  }
 
   await Promise.all(hashes);
-  console.log("All moves committed.");
+
+
+  // submit moves
+  const travelDirs = [travels[0].direction, travels[1].direction, travels[2].direction];
+  const travelDists = [travels[0].distance, travels[1].distance, travels[2].distance];
+  const shotDirs = [shots[0].direction, shots[1].direction, shots[2].direction];
+  const shotDists = [shots[0].distance, shots[1].distance, shots[2].distance];
+  const secrets = [SALT, SALT, SALT];
+  const playerAddresses = [players[0].address, players[1].address, players[2].address];
+
+  await game.submitMove(travelDirs, travelDists, shotDirs, shotDists, secrets, playerAddresses, GAME_ID);
+  console.log(`Submitted moves for ${players.length} players.`);
+
+  await game.updateWorld(1)
+    .then((tx) => {
+      return tx.wait();
+    })
+    .then((receipt) => {
+      console.log(`Updated world in block ${receipt.blockNumber}.`);
+    })
+    .catch(console.error);
 }
 
 

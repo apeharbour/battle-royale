@@ -40,6 +40,32 @@ export class Cell__Params {
   }
 }
 
+export class CellDeleted extends ethereum.Event {
+  get params(): CellDeleted__Params {
+    return new CellDeleted__Params(this);
+  }
+}
+
+export class CellDeleted__Params {
+  _event: CellDeleted;
+
+  constructor(event: CellDeleted) {
+    this._event = event;
+  }
+
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get q(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+
+  get r(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+}
+
 export class CommitPhaseStarted extends ethereum.Event {
   get params(): CommitPhaseStarted__Params {
     return new CommitPhaseStarted__Params(this);

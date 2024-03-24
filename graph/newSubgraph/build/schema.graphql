@@ -34,6 +34,7 @@ type Round @entity {
   radius: Int!
   shrunk: Boolean!
   moves: [Move!]! @derivedFrom(field: "round")
+  deletedCells: [Cell!]! @derivedFrom(field: "deletedInRound")
 }
 
 type Move @entity {
@@ -62,12 +63,13 @@ type Shot @entity {
   destinationR: Int!
 }
 
-type Cell @entity(immutable: true) {
+type Cell @entity {
   id: Bytes!
   game: Game!
   q: Int!
   r: Int!
   island: Boolean!
+  deletedInRound: Round
 }
 
 enum PlayerState {

@@ -207,11 +207,25 @@ export default function Board({
             stroke-dasharray: ${shootPathLength};
           }
 
+          .deleted {
+            animation: fade-out 0.7s ease-in forwards;
+          }
+
           @keyframes shippathdraw {
             to {
               stroke-dashoffset: 0;
             }
-          }          
+          }
+          
+          @keyframes fade-out {
+            0% {
+              opacity: 1;
+            }
+          
+            100% {
+              opacity: 0;
+            }
+          }
         `}
       </style>
 
@@ -222,7 +236,7 @@ export default function Board({
         origin={shift}
       >
         {/* cells */}
-        {cells.map(({ id, q, r, s, state, neighborCode }) => (
+        {cells.filter(c => !c.deletedPreviously && !c.deletedThisRound).map(({ id, q, r, s, state, deleted, neighborCode }) => (
           <Hexagon
             className={[
               state,
@@ -238,6 +252,21 @@ export default function Board({
             // onMouseLeave={handleMouseLeave}
           >
             {/* <Coordinates q={q} r={r} /> */}
+          </Hexagon>
+        ))}
+
+        {/* deleted cells */}
+        {cells.filter(c => c.deletedThisRound ).map(({ id, q, r, s }) => (
+          <Hexagon
+          className={[
+            state,
+            "deleted"].join(" ")}
+            key={id}
+            q={q}
+            r={r}
+            s={s}
+            fill="pat-water0"
+          >
           </Hexagon>
         ))}
 
