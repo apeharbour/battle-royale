@@ -23,24 +23,18 @@ export default function ShootPath({ start, end, ...props }) {
     }
   }, [start, end]); // Empty dependency array means this runs once after the initial render
 
+  const shootPathStyle = {
+    animation: 'path-draw 2s linear forwards infinite',
+    strokeWidth: 0.5, 
+    strokeLinecap: "round", 
+    strokeLinejoin: "round" , 
+    // strokeOpacity: 0.5 
+  };
+
+
   return (
     <g ref={pathRef}>
       <defs>
-        <marker
-          id="shootArrowhead"
-          markerWidth="4"
-          markerHeight="4"
-          refX="2"
-          refY="2"
-          orient="auto"
-        >
-          <polyline
-            points="0 0, 2 2, 0 4"
-            fill="none"
-            strokeWidth={1}
-            stroke="lightgray"
-          />
-        </marker>
         <marker id="shootIcon" refX="5" refY="5" markerWidth="10" markerHeight="10">
           <circle cx="5" cy="5" r="2" fill="lightgray" />
         </marker>
@@ -49,8 +43,10 @@ export default function ShootPath({ start, end, ...props }) {
       <Path
         start={start}
         end={end}
-        markerMid="url(#shootIcon)"
+        // markerMid="url(#shootIcon)"
         markerEnd="url(#shootIcon)"
+        className="shoot-path"
+
       />
       {/* <circle r="2" fill="red">
         <animateMotion dur="10s" repeatCount="indefinite" path={pathData} />

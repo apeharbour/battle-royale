@@ -11,5 +11,5 @@ module.exports = buildModule("BattleRoyale", (m) => {
 
   m.call(game, "setRegistrationContract", [registration])
 
-  return { game, registration };
+  return { game, registration, punkships };
 });

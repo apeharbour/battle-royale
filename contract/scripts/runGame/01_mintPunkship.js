@@ -21,7 +21,7 @@ async function main() {
     deployedAddresses["BattleRoyale#Punkships"]
   );
 
-  const SHIPS_TO_MINT = 5;
+  const SHIPS_TO_MINT = 1;
 
   const mintShips = async (numberToMint, owner) => {
     for (let i = 0; i < numberToMint; i++) {
@@ -37,6 +37,7 @@ async function main() {
     }
   };
 
+  await mintShips(SHIPS_TO_MINT, owner)
   await mintShips(SHIPS_TO_MINT, player1)
   await mintShips(SHIPS_TO_MINT, player2)
   await mintShips(SHIPS_TO_MINT, player3)

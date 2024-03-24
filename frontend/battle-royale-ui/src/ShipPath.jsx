@@ -1,12 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
-import { Path } from "react-hexgrid";
+import { HexUtils, Path } from "react-hexgrid";
 
-export default function ShipPath({
-  start,
-  end,
-  ship,
-  ...props
-}) {
+export default function ShipPath({ start, end, ship, ...props }) {
   // Create a ref to hold the SVG <path> element
   const pathRef = useRef(null);
   const [pathData, setPathData] = useState("");
@@ -31,28 +26,7 @@ export default function ShipPath({
   return (
     <g ref={pathRef}>
       <defs>
-        <marker
-          id="arrowhead"
-          markerWidth="4"
-          markerHeight="4"
-          refX="2"
-          refY="2"
-          orient="auto"
-        >
-          <polyline
-            points="0 0, 2 2, 0 4"
-            fill="none"
-            strokeWidth={1}
-            stroke="lightgray"
-          />
-        </marker>
-        <marker
-          id="icon"
-          refX="4"
-          refY="4"
-          markerWidth="8"
-          markerHeight="8"
-        >
+        <marker id="icon" refX="4" refY="4" markerWidth="8" markerHeight="8">
           <image
             href={ship}
             width="8"
@@ -68,8 +42,9 @@ export default function ShipPath({
       <Path
         start={start}
         end={end}
-        markerMid="url(#icon)"
+        // markerMid="url(#icon)"
         markerEnd="url(#icon)"
+        className="ship-path"
       />
       {/* <circle r="2" fill="red">
         <animateMotion dur="10s" repeatCount="indefinite" path={pathData} />

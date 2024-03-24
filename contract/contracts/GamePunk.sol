@@ -251,7 +251,7 @@ contract GamePunk is Ownable {
                     _playerAddresses[i]
                 );
 
-            console.log("hashes match %s", games[gameId].moveHashes[_playerAddresses[i]] == moveHash);
+            // console.log("hashes match %s", games[gameId].moveHashes[_playerAddresses[i]] == moveHash);
 
             // Check if moveHash matches the stored hash for this player
             if (games[gameId].moveHashes[_playerAddresses[i]] == moveHash) {
@@ -340,13 +340,13 @@ contract GamePunk is Ownable {
         bool alreadyTaken = false;
         do {
             coord = map.getRandomCoordinatePair(gameId);
-            console.log("New rnd pair %s, %s", coord.q, coord.r);
+            // console.log("New rnd pair %s, %s", coord.q, coord.r);
             for (uint8 i = 0; i < games[gameId].players.length; i++) {
-                console.log(
-                    "in loop %s, address: %s",
-                    i,
-                    games[gameId].players[i]
-                );
+                // console.log(
+                //     "in loop %s, address: %s",
+                //     i,
+                //     games[gameId].players[i]
+                // );
                 if (
                     games[gameId]
                         .ships[games[gameId].players[i]]

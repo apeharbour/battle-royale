@@ -6,6 +6,18 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
+const dir = {
+  E: 0,
+  NE: 1,
+  NW: 2,
+  W: 3,
+  SW: 4,
+  SE: 5,
+};
+
+const SALT = 1
+const GAME_ID = 1
+
 async function main() {
   const [owner, player1, player2, player3, player4] = await ethers.getSigners();
 
@@ -21,7 +33,15 @@ async function main() {
     deployedAddresses["BattleRoyale#GamePunk"]
   );
 
-  await game.submitMove([1, 0], [1, 1], [1, 0], [1, 1], [1, 2], [player1.address, player2.address], BigInt(1))
+  const travelDirs = [dir.NE, dir.SE, dir.E, dir.NW];
+  const travelDists = [3, 3, 1, 1];
+  const shotDirs = [dir.W, dir.E, dir.E, dir.NW];
+  const shotDists = [1, 2, 1, 2];
+  const secrets = [SALT, SALT, SALT, SALT];
+  const playerAddresses = [player1.address, player2.address, player3.address, player4.address];
+
+
+  await game.submitMove(travelDirs, travelDists, shotDirs, shotDists, secrets, playerAddresses, GAME_ID)
     .then((tx) => {
       return tx.wait();
     })

@@ -7,7 +7,7 @@ import {
   createTheme,
 } from "@mui/material";
 
-// import "./App.css";
+import "./App.css";
 import ListGames from "./ListGames";
 import Game from "./Game";
 import Admin from "./Admin";

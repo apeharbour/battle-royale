@@ -42,6 +42,8 @@ export default function Board({
   const [highlightedCells, setHighlightedCells] = useState([]);
   const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
   const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
+  const [shipPathLength, setShipPathLength] = useState(0);
+  const [shootPathLength, setShootPathLength] = useState(0);
 
   const dimensions = useResizeObserver(parentRef);
   const [hexGridSize, setHexGridSize] = useState(500);
@@ -125,6 +127,22 @@ export default function Board({
     }
   }, [travelEndpoint, shotEndpoint]);
 
+  // update ship path length
+  useEffect(() => {
+    if (myShip && tempTravelEndpoint) {
+      const newLength = HexUtils.distance(myShip, tempTravelEndpoint) * lengthOneHex;
+      setShipPathLength(newLength);
+    }
+  }, [myShip, tempTravelEndpoint]);
+
+  // update shoot path length
+  useEffect(() => {
+    if (tempTravelEndpoint && tempShotEndpoint) {
+      const newLength = HexUtils.distance(tempTravelEndpoint, tempShotEndpoint) * lengthOneHex;
+      setShootPathLength(newLength);
+    }
+  }, [tempTravelEndpoint, tempShotEndpoint]);
+
   const clearHighlights = () => {
     setHighlightedCells([]);
   };
@@ -165,8 +183,38 @@ export default function Board({
   shift.x *= -1;
   shift.y *= -1;
 
+  const lengthOneHex = HexUtils.hexToPixel(new Hex(1, 0, -1), layout.props.value.layout).x;
+
   return (
     <HexGrid width={hexGridSize} height={hexGridSize}>
+            <style>
+        {`
+          .ship-path {
+            animation: shippathdraw 3s linear forwards infinite;
+            stroke: lightgray;
+            stroke-width: 0.5;
+            stroke-linecap: round;
+            stroke-dashoffset: ${shipPathLength};
+            stroke-dasharray: ${shipPathLength};
+          }
+
+          .shoot-path {
+            animation: shippathdraw 3s linear forwards infinite;
+            stroke: lightgray;
+            stroke-width: 0.5;
+            stroke-linecap: round;
+            stroke-dashoffset: ${shootPathLength};
+            stroke-dasharray: ${shootPathLength};
+          }
+
+          @keyframes shippathdraw {
+            to {
+              stroke-dashoffset: 0;
+            }
+          }          
+        `}
+      </style>
+
       <Layout
         size={hexagonSize}
         spacing={1.02}
@@ -189,7 +237,7 @@ export default function Board({
             fill={getFillPattern(state, neighborCode)}
             // onMouseLeave={handleMouseLeave}
           >
-            <Coordinates q={q} r={r} />
+            {/* <Coordinates q={q} r={r} /> */}
           </Hexagon>
         ))}
 
@@ -219,11 +267,13 @@ export default function Board({
         <ShipPath
           start={myShip}
           end={tempTravelEndpoint}
-          ship={myShip && myShip.image ? myShip.image : ""}
+          ship={myShip && myShip.image ? myShip.image : "" }
+          updateShipPath={setShipPathLength}
         />
         <ShootPath
           start={tempTravelEndpoint}
           end={tempShotEndpoint}
+          updateShotPath={setShootPathLength}
         />
       </Layout>
     </HexGrid>

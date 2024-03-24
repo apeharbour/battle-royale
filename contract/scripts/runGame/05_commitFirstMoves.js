@@ -6,6 +6,18 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
+const dir = {
+  E: 0,
+  NE: 1,
+  NW: 2,
+  W: 3,
+  SW: 4,
+  SE: 5,
+};
+
+const SALT = 1
+const GAME_ID = 1
+
 async function main() {
   const [owner, player1, player2, player3, player4] = await ethers.getSigners();
 
@@ -41,8 +53,10 @@ async function main() {
   }
 
   let hashes = [];
-  hashes[0] = commitMove(player1, { direction: 1, distance: 1 }, { direction: 1, distance: 1 }, 1, BigInt(1));
-  hashes[1] = commitMove(player2, { direction: 0, distance: 1 }, { direction: 0, distance: 1 }, 2, BigInt(1));
+  hashes[0] = commitMove(player1, { direction: dir.NE, distance: 3 }, { direction: dir.W, distance: 1 }, SALT, GAME_ID);
+  hashes[1] = commitMove(player2, { direction: dir.SE, distance: 3 }, { direction: dir.E, distance: 2 }, SALT, GAME_ID);
+  hashes[1] = commitMove(player3, { direction: dir.E, distance: 1 }, { direction: dir.E, distance: 1 }, SALT, GAME_ID);
+  hashes[1] = commitMove(player4, { direction: dir.NW, distance: 1 }, { direction: dir.NW, distance: 2 }, SALT, GAME_ID);
 
   await Promise.all(hashes);
   console.log("All moves committed.");
