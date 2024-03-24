@@ -220,7 +220,7 @@ export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
           travel.originR = player.r;
         }
         travel.save()
-        log.debug('Travel saved with id {} for player {} in round {}', [travelId.toHexString(), event.params.player.toHexString(), round.round.toString()])
+        log.info('Travel saved with id {} for player {} in round {}', [travelId.toHexString(), event.params.player.toHexString(), round.round.toString()])
         
         move.travel = travelId;
         
@@ -235,7 +235,7 @@ export function handleMoveSubmitted(event: MoveSubmittedEvent): void {
         shot.destinationR = event.params.shotR;
         
         shot.save()
-        log.debug('Shot saved with id {} for player {} in round {}', [shotId.toHexString(), event.params.player.toHexString(), round.round.toString()])
+        log.info('Shot saved with id {} for player {} in round {}', [shotId.toHexString(), event.params.player.toHexString(), round.round.toString()])
         
         move.shot = shotId;
         move.save();

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import { Grid, Stack} from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -296,6 +296,7 @@ export default function Game(props) {
       queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
         gameId: id,
       }),
+    refetchInterval: 1000,
   });
 
   /* transform and enrich data from the subgraph whenever it changes */
@@ -528,7 +529,7 @@ export default function Game(props) {
             >
               Commit Moves
             </Button>
-          {/* </Box> */}
+            {/* </Box> */}
 
           <PlayerStatus ships={ships} />
           <Timer />
