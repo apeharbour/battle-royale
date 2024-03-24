@@ -23,6 +23,15 @@ export default function ShootPath({ start, end, ...props }) {
   //   }
   // }, [start, end]); // Empty dependency array means this runs once after the initial render
 
+  const shootPathStyle = {
+    animation: 'path-draw 2s linear forwards infinite',
+    strokeWidth: 0.5, 
+    strokeLinecap: "round", 
+    strokeLinejoin: "round" , 
+    // strokeOpacity: 0.5 
+  };
+
+
   return (
     <g ref={pathRef}>
       <defs>
