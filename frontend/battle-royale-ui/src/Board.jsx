@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Hex,
   HexGrid,
@@ -18,6 +18,7 @@ import Ship from "./Ship.jsx";
 import ShootPath from "./ShootPath.jsx";
 import useResizeObserver from "./utils/useResizeObserver.jsx";
 import Point from "react-hexgrid/lib/models/Point.js";
+import { Tooltip } from "@mui/material";
 
 const hexagonSize = { x: 5, y: 5 };
 const waterSize = { x: 4.33, y: 5 };
@@ -185,10 +186,60 @@ export default function Board({
 
   const lengthOneHex = HexUtils.hexToPixel(new Hex(1, 0, -1), layout.props.value.layout).x;
 
+  const shipStyles = ships.map((ship) => {
+    if (ship.travel.origin && ship.travel.destination) {
+      const origin = HexUtils.hexToPixel(ship.travel.origin, layout.props.value.layout);
+      const destination = HexUtils.hexToPixel(ship.travel.destination, layout.props.value.layout);
+      origin.x += shift.x;
+      origin.y += shift.y;
+      destination.x += shift.x;
+      destination.y += shift.y;
+      
+      const styles = `.ship-${ship.address} { 
+        animation: move-${ship.address} 2s ease-in-out; 
+      }`
+      const keyFrames = `@keyframes move-${ship.address} { 
+        from { transform: translate(${origin.x}px, ${origin.y}px); } 
+        to { transform: translate(${destination.x}px, ${destination.y}px); } 
+      }`;
+      return [styles, keyFrames].join("\n");
+    } else {
+      return `.ship-${ship.address}: { animation: none; }`;
+    }
+  }).join("\n");
+
+  const canonStyles = ships.map((ship) => {
+    if (ship.shot.origin && ship.shot.destination) {
+      const origin = HexUtils.hexToPixel(ship.shot.origin, layout.props.value.layout);
+      const destination = HexUtils.hexToPixel(ship.shot.destination, layout.props.value.layout);
+      origin.x += shift.x;
+      origin.y += shift.y;
+      destination.x += shift.x;
+      destination.y += shift.y;
+      
+      const styles = `.canon-${ship.address} { 
+        opacity: 0;
+        animation: shot-${ship.address} 2s ease-in-out;
+        animation-delay: 2s;
+      }`
+      const keyFrames = `@keyframes shot-${ship.address} { 
+        0% {  transform: translate(${origin.x}px, ${origin.y}px); }
+        80% { opacity: 1; }
+        70% { opacity: 1; }
+        100% { transform: translate(${destination.x}px, ${destination.y}px); } 
+      }`;
+      return [styles, keyFrames].join(" ");
+    } else {
+      return `.ship-${ship.address}: { animation: none; }`;
+    }
+  }).join(" ");
+
   return (
     <HexGrid width={hexGridSize} height={hexGridSize}>
             <style>
         {`
+          ${shipStyles}
+          ${canonStyles}
           .ship-path {
             animation: shippathdraw 3s linear forwards infinite;
             stroke: lightgray;
@@ -207,8 +258,35 @@ export default function Board({
             stroke-dasharray: ${shootPathLength};
           }
 
+          .explosion {
+            animation: explode 0.5s ease-in forwards;
+            animation-delay: 3.5s;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+            stroke-width: 0.5;
+            stroke: yellow;
+            fill: yellow;
+            transform: scale(0.5);
+            opacity: 0;
+          }
+
           .deleted {
             animation: fade-out 0.7s ease-in forwards;
+          }
+
+          @keyframes explode {
+            0% {
+              transform: scale(0.1);
+              opacity: 0;
+            }
+            50% {
+              transform: scale(0.75);
+              opacity: 1;
+            }
+            100% {
+              transform: scale(0.75);
+              opacity: 0;
+            }
           }
 
           @keyframes shippathdraw {
@@ -290,7 +368,9 @@ export default function Board({
         ))}
 
         {ships.map((ship, index) => (
-          <Ship ship={ship} size={hexagonSize} key={index} />
+          <React.Fragment key={index}>
+            <Ship ship={ship} size={hexagonSize} key={index} />
+          </React.Fragment>
         ))}
 
         <ShipPath

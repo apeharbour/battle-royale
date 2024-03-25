@@ -143,7 +143,7 @@ export default function Game(props) {
    * neighborCode: a 6 bit number where each bit represents a neighbor cell
    */
   const enrichCell = (cell, allCells, currentRound) => {
-    console.log("Enriching cell: ", cell);
+    // console.log("Enriching cell: ", cell);
     const s = (cell.q + cell.r) * -1;
     const state = cell.island ? "island" : "water";
     const highlighted = false;
@@ -153,16 +153,16 @@ export default function Game(props) {
     const deletedPreviously =
       cell.deletedInRound &&
       parseInt(cell.deletedInRound.round) < currentRound - 1;
-    console.log(
-      "round: ",
-      currentRound - 1,
-      "deletedInRound: ",
-      cell.deletedInRound,
-      "deletedPreviously: ",
-      deletedPreviously,
-      "deletedthisRound",
-      deletedThisRound
-    );
+    // console.log(
+    //   "round: ",
+    //   currentRound - 1,
+    //   "deletedInRound: ",
+    //   cell.deletedInRound,
+    //   "deletedPreviously: ",
+    //   deletedPreviously,
+    //   "deletedthisRound",
+    //   deletedThisRound
+    // );
 
     // check if there are islands as neighbors, set island=false for non-existant cells
     const hex = new Hex(cell.q, cell.r, s);
@@ -198,10 +198,31 @@ export default function Game(props) {
     };
   };
 
-  const enrichShip = (ship) => {
+  const enrichShip = (ship, movesLastRound) => {
+    // console.log("Moves Last Round: ", movesLastRound)
+    // for (let i=0; i<movesLastRound.length; i++) {
+    //   console.log("Ship: ", ship.address, "Move", i, ":", movesLastRound[i].player.address, "match: ", ship.address === movesLastRound[i].player.address);
+    // }
+    // console.log("Move: ", movesLastRound[0].player.address);
+    const move = movesLastRound.filter((m) => m.player.address === ship.address)[0];
+    console.log("ship", ship, "Move: ", move);
+
+    const travel = {}
+    const shot = {}
+
+    if (move && move.travel) {
+      travel.origin = new Hex(move.travel.originQ, move.travel.originR, (move.travel.originQ + move.travel.originR) * -1);
+      travel.destination = new Hex(move.travel.destinationQ, move.travel.destinationR, (move.travel.destinationQ + move.travel.destinationR) * -1);
+    }
+
+    if (move && move.shot) {
+      shot.origin = new Hex(move.shot.originQ, move.shot.originR, (move.shot.originQ + move.shot.originR) * -1);
+      shot.destination = new Hex(move.shot.destinationQ, move.shot.destinationR, (move.shot.destinationQ + move.shot.destinationR) * -1);
+    }
+
     const s = (ship.q + ship.r) * -1;
     const mine = ship.address.toLowerCase() === account.address.toLowerCase();
-    const newCell = { ...ship, s, mine };
+    const newCell = { ...ship, s, travel, shot, mine };
     return newCell;
   };
 
@@ -212,13 +233,15 @@ export default function Game(props) {
     const { games } = data;
     const game = games[0];
     console.log("Game: ", game, "Round: ", game.currentRound.round);
-    const currentRound = game.currentRound.round;
+    const currentRound = parseInt(game.currentRound.round);
     setRound(currentRound);
 
     // console.log("Ships: ", game.players);
 
     // process ships
-    const ships = game.players.map(enrichShip);
+    const movesLastRound = game.rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
+    console.log("Moves Last Round: ", movesLastRound);
+    const ships = game.players.map(s => enrichShip(s, movesLastRound));
     const myShip1 = ships.filter((s) => s.mine)[0];
     setMyShip(myShip1);
     setShips([...ships]);
@@ -238,7 +261,7 @@ export default function Game(props) {
       request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
         gameId: id,
       }),
-    refetchInterval: 1000,
+    // refetchInterval: 5000,
   });
 
   /* transform and enrich data from the subgraph whenever it changes */

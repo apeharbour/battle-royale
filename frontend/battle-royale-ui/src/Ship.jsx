@@ -1,4 +1,6 @@
 import { Hexagon, Pattern } from "react-hexgrid";
+import explosion from "./assets/explosion.svg";
+import ExplosionIcon from "./ExplosionIcon";
 
 export default function Ship({ ship, size }) {
   const { q, r, s, mine, image, state } = ship;
@@ -18,6 +20,8 @@ export default function Ship({ ship, size }) {
 
   const shipSize = { x: size.x - 0.5, y: size.y - 0.5 };
 
+  console.log("ship in comp", ship);
+
   if (ship.state === "active") {
     return (
       <g>
@@ -27,7 +31,33 @@ export default function Ship({ ship, size }) {
           s={s}
           key={ship.address}
           fill={`pat-${ship.address}`}
+          className={`ship-${ship.address}`}
         />
+        {ship.shot && ship.shot.origin && (
+          <g>
+            <Hexagon
+              q={ship.shot.origin.q}
+              r={ship.shot.origin.r}
+              s={ship.shot.origin.s}
+              key={`${ship.address}-shot`}
+              fill="none"
+              className={`canon-${ship.address}`}
+            >
+              <circle cx="0" cy="0" r={size.x / 4} fill="lightgray" />
+            </Hexagon>
+            <Hexagon
+              q={ship.shot.destination.q}
+              r={ship.shot.destination.r}
+              s={ship.shot.destination.s}
+              fill="none"
+            >
+              <path
+                className="explosion"
+                d="M -1 -2 l 1 -4 l 1 3 l 4 -1 l -3 3 l 4 2 l -4 0 l 2 4 l -3 -3 l -2 3 l 0 -3 l -2 1 l 1 -3 l -2 -2 z"
+              />
+            </Hexagon>
+          </g>
+        )}
         <Pattern id={`pat-${ship.address}`} link={dataURL} size={shipSize} />
       </g>
     );
