@@ -131,6 +131,8 @@ contract GamePunk is Ownable {
         punkships = IPunkships(_punkshipsAddress);
     }
 
+    fallback() external {}
+
     // Function to set the registration contract's address
     function setRegistrationContract(
         address _registrationContract

@@ -1,6 +1,4 @@
 import { Hexagon, Pattern } from "react-hexgrid";
-import explosion from "./assets/explosion.svg";
-import ExplosionIcon from "./ExplosionIcon";
 
 export default function Ship({ ship, size }) {
   const { q, r, s, mine, image, state } = ship;
@@ -19,8 +17,6 @@ export default function Ship({ ship, size }) {
   const dataURL = `data:image/svg+xml;base64,${b64UpdatedSvgString}`;
 
   const shipSize = { x: size.x - 0.5, y: size.y - 0.5 };
-
-  console.log("ship in comp", ship);
 
   if (ship.state === "active") {
     return (
@@ -43,7 +39,7 @@ export default function Ship({ ship, size }) {
               fill="none"
               className={`canon-${ship.address}`}
             >
-              <circle cx="0" cy="0" r={size.x / 4} fill="lightgray" />
+              <circle cx="0" cy="0" r={size.x / 4} fill="lightgray" stroke="black" strokeWidth="0.1" />
             </Hexagon>
             <Hexagon
               q={ship.shot.destination.q}

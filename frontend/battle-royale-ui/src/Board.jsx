@@ -263,8 +263,8 @@ export default function Board({
             animation-delay: 3.5s;
             stroke-linejoin: round;
             stroke-linecap: round;
-            stroke-width: 0.5;
-            stroke: yellow;
+            stroke-width: 0.1;
+            stroke: black;
             fill: yellow;
             transform: scale(0.5);
             opacity: 0;

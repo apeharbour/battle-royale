@@ -55,6 +55,8 @@ export default function Registration(props) {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  console.log("ABI: ", REGISTRATION_ABI);
+
   const account = useAccount();
   const {
     writeContract,
@@ -106,18 +108,18 @@ export default function Registration(props) {
   };
 
   const register = () => {
-    console.log("Registering ship: ", BigInt(selectedYacht.tokenId));
+    console.log("Registering ship: ", parseInt(selectedYacht.tokenId));
     writeContract({
       abi: REGISTRATION_ABI,
       address: REGISTRATION_ADDRESS,
       functionName: "registerPlayer",
-      args: [BigInt(selectedYacht.tokenId)],
+      args: [parseInt(selectedYacht.tokenId)],
     });
 
     console.log("Added ship");
   };
 
-  if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
+  // if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
   if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
   if (txIsPending) enqueueSnackbar("Transaction pending...", { variant: "info" });
   if (txIsError) enqueueSnackbar("Error: " + JSON.stringify(txError), { variant: "error" });

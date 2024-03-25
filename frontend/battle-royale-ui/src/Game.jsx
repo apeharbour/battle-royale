@@ -153,16 +153,6 @@ export default function Game(props) {
     const deletedPreviously =
       cell.deletedInRound &&
       parseInt(cell.deletedInRound.round) < currentRound - 1;
-    // console.log(
-    //   "round: ",
-    //   currentRound - 1,
-    //   "deletedInRound: ",
-    //   cell.deletedInRound,
-    //   "deletedPreviously: ",
-    //   deletedPreviously,
-    //   "deletedthisRound",
-    //   deletedThisRound
-    // );
 
     // check if there are islands as neighbors, set island=false for non-existant cells
     const hex = new Hex(cell.q, cell.r, s);
@@ -199,11 +189,6 @@ export default function Game(props) {
   };
 
   const enrichShip = (ship, movesLastRound) => {
-    // console.log("Moves Last Round: ", movesLastRound)
-    // for (let i=0; i<movesLastRound.length; i++) {
-    //   console.log("Ship: ", ship.address, "Move", i, ":", movesLastRound[i].player.address, "match: ", ship.address === movesLastRound[i].player.address);
-    // }
-    // console.log("Move: ", movesLastRound[0].player.address);
     const move = movesLastRound.filter((m) => m.player.address === ship.address)[0];
     console.log("ship", ship, "Move: ", move);
 
@@ -236,10 +221,11 @@ export default function Game(props) {
     const currentRound = parseInt(game.currentRound.round);
     setRound(currentRound);
 
-    // console.log("Ships: ", game.players);
-
     // process ships
-    const movesLastRound = game.rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
+    let movesLastRound = [];
+    if (currentRound > 1) {
+      movesLastRound = game.rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
+    }
     console.log("Moves Last Round: ", movesLastRound);
     const ships = game.players.map(s => enrichShip(s, movesLastRound));
     const myShip1 = ships.filter((s) => s.mine)[0];
@@ -338,7 +324,7 @@ export default function Game(props) {
     return 6;
   };
 
-  const commitMoves = async () => {
+  const commitMove = async () => {
     // calculate distances and directions
     const travelDistance = HexUtils.distance(myShip, travelEndpoint);
     const shotDistance = HexUtils.distance(travelEndpoint, shotEndpoint);
@@ -353,13 +339,14 @@ export default function Game(props) {
     //   setRandomInt(generateRandomInt());
     const randomInt = generateRandomInt();
     const moveHash = ethers.solidityPackedKeccak256(
-      ["uint8", "uint8", "uint8", "uint8", "uint256"],
+      ["uint8", "uint8", "uint8", "uint8", "uint256", "address"],
       [
         travelDirection,
         travelDistance,
         shotDirection,
         shotDistance,
         BigInt(randomInt),
+        account.address,
       ]
     );
 
@@ -439,8 +426,11 @@ export default function Game(props) {
     enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
   if (txIsPending)
     enqueueSnackbar("Transaction pending...", { variant: "info" });
-  if (txIsError)
-    enqueueSnackbar("Error: " + JSON.stringify(txError), { variant: "error" });
+  if (txIsError) {
+    console.error("Error: ", JSON.stringify(txError))
+    enqueueSnackbar("Error with tx." , { variant: "error" });
+  }
+
   if (txStatus === "success")
     enqueueSnackbar("Transaction successful!", { variant: "success" });
 
@@ -471,7 +461,7 @@ export default function Game(props) {
           <Stack spacing={2}>
             <Button
               variant="contained"
-              onClick={commitMoves}
+              onClick={commitMove}
               disabled={!shotEndpoint || !travelEndpoint}
             >
               Commit Moves

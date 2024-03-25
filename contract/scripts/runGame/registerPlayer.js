@@ -33,7 +33,7 @@ async function main() {
       .catch(console.error);
   }
 
-  await registerPlayer(1, player1);
+  // await registerPlayer(1, player1);
   await registerPlayer(2, player2);
   await registerPlayer(3, player3);
   await registerPlayer(4, player4);
