@@ -135,6 +135,8 @@ export default function Game(props) {
   const queryClient = useQueryClient();
 
   const { ws } = useWebSocket();
+  const queryClient = useQueryClient();
+
   const { enqueueSnackbar } = useSnackbar();
 
   const account = useAccount();
@@ -188,6 +190,35 @@ export default function Game(props) {
         ws.send(JSON.stringify(message));
     }
 }, [ws, gameId]);
+  useWatchContractEvent({
+    abi: GAME_ABI,
+    address: GAME_ADDRESS,
+    eventName: "MoveCommitted",
+    onLogs: async (logs) => {
+      const { gameId, player, moveHash } = logs[0].args;
+      console.log("MoveCommitted, GameId: ", gameId, "Player: ", player, "MoveHash: ", moveHash);
+    }
+  });
+
+  useWatchContractEvent({
+    abi: GAME_ABI,
+    address: GAME_ADDRESS,
+    eventName: "WorldUpdated",
+    onLogs: async (logs) => {
+      console.log("World Updated: ", logs);
+      const { gameId } = logs[0].args;
+      console.log("World updated for game: ", gameId);
+      // delay(5000).then(() => {
+      //   console.log('Invalidating query because of world update');
+      //   queryClient.invalidateQueries(["game", id]);
+      // });
+    }
+  });
+
+  useWatchBlockNumber( async (blockNumber) => {
+    console.log("New block: ", blockNumber, "invalidating game query");
+    queryClient.invalidateQueries(["game", BigInt(id).toString()]);
+  });
 
   /* Enrich the cell data with additional properties:
    * s: the cube coordinate s
@@ -296,7 +327,6 @@ export default function Game(props) {
       queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
         gameId: id,
       }),
-    refetchInterval: 1000,
   });
 
   /* transform and enrich data from the subgraph whenever it changes */

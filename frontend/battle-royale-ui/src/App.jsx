@@ -16,6 +16,7 @@ import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
 import useLocalStorageState from 'use-local-storage-state';
 import { WebSocketProvider } from "./contexts/WebSocketContext";
+import useLocalStorageState from 'use-local-storage-state';
 
 
 function App() {
