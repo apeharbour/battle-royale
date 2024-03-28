@@ -784,27 +784,55 @@ export class GamePunk extends ethereum.SmartContract {
     return new GamePunk("GamePunk", address);
   }
 
-  bytes32ToString(_bytes32: Bytes): string {
+  encodeCommitment(
+    _travelDirection: i32,
+    _travelDistance: i32,
+    _shotDirection: i32,
+    _shotDistance: i32,
+    _secret: i32,
+    _playerAddress: Address,
+  ): Bytes {
     let result = super.call(
-      "bytes32ToString",
-      "bytes32ToString(bytes32):(string)",
-      [ethereum.Value.fromFixedBytes(_bytes32)],
+      "encodeCommitment",
+      "encodeCommitment(uint8,uint8,uint8,uint8,uint8,address):(bytes32)",
+      [
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_travelDirection)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_travelDistance)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_shotDirection)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_shotDistance)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_secret)),
+        ethereum.Value.fromAddress(_playerAddress),
+      ],
     );
 
-    return result[0].toString();
+    return result[0].toBytes();
   }
 
-  try_bytes32ToString(_bytes32: Bytes): ethereum.CallResult<string> {
+  try_encodeCommitment(
+    _travelDirection: i32,
+    _travelDistance: i32,
+    _shotDirection: i32,
+    _shotDistance: i32,
+    _secret: i32,
+    _playerAddress: Address,
+  ): ethereum.CallResult<Bytes> {
     let result = super.tryCall(
-      "bytes32ToString",
-      "bytes32ToString(bytes32):(string)",
-      [ethereum.Value.fromFixedBytes(_bytes32)],
+      "encodeCommitment",
+      "encodeCommitment(uint8,uint8,uint8,uint8,uint8,address):(bytes32)",
+      [
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_travelDirection)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_travelDistance)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_shotDirection)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_shotDistance)),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(_secret)),
+        ethereum.Value.fromAddress(_playerAddress),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
+    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   games(param0: BigInt): GamePunk__gamesResult {

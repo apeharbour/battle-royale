@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
+import { WebSocketProvider } from "./contexts/WebSocketContext";
 
 
 function App() {
@@ -43,6 +44,7 @@ function App() {
   };
 
   return (
+    <WebSocketProvider>
     <SnackbarProvider maxSnack={3}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -61,6 +63,7 @@ function App() {
         </Web3Provider>
       </ThemeProvider>
     </SnackbarProvider>
+    </WebSocketProvider>
   );
 }
 
