@@ -302,6 +302,24 @@ export default function Game(props) {
       args: [moveHash, BigInt(gameId)],
     });
 
+       try {
+          await storePlayerMove({
+          gameId,
+           playerAddress: gamePlayer,
+           moveHash,
+           secretValue: randomInt,
+           travelDirection,
+           travelDistance,
+           shotDirection,
+           shotDistance,
+         });
+       } catch (error) {
+         console.error(
+           "Error in submitting moves or storing in DynamoDB",
+           error
+         );
+       }
+
     //   try {
     //     const tx = await contract
     //       .commitMove(moveHash, gameId)

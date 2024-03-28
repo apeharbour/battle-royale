@@ -3,6 +3,7 @@ import { ethers } from "ethers";
 import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { Box, TextField, Button, Stack } from "@mui/material";
+import Timer from "./Timer";
 
 const GAME_ADDRESS = "0x1D6CDc348B3631e9C444CdEfe7Da09048e4F88FD";
 const GAME_ABI = GameAbi.abi;
@@ -188,6 +189,9 @@ export default function Admin(props) {
             Update World
           </Button>
         </Stack>
+      </Box>
+      <Box>
+        <Timer />
       </Box>
     </Fragment>
   );
