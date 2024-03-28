@@ -14,10 +14,11 @@ import Admin from "./Admin";
 import AccountAppBar from "./AccountAppBar";
 import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
+import useLocalStorageState from 'use-local-storage-state';
 
 
 function App() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useLocalStorageState('darkMode', { defaultValue: true});
 
   // create a darkTheme function to handle dark theme using createTheme
   const theme = createTheme({

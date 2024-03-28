@@ -25,6 +25,7 @@ type Player @entity {
   game: Game!
   state: PlayerState!
   kills: Int
+  moves: [Move!]! @derivedFrom(field: "player")
 }
 
 type Round @entity {

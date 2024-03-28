@@ -1,0 +1,1269 @@
+schema {
+  query: Query
+  subscription: Subscription
+}
+
+"Marks the GraphQL type as indexable entity.  Each type that should be an entity is required to be annotated with this directive."
+directive @entity on OBJECT
+
+"Defined a Subgraph ID for an object type"
+directive @subgraphId(id: String!) on OBJECT
+
+"creates a virtual field on the entity that may be queried but cannot be set manually through the mappings API."
+directive @derivedFrom(field: String!) on FIELD_DEFINITION
+
+enum Aggregation_interval {
+  hour
+  day
+}
+
+scalar BigDecimal
+
+scalar BigInt
+
+input BlockChangedFilter {
+  number_gte: Int!
+}
+
+input Block_height {
+  hash: Bytes
+  number: Int
+  number_gte: Int
+}
+
+scalar Bytes
+
+type Cell {
+  id: Bytes!
+  game: Game!
+  q: Int!
+  r: Int!
+  island: Boolean!
+  deletedInRound: Round
+}
+
+input Cell_filter {
+  id: Bytes
+  id_not: Bytes
+  id_gt: Bytes
+  id_lt: Bytes
+  id_gte: Bytes
+  id_lte: Bytes
+  id_in: [Bytes!]
+  id_not_in: [Bytes!]
+  id_contains: Bytes
+  id_not_contains: Bytes
+  game: String
+  game_not: String
+  game_gt: String
+  game_lt: String
+  game_gte: String
+  game_lte: String
+  game_in: [String!]
+  game_not_in: [String!]
+  game_contains: String
+  game_contains_nocase: String
+  game_not_contains: String
+  game_not_contains_nocase: String
+  game_starts_with: String
+  game_starts_with_nocase: String
+  game_not_starts_with: String
+  game_not_starts_with_nocase: String
+  game_ends_with: String
+  game_ends_with_nocase: String
+  game_not_ends_with: String
+  game_not_ends_with_nocase: String
+  game_: Game_filter
+  q: Int
+  q_not: Int
+  q_gt: Int
+  q_lt: Int
+  q_gte: Int
+  q_lte: Int
+  q_in: [Int!]
+  q_not_in: [Int!]
+  r: Int
+  r_not: Int
+  r_gt: Int
+  r_lt: Int
+  r_gte: Int
+  r_lte: Int
+  r_in: [Int!]
+  r_not_in: [Int!]
+  island: Boolean
+  island_not: Boolean
+  island_in: [Boolean!]
+  island_not_in: [Boolean!]
+  deletedInRound: String
+  deletedInRound_not: String
+  deletedInRound_gt: String
+  deletedInRound_lt: String
+  deletedInRound_gte: String
+  deletedInRound_lte: String
+  deletedInRound_in: [String!]
+  deletedInRound_not_in: [String!]
+  deletedInRound_contains: String
+  deletedInRound_contains_nocase: String
+  deletedInRound_not_contains: String
+  deletedInRound_not_contains_nocase: String
+  deletedInRound_starts_with: String
+  deletedInRound_starts_with_nocase: String
+  deletedInRound_not_starts_with: String
+  deletedInRound_not_starts_with_nocase: String
+  deletedInRound_ends_with: String
+  deletedInRound_ends_with_nocase: String
+  deletedInRound_not_ends_with: String
+  deletedInRound_not_ends_with_nocase: String
+  deletedInRound_: Round_filter
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Cell_filter]
+  or: [Cell_filter]
+}
+
+enum Cell_orderBy {
+  id
+  game
+  game__id
+  game__gameId
+  game__radius
+  game__centerQ
+  game__centerR
+  game__state
+  q
+  r
+  island
+  deletedInRound
+  deletedInRound__id
+  deletedInRound__round
+  deletedInRound__radius
+  deletedInRound__shrunk
+}
+
+type Game {
+  id: Bytes!
+  gameId: BigInt
+  radius: Int
+  centerQ: Int
+  centerR: Int
+  currentRound: Round!
+  state: GameState!
+  winner: Player
+  players(skip: Int = 0, first: Int = 100, orderBy: Player_orderBy, orderDirection: OrderDirection, where: Player_filter): [Player!]!
+  rounds(skip: Int = 0, first: Int = 100, orderBy: Round_orderBy, orderDirection: OrderDirection, where: Round_filter): [Round!]!
+  cells(skip: Int = 0, first: Int = 100, orderBy: Cell_orderBy, orderDirection: OrderDirection, where: Cell_filter): [Cell!]!
+}
+
+enum GameState {
+  registering
+  active
+  finished
+}
+
+input Game_filter {
+  id: Bytes
+  id_not: Bytes
+  id_gt: Bytes
+  id_lt: Bytes
+  id_gte: Bytes
+  id_lte: Bytes
+  id_in: [Bytes!]
+  id_not_in: [Bytes!]
+  id_contains: Bytes
+  id_not_contains: Bytes
+  gameId: BigInt
+  gameId_not: BigInt
+  gameId_gt: BigInt
+  gameId_lt: BigInt
+  gameId_gte: BigInt
+  gameId_lte: BigInt
+  gameId_in: [BigInt!]
+  gameId_not_in: [BigInt!]
+  radius: Int
+  radius_not: Int
+  radius_gt: Int
+  radius_lt: Int
+  radius_gte: Int
+  radius_lte: Int
+  radius_in: [Int!]
+  radius_not_in: [Int!]
+  centerQ: Int
+  centerQ_not: Int
+  centerQ_gt: Int
+  centerQ_lt: Int
+  centerQ_gte: Int
+  centerQ_lte: Int
+  centerQ_in: [Int!]
+  centerQ_not_in: [Int!]
+  centerR: Int
+  centerR_not: Int
+  centerR_gt: Int
+  centerR_lt: Int
+  centerR_gte: Int
+  centerR_lte: Int
+  centerR_in: [Int!]
+  centerR_not_in: [Int!]
+  currentRound: String
+  currentRound_not: String
+  currentRound_gt: String
+  currentRound_lt: String
+  currentRound_gte: String
+  currentRound_lte: String
+  currentRound_in: [String!]
+  currentRound_not_in: [String!]
+  currentRound_contains: String
+  currentRound_contains_nocase: String
+  currentRound_not_contains: String
+  currentRound_not_contains_nocase: String
+  currentRound_starts_with: String
+  currentRound_starts_with_nocase: String
+  currentRound_not_starts_with: String
+  currentRound_not_starts_with_nocase: String
+  currentRound_ends_with: String
+  currentRound_ends_with_nocase: String
+  currentRound_not_ends_with: String
+  currentRound_not_ends_with_nocase: String
+  currentRound_: Round_filter
+  state: GameState
+  state_not: GameState
+  state_in: [GameState!]
+  state_not_in: [GameState!]
+  winner: String
+  winner_not: String
+  winner_gt: String
+  winner_lt: String
+  winner_gte: String
+  winner_lte: String
+  winner_in: [String!]
+  winner_not_in: [String!]
+  winner_contains: String
+  winner_contains_nocase: String
+  winner_not_contains: String
+  winner_not_contains_nocase: String
+  winner_starts_with: String
+  winner_starts_with_nocase: String
+  winner_not_starts_with: String
+  winner_not_starts_with_nocase: String
+  winner_ends_with: String
+  winner_ends_with_nocase: String
+  winner_not_ends_with: String
+  winner_not_ends_with_nocase: String
+  winner_: Player_filter
+  players_: Player_filter
+  rounds_: Round_filter
+  cells_: Cell_filter
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Game_filter]
+  or: [Game_filter]
+}
+
+enum Game_orderBy {
+  id
+  gameId
+  radius
+  centerQ
+  centerR
+  currentRound
+  currentRound__id
+  currentRound__round
+  currentRound__radius
+  currentRound__shrunk
+  state
+  winner
+  winner__id
+  winner__address
+  winner__q
+  winner__r
+  winner__tokenId
+  winner__range
+  winner__shotRange
+  winner__image
+  winner__state
+  winner__kills
+  players
+  rounds
+  cells
+}
+
+"""
+8 bytes signed integer
+
+"""
+scalar Int8
+
+type Move {
+  id: Bytes!
+  game: Game!
+  round: Round!
+  player: Player!
+  commitment: Bytes
+  travel: Travel
+  shot: Shot
+}
+
+input Move_filter {
+  id: Bytes
+  id_not: Bytes
+  id_gt: Bytes
+  id_lt: Bytes
+  id_gte: Bytes
+  id_lte: Bytes
+  id_in: [Bytes!]
+  id_not_in: [Bytes!]
+  id_contains: Bytes
+  id_not_contains: Bytes
+  game: String
+  game_not: String
+  game_gt: String
+  game_lt: String
+  game_gte: String
+  game_lte: String
+  game_in: [String!]
+  game_not_in: [String!]
+  game_contains: String
+  game_contains_nocase: String
+  game_not_contains: String
+  game_not_contains_nocase: String
+  game_starts_with: String
+  game_starts_with_nocase: String
+  game_not_starts_with: String
+  game_not_starts_with_nocase: String
+  game_ends_with: String
+  game_ends_with_nocase: String
+  game_not_ends_with: String
+  game_not_ends_with_nocase: String
+  game_: Game_filter
+  round: String
+  round_not: String
+  round_gt: String
+  round_lt: String
+  round_gte: String
+  round_lte: String
+  round_in: [String!]
+  round_not_in: [String!]
+  round_contains: String
+  round_contains_nocase: String
+  round_not_contains: String
+  round_not_contains_nocase: String
+  round_starts_with: String
+  round_starts_with_nocase: String
+  round_not_starts_with: String
+  round_not_starts_with_nocase: String
+  round_ends_with: String
+  round_ends_with_nocase: String
+  round_not_ends_with: String
+  round_not_ends_with_nocase: String
+  round_: Round_filter
+  player: String
+  player_not: String
+  player_gt: String
+  player_lt: String
+  player_gte: String
+  player_lte: String
+  player_in: [String!]
+  player_not_in: [String!]
+  player_contains: String
+  player_contains_nocase: String
+  player_not_contains: String
+  player_not_contains_nocase: String
+  player_starts_with: String
+  player_starts_with_nocase: String
+  player_not_starts_with: String
+  player_not_starts_with_nocase: String
+  player_ends_with: String
+  player_ends_with_nocase: String
+  player_not_ends_with: String
+  player_not_ends_with_nocase: String
+  player_: Player_filter
+  commitment: Bytes
+  commitment_not: Bytes
+  commitment_gt: Bytes
+  commitment_lt: Bytes
+  commitment_gte: Bytes
+  commitment_lte: Bytes
+  commitment_in: [Bytes!]
+  commitment_not_in: [Bytes!]
+  commitment_contains: Bytes
+  commitment_not_contains: Bytes
+  travel: String
+  travel_not: String
+  travel_gt: String
+  travel_lt: String
+  travel_gte: String
+  travel_lte: String
+  travel_in: [String!]
+  travel_not_in: [String!]
+  travel_contains: String
+  travel_contains_nocase: String
+  travel_not_contains: String
+  travel_not_contains_nocase: String
+  travel_starts_with: String
+  travel_starts_with_nocase: String
+  travel_not_starts_with: String
+  travel_not_starts_with_nocase: String
+  travel_ends_with: String
+  travel_ends_with_nocase: String
+  travel_not_ends_with: String
+  travel_not_ends_with_nocase: String
+  travel_: Travel_filter
+  shot: String
+  shot_not: String
+  shot_gt: String
+  shot_lt: String
+  shot_gte: String
+  shot_lte: String
+  shot_in: [String!]
+  shot_not_in: [String!]
+  shot_contains: String
+  shot_contains_nocase: String
+  shot_not_contains: String
+  shot_not_contains_nocase: String
+  shot_starts_with: String
+  shot_starts_with_nocase: String
+  shot_not_starts_with: String
+  shot_not_starts_with_nocase: String
+  shot_ends_with: String
+  shot_ends_with_nocase: String
+  shot_not_ends_with: String
+  shot_not_ends_with_nocase: String
+  shot_: Shot_filter
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Move_filter]
+  or: [Move_filter]
+}
+
+enum Move_orderBy {
+  id
+  game
+  game__id
+  game__gameId
+  game__radius
+  game__centerQ
+  game__centerR
+  game__state
+  round
+  round__id
+  round__round
+  round__radius
+  round__shrunk
+  player
+  player__id
+  player__address
+  player__q
+  player__r
+  player__tokenId
+  player__range
+  player__shotRange
+  player__image
+  player__state
+  player__kills
+  commitment
+  travel
+  travel__id
+  travel__originQ
+  travel__originR
+  travel__destinationQ
+  travel__destinationR
+  shot
+  shot__id
+  shot__originQ
+  shot__originR
+  shot__destinationQ
+  shot__destinationR
+}
+
+"""Defines the order direction, either ascending or descending"""
+enum OrderDirection {
+  asc
+  desc
+}
+
+type Player {
+  id: Bytes!
+  address: Bytes!
+  q: Int!
+  r: Int!
+  tokenId: BigInt!
+  range: Int!
+  shotRange: Int!
+  image: String!
+  game: Game!
+  state: PlayerState!
+  kills: Int
+}
+
+enum PlayerState {
+  active
+  dropped
+  beached
+  crashed
+  shot
+  draw
+  won
+}
+
+input Player_filter {
+  id: Bytes
+  id_not: Bytes
+  id_gt: Bytes
+  id_lt: Bytes
+  id_gte: Bytes
+  id_lte: Bytes
+  id_in: [Bytes!]
+  id_not_in: [Bytes!]
+  id_contains: Bytes
+  id_not_contains: Bytes
+  address: Bytes
+  address_not: Bytes
+  address_gt: Bytes
+  address_lt: Bytes
+  address_gte: Bytes
+  address_lte: Bytes
+  address_in: [Bytes!]
+  address_not_in: [Bytes!]
+  address_contains: Bytes
+  address_not_contains: Bytes
+  q: Int
+  q_not: Int
+  q_gt: Int
+  q_lt: Int
+  q_gte: Int
+  q_lte: Int
+  q_in: [Int!]
+  q_not_in: [Int!]
+  r: Int
+  r_not: Int
+  r_gt: Int
+  r_lt: Int
+  r_gte: Int
+  r_lte: Int
+  r_in: [Int!]
+  r_not_in: [Int!]
+  tokenId: BigInt
+  tokenId_not: BigInt
+  tokenId_gt: BigInt
+  tokenId_lt: BigInt
+  tokenId_gte: BigInt
+  tokenId_lte: BigInt
+  tokenId_in: [BigInt!]
+  tokenId_not_in: [BigInt!]
+  range: Int
+  range_not: Int
+  range_gt: Int
+  range_lt: Int
+  range_gte: Int
+  range_lte: Int
+  range_in: [Int!]
+  range_not_in: [Int!]
+  shotRange: Int
+  shotRange_not: Int
+  shotRange_gt: Int
+  shotRange_lt: Int
+  shotRange_gte: Int
+  shotRange_lte: Int
+  shotRange_in: [Int!]
+  shotRange_not_in: [Int!]
+  image: String
+  image_not: String
+  image_gt: String
+  image_lt: String
+  image_gte: String
+  image_lte: String
+  image_in: [String!]
+  image_not_in: [String!]
+  image_contains: String
+  image_contains_nocase: String
+  image_not_contains: String
+  image_not_contains_nocase: String
+  image_starts_with: String
+  image_starts_with_nocase: String
+  image_not_starts_with: String
+  image_not_starts_with_nocase: String
+  image_ends_with: String
+  image_ends_with_nocase: String
+  image_not_ends_with: String
+  image_not_ends_with_nocase: String
+  game: String
+  game_not: String
+  game_gt: String
+  game_lt: String
+  game_gte: String
+  game_lte: String
+  game_in: [String!]
+  game_not_in: [String!]
+  game_contains: String
+  game_contains_nocase: String
+  game_not_contains: String
+  game_not_contains_nocase: String
+  game_starts_with: String
+  game_starts_with_nocase: String
+  game_not_starts_with: String
+  game_not_starts_with_nocase: String
+  game_ends_with: String
+  game_ends_with_nocase: String
+  game_not_ends_with: String
+  game_not_ends_with_nocase: String
+  game_: Game_filter
+  state: PlayerState
+  state_not: PlayerState
+  state_in: [PlayerState!]
+  state_not_in: [PlayerState!]
+  kills: Int
+  kills_not: Int
+  kills_gt: Int
+  kills_lt: Int
+  kills_gte: Int
+  kills_lte: Int
+  kills_in: [Int!]
+  kills_not_in: [Int!]
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Player_filter]
+  or: [Player_filter]
+}
+
+enum Player_orderBy {
+  id
+  address
+  q
+  r
+  tokenId
+  range
+  shotRange
+  image
+  game
+  game__id
+  game__gameId
+  game__radius
+  game__centerQ
+  game__centerR
+  game__state
+  state
+  kills
+}
+
+type Query {
+  game(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Game
+  games(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Game_orderBy
+    orderDirection: OrderDirection
+    where: Game_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Game!]!
+  player(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Player
+  players(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Player_orderBy
+    orderDirection: OrderDirection
+    where: Player_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Player!]!
+  round(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Round
+  rounds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Round_orderBy
+    orderDirection: OrderDirection
+    where: Round_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Round!]!
+  move(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Move
+  moves(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Move_orderBy
+    orderDirection: OrderDirection
+    where: Move_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Move!]!
+  travel(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Travel
+  travels(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Travel_orderBy
+    orderDirection: OrderDirection
+    where: Travel_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Travel!]!
+  shot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Shot
+  shots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Shot_orderBy
+    orderDirection: OrderDirection
+    where: Shot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Shot!]!
+  cell(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Cell
+  cells(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Cell_orderBy
+    orderDirection: OrderDirection
+    where: Cell_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Cell!]!
+  """Access to subgraph metadata"""
+  _meta(block: Block_height): _Meta_
+}
+
+type Round {
+  game: Game
+  id: Bytes!
+  round: BigInt!
+  radius: Int!
+  shrunk: Boolean!
+  moves(skip: Int = 0, first: Int = 100, orderBy: Move_orderBy, orderDirection: OrderDirection, where: Move_filter): [Move!]!
+  deletedCells(skip: Int = 0, first: Int = 100, orderBy: Cell_orderBy, orderDirection: OrderDirection, where: Cell_filter): [Cell!]!
+}
+
+input Round_filter {
+  game: String
+  game_not: String
+  game_gt: String
+  game_lt: String
+  game_gte: String
+  game_lte: String
+  game_in: [String!]
+  game_not_in: [String!]
+  game_contains: String
+  game_contains_nocase: String
+  game_not_contains: String
+  game_not_contains_nocase: String
+  game_starts_with: String
+  game_starts_with_nocase: String
+  game_not_starts_with: String
+  game_not_starts_with_nocase: String
+  game_ends_with: String
+  game_ends_with_nocase: String
+  game_not_ends_with: String
+  game_not_ends_with_nocase: String
+  game_: Game_filter
+  id: Bytes
+  id_not: Bytes
+  id_gt: Bytes
+  id_lt: Bytes
+  id_gte: Bytes
+  id_lte: Bytes
+  id_in: [Bytes!]
+  id_not_in: [Bytes!]
+  id_contains: Bytes
+  id_not_contains: Bytes
+  round: BigInt
+  round_not: BigInt
+  round_gt: BigInt
+  round_lt: BigInt
+  round_gte: BigInt
+  round_lte: BigInt
+  round_in: [BigInt!]
+  round_not_in: [BigInt!]
+  radius: Int
+  radius_not: Int
+  radius_gt: Int
+  radius_lt: Int
+  radius_gte: Int
+  radius_lte: Int
+  radius_in: [Int!]
+  radius_not_in: [Int!]
+  shrunk: Boolean
+  shrunk_not: Boolean
+  shrunk_in: [Boolean!]
+  shrunk_not_in: [Boolean!]
+  moves_: Move_filter
+  deletedCells_: Cell_filter
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Round_filter]
+  or: [Round_filter]
+}
+
+enum Round_orderBy {
+  game
+  game__id
+  game__gameId
+  game__radius
+  game__centerQ
+  game__centerR
+  game__state
+  id
+  round
+  radius
+  shrunk
+  moves
+  deletedCells
+}
+
+type Shot {
+  id: Bytes!
+  originQ: Int!
+  originR: Int!
+  destinationQ: Int!
+  destinationR: Int!
+}
+
+input Shot_filter {
+  id: Bytes
+  id_not: Bytes
+  id_gt: Bytes
+  id_lt: Bytes
+  id_gte: Bytes
+  id_lte: Bytes
+  id_in: [Bytes!]
+  id_not_in: [Bytes!]
+  id_contains: Bytes
+  id_not_contains: Bytes
+  originQ: Int
+  originQ_not: Int
+  originQ_gt: Int
+  originQ_lt: Int
+  originQ_gte: Int
+  originQ_lte: Int
+  originQ_in: [Int!]
+  originQ_not_in: [Int!]
+  originR: Int
+  originR_not: Int
+  originR_gt: Int
+  originR_lt: Int
+  originR_gte: Int
+  originR_lte: Int
+  originR_in: [Int!]
+  originR_not_in: [Int!]
+  destinationQ: Int
+  destinationQ_not: Int
+  destinationQ_gt: Int
+  destinationQ_lt: Int
+  destinationQ_gte: Int
+  destinationQ_lte: Int
+  destinationQ_in: [Int!]
+  destinationQ_not_in: [Int!]
+  destinationR: Int
+  destinationR_not: Int
+  destinationR_gt: Int
+  destinationR_lt: Int
+  destinationR_gte: Int
+  destinationR_lte: Int
+  destinationR_in: [Int!]
+  destinationR_not_in: [Int!]
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Shot_filter]
+  or: [Shot_filter]
+}
+
+enum Shot_orderBy {
+  id
+  originQ
+  originR
+  destinationQ
+  destinationR
+}
+
+type Subscription {
+  game(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Game
+  games(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Game_orderBy
+    orderDirection: OrderDirection
+    where: Game_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Game!]!
+  player(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Player
+  players(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Player_orderBy
+    orderDirection: OrderDirection
+    where: Player_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Player!]!
+  round(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Round
+  rounds(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Round_orderBy
+    orderDirection: OrderDirection
+    where: Round_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Round!]!
+  move(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Move
+  moves(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Move_orderBy
+    orderDirection: OrderDirection
+    where: Move_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Move!]!
+  travel(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Travel
+  travels(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Travel_orderBy
+    orderDirection: OrderDirection
+    where: Travel_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Travel!]!
+  shot(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Shot
+  shots(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Shot_orderBy
+    orderDirection: OrderDirection
+    where: Shot_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Shot!]!
+  cell(
+    id: ID!
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): Cell
+  cells(
+    skip: Int = 0
+    first: Int = 100
+    orderBy: Cell_orderBy
+    orderDirection: OrderDirection
+    where: Cell_filter
+    """
+    The block at which the query should be executed. Can either be a `{ hash: Bytes }` value containing a block hash, a `{ number: Int }` containing the block number, or a `{ number_gte: Int }` containing the minimum block number. In the case of `number_gte`, the query will be executed on the latest block only if the subgraph has progressed to or past the minimum block number. Defaults to the latest block when omitted.
+    """
+    block: Block_height
+    """
+    Set to `allow` to receive data even if the subgraph has skipped over errors while syncing.
+    """
+    subgraphError: _SubgraphErrorPolicy_! = deny
+  ): [Cell!]!
+  """Access to subgraph metadata"""
+  _meta(block: Block_height): _Meta_
+}
+
+type Travel {
+  id: Bytes!
+  originQ: Int!
+  originR: Int!
+  destinationQ: Int!
+  destinationR: Int!
+}
+
+input Travel_filter {
+  id: Bytes
+  id_not: Bytes
+  id_gt: Bytes
+  id_lt: Bytes
+  id_gte: Bytes
+  id_lte: Bytes
+  id_in: [Bytes!]
+  id_not_in: [Bytes!]
+  id_contains: Bytes
+  id_not_contains: Bytes
+  originQ: Int
+  originQ_not: Int
+  originQ_gt: Int
+  originQ_lt: Int
+  originQ_gte: Int
+  originQ_lte: Int
+  originQ_in: [Int!]
+  originQ_not_in: [Int!]
+  originR: Int
+  originR_not: Int
+  originR_gt: Int
+  originR_lt: Int
+  originR_gte: Int
+  originR_lte: Int
+  originR_in: [Int!]
+  originR_not_in: [Int!]
+  destinationQ: Int
+  destinationQ_not: Int
+  destinationQ_gt: Int
+  destinationQ_lt: Int
+  destinationQ_gte: Int
+  destinationQ_lte: Int
+  destinationQ_in: [Int!]
+  destinationQ_not_in: [Int!]
+  destinationR: Int
+  destinationR_not: Int
+  destinationR_gt: Int
+  destinationR_lt: Int
+  destinationR_gte: Int
+  destinationR_lte: Int
+  destinationR_in: [Int!]
+  destinationR_not_in: [Int!]
+  """Filter for the block changed event."""
+  _change_block: BlockChangedFilter
+  and: [Travel_filter]
+  or: [Travel_filter]
+}
+
+enum Travel_orderBy {
+  id
+  originQ
+  originR
+  destinationQ
+  destinationR
+}
+
+type _Block_ {
+  """The hash of the block"""
+  hash: Bytes
+  """The block number"""
+  number: Int!
+  """Integer representation of the timestamp stored in blocks for the chain"""
+  timestamp: Int
+}
+
+"""The type for the top-level _meta field"""
+type _Meta_ {
+  """
+  Information about a specific subgraph block. The hash of the block
+  will be null if the _meta field has a block constraint that asks for
+  a block number. It will be filled if the _meta field has no block constraint
+  and therefore asks for the latest  block
+  
+  """
+  block: _Block_!
+  """The deployment ID"""
+  deployment: String!
+  """If `true`, the subgraph encountered indexing errors at some past block"""
+  hasIndexingErrors: Boolean!
+}
+
+enum _SubgraphErrorPolicy_ {
+  """Data will be returned even if the subgraph has indexing errors"""
+  allow
+  """
+  If the subgraph has indexing errors, data will be omitted. The default.
+  """
+  deny
+}

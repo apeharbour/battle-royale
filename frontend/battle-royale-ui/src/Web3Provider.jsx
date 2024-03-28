@@ -1,4 +1,4 @@
-import { WagmiProvider, createConfig, http, fallback } from "wagmi";
+import { WagmiProvider, createConfig, http, fallback, webSocket } from "wagmi";
 import {
   mainnet,
   localhost,
@@ -7,7 +7,7 @@ import {
   optimism,
 } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import punkLogo from "./images/punkLogo.png";
 
@@ -17,9 +17,9 @@ const config = createConfig(
     chains: [localhost, sepolia, mainnet, optimism],
     transports: {
       // RPC URL for each chain
-      [localhost.id]: http(
-        import.meta.env.VITE_LOCALHOST_RPC_URL || "http://localhost:8545"
-      ),
+      [localhost.id]:
+        // http( import.meta.env.VITE_LOCALHOST_RPC_URL || "http://localhost:8545" ),
+        webSocket("ws://localhost:8545"),
       [sepolia.id]: fallback([
         http(import.meta.env.VITE_SEPOLIA_RPC_URL),
         http("https://sepolia-rpc.wagmi.io"),

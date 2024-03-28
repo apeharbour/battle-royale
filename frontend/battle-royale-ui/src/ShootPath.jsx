@@ -27,7 +27,7 @@ export default function ShootPath({ start, end, ...props }) {
     <g ref={pathRef}>
       <defs>
         <marker id="shootIcon" refX="5" refY="5" markerWidth="10" markerHeight="10">
-          <circle cx="5" cy="5" r="2" fill="lightgray" />
+          <circle cx="5" cy="5" r="2" fill="red" />
         </marker>
       </defs>
 

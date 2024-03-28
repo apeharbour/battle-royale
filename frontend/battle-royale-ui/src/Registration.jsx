@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useBlockNumber, useWriteContract } from "wagmi";
 import { useSnackbar } from "notistack";
 
 import {
@@ -30,7 +30,6 @@ const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
 const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
-const ACCOUNT_ADDRESS = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
 
 const GET_SHIPS = gql`
   query getPunkships($accountAddress: ID!) {
@@ -55,7 +54,13 @@ export default function Registration(props) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  console.log("ABI: ", REGISTRATION_ABI);
+  const queryClient = useQueryClient();
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+
+  useEffect(() => {
+    console.log("New block: ", blockNumber, "invalidating punkships query");
+    queryClient.invalidateQueries(['ships']);
+  }, [blockNumber]);
 
   const account = useAccount();
   const {

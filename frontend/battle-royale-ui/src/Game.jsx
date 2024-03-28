@@ -3,9 +3,10 @@ import { ethers } from "ethers";
 import { Grid, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useBlockNumber, useWatchBlockNumber, useWatchContractEvent, useWriteContract } from "wagmi";
+import { getBuiltGraphSDK } from '../.graphclient'
 
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -28,19 +29,7 @@ const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
-const CustomButton = styled(Button)({
-  backgroundColor: "rgba(215, 227, 249, 0.5)",
-  borderRadius: "20px",
-  padding: "20px 70px",
-  fontSize: "700",
-  color: "black",
-  "&:hover": {
-    backgroundColor: "rgba(195, 208, 243, 0.5)",
-  },
-  "&.Mui-disabled": {
-    cursor: "not-allowed",
-  },
-});
+const sdk = getBuiltGraphSDK()
 
 const GET_GAME = gql`
   query getGame($gameId: Int!, $first: Int, $skip: Int) {
@@ -124,9 +113,14 @@ export default function Game(props) {
 
   const gameId = id;
 
+  const queryClient = useQueryClient();
+
   const { enqueueSnackbar } = useSnackbar();
 
   const account = useAccount();
+
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+
   const {
     writeContract,
     hash: txHash,
@@ -136,6 +130,36 @@ export default function Game(props) {
     status: txStatus,
   } = useWriteContract();
 
+  useWatchContractEvent({
+    abi: GAME_ABI,
+    address: GAME_ADDRESS,
+    eventName: "MoveCommitted",
+    onLogs: async (logs) => {
+      const { gameId, player, moveHash } = logs[0].args;
+      console.log("MoveCommitted, GameId: ", gameId, "Player: ", player, "MoveHash: ", moveHash);
+    }
+  });
+
+  useWatchContractEvent({
+    abi: GAME_ABI,
+    address: GAME_ADDRESS,
+    eventName: "WorldUpdated",
+    onLogs: async (logs) => {
+      console.log("World Updated: ", logs);
+      const { gameId } = logs[0].args;
+      console.log("World updated for game: ", gameId);
+      // delay(5000).then(() => {
+      //   console.log('Invalidating query because of world update');
+      //   queryClient.invalidateQueries(["game", id]);
+      // });
+    }
+  });
+
+  useWatchBlockNumber( async (blockNumber) => {
+    console.log("New block: ", blockNumber, "invalidating game query");
+    queryClient.invalidateQueries(["game", BigInt(id).toString()]);
+  });
+
   /* Enrich the cell data with additional properties:
    * s: the cube coordinate s
    * state: the state of the cell (water, island)
@@ -143,7 +167,6 @@ export default function Game(props) {
    * neighborCode: a 6 bit number where each bit represents a neighbor cell
    */
   const enrichCell = (cell, allCells, currentRound) => {
-    // console.log("Enriching cell: ", cell);
     const s = (cell.q + cell.r) * -1;
     const state = cell.island ? "island" : "water";
     const highlighted = false;
@@ -190,7 +213,6 @@ export default function Game(props) {
 
   const enrichShip = (ship, movesLastRound) => {
     const move = movesLastRound.filter((m) => m.player.address === ship.address)[0];
-    console.log("ship", ship, "Move: ", move);
 
     const travel = {}
     const shot = {}
@@ -217,7 +239,6 @@ export default function Game(props) {
   const updateData = (data) => {
     const { games } = data;
     const game = games[0];
-    console.log("Game: ", game, "Round: ", game.currentRound.round);
     const currentRound = parseInt(game.currentRound.round);
     setRound(currentRound);
 
@@ -226,12 +247,10 @@ export default function Game(props) {
     if (currentRound > 1) {
       movesLastRound = game.rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
     }
-    console.log("Moves Last Round: ", movesLastRound);
     const ships = game.players.map(s => enrichShip(s, movesLastRound));
     const myShip1 = ships.filter((s) => s.mine)[0];
     setMyShip(myShip1);
     setShips([...ships]);
-    console.log("My Ship: ", myShip1);
 
     // process cells
     const cells = game.cells.map((c) => {
@@ -241,21 +260,22 @@ export default function Game(props) {
     setCells([...cells]);
   };
 
-  const { data, isLoading, isFetching, isError, error } = useQuery({
-    queryKey: ["game", id],
-    queryFn: async () =>
-      request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
+  // const { data, isLoading, isFetching, isError, error } = useQuery({
+  const { data, isFetching, isError, error } = useQuery({
+    queryKey: ["game", BigInt(id).toString()],
+    // queryFn: async () => sdk.getGame({gameId: BigInt(id).toString()}),
+      queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
         gameId: id,
       }),
-    // refetchInterval: 5000,
   });
 
   /* transform and enrich data from the subgraph whenever it changes */
   useEffect(() => {
-    if (!!account.address && data) {
+    if (!!account.address && data ) {
+      console.log("Updating data for game: ", id);
       updateData(data);
     }
-  }, [account.address, data]);
+  }, [data]);
 
   //Helper Function to generate secret random number for hashing moves
   function generateRandomInt() {
@@ -350,11 +370,6 @@ export default function Game(props) {
       ]
     );
 
-    console.log("Move Hash: ", moveHash);
-
-    console.log(
-      `Commiting Move: , { gameId: ${gameId}, travel: { direction: ${travelDirection}, distance: ${travelDistance} }, shot: { direction: ${shotDirection}, distance: ${shotDistance} }, moveHash: ${moveHash} }`
-    );
     writeContract({
       abi: GAME_ABI,
       address: GAME_ADDRESS,

@@ -251,7 +251,7 @@ export default function Board({
 
           .shoot-path {
             animation: shippathdraw 3s linear forwards infinite;
-            stroke: lightgray;
+            stroke: red;
             stroke-width: 0.5;
             stroke-linecap: round;
             stroke-dashoffset: ${shootPathLength};
@@ -271,7 +271,7 @@ export default function Board({
           }
 
           .deleted {
-            animation: fade-out 0.7s ease-in forwards;
+            animation: fade-out 3s ease-in forwards;
           }
 
           @keyframes explode {

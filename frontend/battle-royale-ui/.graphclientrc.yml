@@ -1,0 +1,12 @@
+sources: 
+  - name: "newSubgraph"
+    handler: 
+      graphql:
+        endpoint: "http://localhost:8000/subgraphs/name/newSubgraph/newSubgraph"
+
+plugins:
+  - pollingLive:
+      defaultInterval: 1000
+
+documents:
+  - ./src/queries/getGames.graphql

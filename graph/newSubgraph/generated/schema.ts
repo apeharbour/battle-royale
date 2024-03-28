@@ -346,6 +346,14 @@ export class Player extends Entity {
   set kills(value: i32) {
     this.set("kills", Value.fromI32(value));
   }
+
+  get moves(): MoveLoader {
+    return new MoveLoader(
+      "Player",
+      this.get("id")!.toBytes().toHexString(),
+      "moves",
+    );
+  }
 }
 
 export class Round extends Entity {
