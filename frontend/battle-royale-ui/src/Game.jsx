@@ -6,11 +6,10 @@ import { styled } from "@mui/material/styles";
 import { useQuery } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useWriteContract } from "wagmi";
-
+import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { Hex, HexUtils } from "react-hexgrid";
-import timer from "./images/Timer.png";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
@@ -44,53 +43,45 @@ const CustomButton = styled(Button)({
 });
 
 const GET_GAME = gql`
-  query getGame($gameId: Int!, $first: Int, $skip: Int) {
-    games(where: { gameId: $gameId }) {
-      gameId
+query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
+  games(where: { gameId: $gameId }) {
+    gameId
+    state
+    cells(first: $first, skip: $skip) {
+      id
+      q
+      r
+      island
+    }
+    players {
+      address
+      q
+      r
       state
-      cells(first: $first, skip: $skip) {
-        id
-        q
-        r
-        island
-      }
-      players {
-        address
-        q
-        r
-        state
-        kills
-        range
-        shotRange
-        image
-      }
-      currentRound {
-        round
-      }
-      rounds {
-        round
-        shrunk
-        moves {
-          player {
-            address
-          }
-          originQ
-          originR
-          destinationQ
-          destinationR
+      kills
+      range
+      shotRange
+      image
+    }
+    currentRound {
+      round
+    }
+   rounds {
+      round
+      shrunk
+      moves {
+        player {
+          address
         }
-        shots {
-          player {
-            address
-          }
-          originQ
-          originR
-          destinationQ
-          destinationR
-        }
+      game { gameId}
+              round { round}
+              commitment
+              travel  { id, originQ, originR, destinationQ, destinationR }
+              shot { id, originQ, originR, destinationQ, destinationR }
       }
     }
   }
+}
 `;
 
 export default function Game(props) {
@@ -108,6 +99,7 @@ export default function Game(props) {
 
   const gameId = id;
 
+  const { ws } = useWebSocket();
   const { enqueueSnackbar } = useSnackbar();
 
   const account = useAccount();
@@ -119,6 +111,16 @@ export default function Game(props) {
     isError: txIsError,
     status: txStatus,
   } = useWriteContract();
+
+  useEffect(() => {
+    if (ws && gameId) {
+        const message = {
+            action: 'setGameId',
+            gameId: gameId,
+        };
+        ws.send(JSON.stringify(message));
+    }
+}, [ws, gameId]);
 
   /* Enrich the cell data with additional properties:
    * s: the cube coordinate s
@@ -300,6 +302,24 @@ export default function Game(props) {
       args: [moveHash, BigInt(gameId)],
     });
 
+       try {
+          await storePlayerMove({
+          gameId,
+           playerAddress: gamePlayer,
+           moveHash,
+           secretValue: randomInt,
+           travelDirection,
+           travelDistance,
+           shotDirection,
+           shotDistance,
+         });
+       } catch (error) {
+         console.error(
+           "Error in submitting moves or storing in DynamoDB",
+           error
+         );
+       }
+
     //   try {
     //     const tx = await contract
     //       .commitMove(moveHash, gameId)
@@ -375,7 +395,7 @@ export default function Game(props) {
         <Grid item xs={3}>
           <Stack spacing={2}>
             {myShip && myShip.range && <ShipStatus ship={myShip} />}
-            {data && <Logs gameData={data} gameId={id} />}
+           
           </Stack>
         </Grid>
 
@@ -403,6 +423,7 @@ export default function Game(props) {
           </Box>
 
           <PlayerStatus ships={ships} />
+          <Timer />
         </Grid>
       </Grid>
     </Fragment>

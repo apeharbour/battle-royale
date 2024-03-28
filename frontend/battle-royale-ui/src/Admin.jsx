@@ -3,10 +3,11 @@ import { ethers } from "ethers";
 import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { Box, TextField, Button, Stack } from "@mui/material";
+import Timer from "./Timer";
 
-const GAME_ADDRESS = "0x1D6CDc348B3631e9C444CdEfe7Da09048e4F88FD";
+const GAME_ADDRESS = "0xbd4118becfB663aF6C376e27Fa9370a1177B43B4";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x3454f751b401880D04AFBF02dAfD871614497233";
+const REGISTRATION_ADDRESS = "0x782dF245894951A9cCbD31401e84267Ec52c1911";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Admin(props) {
@@ -63,15 +64,15 @@ export default function Admin(props) {
         .catch(console.error);
       await tx.wait();
 
-         const lastGameIdBigInt = await regiContract.lastGameId();
-         const lastGameId = Number(lastGameIdBigInt);
-         console.log(lastGameId);
+      //    const lastGameIdBigInt = await regiContract.lastGameId();
+      //    const lastGameId = Number(lastGameIdBigInt);
+      //    console.log(lastGameId);
 
-         for (let gameId = 1; gameId <= lastGameId; gameId++) {
-           triggerLambdaFunction(gameId);
-       }
+      //    for (let gameId = 1; gameId <= lastGameId; gameId++) {
+      //      triggerLambdaFunction(gameId);
+      //  }
 
-      //triggerLambdaFunction(6);
+      triggerLambdaFunction(1);
     }
   };
 
@@ -188,6 +189,9 @@ export default function Admin(props) {
             Update World
           </Button>
         </Stack>
+      </Box>
+      <Box>
+        <Timer />
       </Box>
     </Fragment>
   );

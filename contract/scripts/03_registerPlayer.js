@@ -35,6 +35,7 @@ async function main() {
 
   await registerPlayer(4, player1);
   await registerPlayer(9, player2);
+  await registerPlayer(24, owner);
 
 }
 
