@@ -501,7 +501,7 @@ export default function Game(props) {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             {myShip && myShip.range && <ShipStatus ship={myShip} />}
-           
+            {data && <Logs gameId={id} gameData={data}/>}
           </Stack>
         </Grid>
 

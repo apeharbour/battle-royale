@@ -127,6 +127,8 @@ const calculateDirectionDistance = (origin, destination) => {
 }
 
 export default function Logs({ gameData: data, ...props }) {
+
+  !!data ? console.log(data) : console.log('No data');
   return (
     <>
       {/* <Card elevation={20}>
@@ -166,12 +168,15 @@ export default function Logs({ gameData: data, ...props }) {
                   <Box key={moveIndex} pl={2}>
                     <Typography variant="body2">{shortenAddress(move.player.address)}</Typography>
                     <Box pl={2}>
+                    {move && move.travel &&
                     <Typography variant="body2">
                       Move: [{move.travel.originQ}, {move.travel.originR}] to [{move.travel.destinationQ}, {move.travel.destinationR}] = {calculateDirectionDistance({q: move.travel.originQ, r: move.travel.originR}, {q: move.travel.destinationR, r: move.travel.destinationR}).prettyPrint}
                     </Typography>
+}
+                    {move && move.shot && 
                     <Typography variant="body2">
                       Shot: [{move.shot.originQ}, {move.shot.originR}] to [{move.shot.destinationQ}, {move.shot.destinationR}] = {calculateDirectionDistance({q: move.shot.originQ, r: move.shot.originR}, {q: move.shot.destinationR, r: move.shot.destinationR}).prettyPrint}
-                    </Typography>
+                    </Typography> }
                   </Box>
                   </Box>
                 ))}
