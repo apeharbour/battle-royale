@@ -30,6 +30,7 @@ export default function Timer() {
 
     const onMessage = (event) => {
       const message = JSON.parse(event.data);
+      console.log('Received message:', message);
       // Adjust the action name and properties according to your actual data structure
       if (message.action === 'startInitialCountdown' || message.action === 'resetTimer') {
         const endTime = message.endTime;

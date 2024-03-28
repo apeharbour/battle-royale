@@ -7,14 +7,19 @@
 const hre = require("hardhat");
 
 async function main() {
-  const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+  // const [owner, player1, player2, player3, player4] = await ethers.getSigners();
 
-  const deployedAddresses = {
-    "BattleRoyale#MapPunk": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    "BattleRoyale#Punkships": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "BattleRoyale#GamePunk": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-    "BattleRoyale#RegistrationPunk": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
-  }
+    const deployedAddresses = {
+      "BattleRoyale#MapPunk": "0x6186dbAe6FAe67EeEC521EaBe54bd28Eb4A22Aba",
+      "BattleRoyale#Punkships": "0xaC12Ba65FFEc95078B763d72c9c9B91A2981826d",
+      "BattleRoyale#GamePunk": "0xbd4118becfB663aF6C376e27Fa9370a1177B43B4",
+      "BattleRoyale#RegistrationPunk": "0x782dF245894951A9cCbD31401e84267Ec52c1911"
+    }
+
+    const customAddresses = [
+      "0xCd9680dd8318b0df924f0bD47a407c05B300e36f",
+      "0xC71E2f803586D2Fe6ddCF1243EB14A6A1705D0A0",
+    ];
 
   const punkships = await hre.ethers.getContractAt(
     "Punkships",
