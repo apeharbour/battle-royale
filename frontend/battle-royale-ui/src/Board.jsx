@@ -95,7 +95,9 @@ export default function Board({
   /* track the parents dimensions */
   useEffect(() => {
     if (dimensions) {
-      setHexGridSize(Math.min(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width));
+      console.log(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width, "dimensions:", Math.min(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width));
+      // setHexGridSize(Math.min(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width));
+      setHexGridSize(Math.min(dimensions.width, window.visualViewport.height, window.visualViewport.width));
     }
   }, [dimensions]);
 

@@ -8,7 +8,7 @@ export default function Ship({ ship, size }) {
   const b64Image = image.split(",")[1];
   const svgString = atob(b64Image);
   const updatedSvgString = mine ? svgString
-    .replace(/.border { fill: #fff }/g, `.border { animation: colorChange 3s infinite; } @keyframes colorChange { 0% { fill: #fff } 50% { fill: #ff0 } 100% { fill: #fff } }`) : svgString;
+    .replace(/.border { fill: #fff }/g, `.border { animation: colorChange 3s infinite ease-in-out; } @keyframes colorChange { 0% { fill: #fff } 50% { fill: #ff0 } 100% { fill: #fff } }`) : svgString;
     // .replace(
     //   RegExp("</linearGradient></defs>", "g"),
     //   '</linearGradient><linearGradient id="borderGradient" gradientUnits="userSpaceOnUse"> <stop offset="0%" stop-color="yellow"/> <stop offset="100%" stop-color="white"> <animate attributeName="offset" values=".95;.05" dur="5s" repeatCount="indefinite" /> </stop> </linearGradient></defs>'
