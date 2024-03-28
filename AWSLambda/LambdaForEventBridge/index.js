@@ -71,7 +71,7 @@ function getEndTime(scheduleRate) {
   }
   
   async function broadcastInitialCountdown(endTime, gameId) {
-    const connectionData = await dynamoDb.scan({ TableName: "WebSocketConnections" }).promise();
+    const connectionData = await ddb.scan({ TableName: "WebSocketConnections" }).promise();
   
     const postCalls = connectionData.Items.map(async ({ connectionId }) => {
       try {
