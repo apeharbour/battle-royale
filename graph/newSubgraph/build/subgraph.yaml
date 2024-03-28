@@ -68,6 +68,8 @@ dataSources:
           handler: handleWorldUpdated
         - event: Cell(uint256,uint8,uint8,bool)
           handler: handleCell
+        - event: CellDeleted(uint256,uint8,uint8)
+          handler: handleCellDeleted
         - event: NewRound(uint256,uint256,uint8)
           handler: handleNewRound
       file: GamePunk\GamePunk.wasm

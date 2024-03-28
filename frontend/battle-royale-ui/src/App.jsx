@@ -1,27 +1,26 @@
 import { Fragment, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "@fontsource-variable/pixelify-sans";
+import "@fontsource/vt323"
+import {
+  CssBaseline,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 
-// import "./App.css";
+import "./App.css";
 import ListGames from "./ListGames";
 import Game from "./Game";
 import Admin from "./Admin";
-import Header from "./Header";
 import AccountAppBar from "./AccountAppBar";
-import {
-  Box,
-  CssBaseline,
-  ThemeProvider,
-  Typography,
-  createTheme,
-} from "@mui/material";
 import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
+import useLocalStorageState from 'use-local-storage-state';
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 
 
 function App() {
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useLocalStorageState('darkMode', { defaultValue: true});
 
   // create a darkTheme function to handle dark theme using createTheme
   const theme = createTheme({
@@ -29,7 +28,10 @@ function App() {
       mode: darkMode ? "dark" : "light",
     },
     typography: {
-      fontFamily: "Pixelify Sans Variable",
+      fontFamily: "VT323, sans-serif",
+    },
+    shape: {
+      borderRadius: 30,
     },
   });
 

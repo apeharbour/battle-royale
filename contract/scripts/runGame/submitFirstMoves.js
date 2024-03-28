@@ -6,6 +6,18 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
+const dir = {
+  E: 0,
+  NE: 1,
+  NW: 2,
+  W: 3,
+  SW: 4,
+  SE: 5,
+};
+
+const SALT = 1
+const GAME_ID = 1
+
 async function main() {
   const [owner, player1, player2, player3, player4] = await ethers.getSigners();
 
@@ -16,17 +28,29 @@ async function main() {
     "BattleRoyale#RegistrationPunk": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
   }
 
-  const punkships = await hre.ethers.getContractAt(
-    "Punkships",
-    deployedAddresses["BattleRoyale#Punkships"]
+  const game = await hre.ethers.getContractAt(
+    "GamePunk",
+    deployedAddresses["BattleRoyale#GamePunk"]
   );
 
-  const SHIPS_TO_MINT = 5;
+  const travelDirs = [dir.NE, dir.SE, dir.E, dir.NW];
+  const travelDists = [3, 3, 1, 1];
+  const shotDirs = [dir.W, dir.E, dir.E, dir.NW];
+  const shotDists = [1, 2, 1, 2];
+  const secrets = [SALT, SALT, SALT, SALT];
+  const playerAddresses = [player1.address, player2.address, player3.address, player4.address];
 
-  const tokenUri = await punkships.tokenURI(1);
-  console.log(tokenUri);
 
+  await game.submitMove(travelDirs, travelDists, shotDirs, shotDists, secrets, playerAddresses, GAME_ID)
+    .then((tx) => {
+      return tx.wait();
+    })
+    .then((receipt) => {
+      console.log(`Submitted moves in block ${receipt.blockNumber}.`);
+    })
+    .catch(console.error);
 }
+
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.

@@ -6,13 +6,14 @@ import {
   CardActions,
   CardContent,
   Typography,
+  Grid
 } from "@mui/material";
 
-import Grid from "@mui/material/Unstable_Grid2"; // Grid version 2
 import Registration from "./Registration";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from 'graphql-request'
-import { useAccount } from "wagmi";
+import { useAccount, useBlockNumber } from "wagmi";
+
 
 const GET_GAMES = gql`
   query getGames {
@@ -28,12 +29,20 @@ export default function ListGames(props) {
   const [sortedGames, setSortedGames] = useState([]);
 
   const account = useAccount();
+  const { data: blockNumber } = useBlockNumber({watch: true})
 
-  const { data, isLoading, isError, error } = useQuery({
-    queryKey: ["ships", account.address],
+  const queryClient = useQueryClient();
+
+  const { data, isLoading, isError, error, isFetching, isRefetching  } = useQuery({
+    queryKey: ["games"],
     queryFn: async () =>
       request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAMES),
   });
+
+  useEffect(() => {
+    console.log("New block: ", blockNumber, "invalidating games query");
+    queryClient.invalidateQueries(['games']);
+  }, [blockNumber]);
 
 
   // const { loading, error, data } = useQuery(GET_GAMES, {
@@ -52,12 +61,14 @@ export default function ListGames(props) {
     }
   }, [data]);
 
-  if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Error : {error.message}</p>;
+  if (isLoading) {console.log("Loading...");};
+  if (isFetching) {console.log("Fetching...");};
+  if (isRefetching) {console.log("Re-Fetching...");};
+  if (isError) {console.log("Error: ", error);};
 
   return (
-    <Grid container spacing={2}>
-      <Grid xs={6} md={6}>
+    <Grid container spacing={2} p={4}>
+      <Grid item xs={6} md={6}>
         {sortedGames.map(({ id, gameId }) => (
           <Box mt={1} key={id}>
             <Card>
@@ -75,7 +86,7 @@ export default function ListGames(props) {
           </Box>
         ))}
       </Grid>
-      <Grid xs={6} md={6}>
+      <Grid item xs={6} md={6}>
         <Registration />
       </Grid>
     </Grid>

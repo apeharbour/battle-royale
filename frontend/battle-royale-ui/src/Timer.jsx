@@ -1,25 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import { Typography, Card, CardHeader, CardContent } from '@mui/material';
 import { useWebSocket } from './contexts/WebSocketContext'; // Adjust the import path as necessary
-
-const ShipPaper = styled(Paper)({
-  maxWidth: '240px',
-  borderRadius: '30px',
-  overflow: 'hidden',
-  margin: 'auto auto 40px auto', 
-  backgroundColor: 'rgba(195, 208, 243, 0.5)'
-});
-
-const TopSection = styled('div')({
-  backgroundColor: 'rgba(195, 208, 243, 0.5)',
-  padding: '16px',
-});
-
-const BottomSection = styled('div')({
-  backgroundColor: 'rgba(215, 227, 249, 0.5)',
-  padding: '16px',
-});
 
 export default function Timer() {
   const [timeLeft, setTimeLeft] = useState('Waiting for countdown...');
@@ -82,15 +63,15 @@ export default function Timer() {
   };
 
   return (
-    <ShipPaper elevation={4}>
-      <TopSection>
-        <Typography variant="h6" color="black" sx={{ fontWeight: '700' }}>
-          Next Move Timer
-        </Typography>
-      </TopSection>
-      <BottomSection>
-        <Typography color="red" sx={{ fontWeight: '400'}}>{timeLeft}</Typography>
-      </BottomSection>
-    </ShipPaper>
+    <Card elevation={4}>
+        <CardHeader
+          title="Next Move Timer"/>
+        <CardContent sx={{ flex: "1 0 auto" }}>
+          <Typography variant="h6" color='warning.main' sx={{ fontWeight: '700' }}>
+            {timeLeft}
+          </Typography>
+        </CardContent>
+      </Card>
+
   );
 }

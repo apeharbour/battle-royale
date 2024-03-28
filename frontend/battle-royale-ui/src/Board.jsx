@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Hex,
   HexGrid,
@@ -17,6 +17,8 @@ import Coordinates from "./Coordinates.jsx";
 import Ship from "./Ship.jsx";
 import ShootPath from "./ShootPath.jsx";
 import useResizeObserver from "./utils/useResizeObserver.jsx";
+import Point from "react-hexgrid/lib/models/Point.js";
+import { Tooltip } from "@mui/material";
 
 const hexagonSize = { x: 5, y: 5 };
 const waterSize = { x: 4.33, y: 5 };
@@ -41,6 +43,8 @@ export default function Board({
   const [highlightedCells, setHighlightedCells] = useState([]);
   const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
   const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
+  const [shipPathLength, setShipPathLength] = useState(0);
+  const [shootPathLength, setShootPathLength] = useState(0);
 
   const dimensions = useResizeObserver(parentRef);
   const [hexGridSize, setHexGridSize] = useState(500);
@@ -91,7 +95,9 @@ export default function Board({
   /* track the parents dimensions */
   useEffect(() => {
     if (dimensions) {
-      setHexGridSize(Math.min(dimensions.width, dimensions.height));
+      console.log(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width, "dimensions:", Math.min(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width));
+      // setHexGridSize(Math.min(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width));
+      setHexGridSize(Math.min(dimensions.width, window.visualViewport.height, window.visualViewport.width));
     }
   }, [dimensions]);
 
@@ -123,6 +129,22 @@ export default function Board({
       setState(SHOOTING);
     }
   }, [travelEndpoint, shotEndpoint]);
+
+  // update ship path length
+  useEffect(() => {
+    if (myShip && tempTravelEndpoint) {
+      const newLength = HexUtils.distance(myShip, tempTravelEndpoint) * lengthOneHex;
+      setShipPathLength(newLength);
+    }
+  }, [myShip, tempTravelEndpoint]);
+
+  // update shoot path length
+  useEffect(() => {
+    if (tempTravelEndpoint && tempShotEndpoint) {
+      const newLength = HexUtils.distance(tempTravelEndpoint, tempShotEndpoint) * lengthOneHex;
+      setShootPathLength(newLength);
+    }
+  }, [tempTravelEndpoint, tempShotEndpoint]);
 
   const clearHighlights = () => {
     setHighlightedCells([]);
@@ -161,17 +183,140 @@ export default function Board({
     origin: { x: 0, y: 0 },
   });
   const shift = HexUtils.hexToPixel(center, layout.props.value.layout);
+  shift.x *= -1;
+  shift.y *= -1;
+
+  const lengthOneHex = HexUtils.hexToPixel(new Hex(1, 0, -1), layout.props.value.layout).x;
+
+  const shipStyles = ships.map((ship) => {
+    if (ship.travel.origin && ship.travel.destination) {
+      const origin = HexUtils.hexToPixel(ship.travel.origin, layout.props.value.layout);
+      const destination = HexUtils.hexToPixel(ship.travel.destination, layout.props.value.layout);
+      origin.x += shift.x;
+      origin.y += shift.y;
+      destination.x += shift.x;
+      destination.y += shift.y;
+      
+      const styles = `.ship-${ship.address} { 
+        animation: move-${ship.address} 2s ease-in-out; 
+      }`
+      const keyFrames = `@keyframes move-${ship.address} { 
+        from { transform: translate(${origin.x}px, ${origin.y}px); } 
+        to { transform: translate(${destination.x}px, ${destination.y}px); } 
+      }`;
+      return [styles, keyFrames].join("\n");
+    } else {
+      return `.ship-${ship.address}: { animation: none; }`;
+    }
+  }).join("\n");
+
+  const canonStyles = ships.map((ship) => {
+    if (ship.shot.origin && ship.shot.destination) {
+      const origin = HexUtils.hexToPixel(ship.shot.origin, layout.props.value.layout);
+      const destination = HexUtils.hexToPixel(ship.shot.destination, layout.props.value.layout);
+      origin.x += shift.x;
+      origin.y += shift.y;
+      destination.x += shift.x;
+      destination.y += shift.y;
+      
+      const styles = `.canon-${ship.address} { 
+        opacity: 0;
+        animation: shot-${ship.address} 2s ease-in-out;
+        animation-delay: 2s;
+      }`
+      const keyFrames = `@keyframes shot-${ship.address} { 
+        0% {  transform: translate(${origin.x}px, ${origin.y}px); }
+        80% { opacity: 1; }
+        70% { opacity: 1; }
+        100% { transform: translate(${destination.x}px, ${destination.y}px); } 
+      }`;
+      return [styles, keyFrames].join(" ");
+    } else {
+      return `.ship-${ship.address}: { animation: none; }`;
+    }
+  }).join(" ");
 
   return (
     <HexGrid width={hexGridSize} height={hexGridSize}>
+            <style>
+        {`
+          ${shipStyles}
+          ${canonStyles}
+          .ship-path {
+            animation: shippathdraw 3s linear forwards infinite;
+            stroke: lightgray;
+            stroke-width: 0.5;
+            stroke-linecap: round;
+            stroke-dashoffset: ${shipPathLength};
+            stroke-dasharray: ${shipPathLength};
+          }
+
+          .shoot-path {
+            animation: shippathdraw 3s linear forwards infinite;
+            stroke: red;
+            stroke-width: 0.5;
+            stroke-linecap: round;
+            stroke-dashoffset: ${shootPathLength};
+            stroke-dasharray: ${shootPathLength};
+          }
+
+          .explosion {
+            animation: explode 0.5s ease-in forwards;
+            animation-delay: 3.5s;
+            stroke-linejoin: round;
+            stroke-linecap: round;
+            stroke-width: 0.1;
+            stroke: black;
+            fill: yellow;
+            transform: scale(0.5);
+            opacity: 0;
+          }
+
+          .deleted {
+            animation: fade-out 3s ease-in forwards;
+          }
+
+          @keyframes explode {
+            0% {
+              transform: scale(0.1);
+              opacity: 0;
+            }
+            50% {
+              transform: scale(0.75);
+              opacity: 1;
+            }
+            100% {
+              transform: scale(0.75);
+              opacity: 0;
+            }
+          }
+
+          @keyframes shippathdraw {
+            to {
+              stroke-dashoffset: 0;
+            }
+          }
+          
+          @keyframes fade-out {
+            0% {
+              opacity: 1;
+            }
+          
+            100% {
+              opacity: 0;
+            }
+          }
+        `}
+      </style>
+
       <Layout
         size={hexagonSize}
         spacing={1.02}
         flat={false}
-        origin={{ x: shift.x * -1, y: shift.y * -1 }}
+        origin={shift}
       >
         {/* cells */}
-        {cells.map(({ id, q, r, s, state, neighborCode }) => (
+        {cells.filter(c => !c.deletedPreviously && !c.deletedThisRound).map(({ id, q, r, s, state, deleted, neighborCode }) => (
           <Hexagon
             className={[
               state,
@@ -187,6 +332,21 @@ export default function Board({
             // onMouseLeave={handleMouseLeave}
           >
             {/* <Coordinates q={q} r={r} /> */}
+          </Hexagon>
+        ))}
+
+        {/* deleted cells */}
+        {cells.filter(c => c.deletedThisRound ).map(({ id, q, r, s }) => (
+          <Hexagon
+          className={[
+            state,
+            "deleted"].join(" ")}
+            key={id}
+            q={q}
+            r={r}
+            s={s}
+            fill="pat-water0"
+          >
           </Hexagon>
         ))}
 
@@ -210,17 +370,21 @@ export default function Board({
         ))}
 
         {ships.map((ship, index) => (
-          <Ship ship={ship} size={hexagonSize} key={index} />
+          <React.Fragment key={index}>
+            <Ship ship={ship} size={hexagonSize} key={index} />
+          </React.Fragment>
         ))}
 
         <ShipPath
           start={myShip}
           end={tempTravelEndpoint}
-          ship={myShip && myShip.image ? myShip.image : ""}
+          ship={myShip && myShip.image ? myShip.image : "" }
+          updateShipPath={setShipPathLength}
         />
         <ShootPath
           start={tempTravelEndpoint}
           end={tempShotEndpoint}
+          updateShotPath={setShootPathLength}
         />
       </Layout>
     </HexGrid>

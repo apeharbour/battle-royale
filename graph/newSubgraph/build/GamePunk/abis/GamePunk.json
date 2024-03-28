@@ -113,6 +113,31 @@
         "internalType": "uint256",
         "name": "gameId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
+      }
+    ],
+    "name": "CellDeleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       }
     ],
     "name": "CommitPhaseStarted",
@@ -644,6 +669,10 @@
     "type": "event"
   },
   {
+    "stateMutability": "nonpayable",
+    "type": "fallback"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -851,7 +880,7 @@
         "type": "uint256"
       }
     ],
-    "name": "getCells",
+    "name": "getCoordinates",
     "outputs": [
       {
         "components": [

@@ -42,16 +42,11 @@ async function main() {
     }
   };
 
-  // await mintShips(SHIPS_TO_MINT, player1)
-  // await mintShips(SHIPS_TO_MINT, player2)
-  // await mintShips(SHIPS_TO_MINT, player3)
-  // await mintShips(SHIPS_TO_MINT, player4)
-  // await mintShips(SHIPS_TO_MINT, owner)
-
-   // Mint ships for each custom address
-   for (const address of customAddresses) {
-    await mintShips(SHIPS_TO_MINT, address);
-}
+  await mintShips(SHIPS_TO_MINT, owner)
+  await mintShips(SHIPS_TO_MINT, player1)
+  await mintShips(SHIPS_TO_MINT, player2)
+  await mintShips(SHIPS_TO_MINT, player3)
+  await mintShips(SHIPS_TO_MINT, player4)
 }
 
 // We recommend this pattern to be able to use async/await everywhere

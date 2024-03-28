@@ -16,6 +16,7 @@ contract MapPunk {
     mapping(uint256 => mapping(uint8 => mapping(uint8 => SharedStructs.Cell)))
         public gameHexCells;
     mapping(uint256 => uint8) public gameRadii;
+    mapping(uint256 => SharedStructs.Coordinate) public center;
 
     // uint8 public radius;
     Random.RandomGeneration private rnd;
@@ -115,14 +116,14 @@ contract MapPunk {
 
     function initCell(
         SharedStructs.Coordinate memory _coordinate,
-        uint256 gameId
+        uint256 gameId, bool _island
     ) private {
         SharedStructs.Cell storage cell = gameHexCells[gameId][_coordinate.r][
             _coordinate.q
         ];
         cell.q = _coordinate.q;
         cell.r = _coordinate.r;
-        cell.island = false;
+        cell.island = _island;
         cell.exists = true;
     }
 
@@ -134,22 +135,22 @@ contract MapPunk {
             revert MapSizeMustBeInRange(_radius, MAX_RADIUS);
         }
         gameRadii[gameId] = _radius;
+        center[gameId] = SharedStructs.Coordinate(_radius, _radius);
 
         uint256 numberOfCells = 1 + 3 * _radius * (_radius + 1);
         SharedStructs.Cell[] memory cells = new SharedStructs.Cell[](
             numberOfCells
         );
+
+        // FIXME: Here we are doing some weird double accounting for the cells: In the gameHexCells mapping and in the cells array.
+        // it should only go to the gameHexCells mapping!
+
         // set center cell
-        cells[0] = SharedStructs.Cell(_radius, _radius, false, true);
-        gameHexCells[gameId][_radius][_radius] = SharedStructs.Cell({
-            q: _radius,
-            r: _radius,
-            island: false,
-            exists: true
-        });
+        initCell(SharedStructs.Coordinate(_radius, _radius), gameId, false);
+        cells[0] = gameHexCells[gameId][_radius][_radius];
 
         for (uint8 i = 1; i <= _radius; i++) {
-            // loop through all radii
+            // loop through all all the rings
             uint256 start = 1 + 3 * (i - 1) * i; // #of cells at radius -1
             SharedStructs.Coordinate[] memory currentRing = ring(
                 SharedStructs.Coordinate(_radius, _radius),
@@ -157,29 +158,27 @@ contract MapPunk {
             );
             for (uint8 c = 0; c < currentRing.length; c++) {
                 bool island = Random.getRandomValue(rnd, 100) < 16;
-                cells[start + c] = SharedStructs.Cell(
-                    currentRing[c].q,
-                    currentRing[c].r,
-                    island,
-                    true
-                );
-                initCell(currentRing[c], gameId);
+                initCell(currentRing[c], gameId, island);
+                cells[start + c] = gameHexCells[gameId][currentRing[c].r][
+                    currentRing[c].q
+                ];
             }
         }
         return cells;
     }
 
-    function deleteOutermostRing(uint256 gameId, uint8 shrinkNo) public {
-        uint8 gameRadius = gameRadii[gameId];
-        uint8 actualRadius = gameRadius - shrinkNo;
-        SharedStructs.Coordinate[] memory outerRing = ring(
-            SharedStructs.Coordinate(gameRadius, gameRadius),
-            actualRadius
-        );
+    function deleteOutermostRing(uint256 gameId, uint8 shrinkNo) public returns (SharedStructs.Coordinate[] memory) {
+        uint8 radius = gameRadii[gameId];
+        SharedStructs.Coordinate memory centerCoord = center[gameId];
+        // uint8 actualRadius = radius - shrinkNo;
+        SharedStructs.Coordinate[] memory outerRing = ring( centerCoord, radius );
+        gameRadii[gameId] = radius - 1;
 
         for (uint8 i = 0; i < outerRing.length; i++) {
             gameHexCells[gameId][outerRing[i].r][outerRing[i].q].exists = false;
         }
+
+        return outerRing;
     }
 
     function getRandomCoordinatePair(
@@ -213,9 +212,13 @@ contract MapPunk {
         uint8 _distance,
         uint256 gameId
     ) external view returns (bool, SharedStructs.Coordinate memory) {
+        // console.log("Traveling from (%d, %d)", _startCell.q, _startCell.r);
         for (uint8 i = 0; i < _distance; i++) {
             _startCell = neighbor(_startCell, _direction);
             SharedStructs.Cell memory cell = getCell(_startCell, gameId);
+
+            // console.log("Traveling to (%d, %d, %s)", _startCell.q, _startCell.r, cell.island ? "island" : "water");
+            // console.log("   computed isIsland: %s", isIsland(_startCell, gameId) ? "island" : "water");
 
             if (cell.island || !cell.exists) {
                 return (true, _startCell);

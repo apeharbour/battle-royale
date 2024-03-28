@@ -1,11 +1,12 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import { Box, Grid, Stack, Typography } from "@mui/material";
+import { Grid, Stack } from "@mui/material";
 import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useBlockNumber, useWatchBlockNumber, useWatchContractEvent, useWriteContract } from "wagmi";
+import { getBuiltGraphSDK } from '../.graphclient'
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -28,19 +29,7 @@ const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
-const CustomButton = styled(Button)({
-  backgroundColor: "rgba(215, 227, 249, 0.5)",
-  borderRadius: "20px",
-  padding: "20px 70px",
-  fontSize: "700",
-  color: "black",
-  "&:hover": {
-    backgroundColor: "rgba(195, 208, 243, 0.5)",
-  },
-  "&.Mui-disabled": {
-    cursor: "not-allowed",
-  },
-});
+const sdk = getBuiltGraphSDK()
 
 const GET_GAME = gql`
 query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
@@ -58,20 +47,61 @@ query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
       q
       r
       state
-      kills
-      range
-      shotRange
-      image
-    }
-    currentRound {
-      round
-    }
-   rounds {
-      round
-      shrunk
-      moves {
-        player {
-          address
+      cells(first: $first, skip: $skip) {
+        id
+        q
+        r
+        island
+        deletedInRound {
+          round
+        }
+      }
+      players {
+        address
+        q
+        r
+        state
+        kills
+        range
+        shotRange
+        image
+      }
+      currentRound {
+        round
+      }
+      rounds {
+        round
+        shrunk
+        deletedCells {
+          id
+          q
+          r
+        }
+        moves {
+          player {
+            address
+          }
+          game {
+            gameId
+          }
+          round {
+            round
+          }
+          commitment
+          travel {
+            id
+            originQ
+            originR
+            destinationQ
+            destinationR
+          }
+          shot {
+            id
+            originQ
+            originR
+            destinationQ
+            destinationR
+          }
         }
       game { gameId}
               round { round}
@@ -92,6 +122,7 @@ export default function Game(props) {
   const [cells, setCells] = useState([]);
   const [ships, setShips] = useState([]);
   const [myShip, setMyShip] = useState(undefined);
+  const [round, setRound] = useState(0);
   const [randomInt, setRandomInt] = useState(generateRandomInt());
 
   const [travelEndpoint, setTravelEndpoint] = useState(undefined);
@@ -100,9 +131,14 @@ export default function Game(props) {
   const gameId = id;
 
   const { ws } = useWebSocket();
+  const queryClient = useQueryClient();
+
   const { enqueueSnackbar } = useSnackbar();
 
   const account = useAccount();
+
+  const delay = ms => new Promise(res => setTimeout(res, ms));
+
   const {
     writeContract,
     hash: txHash,
@@ -112,6 +148,35 @@ export default function Game(props) {
     status: txStatus,
   } = useWriteContract();
 
+  useWatchContractEvent({
+    abi: GAME_ABI,
+    address: GAME_ADDRESS,
+    eventName: "MoveCommitted",
+    onLogs: async (logs) => {
+      const { gameId, player, moveHash } = logs[0].args;
+      console.log("MoveCommitted, GameId: ", gameId, "Player: ", player, "MoveHash: ", moveHash);
+    }
+  });
+
+  useWatchContractEvent({
+    abi: GAME_ABI,
+    address: GAME_ADDRESS,
+    eventName: "WorldUpdated",
+    onLogs: async (logs) => {
+      console.log("World Updated: ", logs);
+      const { gameId } = logs[0].args;
+      console.log("World updated for game: ", gameId);
+      // delay(5000).then(() => {
+      //   console.log('Invalidating query because of world update');
+      //   queryClient.invalidateQueries(["game", id]);
+      // });
+    }
+  });
+
+  useWatchBlockNumber( async (blockNumber) => {
+    console.log("New block: ", blockNumber, "invalidating game query");
+    queryClient.invalidateQueries(["game", BigInt(id).toString()]);
+  });
   useEffect(() => {
     if (ws && gameId) {
         const message = {
@@ -128,10 +193,16 @@ export default function Game(props) {
    * highlighted: whether the cell is highlighted
    * neighborCode: a 6 bit number where each bit represents a neighbor cell
    */
-  const enrichCell = (cell, allCells) => {
+  const enrichCell = (cell, allCells, currentRound) => {
     const s = (cell.q + cell.r) * -1;
     const state = cell.island ? "island" : "water";
     const highlighted = false;
+    const deletedThisRound =
+      cell.deletedInRound &&
+      parseInt(cell.deletedInRound.round) === currentRound - 1;
+    const deletedPreviously =
+      cell.deletedInRound &&
+      parseInt(cell.deletedInRound.round) < currentRound - 1;
 
     // check if there are islands as neighbors, set island=false for non-existant cells
     const hex = new Hex(cell.q, cell.r, s);
@@ -156,13 +227,36 @@ export default function Game(props) {
       0
     );
 
-    return { ...cell, s, state, highlighted, neighborCode };
+    return {
+      ...cell,
+      s,
+      state,
+      highlighted,
+      deletedThisRound,
+      deletedPreviously,
+      neighborCode,
+    };
   };
 
-  const enrichShip = (ship) => {
+  const enrichShip = (ship, movesLastRound) => {
+    const move = movesLastRound.filter((m) => m.player.address === ship.address)[0];
+
+    const travel = {}
+    const shot = {}
+
+    if (move && move.travel) {
+      travel.origin = new Hex(move.travel.originQ, move.travel.originR, (move.travel.originQ + move.travel.originR) * -1);
+      travel.destination = new Hex(move.travel.destinationQ, move.travel.destinationR, (move.travel.destinationQ + move.travel.destinationR) * -1);
+    }
+
+    if (move && move.shot) {
+      shot.origin = new Hex(move.shot.originQ, move.shot.originR, (move.shot.originQ + move.shot.originR) * -1);
+      shot.destination = new Hex(move.shot.destinationQ, move.shot.destinationR, (move.shot.destinationQ + move.shot.destinationR) * -1);
+    }
+
     const s = (ship.q + ship.r) * -1;
     const mine = ship.address.toLowerCase() === account.address.toLowerCase();
-    const newCell = { ...ship, s, mine };
+    const newCell = { ...ship, s, travel, shot, mine };
     return newCell;
   };
 
@@ -171,38 +265,45 @@ export default function Game(props) {
    */
   const updateData = (data) => {
     const { games } = data;
+    console.log("Data: ", data);
     const game = games[0];
-    console.log("Ships: ", game.players);
+    const currentRound = parseInt(game.currentRound.round);
+    setRound(currentRound);
 
     // process ships
-    const ships = game.players.map(enrichShip);
+    let movesLastRound = [];
+    if (currentRound > 1) {
+      movesLastRound = game.rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
+    }
+    const ships = game.players.map(s => enrichShip(s, movesLastRound));
     const myShip1 = ships.filter((s) => s.mine)[0];
     setMyShip(myShip1);
     setShips([...ships]);
-    console.log("My Ship: ", myShip1);
 
     // process cells
     const cells = game.cells.map((c) => {
-      return enrichCell(c, game.cells);
+      return enrichCell(c, game.cells, currentRound);
     });
 
     setCells([...cells]);
   };
 
-  const { data, isLoading, isFetching, isError, error } = useQuery({
-    queryKey: ["game", id],
-    queryFn: async () =>
-      request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
-        gameId: id,
-      }),
+  // const { data, isLoading, isFetching, isError, error } = useQuery({
+  const { data, isFetching, isError, error } = useQuery({
+    queryKey: ["game", BigInt(id).toString()],
+    queryFn: async () => sdk.getGame({gameId: BigInt(id).toString()}),
+      // queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
+      //   gameId: id,
+      // }),
   });
 
   /* transform and enrich data from the subgraph whenever it changes */
   useEffect(() => {
-    if (!!account.address && data) {
+    if (data ) {
+      console.log("Updating data for game: ", id);
       updateData(data);
     }
-  }, [account.address, data]);
+  }, [data]);
 
   //Helper Function to generate secret random number for hashing moves
   function generateRandomInt() {
@@ -271,7 +372,7 @@ export default function Game(props) {
     return 6;
   };
 
-  const commitMoves = async () => {
+  const commitMove = async () => {
     // calculate distances and directions
     const travelDistance = HexUtils.distance(myShip, travelEndpoint);
     const shotDistance = HexUtils.distance(travelEndpoint, shotEndpoint);
@@ -286,15 +387,17 @@ export default function Game(props) {
     //   setRandomInt(generateRandomInt());
     const randomInt = generateRandomInt();
     const moveHash = ethers.solidityPackedKeccak256(
-      ["uint8", "uint8", "uint8", "uint8", "uint256"],
-      [travelDirection, travelDistance, shotDirection, shotDistance, BigInt(randomInt)]
+      ["uint8", "uint8", "uint8", "uint8", "uint256", "address"],
+      [
+        travelDirection,
+        travelDistance,
+        shotDirection,
+        shotDistance,
+        BigInt(randomInt),
+        account.address,
+      ]
     );
 
-    console.log("Move Hash: ", moveHash);
-
-    console.log(
-      `Commiting Move: , { gameId: ${gameId}, travel: { direction: ${travelDirection}, distance: ${travelDistance} }, shot: { direction: ${shotDirection}, distance: ${shotDistance} }, moveHash: ${moveHash} }`
-    );
     writeContract({
       abi: GAME_ABI,
       address: GAME_ADDRESS,
@@ -379,20 +482,23 @@ export default function Game(props) {
     }
   };
 
-  if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
+  // if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
   if (isError)
     enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
   if (txIsPending)
     enqueueSnackbar("Transaction pending...", { variant: "info" });
-  if (txIsError)
-    enqueueSnackbar("Error: " + JSON.stringify(txError), { variant: "error" });
+  if (txIsError) {
+    console.error("Error: ", JSON.stringify(txError))
+    enqueueSnackbar("Error with tx." , { variant: "error" });
+  }
+
   if (txStatus === "success")
     enqueueSnackbar("Transaction successful!", { variant: "success" });
 
   return (
     <Fragment>
       <Grid container spacing={2} p={4}>
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             {myShip && myShip.range && <ShipStatus ship={myShip} />}
            
@@ -410,20 +516,22 @@ export default function Game(props) {
           setShotEndpoint={setShotEndpoint}
         />
 
-        <Grid item xs={3}>
+        <Grid item xs={12} sm={4} md={2}>
           {/* <Timer gameId={id}/> */}
-          <Box mt={2} mb={2}>
-            <CustomButton
+          {/* <Box mt={2} mb={2}> */}
+          <Stack spacing={2}>
+            <Button
               variant="contained"
-              onClick={commitMoves}
+              onClick={commitMove}
               disabled={!shotEndpoint || !travelEndpoint}
             >
               Commit Moves
-            </CustomButton>
-          </Box>
+            </Button>
+            {/* </Box> */}
 
           <PlayerStatus ships={ships} />
           <Timer />
+          </Stack>
         </Grid>
       </Grid>
     </Fragment>

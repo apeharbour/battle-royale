@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useWriteContract } from "wagmi";
+import { useAccount, useBlockNumber, useWriteContract } from "wagmi";
 import { useSnackbar } from "notistack";
 
 import {
@@ -30,7 +30,6 @@ const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
 const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
-const ACCOUNT_ADDRESS = "0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266";
 
 const GET_SHIPS = gql`
   query getPunkships($accountAddress: ID!) {
@@ -54,6 +53,14 @@ export default function Registration(props) {
   const [punkShips, setPunkships] = useState([]);
 
   const { enqueueSnackbar } = useSnackbar();
+
+  const queryClient = useQueryClient();
+  const { data: blockNumber } = useBlockNumber({ watch: true });
+
+  useEffect(() => {
+    console.log("New block: ", blockNumber, "invalidating punkships query");
+    queryClient.invalidateQueries(['ships']);
+  }, [blockNumber]);
 
   const account = useAccount();
   const {
@@ -106,18 +113,18 @@ export default function Registration(props) {
   };
 
   const register = () => {
-    console.log("Registering ship: ", BigInt(selectedYacht.tokenId));
+    console.log("Registering ship: ", parseInt(selectedYacht.tokenId));
     writeContract({
       abi: REGISTRATION_ABI,
       address: REGISTRATION_ADDRESS,
       functionName: "registerPlayer",
-      args: [BigInt(selectedYacht.tokenId)],
+      args: [parseInt(selectedYacht.tokenId)],
     });
 
     console.log("Added ship");
   };
 
-  if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
+  // if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
   if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
   if (txIsPending) enqueueSnackbar("Transaction pending...", { variant: "info" });
   if (txIsError) enqueueSnackbar("Error: " + JSON.stringify(txError), { variant: "error" });

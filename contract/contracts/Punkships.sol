@@ -61,6 +61,8 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         bitMasks[ShipType.shipYacht] = [0, 0];
     }
 
+    fallback() external {}
+
     function safeMint(address to) public {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);

@@ -1,148 +1,302 @@
 const {
   time,
   loadFixture,
-} = require('@nomicfoundation/hardhat-network-helpers')
-const { anyValue } = require('@nomicfoundation/hardhat-chai-matchers/withArgs')
-const { expect } = require('chai')
-const GamePunk = require('../ignition/modules/GamePunk')
+} = require("@nomicfoundation/hardhat-network-helpers");
+const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
+const { expect } = require("chai");
+const GamePunk = require("../ignition/modules/GamePunk");
 
-describe('Game', function () {
-  // async function deployGame() {
-  //   // Contracts are deployed using the first signer/account by default
-  //   const [owner, player1, player2] = await ethers.getSigners()
+const dir = {
+  E: 0,
+  NE: 1,
+  NW: 2,
+  W: 3,
+  SW: 4,
+  SE: 5,
+};
 
-  //   const Map = await hre.ethers.getContractFactory('MapPunk')
-  //   const map = await Map.deploy(owner.address)
+const GAME_ID = 1;
+const RADIUS = 5;
+const SALT = 1;
 
-  //   const Game = await hre.ethers.getContractFactory('GamePunk')
-  //   const game = await Game.deploy(map.address)
-
-  //   return { game }
-  // }
-
-  // async function deployGameAndInitMap() {
-  //   // Contracts are deployed using the first signer/account by default
-  //   const [owner, player1, player2] = await ethers.getSigners()
-
-  //   const Map = await hre.ethers.getContractFactory('MapPunk')
-  //   const map = await Map.deploy(owner.address)
-
-  //   const Game = await hre.ethers.getContractFactory('GamePunk')
-  //   const game = await Game.deploy(map.address)
-
-  //   const tx = await game.initGame(5)
-  //   await tx.wait()
-
-  //   return { game, owner, player1, player2}
-  // }
-
+describe("Game", function () {
   async function deployGame() {
-    const { game, registration } = await ignition.deploy(GamePunk);
-      return { game, registration };
+    const { game, registration, punkships } = await ignition.deploy(GamePunk);
+
+    // Mint a ship to each player
+    const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+
+    await punkships.safeMint(owner.address);
+    await punkships.safeMint(player1.address);
+    await punkships.safeMint(player2.address);
+    await punkships.safeMint(player3.address);
+    await punkships.safeMint(player4.address);
+
+    return { game, registration, punkships };
   }
 
-  describe('Map', function () {
-    it('should deploy', async function () {
-      const { game, owner } = await loadFixture(deployGame)
-      const radius = await game.getRadius()
-
-      expect(radius).to.equal(0, 'Radius does not match for uninitialized game')
-    })
-
-    it('should deploy and init', async function () {
-      const { game, owner } = await loadFixture(deployGame)
-
-      const tx = await game.initGame(5)
-      await tx.wait()
-
-      const radius = await game.getRadius()
-
-      expect(radius).to.equal(5, 'Radius does not match for uninitialized game')
-    })
-
-    it('should init a map with radius 1', async function() {
-      const { game, owner } = await loadFixture(deployGame)
-
-      const tx = await game.initGame(1)
-      await tx.wait()
-
-      const cells = await game.getCells()
-
-      expect(cells[0].q).to.equal(1, 'q for center cell is wrong')
-      expect(cells[0].r).to.equal(1, 'r for center cell is wrong')
-
-      expect(cells[1].q).to.equal(0, 'q for cell[1] is wrong')
-      expect(cells[1].r).to.equal(2, 'r for cell[1] is wrong')
-
-      expect(cells[2].q).to.equal(1, 'q for cell[2] is wrong')
-      expect(cells[2].r).to.equal(2, 'r for cell[2] is wrong')
-
-      expect(cells[3].q).to.equal(2, 'q for cell[3] is wrong')
-      expect(cells[3].r).to.equal(1, 'r for cell[3] is wrong')
-
-      expect(cells[4].q).to.equal(2, 'q for cell[4] is wrong')
-      expect(cells[4].r).to.equal(0, 'r for cell[4] is wrong')
-
-      expect(cells[5].q).to.equal(1, 'q for cell[5] is wrong')
-      expect(cells[5].r).to.equal(0, 'r for cell[5] is wrong')
-
-      expect(cells[6].q).to.equal(0, 'q for cell[6] is wrong')
-      expect(cells[6].r).to.equal(1, 'r for cell[6] is wrong')
-    })
-  })
-
-  describe('Ships', function () {
-    it('should add a ship', async function () {
-      const { game, owner } = await loadFixture(deployGameAndInitMap)
-      const tx = await game.addShip()
-      await tx.wait()
-
-      const ship = await game.ships(owner.address)
-
-      expect (ship.coordinate.q).to.equal(4)
-      expect (ship.coordinate.r).to.equal(8)
-    })
-
-    it('should add two ships', async function () {
-      const { game, owner, player1 } = await loadFixture(deployGameAndInitMap)
-      const tx = await game.addShip()
-      await tx.wait()
-
-      const tx2 = await game.connect(player1).addShip()
-      await tx.wait()
-
-      const ships = await game.getShips()
-
-      expect (ships[0].coordinate.q).to.equal(4)
-      expect (ships[0].coordinate.r).to.equal(8)
-
-      expect (ships[1].coordinate.q).to.equal(6)
-      expect (ships[1].coordinate.r).to.equal(6)
-
-      // console.log(ships)
-
-    })
-
-
-  })
-
-  describe.only('Hashing', function () {
-    it('should hash a move', async function () {
-      const [owner, player1, player2] = await ethers.getSigners()
-
+  describe("Map", function () {
+    it("should deploy", async function () {
       const { game } = await loadFixture(deployGame);
-      const moveHash = await game.encodeCommitment(1, 1, 1, 1, 1, player1.address);
+      expect(game.getRadius(1)).to.be.revertedWith("Game has not started yet");
+    });
 
-      console.log('solidity #:', moveHash);
-      
-      const ethersHash = ethers.solidityPackedKeccak256(
-        ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
-        [1, 1, 1, 1, 1, player1.address]
-      );
+    it("should deploy and init", async function () {
+      const { game } = await loadFixture(deployGame);
 
-      console.log('ethers #:', ethersHash);
+      const tx = await game.startNewGame(1, 5);
+      await tx.wait();
 
-      expect(moveHash).to.equal(ethersHash);
+      const radius = await game.getRadius(1);
+
+      expect(radius).to.equal(5, "Radius does not match for initialized game");
+    });
+
+    it("should emit the GameStarted event", async function () {
+      const { game, owner } = await loadFixture(deployGame);
+
+      await expect (game.startNewGame(1, 5)).to.emit(game, "GameStarted").withArgs(1);
     })
-  })
-})
+
+    it("should init a map with radius 1", async function () {
+      const { game } = await loadFixture(deployGame);
+
+      const tx = await game.startNewGame(1, 1);
+      await tx.wait();
+
+      const coordinates = await game.getCoordinates(1);
+
+      expect(coordinates[0]).to.deep.equal(
+        [1n, 1n],
+        "coordinates[0] (center) is wrong"
+      );
+      expect(coordinates[1]).to.deep.equal([0n, 2n], "coordinates[1] is wrong");
+      expect(coordinates[2]).to.deep.equal([1n, 2n], "coordinates[2] is wrong");
+      expect(coordinates[3]).to.deep.equal([2n, 1n], "coordinates[3] is wrong");
+      expect(coordinates[4]).to.deep.equal([2n, 0n], "coordinates[4] is wrong");
+      expect(coordinates[5]).to.deep.equal([1n, 0n], "coordinates[5] is wrong");
+      expect(coordinates[6]).to.deep.equal([0n, 1n], "coordinates[6] is wrong");
+    });
+
+    it("should put islands on a map with radius 1", async function () {
+      const { game } = await loadFixture(deployGame);
+
+      const tx = await game.startNewGame(1, 1);
+      await tx.wait();
+
+      const coordinates = await game.getCoordinates(1);
+
+      let cells = [];
+
+      for (let i = 0; i < 7; i++) {
+        const coord = { q: coordinates[i][0], r: coordinates[i][1] };
+        cells[i] = await game.getCell(coord, 1);
+      }
+
+      expect(cells[0]).to.deep.equal(
+        [1n, 1n, false, true],
+        "cells[0] (center) is wrong"
+      );
+      expect(cells[1]).to.deep.equal([0n, 2n, true, true], "cells[1] is wrong");
+      expect(cells[2]).to.deep.equal(
+        [1n, 2n, false, true],
+        "cells[2] is wrong"
+      );
+      expect(cells[3]).to.deep.equal([2n, 1n, true, true], "cells[3] is wrong");
+      expect(cells[4]).to.deep.equal(
+        [2n, 0n, false, true],
+        "cells[4] is wrong"
+      );
+      expect(cells[5]).to.deep.equal(
+        [1n, 0n, false, true],
+        "cells[5] is wrong"
+      );
+      expect(cells[6]).to.deep.equal(
+        [0n, 1n, false, true],
+        "cells[6] is wrong"
+      );
+    });
+
+  });
+
+  describe.only("Game", function () {
+    it("should start a game and revert adding a player with the wrong ship", async function () {
+      const { game, registration, punkships } = await loadFixture(deployGame);
+      const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+
+      const tx = await game.startNewGame(GAME_ID, RADIUS);
+      await tx.wait();
+
+      const range = await punkships.getRange(1)
+      const shootingRange = await punkships.getShootingRange(1)
+
+      await expect(game.addShip(player1.address, GAME_ID, 2)).to.be.revertedWithCustomError(game, "NotOwnerOfShip").withArgs(player1.address, 2);
+    });
+
+    it("should start a game and add player 1 with ship 1", async function () {
+      const { game, registration, punkships } = await loadFixture(deployGame);
+      const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+
+      const tx = await game.startNewGame(GAME_ID, RADIUS);
+      await tx.wait();
+
+      const range = await punkships.getRange(1)
+      const shootingRange = await punkships.getShootingRange(1)
+
+      await expect(game.addShip(player1.address, GAME_ID, 1)).to.emit(game, "PlayerAdded").withArgs(player1.address, GAME_ID, 1, anyValue, anyValue, range, shootingRange, anyValue);
+    });
+
+    it("should start a game and add four players with their ships", async function () {
+      const { game, registration, punkships } = await loadFixture(deployGame);
+      const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+
+      const tx = await game.startNewGame(GAME_ID, RADIUS);
+      await tx.wait();
+
+      const players = [player1, player2, player3, player4];
+      const ranges = [await punkships.getRange(1), await punkships.getRange(2), await punkships.getRange(3), await punkships.getRange(4)];
+      const shootingRanges = [await punkships.getShootingRange(1), await punkships.getShootingRange(2), await punkships.getShootingRange(3), await punkships.getShootingRange(4)];
+
+      for (let i = 0; i < 4; i++) {
+        await expect(game.addShip(players[i].address, GAME_ID, i + 1)).to.emit(game, "PlayerAdded").withArgs(players[i].address, GAME_ID, i + 1, anyValue, anyValue, ranges[i], shootingRanges[i], anyValue);
+      }
+    });
+
+    it("should commit the moves of all players", async function () {
+      const { game, registration, punkships } = await loadFixture(deployGame);
+      const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+
+      const tx = await game.startNewGame(GAME_ID, RADIUS);
+      await tx.wait();
+
+      const players = [player1, player2, player3, player4];
+
+      for (let i = 0; i < 4; i++) {
+        await game.addShip(players[i].address, GAME_ID, i + 1);
+      }
+
+      const travels = [
+        { direction: dir.NE, distance: 3 },
+        { direction: dir.SE, distance: 3 },
+        { direction: dir.E, distance: 1 },
+        { direction: dir.NW, distance: 1 },
+      ];
+
+      const shots = [
+        { direction: dir.W, distance: 1 },
+        { direction: dir.E, distance: 2 },
+        { direction: dir.E, distance: 1 },
+        { direction: dir.NW, distance: 2 },
+      ];
+
+      for (let i = 0; i < 4; i++) {
+        const moveHash = ethers.solidityPackedKeccak256(
+          ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
+          [travels[i].direction, travels[i].distance, shots[i].direction, shots[i].distance, SALT, players[i].address]
+        );
+        await expect(game.connect(players[i]).commitMove(moveHash, GAME_ID)).to.emit(game, "MoveCommitted").withArgs(players[i].address, GAME_ID, moveHash);
+      }
+    });
+
+    it("should submit the moves of all players", async function () {
+      const { game, registration, punkships } = await loadFixture(deployGame);
+      const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+
+      const tx = await game.startNewGame(GAME_ID, RADIUS);
+      await tx.wait();
+
+      const players = [player1, player2, player3, player4];
+
+      for (let i = 0; i < 4; i++) {
+        await game.addShip(players[i].address, GAME_ID, i + 1);
+      }
+
+      const travels = [
+        { direction: dir.NE, distance: 3 },
+        { direction: dir.SE, distance: 3 },
+        { direction: dir.E, distance: 1 },
+        { direction: dir.NW, distance: 1 },
+      ];
+
+      const shots = [
+        { direction: dir.W, distance: 1 },
+        { direction: dir.E, distance: 2 },
+        { direction: dir.E, distance: 1 },
+        { direction: dir.NW, distance: 2 },
+      ];
+
+      for (let i = 0; i < 4; i++) {
+        const moveHash = ethers.solidityPackedKeccak256(
+          ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
+          [travels[i].direction, travels[i].distance, shots[i].direction, shots[i].distance, SALT, players[i].address]
+        );
+        await game.connect(players[i]).commitMove(moveHash, GAME_ID);
+      }
+
+      const travelDirs = [travels[0].direction, travels[1].direction, travels[2].direction, travels[3].direction];
+      const travelDists = [travels[0].distance, travels[1].distance, travels[2].distance, travels[3].distance];
+      const shotDirs = [shots[0].direction, shots[1].direction, shots[2].direction, shots[3].direction];
+      const shotDists = [shots[0].distance, shots[1].distance, shots[2].distance, shots[3].distance];
+      const secrets = [SALT, SALT, SALT, SALT];
+      const playerAddresses = [players[0].address, players[1].address, players[2].address, players[3].address];
+
+
+      await expect(game.submitMove(travelDirs, travelDists, shotDirs, shotDists, secrets, playerAddresses, GAME_ID)).to.emit(game, "MoveSubmitted");
+    });
+
+    it.only("should update world state after submitting moves", async function () {
+      const { game, registration, punkships } = await loadFixture(deployGame);
+      const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+
+      await game.startNewGame(GAME_ID, RADIUS);
+
+      const players = [player1, player2, player3, player4];
+
+      for (let i = 0; i < 4; i++) {
+        await game.addShip(players[i].address, GAME_ID, i + 1);
+      }
+
+      const travels = [
+        { direction: dir.NE, distance: 3 },
+        { direction: dir.SE, distance: 3 },
+        { direction: dir.E, distance: 1 },
+        { direction: dir.NW, distance: 1 },
+      ];
+
+      const shots = [
+        { direction: dir.W, distance: 1 },
+        { direction: dir.E, distance: 2 },
+        { direction: dir.E, distance: 1 },
+        { direction: dir.NW, distance: 2 },
+      ];
+
+      for (let i = 0; i < 4; i++) {
+        const moveHash = ethers.solidityPackedKeccak256(
+          ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
+          [travels[i].direction, travels[i].distance, shots[i].direction, shots[i].distance, SALT, players[i].address]
+        );
+        await game.connect(players[i]).commitMove(moveHash, GAME_ID);
+      }
+
+      const travelDirs = [travels[0].direction, travels[1].direction, travels[2].direction, travels[3].direction];
+      const travelDists = [travels[0].distance, travels[1].distance, travels[2].distance, travels[3].distance];
+      const shotDirs = [shots[0].direction, shots[1].direction, shots[2].direction, shots[3].direction];
+      const shotDists = [shots[0].distance, shots[1].distance, shots[2].distance, shots[3].distance];
+      const secrets = [SALT, SALT, SALT, SALT];
+      const playerAddresses = [players[0].address, players[1].address, players[2].address, players[3].address];
+
+
+      await game.submitMove(travelDirs, travelDists, shotDirs, shotDists, secrets, playerAddresses, GAME_ID);
+
+      const tx = game.updateWorld(GAME_ID);
+
+      await expect(tx).to.emit(game, "WorldUpdated").withArgs(GAME_ID);
+      await expect(tx).to.emit(game, "ShipMoved").withArgs(player1.address, 4, 5, 7, 2, GAME_ID);
+      await expect(tx).to.emit(game, "ShipMoved").withArgs(player2.address, 3, 3, 3, 6, GAME_ID);
+      await expect(tx).to.emit(game, "ShipCollidedWithIsland").withArgs(player3.address, GAME_ID, 4, 6);
+      await expect(tx).to.emit(game, "ShipMoved").withArgs(player4.address, 5, 9, 5, 8, GAME_ID);
+
+    });
+
+  });
+});

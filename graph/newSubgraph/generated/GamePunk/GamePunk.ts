@@ -40,6 +40,32 @@ export class Cell__Params {
   }
 }
 
+export class CellDeleted extends ethereum.Event {
+  get params(): CellDeleted__Params {
+    return new CellDeleted__Params(this);
+  }
+}
+
+export class CellDeleted__Params {
+  _event: CellDeleted;
+
+  constructor(event: CellDeleted) {
+    this._event = event;
+  }
+
+  get gameId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get q(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+
+  get r(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+}
+
 export class CommitPhaseStarted extends ethereum.Event {
   get params(): CommitPhaseStarted__Params {
     return new CommitPhaseStarted__Params(this);
@@ -695,7 +721,7 @@ export class GamePunk__getCellInput_coordStruct extends ethereum.Tuple {
   }
 }
 
-export class GamePunk__getCellsResultValue0Struct extends ethereum.Tuple {
+export class GamePunk__getCoordinatesResultValue0Struct extends ethereum.Tuple {
   get q(): i32 {
     return this[0].toI32();
   }
@@ -911,20 +937,24 @@ export class GamePunk extends ethereum.SmartContract {
     );
   }
 
-  getCells(gameId: BigInt): Array<GamePunk__getCellsResultValue0Struct> {
-    let result = super.call("getCells", "getCells(uint256):((uint8,uint8)[])", [
-      ethereum.Value.fromUnsignedBigInt(gameId),
-    ]);
+  getCoordinates(
+    gameId: BigInt,
+  ): Array<GamePunk__getCoordinatesResultValue0Struct> {
+    let result = super.call(
+      "getCoordinates",
+      "getCoordinates(uint256):((uint8,uint8)[])",
+      [ethereum.Value.fromUnsignedBigInt(gameId)],
+    );
 
-    return result[0].toTupleArray<GamePunk__getCellsResultValue0Struct>();
+    return result[0].toTupleArray<GamePunk__getCoordinatesResultValue0Struct>();
   }
 
-  try_getCells(
+  try_getCoordinates(
     gameId: BigInt,
-  ): ethereum.CallResult<Array<GamePunk__getCellsResultValue0Struct>> {
+  ): ethereum.CallResult<Array<GamePunk__getCoordinatesResultValue0Struct>> {
     let result = super.tryCall(
-      "getCells",
-      "getCells(uint256):((uint8,uint8)[])",
+      "getCoordinates",
+      "getCoordinates(uint256):((uint8,uint8)[])",
       [ethereum.Value.fromUnsignedBigInt(gameId)],
     );
     if (result.reverted) {
@@ -932,7 +962,7 @@ export class GamePunk extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTupleArray<GamePunk__getCellsResultValue0Struct>(),
+      value[0].toTupleArray<GamePunk__getCoordinatesResultValue0Struct>(),
     );
   }
 
@@ -1096,6 +1126,32 @@ export class ConstructorCall__Outputs {
   _call: ConstructorCall;
 
   constructor(call: ConstructorCall) {
+    this._call = call;
+  }
+}
+
+export class DefaultCall extends ethereum.Call {
+  get inputs(): DefaultCall__Inputs {
+    return new DefaultCall__Inputs(this);
+  }
+
+  get outputs(): DefaultCall__Outputs {
+    return new DefaultCall__Outputs(this);
+  }
+}
+
+export class DefaultCall__Inputs {
+  _call: DefaultCall;
+
+  constructor(call: DefaultCall) {
+    this._call = call;
+  }
+}
+
+export class DefaultCall__Outputs {
+  _call: DefaultCall;
+
+  constructor(call: DefaultCall) {
     this._call = call;
   }
 }

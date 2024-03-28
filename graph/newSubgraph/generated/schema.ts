@@ -346,6 +346,14 @@ export class Player extends Entity {
   set kills(value: i32) {
     this.set("kills", Value.fromI32(value));
   }
+
+  get moves(): MoveLoader {
+    return new MoveLoader(
+      "Player",
+      this.get("id")!.toBytes().toHexString(),
+      "moves",
+    );
+  }
 }
 
 export class Round extends Entity {
@@ -450,6 +458,14 @@ export class Round extends Entity {
       "Round",
       this.get("id")!.toBytes().toHexString(),
       "moves",
+    );
+  }
+
+  get deletedCells(): CellLoader {
+    return new CellLoader(
+      "Round",
+      this.get("id")!.toBytes().toHexString(),
+      "deletedCells",
     );
   }
 }
@@ -865,6 +881,23 @@ export class Cell extends Entity {
 
   set island(value: boolean) {
     this.set("island", Value.fromBoolean(value));
+  }
+
+  get deletedInRound(): Bytes | null {
+    let value = this.get("deletedInRound");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set deletedInRound(value: Bytes | null) {
+    if (!value) {
+      this.unset("deletedInRound");
+    } else {
+      this.set("deletedInRound", Value.fromBytes(<Bytes>value));
+    }
   }
 }
 

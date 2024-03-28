@@ -1,24 +1,25 @@
 import * as React from "react";
-import AppBar from "@mui/material/AppBar";
-import Box from "@mui/material/Box";
-import Toolbar from "@mui/material/Toolbar";
-import Typography from "@mui/material/Typography";
-import Button from "@mui/material/Button";
-import IconButton from "@mui/material/IconButton";
-import MenuIcon from "@mui/icons-material/Menu";
-import punkShips from "./images/punkshipsLogo.png";
+import { useTheme } from "@emotion/react";
+
+import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
+// import Toolbar from "@mui/material/Toolbar";
+// import Typography from "@mui/material/Typography";
+// import Button from "@mui/material/Button";
+// import IconButton from "@mui/material/IconButton";
+// import MenuIcon from "@mui/icons-material/Menu";
+// import punkShips from "./images/punkshipsLogo.png";
 import punkLogo from "./images/punkLogo.png";
 
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import { useTheme } from "@emotion/react";
+
 import { ConnectKitButton } from "connectkit";
-import { Stack, Switch } from "@mui/material";
 
 
 export default function AccountAppBar({ toggleDarkMode }) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
+
 
   return (
     <AppBar position="sticky">

@@ -81,15 +81,6 @@ svg .origin {
   fill: none;
 }
 
-svg path {
-  fill: none;
-  stroke: lightgray;
-  stroke-width: 0.05em;
-  stroke-opacity: 0.9;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 .headerContainer {
   display: flex;
   justify-content: space-between;

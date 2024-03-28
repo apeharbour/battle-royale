@@ -86,6 +86,7 @@ contract GamePunk is Ownable {
     event ShipMovedInGame(address indexed captain, uint256 gameId);
     event MapShrink(uint256 gameId);
     event Cell(uint256 gameId, uint8 q, uint8 r, bool island);
+    event CellDeleted(uint256 gameId, uint8 q, uint8 r);
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -117,10 +118,10 @@ contract GamePunk is Ownable {
     address public registrationContract;
 
     // Modifier to restrict the call to the registration contract
-    modifier onlyRegistrationContract() {
+    modifier onlyRegistrationContractOrOwner() {
         require(
-            msg.sender == registrationContract,
-            "Caller is not the registration contract"
+            msg.sender == registrationContract || msg.sender == owner(),
+            "Caller is not owner or registration contract"
         );
         _;
     }
@@ -129,6 +130,8 @@ contract GamePunk is Ownable {
         map = MapPunk(_mapAddress);
         punkships = IPunkships(_punkshipsAddress);
     }
+
+    fallback() external {}
 
     // Function to set the registration contract's address
     function setRegistrationContract(
@@ -140,8 +143,7 @@ contract GamePunk is Ownable {
     function startNewGame(
         uint256 gameId,
         uint8 _radius
-    ) public onlyRegistrationContract {
-        require(gameId < 255, "Maximum number of games reached");
+    ) public onlyRegistrationContractOrOwner {
         require(
             !games[gameId].gameInProgress,
             "Game with this ID already in progress"
@@ -252,7 +254,7 @@ contract GamePunk is Ownable {
                     _playerAddresses[i]
                 );
 
-            console.log("hashes match %s", games[gameId].moveHashes[_playerAddresses[i]] == moveHash);
+            // console.log("hashes match %s", games[gameId].moveHashes[_playerAddresses[i]] == moveHash);
 
             // Check if moveHash matches the stored hash for this player
             if (games[gameId].moveHashes[_playerAddresses[i]] == moveHash) {
@@ -316,7 +318,7 @@ contract GamePunk is Ownable {
         address playerAddress,
         uint256 gameId,
         uint256 _punkshipId
-    ) public onlyRegistrationContract {
+    ) public onlyRegistrationContractOrOwner {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -341,13 +343,13 @@ contract GamePunk is Ownable {
         bool alreadyTaken = false;
         do {
             coord = map.getRandomCoordinatePair(gameId);
-            console.log("New rnd pair %s, %s", coord.q, coord.r);
+            // console.log("New rnd pair %s, %s", coord.q, coord.r);
             for (uint8 i = 0; i < games[gameId].players.length; i++) {
-                console.log(
-                    "in loop %s, address: %s",
-                    i,
-                    games[gameId].players[i]
-                );
+                // console.log(
+                //     "in loop %s, address: %s",
+                //     i,
+                //     games[gameId].players[i]
+                // );
                 if (
                     games[gameId]
                         .ships[games[gameId].players[i]]
@@ -442,10 +444,14 @@ contract GamePunk is Ownable {
             "Game has not started yet!"
         );
 
+        // shrink map every 3 rounds
         if (games[gameId].round % 3 == 0) {
-            map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
+            SharedStructs.Coordinate[] memory deletedCells = map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
             games[gameId].shrinkNo++;
             emit MapShrink(gameId);
+            for (uint8 i = 0; i < deletedCells.length; i++) {
+                emit CellDeleted(gameId, deletedCells[i].q, deletedCells[i].r);
+            }
 
             // Sink players outside the invalid map cells
             for (uint8 i = 0; i < games[gameId].players.length; i++) {
@@ -454,8 +460,8 @@ contract GamePunk is Ownable {
                     .coordinate;
 
                 if (isShipOutsideMap(shipCoord, gameId)) {
-                    sinkShip(games[gameId].players[i], i, gameId);
                     emit ShipSunkOutOfMap(games[gameId].players[i], gameId); // Emitting event when ship is sunk due to being outside the map
+                    sinkShip(games[gameId].players[i], i, gameId);
 
                     // Adjust the players array
                     games[gameId].players[i] = games[gameId].players[
@@ -483,6 +489,8 @@ contract GamePunk is Ownable {
 
         // Moving ships and handling deaths due to invalid moves
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
+
+            // console.log("Processing player %s", games[gameId].players[i]);
             // Skip the moves of removed players
             if (
                 games[gameId].ships[games[gameId].players[i]].captain ==
@@ -502,6 +510,9 @@ contract GamePunk is Ownable {
                         .travelDistance,
                     gameId
                 );
+
+                // console.log("Player %s %s when traveling", games[gameId].players[i], dies ? 'dies' : 'lives');
+
                 if (dies) {
                     emit ShipCollidedWithIsland(
                         games[gameId].players[i],
@@ -743,7 +754,7 @@ contract GamePunk is Ownable {
         }
     }
 
-    function getCells(
+    function getCoordinates(
         uint256 gameId
     ) public view returns (SharedStructs.Coordinate[] memory) {
         require(
