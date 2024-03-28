@@ -1,6 +1,7 @@
 import { Fragment, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import "@fontsource-variable/pixelify-sans";
+import "@fontsource/vt323"
 import {
   CssBaseline,
   ThemeProvider,
@@ -27,7 +28,7 @@ function App() {
       mode: darkMode ? "dark" : "light",
     },
     typography: {
-      fontFamily: "Pixelify Sans Variable",
+      fontFamily: "VT323, sans-serif",
     },
     shape: {
       borderRadius: 30,

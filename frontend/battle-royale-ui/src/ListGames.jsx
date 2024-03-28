@@ -67,8 +67,8 @@ export default function ListGames(props) {
   if (isError) {console.log("Error: ", error);};
 
   return (
-    <Grid container spacing={2}>
-      <Grid xs={6} md={6}>
+    <Grid container spacing={2} p={4}>
+      <Grid item xs={6} md={6}>
         {sortedGames.map(({ id, gameId }) => (
           <Box mt={1} key={id}>
             <Card>
@@ -86,7 +86,7 @@ export default function ListGames(props) {
           </Box>
         ))}
       </Grid>
-      <Grid xs={6} md={6}>
+      <Grid item xs={6} md={6}>
         <Registration />
       </Grid>
     </Grid>

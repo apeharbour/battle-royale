@@ -16,6 +16,7 @@
     "@emotion/styled": "^11.11.0",
     "@fontsource-variable/pixelify-sans": "^5.0.2",
     "@fontsource/merriweather": "^5.0.12",
+    "@fontsource/vt323": "^5.0.12",
     "@graphprotocol/client-cli": "^3.0.0",
     "@mui/icons-material": "^5.15.14",
     "@mui/material": "^5.15.14",

@@ -8,11 +8,29 @@ importers:
 
   .: {}
 
+  AWSlambda/AWSLambdaConnect:
+    dependencies:
+      aws-sdk:
+        specifier: ^2.1583.0
+        version: 2.1588.0
+
+  AWSlambda/AWSLambdaCustomFunctionWS:
+    dependencies:
+      aws-sdk:
+        specifier: ^2.1586.0
+        version: 2.1588.0
+
   AWSlambda/AWSLambdaDBFeed:
     dependencies:
       aws-sdk:
         specifier: ^2.1566.0
         version: 2.1566.0
+
+  AWSlambda/AWSLambdaDisconnect:
+    dependencies:
+      aws-sdk:
+        specifier: ^2.1583.0
+        version: 2.1588.0
 
   AWSlambda/AWSLambdaSubmitMoveUpdateWorld:
     dependencies:
@@ -81,6 +99,9 @@ importers:
         specifier: ^5.0.2
         version: 5.0.2
       '@fontsource/merriweather':
+        specifier: ^5.0.12
+        version: 5.0.12
+      '@fontsource/vt323':
         specifier: ^5.0.12
         version: 5.0.12
       '@graphprotocol/client-cli':
@@ -3425,6 +3446,10 @@ packages:
 
   /@fontsource/merriweather@5.0.12:
     resolution: {integrity: sha512-l7brVGcFUiGhK7bucRbwWYZDInfyXuVYEthHNw26RkkfMR9TFTiOAIABnN6PFr6Vjaz+c0o7ibLmdEMeSMDfRA==}
+    dev: false
+
+  /@fontsource/vt323@5.0.12:
+    resolution: {integrity: sha512-8Rv7P3FmJmbkOlkVCD7GpuBvMdJl4zd9sd63/Ie4kO8KFZki71kU8oFuaSQNKKmY2Su5siNjHxJvU5utEgXRXg==}
     dev: false
 
   /@graphprotocol/client-add-source-name@2.0.0(@graphql-mesh/types@0.93.2)(@graphql-tools/delegate@10.0.4)(@graphql-tools/utils@9.2.1)(@graphql-tools/wrap@10.0.5)(graphql@16.8.1):
@@ -9454,6 +9479,23 @@ packages:
 
   /aws-sdk@2.1579.0:
     resolution: {integrity: sha512-TYv/bK2kVT/dfrpjAPL6sEhku4uH9EB18gRa6p9gi0fPtmhe49HrYoN2xmPNSqLPj4/CtSXmZhg91Ny1DhG8/Q==}
+    engines: {node: '>= 10.0.0'}
+    requiresBuild: true
+    dependencies:
+      buffer: 4.9.2
+      events: 1.1.1
+      ieee754: 1.1.13
+      jmespath: 0.16.0
+      querystring: 0.2.0
+      sax: 1.2.1
+      url: 0.10.3
+      util: 0.12.5
+      uuid: 8.0.0
+      xml2js: 0.6.2
+    dev: false
+
+  /aws-sdk@2.1588.0:
+    resolution: {integrity: sha512-FbayuJZd8xlaVPNpIGfj111pqZ7ZIeWsUkBTQ/nXx4t7y9dTnT41SeOvSObpMCCti8xxkJkN15mIBaI3EkjWbg==}
     engines: {node: '>= 10.0.0'}
     requiresBuild: true
     dependencies:
@@ -18624,7 +18666,7 @@ packages:
       is-arguments: 1.1.1
       is-generator-function: 1.0.10
       is-typed-array: 1.1.13
-      which-typed-array: 1.1.14
+      which-typed-array: 1.1.15
     dev: false
 
   /utils-merge@1.0.1:
@@ -18991,7 +19033,7 @@ packages:
       isarray: 2.0.5
       which-boxed-primitive: 1.0.2
       which-collection: 1.0.1
-      which-typed-array: 1.1.14
+      which-typed-array: 1.1.15
     dev: true
 
   /which-collection@1.0.1:
@@ -19029,7 +19071,6 @@ packages:
       for-each: 0.3.3
       gopd: 1.0.1
       has-tostringtag: 1.0.2
-    dev: true
 
   /which@1.3.1:
     resolution: {integrity: sha512-HxJdYWq1MTIQbJ3nw0cqssHoTNU267KlrDuGZ1WYlxDStUtKUhOaJmh112/TZmHxxUfuJqPXSOm7tDyas0OSIQ==}
