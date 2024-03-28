@@ -530,7 +530,8 @@ export default function Game(props) {
             </Button>
             {/* </Box> */}
 
-            <PlayerStatus ships={ships} />
+          <PlayerStatus ships={ships} />
+          <Timer />
           </Stack>
         </Grid>
       </Grid>
