@@ -1,4 +1,4 @@
-query getGame ($gameId: BigInt!) @live {
+query getGame ($gameId: BigInt!) {
     games(where: { gameId: $gameId }) {
       gameId
       state

@@ -511,6 +511,16 @@ export type Player = {
   game: Game;
   state: PlayerState;
   kills?: Maybe<Scalars['Int']>;
+  moves: Array<Move>;
+};
+
+
+export type PlayermovesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Move_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Move_filter>;
 };
 
 export type PlayerState =
@@ -636,6 +646,7 @@ export type Player_filter = {
   kills_lte?: InputMaybe<Scalars['Int']>;
   kills_in?: InputMaybe<Array<Scalars['Int']>>;
   kills_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  moves_?: InputMaybe<Move_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Player_filter>>>;
@@ -659,7 +670,8 @@ export type Player_orderBy =
   | 'game__centerR'
   | 'game__state'
   | 'state'
-  | 'kills';
+  | 'kills'
+  | 'moves';
 
 export type Query = {
   game?: Maybe<Game>;

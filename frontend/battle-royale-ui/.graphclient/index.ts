@@ -534,6 +534,16 @@ export type Player = {
   game: Game;
   state: PlayerState;
   kills?: Maybe<Scalars['Int']>;
+  moves: Array<Move>;
+};
+
+
+export type PlayermovesArgs = {
+  skip?: InputMaybe<Scalars['Int']>;
+  first?: InputMaybe<Scalars['Int']>;
+  orderBy?: InputMaybe<Move_orderBy>;
+  orderDirection?: InputMaybe<OrderDirection>;
+  where?: InputMaybe<Move_filter>;
 };
 
 export type PlayerState =
@@ -659,6 +669,7 @@ export type Player_filter = {
   kills_lte?: InputMaybe<Scalars['Int']>;
   kills_in?: InputMaybe<Array<Scalars['Int']>>;
   kills_not_in?: InputMaybe<Array<Scalars['Int']>>;
+  moves_?: InputMaybe<Move_filter>;
   /** Filter for the block changed event. */
   _change_block?: InputMaybe<BlockChangedFilter>;
   and?: InputMaybe<Array<InputMaybe<Player_filter>>>;
@@ -682,7 +693,8 @@ export type Player_orderBy =
   | 'game__centerR'
   | 'game__state'
   | 'state'
-  | 'kills';
+  | 'kills'
+  | 'moves';
 
 export type Query = {
   game?: Maybe<Game>;
@@ -1488,6 +1500,7 @@ export type PlayerResolvers<ContextType = MeshContext, ParentType extends Resolv
   game?: Resolver<ResolversTypes['Game'], ParentType, ContextType>;
   state?: Resolver<ResolversTypes['PlayerState'], ParentType, ContextType>;
   kills?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
+  moves?: Resolver<Array<ResolversTypes['Move']>, ParentType, ContextType, RequireFields<PlayermovesArgs, 'skip' | 'first'>>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -1747,7 +1760,7 @@ export type getGameQuery = { games: Array<(
 
 
 export const getGameDocument = gql`
-    query getGame($gameId: BigInt!) @live {
+    query getGame($gameId: BigInt!) {
   games(where: {gameId: $gameId}) {
     gameId
     state
@@ -1816,8 +1829,8 @@ export const getGameDocument = gql`
 export type Requester<C = {}, E = unknown> = <R, V>(doc: DocumentNode, vars?: V, options?: C) => Promise<R> | AsyncIterable<R>
 export function getSdk<C, E>(requester: Requester<C, E>) {
   return {
-    getGame(variables: getGameQueryVariables, options?: C): AsyncIterable<getGameQuery> {
-      return requester<getGameQuery, getGameQueryVariables>(getGameDocument, variables, options) as AsyncIterable<getGameQuery>;
+    getGame(variables: getGameQueryVariables, options?: C): Promise<getGameQuery> {
+      return requester<getGameQuery, getGameQueryVariables>(getGameDocument, variables, options) as Promise<getGameQuery>;
     }
   };
 }

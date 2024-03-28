@@ -7,8 +7,6 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useWatchBlockNumber, useWatchContractEvent, useWriteContract } from "wagmi";
 import { getBuiltGraphSDK } from '../.graphclient'
-
-import { useAccount, useWriteContract } from "wagmi";
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -267,6 +265,7 @@ export default function Game(props) {
    */
   const updateData = (data) => {
     const { games } = data;
+    console.log("Data: ", data);
     const game = games[0];
     const currentRound = parseInt(game.currentRound.round);
     setRound(currentRound);
@@ -292,10 +291,10 @@ export default function Game(props) {
   // const { data, isLoading, isFetching, isError, error } = useQuery({
   const { data, isFetching, isError, error } = useQuery({
     queryKey: ["game", BigInt(id).toString()],
-    // queryFn: async () => sdk.getGame({gameId: BigInt(id).toString()}),
-      queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
-        gameId: id,
-      }),
+    queryFn: async () => sdk.getGame({gameId: BigInt(id).toString()}),
+      // queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
+      //   gameId: id,
+      // }),
   });
 
   /* transform and enrich data from the subgraph whenever it changes */
