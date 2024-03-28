@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Paper, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useWebSocket } from './contexts/WebSocketContext';
+import { useWebSocket } from './contexts/WebSocketContext'; // Adjust the import path as necessary
 
 const ShipPaper = styled(Paper)({
   maxWidth: '240px',
@@ -22,49 +22,62 @@ const BottomSection = styled('div')({
 });
 
 export default function Timer() {
-  const [timeLeft, setTimeLeft] = useState('');
-  const { ws } = useContext(useWebSocket);
+  const [timeLeft, setTimeLeft] = useState('Waiting for countdown...');
+  const { ws, countdownEndTime } = useWebSocket(); // Adjust based on your context structure
 
   useEffect(() => {
-    const handleWebSocketMessage = (event) => {
-      const message = JSON.parse(event.data);
+    if (!ws) return;
 
-      // Check for both the initial countdown and subsequent round countdowns
+    const onMessage = (event) => {
+      const message = JSON.parse(event.data);
+      // Adjust the action name and properties according to your actual data structure
       if (message.action === 'startInitialCountdown' || message.action === 'resetTimer') {
-        if (!message.gameId || typeof message.gameId === 'string') {
-          startTimer(message.endTime);
+        const endTime = message.endTime;
+        if (endTime) {
+          startTimer(endTime);
         }
       }
     };
 
-    if (ws) {
-      ws.addEventListener('message', handleWebSocketMessage);
+    ws.addEventListener('message', onMessage);
+
+    // Optionally, start the timer if countdownEndTime is already set
+    if (countdownEndTime) {
+      startTimer(countdownEndTime);
     }
 
-    return () => {
-      if (ws) {
-        ws.removeEventListener('message', handleWebSocketMessage);
-      }
-    };
-  }, [ws]);
+    // Clean up
+    return () => ws.removeEventListener('message', onMessage);
+  }, [ws, countdownEndTime]);
 
-  // Starts or resets the countdown timer based on the endTime provided
   const startTimer = (endTime) => {
-    const interval = setInterval(() => {
-      const now = new Date().getTime();
-      const distance = endTime - now;
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    updateCountdown(endTime);
 
-      if (distance < 0) {
+    const interval = setInterval(() => {
+      const isExpired = updateCountdown(endTime);
+      if (isExpired) {
         clearInterval(interval);
-        setTimeLeft("EXPIRED");
-      } else {
-        setTimeLeft(`${minutes}m ${seconds}s`);
       }
     }, 1000);
 
     return () => clearInterval(interval);
+  };
+
+  const updateCountdown = (endTime) => {
+    const now = Date.now();
+    const distance = endTime - now;
+
+    // Check if endTime is not yet available or countdown has not started
+    if (!endTime || distance < 0) {
+      setTimeLeft("Waiting for countdown...");
+      return true; // Indicates no active countdown
+    } else {
+      // Update countdown time
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      setTimeLeft(`${minutes}m ${seconds}s`);
+      return false; // Countdown is active
+    }
   };
 
   return (
