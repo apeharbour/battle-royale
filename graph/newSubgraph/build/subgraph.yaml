@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GamePunk
-    network: localhost
+    network: sepolia
     source:
       abi: GamePunk
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-      startBlock: 0
+      address: "0xbd4118becfB663aF6C376e27Fa9370a1177B43B4"
+      startBlock: 5535447
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -22,7 +22,7 @@ dataSources:
         - Cell
       abis:
         - name: GamePunk
-          file: GamePunk/abis/GamePunk.json
+          file: GamePunk\abis\GamePunk.json
       eventHandlers:
         - event: CommitPhaseStarted(uint256)
           handler: handleCommitPhaseStarted
@@ -72,4 +72,4 @@ dataSources:
           handler: handleCellDeleted
         - event: NewRound(uint256,uint256,uint8)
           handler: handleNewRound
-      file: GamePunk/GamePunk.wasm
+      file: GamePunk\GamePunk.wasm

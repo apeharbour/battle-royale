@@ -17,10 +17,31 @@ const contractABI = [
         "internalType": "address",
         "name": "_mapAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_punkshipsAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
     "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "NotOwnerOfShip",
+    "type": "error"
   },
   {
     "inputs": [
@@ -70,9 +91,9 @@ const contractABI = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -101,9 +122,9 @@ const contractABI = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "CommitPhaseStarted",
@@ -114,9 +135,9 @@ const contractABI = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "GameEnded",
@@ -127,9 +148,9 @@ const contractABI = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "GameStarted",
@@ -152,9 +173,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "GameUpdated",
@@ -171,9 +192,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "GameWinner",
@@ -190,9 +211,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "MapInitialized",
@@ -203,9 +224,9 @@ const contractABI = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "MapShrink",
@@ -222,9 +243,15 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "moveHash",
+        "type": "bytes32"
       }
     ],
     "name": "MoveCommitted",
@@ -241,9 +268,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -284,9 +311,9 @@ const contractABI = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -334,9 +361,15 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "punkshipId",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -361,6 +394,12 @@ const contractABI = [
         "internalType": "uint8",
         "name": "range",
         "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "image",
+        "type": "string"
       }
     ],
     "name": "PlayerAdded",
@@ -377,9 +416,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "PlayerDefeated",
@@ -396,9 +435,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -433,9 +472,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipHit",
@@ -476,9 +515,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipMoved",
@@ -495,9 +534,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipMovedInGame",
@@ -538,9 +577,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipShot",
@@ -557,9 +596,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipSunk",
@@ -576,9 +615,9 @@ const contractABI = [
       },
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "ShipSunkOutOfMap",
@@ -589,9 +628,9 @@ const contractABI = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -608,9 +647,9 @@ const contractABI = [
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "WorldUpdated",
@@ -624,19 +663,14 @@ const contractABI = [
         "type": "address"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
-        "internalType": "uint8",
-        "name": "_speed",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint8",
-        "name": "_range",
-        "type": "uint8"
+        "internalType": "uint256",
+        "name": "_punkshipId",
+        "type": "uint256"
       }
     ],
     "name": "addShip",
@@ -652,9 +686,9 @@ const contractABI = [
         "type": "bytes32"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "commitMove",
@@ -665,9 +699,53 @@ const contractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint8",
-        "name": "gameId",
+        "internalType": "enum SharedStructs.Directions",
+        "name": "_travelDirection",
         "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_travelDistance",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum SharedStructs.Directions",
+        "name": "_shotDirection",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_shotDistance",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_secret",
+        "type": "uint8"
+      },
+      {
+        "internalType": "address",
+        "name": "_playerAddress",
+        "type": "address"
+      }
+    ],
+    "name": "encodeCommitment",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       }
     ],
     "name": "endGame",
@@ -739,9 +817,9 @@ const contractABI = [
         "type": "tuple"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "getCell",
@@ -780,9 +858,9 @@ const contractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "getCells",
@@ -811,9 +889,9 @@ const contractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "getRadius",
@@ -830,9 +908,9 @@ const contractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "getShips",
@@ -897,9 +975,9 @@ const contractABI = [
             "type": "uint8"
           },
           {
-            "internalType": "uint8",
+            "internalType": "uint256",
             "name": "gameId",
-            "type": "uint8"
+            "type": "uint256"
           }
         ],
         "internalType": "struct GamePunk.Ship[]",
@@ -940,9 +1018,9 @@ const contractABI = [
         "type": "uint8"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "move",
@@ -1017,9 +1095,9 @@ const contractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       },
       {
         "internalType": "uint8",
@@ -1065,9 +1143,9 @@ const contractABI = [
         "type": "address[]"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "submitMove",
@@ -1118,9 +1196,9 @@ const contractABI = [
         "type": "uint8"
       },
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "travel",
@@ -1131,9 +1209,9 @@ const contractABI = [
   {
     "inputs": [
       {
-        "internalType": "uint8",
+        "internalType": "uint256",
         "name": "gameId",
-        "type": "uint8"
+        "type": "uint256"
       }
     ],
     "name": "updateWorld",
@@ -1142,7 +1220,12 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0x1D6CDc348B3631e9C444CdEfe7Da09048e4F88FD";
+const contractAddress = "0xbd4118becfB663aF6C376e27Fa9370a1177B43B4";
+
+// Initialize ApiGatewayManagementApi with your WebSocket URL
+const apiGwManagementApi = new AWS.ApiGatewayManagementApi({
+  endpoint: "https://dm2d6wt8a5.execute-api.eu-north-1.amazonaws.com/production"
+});
 
 exports.handler = async (event) => {
 
@@ -1187,6 +1270,9 @@ exports.handler = async (event) => {
     };
   }
 
+  // Calculate the end time based on scheduleRate
+  const endTime = getEndTime(scheduleRate);
+
   // Format data for smart contract
   const {
     travelDirections,
@@ -1229,7 +1315,22 @@ exports.handler = async (event) => {
     // After successful smart contract execution, delete player moves
     await deletePlayerMoves(gameId);
 
-    await setNextUpdateTime(gameId, scheduleRate);
+    // Now, broadcast the message to reset the timer to all connected WebSocket clients
+  await broadcastMessage({
+    action: 'resetTimer',
+    gameId: gameId,
+    endTime: endTime,
+  });
+  return {
+    statusCode: 200,
+headers: {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "Content-Type",
+        "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
+    },
+    body: JSON.stringify({ message: 'Contract functions and websocket message broadcasted successfully' }),
+};
+
   } catch (error) {
     console.error(
       "Error executing contract functions or deleting player moves:",
@@ -1239,25 +1340,14 @@ exports.handler = async (event) => {
   }
 };
 
-async function setNextUpdateTime(gameId, scheduleRate) {
-  const nextUpdateTime = calculateNextUpdateTime(scheduleRate);
-
-  await dynamoDb.update({
-    TableName: "InGameTimer",
-    Key: { gameId: gameId.toString() },
-    UpdateExpression: "set nextUpdateTime = :nextTime",
-    ExpressionAttributeValues: {
-      ":nextTime": nextUpdateTime,
-    },
-  }).promise();
+// Assuming scheduleRate is a string like "5 minutes"
+function getEndTime(scheduleRate) {
+  // Example assumes scheduleRate is like "5 minutes"
+  const durationInMinutes = parseInt(scheduleRate.split(" ")[0], 10);
+  return new Date(new Date().getTime() + durationInMinutes * 60000).getTime();
 }
 
-function calculateNextUpdateTime(scheduleRate) {
-  const minutesToAdd = parseInt(scheduleRate.split(' ')[0], 10); // '10 Minutes' => 10
-  const now = new Date();
-  now.setMinutes(now.getMinutes() + minutesToAdd);
-  return now.toISOString();
-}
+
 
 async function fetchPlayerMoves(gameId) {
   const params = {
@@ -1332,3 +1422,64 @@ async function deletePlayerMoves(gameId) {
     }
   }
 }
+
+// Function to broadcast a message to all connected clients
+async function broadcastMessage(data) {
+
+  // Fetch all connection IDs from DynamoDB
+  const connectionIds = await fetchAllConnectionIds(); 
+
+  const postCalls = connectionIds.map(async ({ connectionId }) => {
+    try {
+      await apiGwManagementApi.postToConnection({
+        ConnectionId: connectionId,
+        Data: JSON.stringify(data),
+      }).promise();
+    } catch (e) {
+      if (e.statusCode === 410) {
+        await deleteStaleConnection(connectionId);
+        console.log(`Stale connection, deleting ${connectionId}`);
+      } else {
+        throw e;
+      }
+    }
+  });
+
+  try {
+    await Promise.all(postCalls);
+  } catch (error) {
+    console.error("Error broadcasting message:", error);
+  }
+}
+
+async function fetchAllConnectionIds() {
+  const params = {
+    TableName: "WebSocketConnections",
+  };
+
+  try {
+    const data = await dynamoDb.scan(params).promise();
+    return data.Items;
+  } catch (error) {
+    console.error("Error fetching connection IDs from DynamoDB:", error);
+    throw error;
+  }
+}
+
+async function deleteStaleConnection(connectionId) {
+  const params = {
+    TableName: "WebSocketConnections",
+    Key: {
+      connectionId: connectionId,
+    },
+  };
+
+  try {
+    await dynamoDb.delete(params).promise();
+    console.log(`Successfully deleted stale connection ${connectionId}`);
+  } catch (error) {
+    console.error("Error deleting stale connection:", error);
+  }
+}
+
+

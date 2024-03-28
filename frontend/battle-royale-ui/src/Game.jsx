@@ -8,6 +8,8 @@ import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useWatchBlockNumber, useWatchContractEvent, useWriteContract } from "wagmi";
 import { getBuiltGraphSDK } from '../.graphclient'
 
+import { useAccount, useWriteContract } from "wagmi";
+import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { Hex, HexUtils } from "react-hexgrid";
@@ -32,9 +34,20 @@ const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 const sdk = getBuiltGraphSDK()
 
 const GET_GAME = gql`
-  query getGame($gameId: Int!, $first: Int, $skip: Int) {
-    games(where: { gameId: $gameId }) {
-      gameId
+query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
+  games(where: { gameId: $gameId }) {
+    gameId
+    state
+    cells(first: $first, skip: $skip) {
+      id
+      q
+      r
+      island
+    }
+    players {
+      address
+      q
+      r
       state
       cells(first: $first, skip: $skip) {
         id
@@ -92,9 +105,15 @@ const GET_GAME = gql`
             destinationR
           }
         }
+      game { gameId}
+              round { round}
+              commitment
+              travel  { id, originQ, originR, destinationQ, destinationR }
+              shot { id, originQ, originR, destinationQ, destinationR }
       }
     }
   }
+}
 `;
 
 export default function Game(props) {
@@ -115,6 +134,7 @@ export default function Game(props) {
 
   const queryClient = useQueryClient();
 
+  const { ws } = useWebSocket();
   const { enqueueSnackbar } = useSnackbar();
 
   const account = useAccount();
@@ -159,6 +179,15 @@ export default function Game(props) {
     console.log("New block: ", blockNumber, "invalidating game query");
     queryClient.invalidateQueries(["game", BigInt(id).toString()]);
   });
+  useEffect(() => {
+    if (ws && gameId) {
+        const message = {
+            action: 'setGameId',
+            gameId: gameId,
+        };
+        ws.send(JSON.stringify(message));
+    }
+}, [ws, gameId]);
 
   /* Enrich the cell data with additional properties:
    * s: the cube coordinate s
@@ -455,7 +484,7 @@ export default function Game(props) {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             {myShip && myShip.range && <ShipStatus ship={myShip} />}
-            {data && <Logs gameData={data} gameId={id} />}
+           
           </Stack>
         </Grid>
 

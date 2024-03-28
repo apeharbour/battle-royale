@@ -1,5 +1,5 @@
 {
-  "name": "awslambdatimefetcher",
+  "name": "awslambdacustomfunctionws",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.1570.0"
+    "aws-sdk": "^2.1586.0"
   }
 }
