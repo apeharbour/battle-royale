@@ -423,6 +423,7 @@ export default function Game(props) {
           </Box>
 
           <PlayerStatus ships={ships} />
+          <Timer />
         </Grid>
       </Grid>
     </Fragment>
