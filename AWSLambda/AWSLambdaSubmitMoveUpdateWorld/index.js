@@ -1230,6 +1230,7 @@ const apiGwManagementApi = new AWS.ApiGatewayManagementApi({
 exports.handler = async (event) => {
 
   const { gameId, scheduleRate } = event;
+  const numericGameId = Number(gameId);
 
   const url =
     "https://eth-sepolia.g.alchemy.com/v2/S1MSWAqlr5h1kcztMrV5h9I3-ibEaQWK";
@@ -1315,12 +1316,26 @@ exports.handler = async (event) => {
     // After successful smart contract execution, delete player moves
     await deletePlayerMoves(gameId);
 
+    try {
+      await updateCountdownState(numericGameId,endTime);
+      console.log(`Countdown state updated for game ${gameId} with new endTime: ${newEndTime}`);
+    } catch (error) {
+      console.error(`Error updating countdown state for game ${gameId}:`, error);
+      return { statusCode: 500, body: JSON.stringify({ message: 'Error updating countdown state' }) };
+    }
+
     // Now, broadcast the message to reset the timer to all connected WebSocket clients
-  await broadcastMessage({
-    action: 'resetTimer',
-    gameId: gameId,
-    endTime: endTime,
-  });
+  try {
+    await broadcastMessage({
+      action: 'resetTimer',
+      gameId: gameId,
+      endTime: endTime,
+    });
+    console.log('Broadcast resetTimer action successfully');
+  } catch (broadcastError) {
+    console.error("Error broadcasting resetTimer action:", broadcastError);
+    return { statusCode: 500, body: JSON.stringify({ message: 'Error broadcasting resetTimer action' }) };
+  }
   return {
     statusCode: 200,
 headers: {
@@ -1479,6 +1494,23 @@ async function deleteStaleConnection(connectionId) {
     console.log(`Successfully deleted stale connection ${connectionId}`);
   } catch (error) {
     console.error("Error deleting stale connection:", error);
+  }
+}
+
+async function updateCountdownState(gameId, endTime) {
+  const params = {
+    TableName: "GameCountdowns",
+    Item: {
+      gameId: gameId,
+      endTime: endTime
+    }
+  };
+
+  try {
+    await ddb.put(params).promise();
+    console.log(`Countdown state updated for game ${gameId}`);
+  } catch (error) {
+    console.error(`Error updating countdown state for game ${gameId}:`, error);
   }
 }
 
