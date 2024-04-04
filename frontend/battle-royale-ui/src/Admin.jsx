@@ -72,7 +72,7 @@ export default function Admin(props) {
       //      triggerLambdaFunction(gameId);
       //  }
 
-      triggerLambdaFunction(1);
+      triggerLambdaFunction(5);
     }
   };
 
@@ -190,8 +190,8 @@ export default function Admin(props) {
           </Button>
         </Stack>
       </Box>
-      <Box>
-        <Timer />
+      <Box mt={5}>
+        <Timer gameId={5} />
       </Box>
     </Fragment>
   );

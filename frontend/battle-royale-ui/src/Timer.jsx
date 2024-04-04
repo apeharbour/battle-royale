@@ -1,36 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Card, CardHeader, CardContent } from '@mui/material';
-import { useWebSocket } from './contexts/WebSocketContext'; // Adjust the import path as necessary
+import { useWebSocket } from './contexts/WebSocketContext'; 
 
-export default function Timer() {
+export default function Timer({ gameId }) { 
   const [timeLeft, setTimeLeft] = useState('Waiting for countdown...');
-  const { ws, countdownEndTime } = useWebSocket(); // Adjust based on your context structure
+  const { ws } = useWebSocket();
+
+  // Function to fetch endTime from the API
+  const fetchEndTime = async () => {
+    try {
+      const response = await fetch(`https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/game/${gameId}`);
+      const data = await response.json();
+      if (data.endTime) {
+        startTimer(data.endTime);
+      }
+    } catch (error) {
+      console.error('Failed to fetch endTime:', error);
+    }
+  };
 
   useEffect(() => {
-    if (!ws) return;
+    fetchEndTime();
 
     const onMessage = (event) => {
       const message = JSON.parse(event.data);
-      console.log('Received message:', message);
-      // Adjust the action name and properties according to your actual data structure
       if (message.action === 'startInitialCountdown' || message.action === 'resetTimer') {
-        const endTime = message.endTime;
-        if (endTime) {
-          startTimer(endTime);
-        }
+        startTimer(message.endTime);
       }
     };
 
-    ws.addEventListener('message', onMessage);
-
-    // Optionally, start the timer if countdownEndTime is already set
-    if (countdownEndTime) {
-      startTimer(countdownEndTime);
+    if (ws) {
+      ws.addEventListener('message', onMessage);
     }
 
     // Clean up
-    return () => ws.removeEventListener('message', onMessage);
-  }, [ws, countdownEndTime]);
+    return () => ws?.removeEventListener('message', onMessage);
+  }, [ws, gameId]);
 
   const startTimer = (endTime) => {
     updateCountdown(endTime);

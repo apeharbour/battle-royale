@@ -9,6 +9,15 @@ const apiGwManagementApi = new AWS.ApiGatewayManagementApi({
 
 exports.handler = async (event) => {
     const { gameId, scheduleRate } = JSON.parse(event.body);
+    const numericGameId = Number(gameId);
+
+    if (isNaN(numericGameId)) {
+      console.error(`Invalid gameId: ${gameId}`);
+      return { 
+          statusCode: 400, 
+          body: JSON.stringify({ message: 'Invalid gameId provided.' }) 
+      };
+  }
 
   // Schedule future actions with EventBridge as before
   const ruleName = `TriggerContractFunctionForGame_${gameId}`;
@@ -22,8 +31,9 @@ exports.handler = async (event) => {
 
   // Calculate initial countdown end time and broadcast it
   try {
-    const endTime = getEndTime(scheduleRate); // Using a similar function to calculate endTime
-    await broadcastInitialCountdown(endTime, gameId); // gameId included for client-side filtering if necessary
+    const endTime = getEndTime(scheduleRate); 
+    await updateCountdownState(numericGameId, endTime);
+    await broadcastInitialCountdown(endTime, gameId);
     console.log('Initial countdown broadcasted successfully');
   } catch (error) {
     console.error('Error broadcasting initial countdown:', error);
@@ -91,3 +101,22 @@ function getEndTime(scheduleRate) {
   
     await Promise.all(postCalls);
   }
+
+
+  async function updateCountdownState(gameId, endTime) {
+    const params = {
+      TableName: "GameCountdowns",
+      Item: {
+        gameId: gameId,
+        endTime: endTime
+      }
+    };
+  
+    try {
+      await ddb.put(params).promise();
+      console.log(`Countdown state updated for game ${gameId}`);
+    } catch (error) {
+      console.error(`Error updating countdown state for game ${gameId}:`, error);
+    }
+  }
+  

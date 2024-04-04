@@ -530,7 +530,7 @@ export default function Game(props) {
             {/* </Box> */}
 
           <PlayerStatus ships={ships} />
-          <Timer />
+          <Timer gameId={gameId} />
           </Stack>
         </Grid>
       </Grid>
