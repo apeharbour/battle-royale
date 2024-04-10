@@ -52,6 +52,7 @@ type RegistrationStarted @entity(immutable: true) {
 
 type Player @entity {
   id: Bytes!
+  address: Bytes!
   punkshipId: BigInt!
   registration: Registration!
   state: PlayerState!
