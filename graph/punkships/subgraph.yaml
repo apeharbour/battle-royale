@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Punkships
-    network: sepolia
+    network: localhost
     source:
       abi: Punkships
-      address: "0xaC12Ba65FFEc95078B763d72c9c9B91A2981826d"
-      startBlock: 5535442
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

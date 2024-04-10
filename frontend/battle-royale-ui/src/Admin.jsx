@@ -1,14 +1,24 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
+import { useAccount, useWriteContract, useConfig, useWaitForTransactionReceipt } from "wagmi"
 import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
+import PunkshipsAbi from "./abis/Punkships.json";
+
 import { Box, TextField, Button, Stack } from "@mui/material";
 import Timer from "./Timer";
 
-const GAME_ADDRESS = "0xbd4118becfB663aF6C376e27Fa9370a1177B43B4";
-const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x782dF245894951A9cCbD31401e84267Ec52c1911";
+const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
+const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
+const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
+const GAME_ABI = GameAbi.abi;
+const PUNKSHIPS_ABI = PunkshipsAbi.abi;
+
+const GAME_ID = 1;
+
+const MAX_PLAYERS_PER_GAME = 8;
+const RADIUS = 6;
 
 export default function Admin(props) {
   const [gameContract, setGameContract] = useState(null);
@@ -18,51 +28,88 @@ export default function Admin(props) {
   const [testGameId, setTestGameId] = useState(0);
   const [testGameRadius, setTestGameRadius] = useState(0);
   const [updateWorldTestId, setUpdateWorldTestId] = useState(0);
-  const [registrationContractAddress, setRegistrationContractAdress] =
-    useState("");
+  const [registrationContractAddress, setRegistrationContractAdress] = useState("");
 
-  useEffect(() => {
-    const fetchContract = async () => {
-      const provider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await provider.getSigner();
-      const gameContract = new ethers.Contract(GAME_ADDRESS, GAME_ABI, signer);
-      const regiContract = new ethers.Contract(
-        REGISTRATION_ADDRESS,
-        REGISTRATION_ABI,
-        signer
-      );
-      setGameContract(gameContract);
-      setRegiContract(regiContract);
-      setProvider(provider);
-      setPlayer(signer.address);
-    };
 
-    fetchContract();
-  }, []);
 
-  const registrationContract = async () => {
-    if (gameContract) {
-      const tx = await gameContract
-        .setRegistrationContract(registrationContractAddress)
-        .catch(console.error);
-      await tx.wait();
-    }
-  };
+
+  // useEffect(() => {
+  //   const fetchContract = async () => {
+  //     const provider = new ethers.BrowserProvider(window.ethereum);
+  //     const signer = await provider.getSigner();
+  //     const gameContract = new ethers.Contract(GAME_ADDRESS, GAME_ABI, signer);
+  //     const regiContract = new ethers.Contract(
+  //       REGISTRATION_ADDRESS,
+  //       REGISTRATION_ABI,
+  //       signer
+  //     );
+  //     setGameContract(gameContract);
+  //     setRegiContract(regiContract);
+  //     setProvider(provider);
+  //     setPlayer(signer.address);
+  //   };
+
+  //   fetchContract();
+  // }, []);
+
+ 
+  // const registrationContract = async () => {
+  //   if (gameContract) {
+  //     const tx = await gameContract
+  //       .setRegistrationContract(registrationContractAddress)
+  //       .catch(console.error);
+  //     await tx.wait();
+  //   }
+  // };
+
+  const account = useAccount();
+
+  
+  const {
+    writeContract,
+    hash,
+    isPending: isTxPending,
+    isSuccess: isTxSuccess,
+    isError: isTxError,
+    error: txError,
+  } = useWriteContract();
+
+  const { isLoading: isTxConfirming, isSuccess: isTxConfirmed, data: txData } =  useWaitForTransactionReceipt({hash});
+
+  if (isTxConfirmed) { 
+    console.log("Transaction Confirmed", txData);
+  }
+  if (isTxError) {
+    console.error("Transaction Error", txError);
+  }
+
 
   const startRegistration = async () => {
-    if (regiContract !== null) {
-      const tx = await regiContract.startRegistration().catch(console.error);
-      await tx.wait();
-      console.log(tx);
-    }
+    writeContract({
+      abi: REGISTRATION_ABI,
+      address: REGISTRATION_ADDRESS,
+      functionName: "startRegistration"
+    })
+    // if (regiContract !== null) {
+    //   const tx = await regiContract.startRegistration().catch(console.error);
+    //   await tx.wait();
+    //   console.log(tx);
+    // }
   };
 
   const closeRegistration = async () => {
-    if (regiContract !== null) {
-      const tx = await regiContract
-        .closeRegistration(8, 6)
-        .catch(console.error);
-      await tx.wait();
+    writeContract({
+      abi: REGISTRATION_ABI,
+      address: REGISTRATION_ADDRESS,
+      functionName: "closeRegistration",
+      args: [MAX_PLAYERS_PER_GAME, RADIUS]
+    });
+
+    // if (regiContract !== null) {
+    //   const tx = await regiContract
+    //     .closeRegistration(8, 6)
+    //     .catch(console.error);
+    //   await tx.wait();
 
       //    const lastGameIdBigInt = await regiContract.lastGameId();
       //    const lastGameId = Number(lastGameIdBigInt);
@@ -72,8 +119,7 @@ export default function Admin(props) {
       //      triggerLambdaFunction(gameId);
       //  }
 
-      triggerLambdaFunction(1);
-    }
+      // triggerLambdaFunction(1);
   };
 
   const triggerLambdaFunction = async (gameId) => {
@@ -102,46 +148,69 @@ export default function Admin(props) {
   };
 
   const startTestGame = async () => {
-    if (gameContract !== null) {
-      const tx = await gameContract
-        .startNewGame(testGameId, testGameRadius)
-        .catch(console.error);
-      await tx.wait();
-      console.log(tx);
-    }
+
+    writeContract({
+      abi: GAME_ABI,
+      address: GAME_ADDRESS,
+      functionName: "startNewGame",
+      args: [testGameId, testGameRadius]
+    });
+
+    // if (gameContract !== null) {
+    //   const tx = await gameContract
+    //     .startNewGame(testGameId, testGameRadius)
+    //     .catch(console.error);
+    //   await tx.wait();
+    //   console.log(tx);
+    // }
   };
 
   const endTestGame = async () => {
-    if (gameContract !== null) {
-      const tx = await gameContract.endGame(testGameId).catch(console.error);
-      await tx.wait();
-      console.log(tx);
-    }
+
+    writeContract({
+      abi: GAME_ABI,
+      address: GAME_ADDRESS,
+      functionName: "endGame",
+      args: [testGameId]
+    });
+
+    // if (gameContract !== null) {
+    //   const tx = await gameContract.endGame(testGameId).catch(console.error);
+    //   await tx.wait();
+    //   console.log(tx);
+    // }
   };
 
   const updateWorldTest = async () => {
-    if (gameContract !== null) {
-      const tx = await gameContract
-        .updateWorld(updateWorldTestId)
-        .catch(console.error);
-      await tx.wait();
-      console.log(tx);
-    }
+
+    writeContract({
+      abi: GAME_ABI,
+      address: GAME_ADDRESS,
+      functionName: "updateWorld",
+      args: [updateWorldTestId]
+    });
+    // if (gameContract !== null) {
+    //   const tx = await gameContract
+    //     .updateWorld(updateWorldTestId)
+    //     .catch(console.error);
+    //   await tx.wait();
+    //   console.log(tx);
+    // }
   };
 
   return (
     <Fragment>
       <Box mt={2}>
         <Stack spacing={2} direction="row">
-          <TextField
+          {/* <TextField
             variant="outlined"
             value={registrationContractAddress}
             label="Reg Contract"
             onChange={(e) => setRegistrationContractAdress(e.target.value)}
-          />
-          <Button variant="contained" onClick={registrationContract}>
+          /> */}
+          {/* <Button variant="contained" onClick={registrationContract}>
             Set
-          </Button>
+          </Button> */}
           <Button
             variant="contained"
             color="success"
