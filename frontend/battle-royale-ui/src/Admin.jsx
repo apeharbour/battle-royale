@@ -59,6 +59,25 @@ const shortenAddress = (address) => {
   return `${address.slice(0, 6)}..${address.slice(-4)}`;
 };
 
+const useRegistrationsQuery = (select) => {
+  return useQuery({
+    queryKey: ["registrations"],
+    queryFn: async () =>
+      request(
+        import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION,
+        registrationQuery
+      ),
+    select,
+  });
+};
+
+const useRegistrations = (state) => useRegistrationsQuery((data) => data.registrations.filter((r) => r.state === state));
+
+class RegistrationState {
+  static OPEN = "OPEN";
+  static CLOSED = "CLOSED";
+}
+
 export default function Admin(props) {
   const [gameContract, setGameContract] = useState(null);
   const [regiContract, setRegiContract] = useState(null);
@@ -70,14 +89,10 @@ export default function Admin(props) {
   const [registrationContractAddress, setRegistrationContractAdress] =
     useState("");
 
-  const { data, isFetching, isError, error } = useQuery({
-    queryKey: ["registrations"],
-    queryFn: async () =>
-      request(
-        import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION,
-        registrationQuery
-      ),
-  });
+
+
+  const { data: closedRegistrations } = useRegistrations(RegistrationState.CLOSED)
+  const { data: openRegistrations } = useRegistrations(RegistrationState.OPEN)
 
   // useEffect(() => {
   //   const fetchContract = async () => {
@@ -308,75 +323,61 @@ export default function Admin(props) {
       </Box>
 
       <Grid container p={4}>
-        <Grid item xs={12}>
-          {data && <Typography variant="h4">Registration Status</Typography>}
-          {isFetching && <Typography variant="h6">Loading...</Typography>}
-          {isError && <Typography variant="h6">{error.message}</Typography>}
-        </Grid>
-
-        {data && (
+        {openRegistrations && (
           <Grid item xs={12}>
             <Typography variant="h4">
-              {`${
-                data.registrations.filter((r) => r.state === "OPEN").length
-              } Open Registrations`}
+              {`${openRegistrations.length} Open Registrations`}
             </Typography>
           </Grid>
         )}
 
-        {data &&
-          data.registrations
-            .filter((r) => r.state === "OPEN")
-            .map((registration) => (
-              <Grid item key={registration.phase} m={2}>
-                <Card elevation={4}>
-                  <CardHeader
-                    title={`Phase: ${registration.phase}, ${registration.state}, ${registration.players.length} players`}
-                  />
-                  <CardContent>
-                    {registration.players.map((player) => (
-                      <Typography variant="h6" key={player.address} ml={2}>
-                        {shortenAddress(player.address)} with ship{" "}
-                        {player.punkshipId} {player.state} for game{" "}
-                        {player.gameId}.
-                      </Typography>
-                    ))}
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+        {openRegistrations &&
+          openRegistrations.map((registration) => (
+            <Grid item key={registration.phase} m={2}>
+              <Card elevation={4}>
+                <CardHeader
+                  title={`Phase: ${registration.phase}, ${registration.state}, ${registration.players.length} players`}
+                />
+                <CardContent>
+                  {registration.players.map((player) => (
+                    <Typography variant="h6" key={player.address} ml={2}>
+                      {shortenAddress(player.address)} with ship{" "}
+                      {player.punkshipId} {player.state} for game{" "}
+                      {player.gameId}.
+                    </Typography>
+                  ))}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
 
-        {data && (
+        {closedRegistrations && (
           <Grid item xs={12}>
             <Typography variant="h4">
-              {`${
-                data.registrations.filter((r) => r.state === "CLOSED").length
-              } Closed Registrations`}
+              {`${closedRegistrations.length} Closed Registrations`}
             </Typography>
           </Grid>
         )}
 
-        {data &&
-          data.registrations
-            .filter((r) => r.state === "CLOSED")
-            .map((registration) => (
-              <Grid item key={registration.phase} m={2}>
-                <Card elevation={4}>
-                  <CardHeader
-                    title={`Phase: ${registration.phase}, ${registration.state}, ${registration.players.length} players`}
-                  />
-                  <CardContent>
-                    {registration.players.map((player) => (
-                      <Typography variant="h6" key={player.address} ml={2}>
-                        {shortenAddress(player.address)} with ship{" "}
-                        {player.punkshipId} {player.state} for game{" "}
-                        {player.gameId}.
-                      </Typography>
-                    ))}
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
+        {closedRegistrations &&
+          closedRegistrations.map((registration) => (
+            <Grid item key={registration.phase} m={2}>
+              <Card elevation={4}>
+                <CardHeader
+                  title={`Phase: ${registration.phase}, ${registration.state}, ${registration.players.length} players`}
+                />
+                <CardContent>
+                  {registration.players.map((player) => (
+                    <Typography variant="h6" key={player.address} ml={2}>
+                      {shortenAddress(player.address)} with ship{" "}
+                      {player.punkshipId} {player.state} for game{" "}
+                      {player.gameId}.
+                    </Typography>
+                  ))}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
       </Grid>
     </Fragment>
   );
