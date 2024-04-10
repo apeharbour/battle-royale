@@ -1,8 +1,25 @@
 {
-  "mainnet": {
-    "Registration": {
-      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+  "sepolia": {
+    "GamePunk": {
+      "address": "0xbd4118becfB663aF6C376e27Fa9370a1177B43B4",
+      "startBlock": 5535447
+    },
+    "Punkships": {
+      "address": "0xaC12Ba65FFEc95078B763d72c9c9B91A2981826d",
+      "startBlock": 5535442
+    }
+  },
+  "localhost": {
+    "GamePunk": {
+      "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
       "startBlock": 0
+    },
+    "Punkships": {
+      "address": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+      "startBlock": 0
+    },
+    "Registration": {
+      "address": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
     }
   }
 }
