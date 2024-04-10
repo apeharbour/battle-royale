@@ -17,21 +17,41 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "owner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
     ],
     "name": "OwnableInvalidOwner",
     "type": "error"
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "account", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
     "name": "OwnableUnauthorizedAccount",
     "type": "error"
   },
-  { "inputs": [], "name": "PlayerAlreadyRegisteredError", "type": "error" },
-  { "inputs": [], "name": "PlayerNotOwnerOfShipError", "type": "error" },
-  { "inputs": [], "name": "RegistrationClosedError", "type": "error" },
+  {
+    "inputs": [],
+    "name": "PlayerAlreadyRegisteredError",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PlayerNotOwnerOfShipError",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RegistrationClosedError",
+    "type": "error"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -145,7 +165,10 @@
     "name": "RegistrationStarted",
     "type": "event"
   },
-  { "stateMutability": "nonpayable", "type": "fallback" },
+  {
+    "stateMutability": "nonpayable",
+    "type": "fallback"
+  },
   {
     "inputs": [
       {
@@ -153,7 +176,11 @@
         "name": "_maxPlayersPerGame",
         "type": "uint8"
       },
-      { "internalType": "uint8", "name": "_radius", "type": "uint8" }
+      {
+        "internalType": "uint8",
+        "name": "_radius",
+        "type": "uint8"
+      }
     ],
     "name": "closeRegistration",
     "outputs": [],
@@ -164,7 +191,11 @@
     "inputs": [],
     "name": "gamePunk",
     "outputs": [
-      { "internalType": "contract IGamePunk", "name": "", "type": "address" }
+      {
+        "internalType": "contract IGamePunk",
+        "name": "",
+        "type": "address"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -172,14 +203,26 @@
   {
     "inputs": [],
     "name": "lastGameId",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "owner",
-    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -187,14 +230,22 @@
     "inputs": [],
     "name": "punkships",
     "outputs": [
-      { "internalType": "contract IPunkships", "name": "", "type": "address" }
+      {
+        "internalType": "contract IPunkships",
+        "name": "",
+        "type": "address"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
-      { "internalType": "uint256", "name": "_punkshipId", "type": "uint256" }
+      {
+        "internalType": "uint256",
+        "name": "_punkshipId",
+        "type": "uint256"
+      }
     ],
     "name": "registerPlayer",
     "outputs": [],
@@ -202,11 +253,25 @@
     "type": "function"
   },
   {
-    "inputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
     "name": "registeredPlayers",
     "outputs": [
-      { "internalType": "bool", "name": "registered", "type": "bool" },
-      { "internalType": "uint256", "name": "punkshipId", "type": "uint256" }
+      {
+        "internalType": "bool",
+        "name": "registered",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "punkshipId",
+        "type": "uint256"
+      }
     ],
     "stateMutability": "view",
     "type": "function"
@@ -214,14 +279,26 @@
   {
     "inputs": [],
     "name": "registrationClosed",
-    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [],
     "name": "registrationPhase",
-    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
     "stateMutability": "view",
     "type": "function"
   },
@@ -241,7 +318,11 @@
   },
   {
     "inputs": [
-      { "internalType": "address", "name": "newOwner", "type": "address" }
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
     "name": "transferOwnership",
     "outputs": [],

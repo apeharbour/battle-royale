@@ -16,6 +16,7 @@ type PlayerAdded @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  registration: Registration!
 }
 
 type PlayerRegistered @entity(immutable: true) {
@@ -26,6 +27,7 @@ type PlayerRegistered @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  registration: Registration!
 }
 
 type RegistrationClosed @entity(immutable: true) {
@@ -35,6 +37,7 @@ type RegistrationClosed @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  registration: Registration!
 }
 
 type RegistrationStarted @entity(immutable: true) {
@@ -44,4 +47,34 @@ type RegistrationStarted @entity(immutable: true) {
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
+  registration: Registration!
 }
+
+type Player @entity {
+  id: Bytes!
+  punkshipId: BigInt!
+  registration: Registration!
+  state: PlayerState!
+  gameId: BigInt
+}
+
+type Registration @entity {
+  id: Bytes!
+  state: RegistrationPhase!
+  phase: BigInt! # uint256
+  firstGameId: BigInt! # uint256
+  registrationStarted: RegistrationStarted @derivedFrom(field: "registration")
+  registrationClosed: RegistrationClosed @derivedFrom(field: "registration")
+  players: [Player!] @derivedFrom(field: "registration")
+}
+
+enum RegistrationPhase {
+  OPEN
+  CLOSED
+}
+
+enum PlayerState {
+  REGISTERED
+  ADDED
+}
+

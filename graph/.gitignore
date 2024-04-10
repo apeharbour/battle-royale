@@ -2,3 +2,7 @@
 node_modules
 jspm_packages
 data
+
+# generated files
+generated
+build
