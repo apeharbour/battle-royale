@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Punkships
-    network: sepolia
+    network: localhost
     source:
       abi: Punkships
       address: "0x595ecB1DbeDaDEB7703c5e98Fd5E3b6DcB87A1e2"
@@ -23,7 +23,7 @@ dataSources:
         - Mint
       abis:
         - name: Punkships
-          file: Punkships\abis\Punkships.json
+          file: Punkships/abis/Punkships.json
       eventHandlers:
         - event: Approval(indexed address,indexed address,indexed uint256)
           handler: handleApproval
@@ -35,4 +35,4 @@ dataSources:
           handler: handleTransfer
         - event: Mint(indexed address,indexed uint256,string)
           handler: handleMint
-      file: Punkships\Punkships.wasm
+      file: Punkships/Punkships.wasm

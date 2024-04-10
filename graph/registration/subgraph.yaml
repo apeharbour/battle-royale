@@ -1,0 +1,38 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: Registration
+    network: mainnet
+    source:
+      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+      abi: Registration
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - OwnershipTransferred
+        - PlayerAdded
+        - PlayerRegistered
+        - RegistrationClosed
+        - RegistrationStarted
+      abis:
+        - name: Registration
+          file: ./abis/Registration.json
+      eventHandlers:
+        - event: OwnershipTransferred(indexed address,indexed address)
+          handler: handleOwnershipTransferred
+        - event: PlayerAdded(uint256,address,uint256,uint256)
+          handler: handlePlayerAdded
+        - event: PlayerRegistered(uint256,address,uint256)
+          handler: handlePlayerRegistered
+        - event: RegistrationClosed(uint256,uint256)
+          handler: handleRegistrationClosed
+        - event: RegistrationStarted(uint256,uint256)
+          handler: handleRegistrationStarted
+      file: ./src/registration.ts

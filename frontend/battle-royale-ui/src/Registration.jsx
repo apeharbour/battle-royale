@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useBlockNumber, useWriteContract } from "wagmi";
+import { useAccount, useBlockNumber, useWriteContract, useConfig, useWaitForTransactionReceipt } from "wagmi";
 import { useSnackbar } from "notistack";
 
 import {
@@ -65,12 +65,14 @@ export default function Registration(props) {
   const account = useAccount();
   const {
     writeContract,
-    hash: txHash,
-    isPending: txIsPending,
+    hash,
+    isPending: isTxPending,
+    isSuccess: isTxSuccess,
+    isError: isTxError,
     error: txError,
-    isError: txIsError,
-    status: txStatus,
   } = useWriteContract();
+
+  const { isLoading: isTxConfirming, isSuccess: isTxConfirmed } =  useWaitForTransactionReceipt({hash});
 
   const { data, isFetching, isError, error } = useQuery({
     queryKey: ["ships", account.address],
@@ -119,16 +121,20 @@ export default function Registration(props) {
       address: REGISTRATION_ADDRESS,
       functionName: "registerPlayer",
       args: [parseInt(selectedYacht.tokenId)],
-    });
+    })
 
-    console.log("Added ship");
   };
 
   // if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
   if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
-  if (txIsPending) enqueueSnackbar("Transaction pending...", { variant: "info" });
-  if (txIsError) enqueueSnackbar("Error: " + JSON.stringify(txError), { variant: "error" });
-  if (txStatus === "success") enqueueSnackbar("Transaction successful!", { variant: "success" });
+  // if (isTxPending) enqueueSnackbar("Transaction pending...", { variant: "info" });
+  if (isTxConfirming) enqueueSnackbar("Waiting for confirmation...", { variant: "info" });
+  if (isTxConfirmed) enqueueSnackbar("Transaction confirmed!", { variant: "success" });
+  if (isTxError) { 
+    console.log('msg', txError.message)
+  } 
+  if (isTxSuccess) enqueueSnackbar("Transaction success!", { variant: "success" });
+  // enqueueSnackbar("Error: " + txError.message + 'meta:' + txError.metaMessages, { variant: "error" });
 
 
   return (
@@ -169,11 +175,15 @@ export default function Registration(props) {
               <Button
                 variant="outlined"
                 onClick={register}
-                disabled={!selectedYacht}
+                disabled={!selectedYacht || isTxPending}
                 // sx={{ backgroundColor: "gray", color: "black" }}
               >
-                Add Ship
+                { isTxPending ? 'Confirming...' : 'Add Ship' }
               </Button>
+              { hash && <Typography>Transaction Hash: {hash} </Typography>}
+              { isTxConfirming && <Typography>Waiting for confirmation... </Typography>}
+              { isTxConfirmed && <Typography>Transaction confirmed! </Typography>}
+
               {showYachtSelectError && (
                 <Typography>Please select a yacht first.</Typography>
               )}

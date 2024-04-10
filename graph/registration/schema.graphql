@@ -1,0 +1,47 @@
+type OwnershipTransferred @entity(immutable: true) {
+  id: Bytes!
+  previousOwner: Bytes! # address
+  newOwner: Bytes! # address
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PlayerAdded @entity(immutable: true) {
+  id: Bytes!
+  registrationPhase: BigInt! # uint256
+  player: Bytes! # address
+  gameId: BigInt! # uint256
+  punkshipId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type PlayerRegistered @entity(immutable: true) {
+  id: Bytes!
+  registrationPhase: BigInt! # uint256
+  player: Bytes! # address
+  punkshipId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RegistrationClosed @entity(immutable: true) {
+  id: Bytes!
+  registrationPhase: BigInt! # uint256
+  gameId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type RegistrationStarted @entity(immutable: true) {
+  id: Bytes!
+  registrationPhase: BigInt! # uint256
+  firstGameId: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}

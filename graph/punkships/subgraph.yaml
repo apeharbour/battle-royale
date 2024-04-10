@@ -6,7 +6,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Punkships
-    network: sepolia
+    network: localhost
     source:
       abi: Punkships
       address: "0x595ecB1DbeDaDEB7703c5e98Fd5E3b6DcB87A1e2"

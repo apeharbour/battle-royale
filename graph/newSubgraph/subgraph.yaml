@@ -4,7 +4,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GamePunk
-    network: sepolia
+    network: localhost
     source:
       abi: GamePunk
       address: "0xcf79eB6013F05b6EF445cD9ddf1C60179DfF434e"
