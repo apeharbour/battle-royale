@@ -1,11 +1,30 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { ethers } from "ethers";
-import { useAccount, useWriteContract, useConfig, useWaitForTransactionReceipt } from "wagmi"
+import {
+  useAccount,
+  useWriteContract,
+  useConfig,
+  useWaitForTransactionReceipt,
+} from "wagmi";
+
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { request, gql } from "graphql-request";
+
 import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import PunkshipsAbi from "./abis/Punkships.json";
 
-import { Box, TextField, Button, Stack } from "@mui/material";
+import {
+  Box,
+  TextField,
+  Button,
+  Stack,
+  Typography,
+  Card,
+  CardHeader,
+  CardContent,
+  Grid,
+} from "@mui/material";
 import Timer from "./Timer";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
@@ -20,6 +39,26 @@ const GAME_ID = 1;
 const MAX_PLAYERS_PER_GAME = 8;
 const RADIUS = 6;
 
+const registrationQuery = gql`
+  query registrations {
+    registrations {
+      firstGameId
+      phase
+      state
+      players {
+        address
+        punkshipId
+        state
+        gameId
+      }
+    }
+  }
+`;
+
+const shortenAddress = (address) => {
+  return `${address.slice(0, 6)}..${address.slice(-4)}`;
+};
+
 export default function Admin(props) {
   const [gameContract, setGameContract] = useState(null);
   const [regiContract, setRegiContract] = useState(null);
@@ -28,10 +67,17 @@ export default function Admin(props) {
   const [testGameId, setTestGameId] = useState(0);
   const [testGameRadius, setTestGameRadius] = useState(0);
   const [updateWorldTestId, setUpdateWorldTestId] = useState(0);
-  const [registrationContractAddress, setRegistrationContractAdress] = useState("");
+  const [registrationContractAddress, setRegistrationContractAdress] =
+    useState("");
 
-
-
+  const { data, isFetching, isError, error } = useQuery({
+    queryKey: ["registrations"],
+    queryFn: async () =>
+      request(
+        import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION,
+        registrationQuery
+      ),
+  });
 
   // useEffect(() => {
   //   const fetchContract = async () => {
@@ -52,7 +98,6 @@ export default function Admin(props) {
   //   fetchContract();
   // }, []);
 
- 
   // const registrationContract = async () => {
   //   if (gameContract) {
   //     const tx = await gameContract
@@ -64,7 +109,6 @@ export default function Admin(props) {
 
   const account = useAccount();
 
-  
   const {
     writeContract,
     hash,
@@ -74,22 +118,25 @@ export default function Admin(props) {
     error: txError,
   } = useWriteContract();
 
-  const { isLoading: isTxConfirming, isSuccess: isTxConfirmed, data: txData } =  useWaitForTransactionReceipt({hash});
+  const {
+    isLoading: isTxConfirming,
+    isSuccess: isTxConfirmed,
+    data: txData,
+  } = useWaitForTransactionReceipt({ hash });
 
-  if (isTxConfirmed) { 
+  if (isTxConfirmed) {
     console.log("Transaction Confirmed", txData);
   }
   if (isTxError) {
     console.error("Transaction Error", txError);
   }
 
-
   const startRegistration = async () => {
     writeContract({
       abi: REGISTRATION_ABI,
       address: REGISTRATION_ADDRESS,
-      functionName: "startRegistration"
-    })
+      functionName: "startRegistration",
+    });
     // if (regiContract !== null) {
     //   const tx = await regiContract.startRegistration().catch(console.error);
     //   await tx.wait();
@@ -102,7 +149,7 @@ export default function Admin(props) {
       abi: REGISTRATION_ABI,
       address: REGISTRATION_ADDRESS,
       functionName: "closeRegistration",
-      args: [MAX_PLAYERS_PER_GAME, RADIUS]
+      args: [MAX_PLAYERS_PER_GAME, RADIUS],
     });
 
     // if (regiContract !== null) {
@@ -111,15 +158,15 @@ export default function Admin(props) {
     //     .catch(console.error);
     //   await tx.wait();
 
-      //    const lastGameIdBigInt = await regiContract.lastGameId();
-      //    const lastGameId = Number(lastGameIdBigInt);
-      //    console.log(lastGameId);
+    //    const lastGameIdBigInt = await regiContract.lastGameId();
+    //    const lastGameId = Number(lastGameIdBigInt);
+    //    console.log(lastGameId);
 
-      //    for (let gameId = 1; gameId <= lastGameId; gameId++) {
-      //      triggerLambdaFunction(gameId);
-      //  }
+    //    for (let gameId = 1; gameId <= lastGameId; gameId++) {
+    //      triggerLambdaFunction(gameId);
+    //  }
 
-      // triggerLambdaFunction(1);
+    // triggerLambdaFunction(1);
   };
 
   const triggerLambdaFunction = async (gameId) => {
@@ -148,12 +195,11 @@ export default function Admin(props) {
   };
 
   const startTestGame = async () => {
-
     writeContract({
       abi: GAME_ABI,
       address: GAME_ADDRESS,
       functionName: "startNewGame",
-      args: [testGameId, testGameRadius]
+      args: [testGameId, testGameRadius],
     });
 
     // if (gameContract !== null) {
@@ -166,12 +212,11 @@ export default function Admin(props) {
   };
 
   const endTestGame = async () => {
-
     writeContract({
       abi: GAME_ABI,
       address: GAME_ADDRESS,
       functionName: "endGame",
-      args: [testGameId]
+      args: [testGameId],
     });
 
     // if (gameContract !== null) {
@@ -182,12 +227,11 @@ export default function Admin(props) {
   };
 
   const updateWorldTest = async () => {
-
     writeContract({
       abi: GAME_ABI,
       address: GAME_ADDRESS,
       functionName: "updateWorld",
-      args: [updateWorldTestId]
+      args: [updateWorldTestId],
     });
     // if (gameContract !== null) {
     //   const tx = await gameContract
@@ -262,6 +306,78 @@ export default function Admin(props) {
       <Box>
         <Timer />
       </Box>
+
+      <Grid container p={4}>
+        <Grid item xs={12}>
+          {data && <Typography variant="h4">Registration Status</Typography>}
+          {isFetching && <Typography variant="h6">Loading...</Typography>}
+          {isError && <Typography variant="h6">{error.message}</Typography>}
+        </Grid>
+
+        {data && (
+          <Grid item xs={12}>
+            <Typography variant="h4">
+              {`${
+                data.registrations.filter((r) => r.state === "OPEN").length
+              } Open Registrations`}
+            </Typography>
+          </Grid>
+        )}
+
+        {data &&
+          data.registrations
+            .filter((r) => r.state === "OPEN")
+            .map((registration) => (
+              <Grid item key={registration.phase} m={2}>
+                <Card elevation={4}>
+                  <CardHeader
+                    title={`Phase: ${registration.phase}, ${registration.state}, ${registration.players.length} players`}
+                  />
+                  <CardContent>
+                    {registration.players.map((player) => (
+                      <Typography variant="h6" key={player.address} ml={2}>
+                        {shortenAddress(player.address)} with ship{" "}
+                        {player.punkshipId} {player.state} for game{" "}
+                        {player.gameId}.
+                      </Typography>
+                    ))}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+
+        {data && (
+          <Grid item xs={12}>
+            <Typography variant="h4">
+              {`${
+                data.registrations.filter((r) => r.state === "CLOSED").length
+              } Closed Registrations`}
+            </Typography>
+          </Grid>
+        )}
+
+        {data &&
+          data.registrations
+            .filter((r) => r.state === "CLOSED")
+            .map((registration) => (
+              <Grid item key={registration.phase} m={2}>
+                <Card elevation={4}>
+                  <CardHeader
+                    title={`Phase: ${registration.phase}, ${registration.state}, ${registration.players.length} players`}
+                  />
+                  <CardContent>
+                    {registration.players.map((player) => (
+                      <Typography variant="h6" key={player.address} ml={2}>
+                        {shortenAddress(player.address)} with ship{" "}
+                        {player.punkshipId} {player.state} for game{" "}
+                        {player.gameId}.
+                      </Typography>
+                    ))}
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))}
+      </Grid>
     </Fragment>
   );
 }

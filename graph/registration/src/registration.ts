@@ -88,6 +88,7 @@ export function handlePlayerRegistered(event: PlayerRegisteredEvent): void {
   let player = new Player(
     event.params.player.concatI32(event.params.registrationPhase.toI32())
   );
+  player.address = event.params.player;
   player.punkshipId = event.params.punkshipId;
   player.registration = Bytes.fromI32(event.params.registrationPhase.toI32());
   player.state = PlayerState.REGISTERED;
