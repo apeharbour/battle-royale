@@ -6,7 +6,7 @@ import { styled } from "@mui/material/styles";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useWatchBlockNumber, useWatchContractEvent, useWriteContract } from "wagmi";
-import { getBuiltGraphSDK } from '../.graphclient'
+// import { getBuiltGraphSDK } from '../.graphclient'
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -29,39 +29,14 @@ const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
-const sdk = getBuiltGraphSDK()
+// const sdk = getBuiltGraphSDK()
 
-const GET_GAME = gql`
-query getGame ($gameId: BigInt!, $first: Int, $skip: Int) {
-  games(where: { gameId: $gameId }) {
-    gameId
-    state
-    cells(first: $first, skip: $skip)  {
-      id
-      q
-      r
-      island
-      deletedInRound {
-        round
-      }
-    }
-    players {
-      address
-      q
-      r
+const gameQuery = gql`
+query getGame ($gameId: BigInt!) {
+    games(where: { gameId: $gameId }) {
+      gameId
       state
-      kills
-      range
-      shotRange
-      image
-    }
-    currentRound {
-      round
-    }
-    rounds {
-      round
-      shrunk
-      deletedCells {
+      cells {
         id
         q
         r
@@ -94,17 +69,13 @@ query getGame ($gameId: BigInt!, $first: Int, $skip: Int) {
       }
     }
   }
-}`;
+`;
 
 export default function Game(props) {
   const { pathname } = useLocation();
   const id = parseInt(pathname.split("/")[1]);
   const [contract, setContract] = useState(null);
   const [gamePlayer, setGamePlayer] = useState(null);
-  const [cells, setCells] = useState([]);
-  const [ships, setShips] = useState([]);
-  const [myShip, setMyShip] = useState(undefined);
-  const [round, setRound] = useState(0);
   const [randomInt, setRandomInt] = useState(generateRandomInt());
 
   const [travelEndpoint, setTravelEndpoint] = useState(undefined);
@@ -238,57 +209,44 @@ export default function Game(props) {
     }
 
     const s = (ship.q + ship.r) * -1;
-    const mine = ship.address.toLowerCase() === account.address.toLowerCase();
-    const newCell = { ...ship, s, travel, shot, mine };
+    // const mine = ship.address.toLowerCase() === account.address.toLowerCase();
+    // const newCell = { ...ship, s, travel, shot, mine };
+    const newCell = { ...ship, s, travel, shot };
     return newCell;
   };
 
-  /* extract the various pieces of data from the
-   * subgraph and set the state of the game
-   */
-  const updateData = (data) => {
-    const { games } = data;
-    console.log("Data: ", data);
-    const game = games[0];
-    const currentRound = parseInt(game.currentRound.round);
-    setRound(currentRound);
-
-    // process ships
-    let movesLastRound = [];
-    if (currentRound > 1) {
-      movesLastRound = game.rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
-    }
-    const ships = game.players.map(s => enrichShip(s, movesLastRound));
-    const myShip1 = ships.filter((s) => s.mine)[0];
-    setMyShip(myShip1);
-    setShips([...ships]);
-
-    // process cells
-    const cells = game.cells.map((c) => {
-      return enrichCell(c, game.cells, currentRound);
+  const useGameQuery = (select) => useQuery({
+      queryKey: ["game", BigInt(id).toString()],
+      queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, gameQuery, {
+        gameId: id,
+      }),
+      select,
     });
 
-    setCells([...cells]);
-  };
+  const useCurrentRound = () => useGameQuery((data) => parseInt(data.games[0].currentRound.round))
 
-  // const { data, isLoading, isFetching, isError, error } = useQuery({
-  const { data, isFetching, isError, error } = useQuery({
-    queryKey: ["game", BigInt(id).toString()],
-    //queryFn: async () => sdk.getGame({gameId: BigInt(id).toString()}),
-       queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
-         gameId: id,
-         first: 1000,
-          skip: 0,
-       }),
+  const useShips = () => useGameQuery((data) => {
+    let movesLastRound = [];
+    const currentRound = parseInt(data.games[0].currentRound.round)
+    if (currentRound > 1) {
+      movesLastRound = data.games[0].rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
+    }
+    return data.games[0].players.map(s => enrichShip(s, movesLastRound));
   });
 
-  /* transform and enrich data from the subgraph whenever it changes */
-  useEffect(() => {
-    if (data ) {
-      console.log("Updating data for game: ", id);
-      updateData(data);
-    }
-  }, [data]);
+  const useMyShip = (account) => useGameQuery((data) => data.games[0].players.filter((s) => s.address.toLowerCase() === account.address.toLowerCase())[0]);
+
+  const useCells = () => useGameQuery((data) => data.games[0].cells.map((c) => enrichCell(c, data.games[0].cells, parseInt(data.games[0].currentRound.round))));
+
+  const useRounds = () => useGameQuery((data) => data.games[0].rounds);
+
+
+
+  const { data: currentRound } = useCurrentRound();
+  const { data: ships } = useShips();
+  const { data: myShip } = useMyShip(account);
+  const { data: cells } = useCells();
+  const { data: rounds } = useRounds();
 
   //Helper Function to generate secret random number for hashing moves
   function generateRandomInt() {
@@ -481,8 +439,8 @@ export default function Game(props) {
   };
 
   // if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
-  if (isError)
-    enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
+  // if (isError)
+  //   enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
   if (txIsPending)
     enqueueSnackbar("Transaction pending...", { variant: "info" });
   if (txIsError) {
@@ -499,11 +457,11 @@ export default function Game(props) {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             {myShip && myShip.range && <ShipStatus ship={myShip} />}
-            {data && <Logs gameId={id} gameData={data}/>}
+            {rounds && <Logs gameId={id} rounds={rounds}/>}
           </Stack>
         </Grid>
 
-        <MainBoardArea
+        {cells && ships && myShip && <MainBoardArea
           center={new Hex(5, 5, -5)}
           cells={cells}
           ships={ships}
@@ -513,6 +471,7 @@ export default function Game(props) {
           shotEndpoint={shotEndpoint}
           setShotEndpoint={setShotEndpoint}
         />
+}
 
         <Grid item xs={12} sm={4} md={2}>
           {/* <Timer gameId={id}/> */}
