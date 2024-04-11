@@ -209,9 +209,9 @@ export default function Game(props) {
     }
 
     const s = (ship.q + ship.r) * -1;
-    // const mine = ship.address.toLowerCase() === account.address.toLowerCase();
-    // const newCell = { ...ship, s, travel, shot, mine };
-    const newCell = { ...ship, s, travel, shot };
+    const mine = ship.address.toLowerCase() === account.address.toLowerCase();
+    const newCell = { ...ship, s, travel, shot, mine };
+    // const newCell = { ...ship, s, travel, shot };
     return newCell;
   };
 
@@ -327,10 +327,11 @@ export default function Game(props) {
     }
 
     // calculate distances and directions
-    const travelDistance = HexUtils.distance(myShip, travelEndpoint);
+    const myShipHex = new Hex(myShip.q, myShip.r, (myShip.q + myShip.r) * -1);
+    const travelDistance = HexUtils.distance(myShipHex, travelEndpoint);
     const shotDistance = HexUtils.distance(travelEndpoint, shotEndpoint);
 
-    const travelDirection = determineDirection(myShip, travelEndpoint);
+    const travelDirection = determineDirection(myShipHex, travelEndpoint);
     const shotDirection = determineDirection(travelEndpoint, shotEndpoint);
 
     setTravelEndpoint(undefined);
