@@ -12,49 +12,6 @@ import {
 import { styled } from "@mui/material/styles";
 import { Hex, HexUtils } from "react-hexgrid";
 
-const ShipPaper = styled(Paper)({
-  maxWidth: "240px",
-  maxHeight: "400px",
-  borderRadius: "30px",
-  overflow: "hidden",
-  margin: "auto auto 40px auto",
-  backgroundColor: "rgba(195, 208, 243, 0.5)",
-  position: "relative", // Add position relative
-
-  "&:before": {
-    // Add before pseudo-element
-    content: '""',
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    width: "10px", // Adjust as needed
-    background:
-      "linear-gradient(to right, rgba(255,255,255,0), rgba(195, 208, 243, 0.5))",
-  },
-});
-
-const TopSection = styled("div")({
-  backgroundColor: "rgba(195, 208, 243, 0.5)",
-  padding: "16px",
-});
-
-const BottomSection = styled("div")({
-  backgroundColor: "rgba(215, 227, 249, 0.5)",
-  padding: "16px",
-  maxHeight: "340px", // Adjust as needed
-  overflowY: "auto",
-
-  // Hiding the scrollbar (for Webkit/Blink browsers)
-  "&::-webkit-scrollbar": {
-    display: "none",
-  },
-});
-
-const StatTypography = styled(Typography)({
-  margin: "8px 0",
-});
-
 const shortenAddress = (address) => {
   return `${address.slice(0, 6)}..${address.slice(-4)}`;
 };
@@ -126,9 +83,7 @@ const calculateDirectionDistance = (origin, destination) => {
   return { direction, distance, prettyPrint: `${prettyPrintDirection(direction)} ${distance}` };
 }
 
-export default function Logs({ gameData: data, ...props }) {
-
-  !!data ? console.log(data) : console.log('No data');
+export default function Logs({ rounds, ...props }) {
   return (
     <>
       {/* <Card elevation={20}>
@@ -161,7 +116,7 @@ export default function Logs({ gameData: data, ...props }) {
         <Card elevation={4}>
           <CardHeader title="Logs" sx={{backdropFilter: 'brightness: 60%', opacity: 1}} />
           <CardContent>
-            {data.games[0].rounds.map((round, roundIndex) => (
+            {rounds.map((round, roundIndex) => (
               <Box key={roundIndex}>
                 <Typography variant="subtitle1">Round {round.round}</Typography>
                 {round.moves.map((move, moveIndex) => (
