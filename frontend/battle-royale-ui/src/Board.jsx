@@ -28,6 +28,26 @@ const TRAVELLING = 0;
 const SHOOTING = 1;
 const DONE = 2;
 
+const isReachable = (destination, origin, distance) => {
+  const originHex = new Hex(origin.q, origin.r, origin.r * -1 - origin.q);
+  const destinationHex = new Hex(destination.q, destination.r, destination.r * -1 - destination.q);
+  if (
+    HexUtils.equals(originHex, destinationHex) ||
+    ((originHex.q === destinationHex.q ||
+      originHex.r === destinationHex.r ||
+      originHex.s === destinationHex.s) &&
+      HexUtils.distance(destinationHex, originHex) <= distance)
+  ) {
+    return true;
+  }
+  return false;
+};
+
+const isHighlighted = (cell, highlights) => {
+  return highlights.some((c) => HexUtils.equals(c, cell));
+};
+
+
 export default function Board({
   center,
   cells,
@@ -39,17 +59,17 @@ export default function Board({
   setShotEndpoint,
   parentRef,
 }) {
-  const [state, setState] = useState(TRAVELLING);
-  const [highlightedCells, setHighlightedCells] = useState([]);
   const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
   const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
   const [shipPathLength, setShipPathLength] = useState(0);
   const [shootPathLength, setShootPathLength] = useState(0);
-
-  const dimensions = useResizeObserver(parentRef);
   const [hexGridSize, setHexGridSize] = useState(500);
 
-  // const images = design === 0 ? imagesClean : imagesPixel;
+  
+  const dimensions = useResizeObserver(parentRef);
+  const state = !travelEndpoint ? TRAVELLING : !shotEndpoint ? SHOOTING : DONE;
+  const highlights = cells.filter((cell) => !travelEndpoint ? isReachable(cell, myShip, myShip.range) : !shotEndpoint ? isReachable(cell, travelEndpoint, myShip.shotRange) : false);
+
 
   const getFillPattern = (state, neighborCode) => {
     if (state === "island") {
@@ -62,11 +82,13 @@ export default function Board({
   const handleMouseEnter = (event, source) => {
     cells.forEach((cell) => {
       if (HexUtils.equals(source.state.hex, cell)) {
-        if (isHighlighted(cell)) {
+        if (isHighlighted(cell, highlights)) {
           if (state === TRAVELLING) {
             setTempTravelEndpoint(cell);
+            console.log("tempTravelEndpoint", cell);
           } else if (state === SHOOTING) {
             setTempShotEndpoint(cell);
+            console.log("tempShotEndpoint", cell);
           }
         }
       }
@@ -78,15 +100,15 @@ export default function Board({
    * based on the state of travelEndpoint and shotEndpoint */
   const handleMouseClick = (event, source) => {
     const selectedCell = cells.filter((c) =>
-      HexUtils.equals(source.state.hex, c)
+      HexUtils.equals(source.state.hex, new Hex(c.q, c.r, c.q * -1 - c.r))
     )[0];
 
     if (state === DONE) {
       setTravelEndpoint(undefined);
       setShotEndpoint(undefined);
-    } else if (state === TRAVELLING && isHighlighted(selectedCell)) {
+    } else if (state === TRAVELLING && isHighlighted(selectedCell, highlights)) {
       setTravelEndpoint(selectedCell);
-    } else if (state === SHOOTING && isHighlighted(selectedCell)) {
+    } else if (state === SHOOTING && isHighlighted(selectedCell, highlights)) {
       setShotEndpoint(selectedCell);
     }
   };
@@ -95,48 +117,21 @@ export default function Board({
   /* track the parents dimensions */
   useEffect(() => {
     if (dimensions) {
-      console.log(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width, "dimensions:", Math.min(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width));
-      // setHexGridSize(Math.min(dimensions.width, dimensions.height, window.visualViewport.height, window.visualViewport.width));
       setHexGridSize(Math.min(dimensions.width, window.visualViewport.height, window.visualViewport.width));
     }
   }, [dimensions]);
 
-  /* update state based on the state of travelEndpoint and shotEndpoint */
-  useEffect(() => {
-    if (!!travelEndpoint && !!shotEndpoint) {
-      // SHOOTING -> DONE
-      setState(DONE);
-      clearHighlights();
-    } else if (!travelEndpoint) {
-      // DONE -> TRAVELLING
-      setState(TRAVELLING);
-      clearHighlights();
-      setTempTravelEndpoint(undefined);
-      setTempShotEndpoint(undefined);
-      const highlights = cells.filter((cell) =>
-        isReachable(cell, myShip, myShip.range)
-      );
-      setHighlightedCells([...highlights]);
-
-    } else if (!!travelEndpoint && !shotEndpoint) {
-      // TRAVELLING -> SHOOTING
-      clearHighlights();
-      const highlights = cells.filter((cell) =>
-        isReachable(cell, travelEndpoint, myShip.shotRange)
-      );
-      setHighlightedCells([...highlights]);
-
-      setState(SHOOTING);
-    }
-  }, [travelEndpoint, shotEndpoint]);
-
   // update ship path length
   useEffect(() => {
     if (myShip && tempTravelEndpoint) {
-      const newLength = HexUtils.distance(myShip, tempTravelEndpoint) * lengthOneHex;
+    const {q, r} = tempTravelEndpoint
+    const endPtHex = new Hex(q, r, q * -1 - r);
+      const myShipHex = new Hex(myShip.q, myShip.r, myShip.q * -1 - myShip.r);
+      const newLength = HexUtils.distance(myShipHex, endPtHex) * lengthOneHex;
+
       setShipPathLength(newLength);
     }
-  }, [myShip, tempTravelEndpoint]);
+  }, [tempTravelEndpoint]);
 
   // update shoot path length
   useEffect(() => {
@@ -145,36 +140,6 @@ export default function Board({
       setShootPathLength(newLength);
     }
   }, [tempTravelEndpoint, tempShotEndpoint]);
-
-  const clearHighlights = () => {
-    setHighlightedCells([]);
-  };
-
-  const isReachable = (destination, origin, distance) => {
-    if (
-      HexUtils.equals(origin, destination) ||
-      ((origin.q === destination.q ||
-        origin.r === destination.r ||
-        origin.s === destination.s) &&
-        HexUtils.distance(destination, origin) <= distance)
-    ) {
-      return true;
-    }
-    return false;
-  };
-
-  const isHighlighted = (cell) => {
-    return highlightedCells.some((c) => HexUtils.equals(c, cell));
-  };
-
-  useEffect(() => {
-    if (cells.length > 0) {
-      const highlights = cells.filter((cell) =>
-        isReachable(cell, myShip, myShip.range)
-      );
-      setHighlightedCells([...highlights]);
-    }
-  }, [myShip, cells]);
 
   const layout = new Layout({
     size: hexagonSize,
@@ -320,7 +285,7 @@ export default function Board({
           <Hexagon
             className={[
               state,
-              isHighlighted(new Hex(q, r, s)) ? "highlighted" : "",
+              isHighlighted(new Hex(q, r, s), highlights) ? "highlighted" : "",
             ].join(" ")}
             key={id}
             q={q}
@@ -376,7 +341,7 @@ export default function Board({
         ))}
 
         <ShipPath
-          start={myShip}
+          start={new Hex(myShip.q, myShip.r, myShip.r * -1 - myShip.q)}
           end={tempTravelEndpoint}
           ship={myShip && myShip.image ? myShip.image : "" }
           updateShipPath={setShipPathLength}
