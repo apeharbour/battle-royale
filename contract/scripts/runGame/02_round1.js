@@ -16,13 +16,13 @@ const dir = {
 };
 
 const SALT = 1
-const GAME_ID = 1
+const GAME_ID = 4
 
 const deployedAddresses = {
-  "BattleRoyale#MapPunk": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-  "BattleRoyale#Punkships": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-  "BattleRoyale#GamePunk": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-  "BattleRoyale#RegistrationPunk": "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
+ "BattleRoyale#MapPunk": "0x37C9C3C18D5BD93224C2fF808C9dA7564c9694E5",
+"BattleRoyale#Punkships": "0x595ecB1DbeDaDEB7703c5e98Fd5E3b6DcB87A1e2",
+"BattleRoyale#GamePunk": "0xcf79eB6013F05b6EF445cD9ddf1C60179DfF434e",
+"BattleRoyale#RegistrationPunk": "0x2Ab37C7D1acd2BF04Da5Df57Aa3A0950479f305D",
 }
 
 const shortenAddress = (address) => {
@@ -81,34 +81,52 @@ const updateWorld = async (contract, gameId) => {
 }
 
 async function main() {
-  const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+  // const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+
+  const [owner, player1] = await ethers.getSigners();
 
   const game = await hre.ethers.getContractAt(
     "GamePunk",
-    deployedAddresses["BattleRoyale#GamePunk"]
+    deployedAddresses["BattleRoyale#GamePunk"],
+    owner
   );
 
-  const players = [player1, player2, player3, player4];
+  // const players = [player1, player2, player3, player4];
+  const players = [owner, player1];
+
+  // const travels = [
+  //   { direction: dir.NE, distance: 3 },
+  //   { direction: dir.SE, distance: 3 },
+  //   { direction: dir.E, distance: 1 },
+  //   { direction: dir.NW, distance: 1 },
+  // ];
+
+  // const shots = [
+  //   { direction: dir.W, distance: 1 },
+  //   { direction: dir.E, distance: 2 },
+  //   { direction: dir.E, distance: 1 },
+  //   { direction: dir.NW, distance: 2 },
+  // ];
 
   const travels = [
+    { direction: dir.SW, distance: 2 },
     { direction: dir.NE, distance: 3 },
-    { direction: dir.SE, distance: 3 },
-    { direction: dir.E, distance: 1 },
-    { direction: dir.NW, distance: 1 },
   ];
 
   const shots = [
     { direction: dir.W, distance: 1 },
     { direction: dir.E, distance: 2 },
-    { direction: dir.E, distance: 1 },
-    { direction: dir.NW, distance: 2 },
   ];
 
 
-  await commitMove(game, players[0], travels[0], shots[0], SALT, GAME_ID);
-  await commitMove(game, players[1], travels[1], shots[1], SALT, GAME_ID);
-  await commitMove(game, players[2], travels[2], shots[2], SALT, GAME_ID);
-  await commitMove(game, players[3], travels[3], shots[3], SALT, GAME_ID);
+  // await commitMove(game, players[0], travels[0], shots[0], SALT, GAME_ID);
+  // await commitMove(game, players[1], travels[1], shots[1], SALT, GAME_ID);
+  // await commitMove(game, players[2], travels[2], shots[2], SALT, GAME_ID);
+  // await commitMove(game, players[3], travels[3], shots[3], SALT, GAME_ID);
+
+  for (let i = 0; i < players.length; i++) {
+    await commitMove(game, players[i], travels[i], shots[i], SALT, GAME_ID);
+  }
 
   await submitMoves(game, players, travels, shots, SALT, GAME_ID);
 

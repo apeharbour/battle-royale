@@ -20,9 +20,9 @@ import useResizeObserver from "./utils/useResizeObserver.jsx";
 import Point from "react-hexgrid/lib/models/Point.js";
 import { Tooltip } from "@mui/material";
 
-const hexagonSize = { x: 5, y: 5 };
-const waterSize = { x: 4.33, y: 5 };
-const islandSize = { x: 4.33, y: 5 };
+const hexagonSize = { x: 4, y: 4 };
+const waterSize = { x: 3.33, y: 4 };
+const islandSize = { x: 3.33, y: 4 };
 
 const TRAVELLING = 0;
 const SHOOTING = 1;

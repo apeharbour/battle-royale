@@ -5,9 +5,9 @@ import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import { Box, TextField, Button, Stack } from "@mui/material";
 import Timer from "./Timer";
 
-const GAME_ADDRESS = "0xbd4118becfB663aF6C376e27Fa9370a1177B43B4";
+const GAME_ADDRESS = "0xcf79eB6013F05b6EF445cD9ddf1C60179DfF434e";
 const GAME_ABI = GameAbi.abi;
-const REGISTRATION_ADDRESS = "0x782dF245894951A9cCbD31401e84267Ec52c1911";
+const REGISTRATION_ADDRESS = "0x2Ab37C7D1acd2BF04Da5Df57Aa3A0950479f305D";
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 
 export default function Admin(props) {
@@ -60,7 +60,7 @@ export default function Admin(props) {
   const closeRegistration = async () => {
     if (regiContract !== null) {
       const tx = await regiContract
-        .closeRegistration(8, 6)
+        .closeRegistration(7, 6)
         .catch(console.error);
       await tx.wait();
 
