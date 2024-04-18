@@ -25,7 +25,8 @@ module.exports = {
   networks: {
     sepolia: {
       url: process.env.SEPOLIA_URL,
-      accounts: [process.env.SEPOLIA_PRIVATE_KEY],
+      accounts: ["9c0521b8049b9cc6f6c7f6a93b93fc31c9a3738dcaee3ae5a8977652b832d828",
+                 "bf2cb147d2a60df3748cf90b41096d56295fed406f0cca20c1310128239a378d"]
     },
     hardhat: {
       chainId: 1337,

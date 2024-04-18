@@ -32,87 +32,69 @@ const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 const sdk = getBuiltGraphSDK()
 
 const GET_GAME = gql`
-query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
+query getGame ($gameId: BigInt!, $first: Int, $skip: Int) {
   games(where: { gameId: $gameId }) {
     gameId
     state
-    cells(first: $first, skip: $skip) {
+    cells(first: $first, skip: $skip)  {
       id
       q
       r
       island
+      deletedInRound {
+        round
+      }
     }
     players {
       address
       q
       r
       state
-      cells(first: $first, skip: $skip) {
+      kills
+      range
+      shotRange
+      image
+    }
+    currentRound {
+      round
+    }
+    rounds {
+      round
+      shrunk
+      deletedCells {
         id
         q
         r
-        island
-        deletedInRound {
+      }
+      moves {
+        player {
+          address
+        }
+        game {
+          gameId
+        }
+        round {
           round
         }
-      }
-      players {
-        address
-        q
-        r
-        state
-        kills
-        range
-        shotRange
-        image
-      }
-      currentRound {
-        round
-      }
-      rounds {
-        round
-        shrunk
-        deletedCells {
+        commitment
+        travel {
           id
-          q
-          r
+          originQ
+          originR
+          destinationQ
+          destinationR
         }
-        moves {
-          player {
-            address
-          }
-          game {
-            gameId
-          }
-          round {
-            round
-          }
-          commitment
-          travel {
-            id
-            originQ
-            originR
-            destinationQ
-            destinationR
-          }
-          shot {
-            id
-            originQ
-            originR
-            destinationQ
-            destinationR
-          }
+        shot {
+          id
+          originQ
+          originR
+          destinationQ
+          destinationR
         }
-      game { gameId}
-              round { round}
-              commitment
-              travel  { id, originQ, originR, destinationQ, destinationR }
-              shot { id, originQ, originR, destinationQ, destinationR }
       }
     }
   }
-}
-`;
+}`;
 
 export default function Game(props) {
   const { pathname } = useLocation();
@@ -136,6 +118,7 @@ export default function Game(props) {
   const { enqueueSnackbar } = useSnackbar();
 
   const account = useAccount();
+  console.log("Account: ", account.address);
 
   const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -291,10 +274,12 @@ export default function Game(props) {
   // const { data, isLoading, isFetching, isError, error } = useQuery({
   const { data, isFetching, isError, error } = useQuery({
     queryKey: ["game", BigInt(id).toString()],
-    queryFn: async () => sdk.getGame({gameId: BigInt(id).toString()}),
-      // queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
-      //   gameId: id,
-      // }),
+    //queryFn: async () => sdk.getGame({gameId: BigInt(id).toString()}),
+       queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAME, {
+         gameId: id,
+         first: 1000,
+          skip: 0,
+       }),
   });
 
   /* transform and enrich data from the subgraph whenever it changes */
@@ -321,6 +306,10 @@ export default function Game(props) {
     shotDirection,
     shotDistance,
   }) => {
+    if (!playerAddress) {
+      console.error("storePlayerMove: playerAddress is null or undefined.");
+      return;
+    }
     const apiEndpoint =
       "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/storePlayerMoves";
     const moveData = {
@@ -373,6 +362,12 @@ export default function Game(props) {
   };
 
   const commitMove = async () => {
+
+    if (!account.address) {
+      console.error("Player address is undefined or not set");
+      return; // Exit the function if gamePlayer is not set
+    }
+
     // calculate distances and directions
     const travelDistance = HexUtils.distance(myShip, travelEndpoint);
     const shotDistance = HexUtils.distance(travelEndpoint, shotEndpoint);
@@ -387,16 +382,20 @@ export default function Game(props) {
     //   setRandomInt(generateRandomInt());
     const randomInt = generateRandomInt();
     const moveHash = ethers.solidityPackedKeccak256(
-      ["uint8", "uint8", "uint8", "uint8", "uint256", "address"],
+      ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
       [
         travelDirection,
         travelDistance,
         shotDirection,
         shotDistance,
-        BigInt(randomInt),
+        randomInt,
         account.address,
       ]
     );
+
+    console.log("Move Hash: ", moveHash);
+
+    try {
 
     writeContract({
       abi: GAME_ABI,
@@ -404,11 +403,10 @@ export default function Game(props) {
       functionName: "commitMove",
       args: [moveHash, BigInt(gameId)],
     });
-
-       try {
+      
           await storePlayerMove({
           gameId,
-           playerAddress: gamePlayer,
+           playerAddress: account.address,
            moveHash,
            secretValue: randomInt,
            travelDirection,
@@ -422,7 +420,7 @@ export default function Game(props) {
            error
          );
        }
-
+      };
     //   try {
     //     const tx = await contract
     //       .commitMove(moveHash, gameId)
@@ -454,7 +452,7 @@ export default function Game(props) {
     //   setShotEndpoint(undefined);
     //   setCells([...updatedCells]);
     // }
-  };
+ 
 
   const disableEventBridgeRule = async (gameId) => {
     try {

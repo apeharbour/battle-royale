@@ -125,6 +125,31 @@ const contractABI = [
         "internalType": "uint256",
         "name": "gameId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
+      }
+    ],
+    "name": "CellDeleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       }
     ],
     "name": "CommitPhaseStarted",
@@ -656,6 +681,10 @@ const contractABI = [
     "type": "event"
   },
   {
+    "stateMutability": "nonpayable",
+    "type": "fallback"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -863,7 +892,7 @@ const contractABI = [
         "type": "uint256"
       }
     ],
-    "name": "getCells",
+    "name": "getCoordinates",
     "outputs": [
       {
         "components": [
@@ -1220,7 +1249,7 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0xbd4118becfB663aF6C376e27Fa9370a1177B43B4";
+const contractAddress = "0xcf79eB6013F05b6EF445cD9ddf1C60179DfF434e";
 
 // Initialize ApiGatewayManagementApi with your WebSocket URL
 const apiGwManagementApi = new AWS.ApiGatewayManagementApi({
@@ -1318,7 +1347,7 @@ exports.handler = async (event) => {
 
     try {
       await updateCountdownState(numericGameId,endTime);
-      console.log(`Countdown state updated for game ${gameId} with new endTime: ${newEndTime}`);
+      console.log(`Countdown state updated for game ${gameId} with new endTime: ${endTime}`);
     } catch (error) {
       console.error(`Error updating countdown state for game ${gameId}:`, error);
       return { statusCode: 500, body: JSON.stringify({ message: 'Error updating countdown state' }) };
@@ -1507,7 +1536,7 @@ async function updateCountdownState(gameId, endTime) {
   };
 
   try {
-    await ddb.put(params).promise();
+    await dynamoDb.put(params).promise();
     console.log(`Countdown state updated for game ${gameId}`);
   } catch (error) {
     console.error(`Error updating countdown state for game ${gameId}:`, error);
