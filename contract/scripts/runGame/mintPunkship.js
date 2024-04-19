@@ -50,6 +50,8 @@ async function main() {
   // await mintShips(SHIPS_TO_MINT, player3)
   // await mintShips(SHIPS_TO_MINT, player4)
 
+  await mintShips(SHIPS_TO_MINT, customAddresses[0])
+  await mintShips(SHIPS_TO_MINT, customAddresses[1])
   await mintShips(SHIPS_TO_MINT, customAddresses[2])
   await mintShips(SHIPS_TO_MINT, customAddresses[3])
 }
