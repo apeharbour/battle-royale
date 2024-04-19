@@ -209,7 +209,7 @@ export default function Game(props) {
     }
 
     const s = (ship.q + ship.r) * -1;
-    const mine = ship.address.toLowerCase() === account.address.toLowerCase();
+    const mine = !!account.address ? ship.address.toLowerCase() === account.address.toLowerCase() : false;
     const newCell = { ...ship, s, travel, shot, mine };
     // const newCell = { ...ship, s, travel, shot };
     return newCell;
@@ -247,6 +247,12 @@ export default function Game(props) {
   const { data: myShip } = useMyShip(account);
   const { data: cells } = useCells();
   const { data: rounds } = useRounds();
+
+  console.log("Current Round: ", currentRound);
+  console.log("Ships: ", ships);
+  console.log("My Ship: ", myShip);
+  console.log("Cells: ", cells);
+  console.log("Rounds: ", rounds);
 
   //Helper Function to generate secret random number for hashing moves
   function generateRandomInt() {
@@ -457,12 +463,12 @@ export default function Game(props) {
       <Grid container spacing={2} p={4}>
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
-            {myShip && myShip.range && <ShipStatus ship={myShip} />}
-            {rounds && <Logs gameId={id} rounds={rounds}/>}
+            <ShipStatus ship={myShip} />
+            <Logs gameId={id} rounds={rounds}/>
           </Stack>
         </Grid>
 
-        {cells && ships && myShip && <MainBoardArea
+        {cells && <MainBoardArea
           center={new Hex(5, 5, -5)}
           cells={cells}
           ships={ships}

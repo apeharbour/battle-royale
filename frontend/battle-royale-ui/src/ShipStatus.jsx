@@ -1,9 +1,15 @@
 // ShipStatus.jsx
 
 import React from "react";
-import { Card, CardContent, CardMedia, Chip, Stack } from "@mui/material";
+import { Card, CardContent, CardHeader, CardMedia, Chip, Stack } from "@mui/material";
 
 export default function ShipStatus({ship, ...props}) {
+
+  if (!ship) return (
+  <Card elevation={4}>
+    <CardHeader title="Not playing in this game" />
+  </Card>
+  );
 
   return (
       <Card elevation={4}>
