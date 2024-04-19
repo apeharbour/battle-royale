@@ -19,6 +19,8 @@ async function main() {
     const customAddresses = [
       "0xCd9680dd8318b0df924f0bD47a407c05B300e36f",
       "0xC71E2f803586D2Fe6ddCF1243EB14A6A1705D0A0",
+      "0x7156156e73835176d37922b071c80d6cC722A943",
+      "0x3d7c5b15742210A01a3ac63Fb2b981B687d41474",
     ];
 
   const punkships = await hre.ethers.getContractAt(
@@ -48,8 +50,8 @@ async function main() {
   // await mintShips(SHIPS_TO_MINT, player3)
   // await mintShips(SHIPS_TO_MINT, player4)
 
-  await mintShips(SHIPS_TO_MINT, customAddresses[0])
-  await mintShips(SHIPS_TO_MINT, customAddresses[1])
+  await mintShips(SHIPS_TO_MINT, customAddresses[2])
+  await mintShips(SHIPS_TO_MINT, customAddresses[3])
 }
 
 // We recommend this pattern to be able to use async/await everywhere
