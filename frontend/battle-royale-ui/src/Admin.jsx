@@ -72,7 +72,8 @@ export default function Admin(props) {
       //      triggerLambdaFunction(gameId);
       //  }
 
-      triggerLambdaFunction(5);
+      triggerLambdaFunction(8);
+      triggerLambdaFunction(9);
     }
   };
 
@@ -81,7 +82,7 @@ export default function Admin(props) {
       "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated";
     const postData = {
       gameId: gameId.toString(),
-      scheduleRate: "5 minutes",
+      scheduleRate: "2 minutes",
     };
 
     try {
@@ -191,7 +192,8 @@ export default function Admin(props) {
         </Stack>
       </Box>
       <Box mt={5}>
-        <Timer gameId={5} />
+        <Timer gameId={8} />
+        <Timer gameId={9} />
       </Box>
     </Fragment>
   );
