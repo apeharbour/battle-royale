@@ -68,7 +68,7 @@ export default function Board({
   
   const dimensions = useResizeObserver(parentRef);
   const state = !travelEndpoint ? TRAVELLING : !shotEndpoint ? SHOOTING : DONE;
-  const highlights = cells.filter((cell) => !travelEndpoint ? isReachable(cell, myShip, myShip.range) : !shotEndpoint ? isReachable(cell, travelEndpoint, myShip.shotRange) : false);
+  const highlights = !!myShip ? cells.filter((cell) => !travelEndpoint ? isReachable(cell, myShip, myShip.range) : !shotEndpoint ? isReachable(cell, travelEndpoint, myShip.shotRange) : false) : [];
 
 
   const getFillPattern = (state, neighborCode) => {
@@ -340,12 +340,15 @@ export default function Board({
           </React.Fragment>
         ))}
 
+        { myShip && 
         <ShipPath
-          start={new Hex(myShip.q, myShip.r, myShip.r * -1 - myShip.q)}
-          end={tempTravelEndpoint}
-          ship={myShip && myShip.image ? myShip.image : "" }
-          updateShipPath={setShipPathLength}
+        start={new Hex(myShip.q, myShip.r, myShip.r * -1 - myShip.q)}
+        end={tempTravelEndpoint}
+        ship={myShip && myShip.image ? myShip.image : "" }
+        updateShipPath={setShipPathLength}
         />
+        }
+
         <ShootPath
           start={tempTravelEndpoint}
           end={tempShotEndpoint}
