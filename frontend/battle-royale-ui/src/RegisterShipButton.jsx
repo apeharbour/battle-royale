@@ -38,8 +38,8 @@ export default function RegisterShipButton({ shipId, ...props }) {
   const registerShip = () => {
     console.log(`Registering ship ${shipId} for ${address}`);
     writeContract({
-      abi: GAME_ABI,
-      address: GAME_ADDRESS,
+      abi: REGISTRATION_ABI,
+      address: REGISTRATION_ADDRESS,
       functionName: "registerPlayer",
       args: [shipId],
     });
