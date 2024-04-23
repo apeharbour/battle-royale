@@ -142,33 +142,43 @@ function decodeMetadata(dataUrl: string, tokenId: Bytes): TypedMap<string, strin
 
 export function handleMint(event: MintEvent): void {
   log.info('Minting token {}', [event.params.id.toString()]);
-  // save contract
-  const contract = new Contract(event.address);
-  contract.name = "Punkships";
-  contract.symbol = "PNKS";
-  contract.save();
-  log.info('Contract {} saved', [contract.id.toHex()]);
 
-  // save new owner's account
-  const account = new Account(event.params.owner);
-  account.contract = contract.id;
-  account.save();
-  log.info('Account {} saved', [account.id.toHex()]);
+  // Save contract
+  let contract = Contract.load(event.address);
+  if (contract == null) {
+    contract = new Contract(event.address);
+    contract.name = "Punkships";
+    contract.symbol = "PNKS";
+    contract.save();
+    log.info('Contract {} saved', [contract.id.toHex()]);
+  }
 
-  // save token
+  // Check if account already exists, otherwise create new one
+  let account = Account.load(event.params.owner);
+  if (account == null) {
+    account = new Account(event.params.owner);
+    account.contract = contract.id;
+    account.save();
+    log.info('Account {} saved', [account.id.toHex()]);
+  }
+
+  // Save token
   const tokenId = contract.id.concatI32(event.params.id.toI32());
-  const token = new Token(tokenId);
-  token.contract = contract.id;
-  token.owner = event.params.owner;
-  token.tokenId = event.params.id;
-  token.tokenURI = event.params.tokenURI;
-  log.info('Token {}\'s attributes set', [token.tokenId.toI32().toString()]);
+  let token = Token.load(tokenId);
+  if (token == null) {
+    token = new Token(tokenId);
+    token.contract = contract.id;
+    token.owner = account.id;
+    token.tokenId = event.params.id;
+    token.tokenURI = event.params.tokenURI;
   
-  const metadata = decodeMetadata(event.params.tokenURI, token.id);
-  if(metadata.isSet('image') && metadata.get('image') != ''){
-    token.image = metadata.get('image');
-  };
-  log.info('Token {}\'s image set', [token.tokenId.toI32().toString()]);
+    const metadata = decodeMetadata(event.params.tokenURI, token.id);
+    if(metadata.isSet('image') && metadata.get('image') != ''){
+      token.image = metadata.get('image');
+    };
+    log.info('Token {}\'s image set', [token.tokenId.toI32().toString()]);
 
-  token.save();
+    token.save();
+  }
 }
+
