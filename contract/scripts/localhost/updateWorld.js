@@ -6,24 +6,19 @@
 // global scope, and execute the script.
 const hre = require("hardhat");
 
+const deployedAddresses = require("../../ignition/deployments/chain-1337/deployed_addresses.json")
+
+const GAME_ID = 1;
+
 async function main() {
-  // const [owner, player1, player2, player3, player4] = await ethers.getSigners();
-
-  const owner = "0xCd9680dd8318b0df924f0bD47a407c05B300e36f";
-
-  const deployedAddresses = {
-    "BattleRoyale#MapPunk": "0x6186dbAe6FAe67EeEC521EaBe54bd28Eb4A22Aba",
-    "BattleRoyale#Punkships": "0xaC12Ba65FFEc95078B763d72c9c9B91A2981826d",
-    "BattleRoyale#GamePunk": "0xbd4118becfB663aF6C376e27Fa9370a1177B43B4",
-    "BattleRoyale#RegistrationPunk": "0x782dF245894951A9cCbD31401e84267Ec52c1911"
-  }
+  const [owner, player1, player2, player3, player4] = await ethers.getSigners();
 
   const game = await hre.ethers.getContractAt(
     "GamePunk",
     deployedAddresses["BattleRoyale#GamePunk"]
   );
 
-  await game.updateWorld(1)
+  await game.updateWorld(GAME_ID)
     .then((tx) => {
       return tx.wait();
     })

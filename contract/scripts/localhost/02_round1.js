@@ -4,7 +4,10 @@
 // You can also run a script with `npx hardhat run <script>`. If you do that, Hardhat
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
+
 const hre = require("hardhat");
+
+const deployedAddresses = require("../../ignition/deployments/chain-1337/deployed_addresses.json")
 
 const dir = {
   E: 0,
@@ -17,13 +20,6 @@ const dir = {
 
 const SALT = 1
 const GAME_ID = 4
-
-const deployedAddresses = {
- "BattleRoyale#MapPunk": "0x37C9C3C18D5BD93224C2fF808C9dA7564c9694E5",
-"BattleRoyale#Punkships": "0x595ecB1DbeDaDEB7703c5e98Fd5E3b6DcB87A1e2",
-"BattleRoyale#GamePunk": "0xcf79eB6013F05b6EF445cD9ddf1C60179DfF434e",
-"BattleRoyale#RegistrationPunk": "0x2Ab37C7D1acd2BF04Da5Df57Aa3A0950479f305D",
-}
 
 const shortenAddress = (address) => {
   return address.substring(0, 6) + "..." + address.substring(address.length - 4, address.length);
