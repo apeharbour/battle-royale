@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useBlockNumber, useWriteContract, useConfig, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useBlockNumber, useAccountEffect, useConfig, useWaitForTransactionReceipt } from "wagmi";
 import { useSnackbar } from "notistack";
 
 import {
@@ -73,6 +73,13 @@ export default function Registration(props) {
         accountAddress: account.address,
       }),
   });
+
+
+  useAccountEffect({
+    onDisconnect() {
+      setSelectedYacht(null)
+    },
+  })
 
   useEffect(() => {
     if (!data || (data && !data.account)) {

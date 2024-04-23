@@ -23,7 +23,9 @@ export default function RegisterShipButton({ shipId, ...props }) {
   const [txInFlight, setTxInFlight] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
-  const {address, isConnected} = useAccount();
+  const {address, isConnected } = useAccount();
+
+  console.log("Ship", shipId)
 
   const { data: hash, writeContract } = useWriteContract();
 
@@ -53,7 +55,7 @@ export default function RegisterShipButton({ shipId, ...props }) {
   }
 
   return (
-    <Button variant="outlined" onClick={registerShip} disabled={isConfirming || !isConnected}>
+    <Button variant="outlined" onClick={registerShip} disabled={!shipId || isConfirming || !isConnected}>
       {isConfirming ? "Confirming..." : "Register Ship"}
     </Button>
   );

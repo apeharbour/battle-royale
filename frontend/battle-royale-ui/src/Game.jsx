@@ -4,7 +4,7 @@ import Button from "@mui/material/Button";
 import { styled } from "@mui/material/styles";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useBlockNumber, useWatchBlockNumber, useWatchContractEvent, useWriteContract } from "wagmi";
+import { useAccount, useBlockNumber, useWatchContractEvent, useWriteContract } from "wagmi";
 // import { getBuiltGraphSDK } from '../.graphclient'
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
@@ -88,8 +88,8 @@ export default function Game(props) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const account = useAccount();
-  console.log("Account: ", account.address);
+  const {address} = useAccount();
+  console.log("Account: ", address);
 
   const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -216,7 +216,7 @@ export default function Game(props) {
     }
 
     const s = (ship.q + ship.r) * -1;
-    const mine = !!account.address ? ship.address.toLowerCase() === account.address.toLowerCase() : false;
+    const mine = !!address ? ship.address.toLowerCase() === address.toLowerCase() : false;
     const newCell = { ...ship, s, travel, shot, mine };
     // const newCell = { ...ship, s, travel, shot };
     return newCell;
@@ -241,7 +241,7 @@ export default function Game(props) {
     return data.games[0].players.map(s => enrichShip(s, movesLastRound));
   });
 
-  const useMyShip = (account) => useGameQuery((data) => data.games[0].players.filter((s) => s.address.toLowerCase() === account.address.toLowerCase())[0]);
+  const useMyShip = (address) => useGameQuery((data) => data.games[0].players.filter((s) => s.address.toLowerCase() === address.toLowerCase())[0]);
 
   const useCells = () => useGameQuery((data) => data.games[0].cells.map((c) => enrichCell(c, data.games[0].cells, parseInt(data.games[0].currentRound.round))));
 
@@ -255,7 +255,7 @@ export default function Game(props) {
 
   const { data: currentRound } = useCurrentRound();
   const { data: ships } = useShips();
-  const { data: myShip } = useMyShip(account);
+  const { data: myShip } = useMyShip(address);
   const { data: cells } = useCells();
   const { data: rounds } = useRounds();
 
