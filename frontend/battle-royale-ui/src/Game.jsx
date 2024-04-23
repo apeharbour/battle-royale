@@ -35,6 +35,8 @@ query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
       gameId
       state
       radius
+      centerQ
+      centerR
       currentRound { round }
       cells(first: $first, skip: $skip) {
         q
@@ -247,6 +249,7 @@ export default function Game(props) {
     const player = data.games[0].players.find((p) => p.address.toLowerCase() === address.toLowerCase());
     return player ? player.state : null;
   });
+  const useCenter = () => useGameQuery((data) => new Hex(data.games[0].centerQ, data.games[0].centerR, (data.games[0].centerQ + data.games[0].centerR) * -1));
 
   const useWinner = () => useGameQuery((data) => data.games[0].players.find((p) => p.state === 'won'));
 
@@ -260,6 +263,7 @@ export default function Game(props) {
   const { data: gameState } = useGameState();
   const { data: playerState } = usePlayerState(address);
   const { data: winner } = useWinner();
+  const { data: center } = useCenter();
 
   // console.log("Game ID: ", id);
   // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
@@ -328,13 +332,13 @@ export default function Game(props) {
       <Grid container spacing={2} p={4}>
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
-            <ShipStatus ship={myShip} />
-            <Logs gameId={id} rounds={rounds} />
+            <ShipStatus ship={myShip} gameId={id} state={gameState} round={currentRound}/>
+            <Logs gameId={id} rounds={rounds}/>
           </Stack>
         </Grid>
 
         {cells && <MainBoardArea
-          center={new Hex(5, 5, -5)}
+          center={center}
           cells={cells}
           ships={ships}
           myShip={myShip}
