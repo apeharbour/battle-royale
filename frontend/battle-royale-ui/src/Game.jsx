@@ -102,6 +102,12 @@ export default function Game(props) {
     status: txStatus,
   } = useWriteContract();
 
+  const { data: blockNumber } = useBlockNumber({watch: true})
+  useEffect(() => {
+    console.log("New block: ", blockNumber, "invalidating games query");
+    queryClient.invalidateQueries(["game", BigInt(id).toString()]);
+  }, [blockNumber]);
+
   useWatchContractEvent({
     abi: GAME_ABI,
     address: GAME_ADDRESS,
@@ -127,10 +133,11 @@ export default function Game(props) {
     }
   });
 
-  useWatchBlockNumber( async (blockNumber) => {
-    console.log("New block: ", blockNumber, "invalidating game query");
-    queryClient.invalidateQueries(["game", BigInt(id).toString()]);
-  });
+  // useWatchBlockNumber( async (blockNumber) => {
+  //   console.log("New block: ", blockNumber, "invalidating game query");
+  //   queryClient.invalidateQueries(["game", BigInt(id).toString()]);
+  // });
+
   useEffect(() => {
     if (ws && gameId) {
         const message = {

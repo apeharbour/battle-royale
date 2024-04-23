@@ -68,7 +68,7 @@ const PlayerStatus = ({ ships }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {ships.map((player, index) => (
+                {ships && ships.map((player, index) => (
                   <TableRow key={index}>
                     <TableCell component="th" scope="row">
                       <ShipImage src={player.image} alt={`Player Ship`} />

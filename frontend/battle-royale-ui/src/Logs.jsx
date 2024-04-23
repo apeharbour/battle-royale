@@ -116,7 +116,7 @@ export default function Logs({ rounds, ...props }) {
         <Card elevation={4}>
           <CardHeader title="Logs" sx={{backdropFilter: 'brightness: 60%', opacity: 1}} />
           <CardContent>
-            {rounds.map((round, roundIndex) => (
+            {rounds && rounds.map((round, roundIndex) => (
               <Box key={roundIndex}>
                 <Typography variant="subtitle1">Round {round.round}</Typography>
                 {round.moves.map((move, moveIndex) => (

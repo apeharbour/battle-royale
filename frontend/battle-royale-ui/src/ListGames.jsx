@@ -62,8 +62,6 @@ export default function ListGames(props) {
   }, [data]);
 
   if (isLoading) {console.log("Loading...");};
-  if (isFetching) {console.log("Fetching...");};
-  if (isRefetching) {console.log("Re-Fetching...");};
   if (isError) {console.log("Error: ", error);};
 
   return (
