@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "infra:local:up": "npx hardhat node --hostname 0.0.0.0",
+    "infra:local-mining:up": "npx hardhat --config hardhat-mining.config.js node --hostname 0.0.0.0",
     "infra:local:down": "pkill -SIGINT hardhat node",
     "deploy:local": "yes | npx hardhat ignition deploy ignition/modules/GamePunk.js --network localhost --reset && ./updateGraphNetworks.sh",
     "run:local:01": "npx hardhat run --network localhost scripts/localhost/01_prepare.js",
