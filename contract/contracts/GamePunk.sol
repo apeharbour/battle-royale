@@ -342,8 +342,9 @@ contract GamePunk is Ownable {
         SharedStructs.Coordinate memory coord;
         bool alreadyTaken = false;
         do {
+            alreadyTaken = false;
             coord = map.getRandomCoordinatePair(gameId);
-            // console.log("New rnd pair %s, %s", coord.q, coord.r);
+            // console.log("  New rnd pair %s, %s", coord.q, coord.r);
             for (uint8 i = 0; i < games[gameId].players.length; i++) {
                 // console.log(
                 //     "in loop %s, address: %s",

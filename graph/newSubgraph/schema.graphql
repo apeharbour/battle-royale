@@ -24,6 +24,7 @@ type Player @entity {
   image: String!
   game: Game!
   state: PlayerState!
+  killedInRound: Round
   kills: Int
   moves: [Move!]! @derivedFrom(field: "player")
 }

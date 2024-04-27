@@ -20,10 +20,6 @@ import useResizeObserver from "./utils/useResizeObserver.jsx";
 import Point from "react-hexgrid/lib/models/Point.js";
 import { Tooltip } from "@mui/material";
 
-const hexagonSize = { x: 5, y: 5 };
-const waterSize = { x: 4.33, y: 5 };
-const islandSize = { x: 4.33, y: 5 };
-
 const TRAVELLING = 0;
 const SHOOTING = 1;
 const DONE = 2;
@@ -53,10 +49,8 @@ export default function Board({
   cells,
   ships,
   myShip,
-  travelEndpoint,
-  setTravelEndpoint,
-  shotEndpoint,
-  setShotEndpoint,
+  endpoints, 
+  setEndpoints,
   parentRef,
 }) {
   const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
@@ -65,10 +59,18 @@ export default function Board({
   const [shootPathLength, setShootPathLength] = useState(0);
   const [hexGridSize, setHexGridSize] = useState(200);
 
-  
+  const calcSize = ({x, y}, radius, maxRadius) => {
+    const factor = 0.9
+    return { x: -1 * factor * x * radius + maxRadius, y: -1 * factor * y * radius  + maxRadius };
+  }
+
+  const hexagonSize = calcSize({x: 1, y: 1}, center.q, 10);
+  const islandSize = {x: hexagonSize.x * 0.866, y: hexagonSize.y * 1};
+  const waterSize = islandSize
+
   const dimensions = useResizeObserver(parentRef);
-  const state = !travelEndpoint ? TRAVELLING : !shotEndpoint ? SHOOTING : DONE;
-  const highlights = !!myShip ? cells.filter((cell) => !travelEndpoint ? isReachable(cell, myShip, myShip.range) : !shotEndpoint ? isReachable(cell, travelEndpoint, myShip.shotRange) : false) : [];
+  const state = !endpoints.travel ? TRAVELLING : !endpoints.shot ? SHOOTING : DONE;
+  const highlights = !!myShip ? cells.filter((cell) => !endpoints.travel ? isReachable(cell, myShip, myShip.range) : !endpoints.shot ? isReachable(cell, endpoints.travel, myShip.shotRange) : false) : [];
 
 
   const getFillPattern = (state, neighborCode) => {
@@ -102,12 +104,17 @@ export default function Board({
     )[0];
 
     if (state === DONE) {
-      setTravelEndpoint(undefined);
-      setShotEndpoint(undefined);
+      setEndpoints({shot: undefined, travel: undefined})
+      // setTravelEndpoint(undefined);
+      // setShotEndpoint(undefined);
+      setTempShotEndpoint(undefined);
+      setTempTravelEndpoint(undefined);
     } else if (state === TRAVELLING && isHighlighted(selectedCell, highlights)) {
-      setTravelEndpoint(selectedCell);
+      setEndpoints({shot: endpoints.shot, travel: selectedCell})
+      // setTravelEndpoint(selectedCell);
     } else if (state === SHOOTING && isHighlighted(selectedCell, highlights)) {
-      setShotEndpoint(selectedCell);
+      setEndpoints({shot: selectedCell, travel: endpoints.travel})
+      // setShotEndpoint(selectedCell);
     }
   };
 
@@ -116,6 +123,7 @@ export default function Board({
   useEffect(() => {
     if (dimensions) {
       setHexGridSize(Math.min(dimensions.width, window.visualViewport.height, window.visualViewport.width));
+      console.log("new Size:", Math.min(dimensions.width, window.visualViewport.height, window.visualViewport.width))
     }
   }, [dimensions]);
 
@@ -344,6 +352,7 @@ export default function Board({
         end={tempTravelEndpoint}
         ship={myShip && myShip.image ? myShip.image : "" }
         updateShipPath={setShipPathLength}
+        size={hexagonSize}
         />
         }
 

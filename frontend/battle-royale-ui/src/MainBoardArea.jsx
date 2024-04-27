@@ -2,7 +2,7 @@ import { Grid } from "@mui/material";
 import Board from "./Board";
 import { useRef } from "react";
 
-export default function MainBoardArea({center, cells, ships, myShip, travelEndpoint, setTravelEndpoint, shotEndpoint, setShotEndpoint, ...props}) {
+export default function MainBoardArea({center, cells, ships, myShip, endpoints, setEndpoints, ...props}) {
 
     const parentRef = useRef();
 
@@ -13,10 +13,8 @@ export default function MainBoardArea({center, cells, ships, myShip, travelEndpo
         cells={cells}
         ships={ships}
         myShip={myShip}
-        travelEndpoint={travelEndpoint}
-        setTravelEndpoint={setTravelEndpoint}
-        shotEndpoint={shotEndpoint}
-        setShotEndpoint={setShotEndpoint}
+        endpoints={endpoints}
+        setEndpoints={setEndpoints}
         parentRef={parentRef}
       />
     </Grid>

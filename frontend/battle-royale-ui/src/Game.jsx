@@ -2,12 +2,11 @@ import React, { useState, useEffect, Fragment } from "react";
 import { Grid, Stack } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useBlockNumber, useWatchContractEvent, useWriteContract } from "wagmi";
-// import { getBuiltGraphSDK } from '../.graphclient'
+import { useAccount, useBlockNumber, useWatchContractEvent, useWatchBlockNumber } from "wagmi";
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
-import { Hex, HexUtils } from "react-hexgrid";
+import { Hex, HexUtils, GridGenerator } from "react-hexgrid";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
@@ -19,6 +18,7 @@ import MainBoardArea from "./MainBoardArea.jsx";
 import Timer from "./Timer.jsx";
 import CommitMoveButton from "./CommitMoveButton.jsx";
 import GameStatus from "./GameStatus.jsx";
+import LastRoundResults from "./LastRoundResults.jsx";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
@@ -30,7 +30,7 @@ const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 // const sdk = getBuiltGraphSDK()
 
 const gameQuery = gql`
-query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
+  query getGame ($gameId: BigInt!, $first: Int ) {
     games(where: { gameId: $gameId }) {
       gameId
       state
@@ -38,7 +38,7 @@ query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
       centerQ
       centerR
       currentRound { round }
-      cells(first: $first, skip: $skip) {
+      cells (first: $first) {
         q
         r
         island
@@ -50,7 +50,7 @@ query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
         shrunk
         deletedCells { q r }
         moves { 
-          player {address }
+          player {address state killedInRound { round } }
           round { round }
           commitment
           travel {originQ, originR, destinationQ, destinationR}
@@ -66,6 +66,7 @@ query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
         state
         kills
         image
+        killedInRound { round }
       }
     }
   }
@@ -79,29 +80,19 @@ export default function Game(props) {
   const [playerStateDialogOpen, setPlayerStateDialogOpen] = useState(false);
   const [travelEndpoint, setTravelEndpoint] = useState(undefined);
   const [shotEndpoint, setShotEndpoint] = useState(undefined);
+  // const [randomInt, setRandomInt] = useState(generateRandomInt());
+
+  const [endpoints, setEndpoints] = useState({travel: undefined, shot: undefined});
 
   const gameId = id;
 
   const { ws } = useWebSocket();
   const queryClient = useQueryClient();
 
-  const { enqueueSnackbar } = useSnackbar();
+  const {address} = useAccount();
+  console.log("Account: ", address);
 
-  const { address } = useAccount();
- 
-
-  const delay = ms => new Promise(res => setTimeout(res, ms));
-
-  const {
-    writeContract,
-    hash: txHash,
-    isPending: txIsPending,
-    error: txError,
-    isError: txIsError,
-    status: txStatus,
-  } = useWriteContract();
-
-  const { data: blockNumber } = useBlockNumber({ watch: true })
+  const { data: blockNumber } = useBlockNumber({watch: true})
   useEffect(() => {
     queryClient.invalidateQueries(["game", BigInt(id).toString()]);
   }, [blockNumber]);
@@ -127,10 +118,10 @@ export default function Game(props) {
     }
   });
 
-  // useWatchBlockNumber( async (blockNumber) => {
-  //   console.log("New block: ", blockNumber, "invalidating game query");
-  //   queryClient.invalidateQueries(["game", BigInt(id).toString()]);
-  // });
+  useWatchBlockNumber( async (blockNumber) => {
+    console.log("New block: ", blockNumber, "invalidating game query");
+    queryClient.invalidateQueries(["game", BigInt(id).toString()]);
+  });
 
   useEffect(() => {
     if (ws && gameId) {
@@ -141,6 +132,34 @@ export default function Game(props) {
       ws.send(JSON.stringify(message));
     }
   }, [ws, gameId]);
+
+  /** Add water cells to the array 
+   * @param {Array} islands - Array of islands (coming from the subgraph)
+   * @param {Number} radius - The radius of the game board
+   * @returns {Array} - Array of cells
+   * This function is currently not used. It's here for reference and will be useful
+   * when we change the smart contract to track islands only. In that case, we will need
+   * to generate the game board with water cells on the front end, based on radius and islands.
+  */
+  const addWaterCells = (islands, radius) => {
+    const center = new Hex(radius, radius, -2 * radius);
+    const generator = GridGenerator.getGenerator("ring");
+
+    // generate the map with water only
+    const waterCells = [center]
+    for (let i = 1; i <= radius; i++) {
+      const cells = generator(center, i);
+      waterCells.push(...cells);
+    }
+
+    // check if a cell is an island and set the island property
+    const cells = waterCells.map((cell) => {
+      const island = islands.find((i) => i.q === cell.q && i.r === cell.r);
+      const isIsland = !!island && island.island
+      return {...cell, island: isIsland ? true : false};
+    })
+    return cells;
+  }
 
   /* Enrich the cell data with additional properties:
    * s: the cube coordinate s
@@ -217,14 +236,13 @@ export default function Game(props) {
   };
 
   const useGameQuery = (select) => useQuery({
-    queryKey: ["game", BigInt(id).toString()],
-    queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, gameQuery, {
-      gameId: id,
-      first: 500,
-      skip: 0,
-    }),
-    select,
-  });
+      queryKey: ["game", BigInt(id).toString()],
+      queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, gameQuery, {
+        gameId: id,
+        first: 1000,
+      }),
+      select,
+    });
 
   const useCurrentRound = () => useGameQuery((data) => parseInt(data.games[0].currentRound.round))
 
@@ -239,6 +257,7 @@ export default function Game(props) {
 
   const useMyShip = (address) => useGameQuery((data) => data.games[0].players.filter((s) => s.address.toLowerCase() === address.toLowerCase())[0]);
 
+  // const useCells = () => useGameQuery((data) => addWaterCells(data.games[0].cells, data.games[0].centerQ).map((c) => enrichCell(c, data.games[0].cells, parseInt(data.games[0].currentRound.round))));
   const useCells = () => useGameQuery((data) => data.games[0].cells.map((c) => enrichCell(c, data.games[0].cells, parseInt(data.games[0].currentRound.round))));
 
   const useRounds = () => useGameQuery((data) => data.games[0].rounds);
@@ -289,8 +308,7 @@ export default function Game(props) {
   }, [playerState]);
 
   const clearTravelAndShotEndpoints = () => {
-    setTravelEndpoint(undefined);
-    setShotEndpoint(undefined);
+    setEndpoints({travel: undefined, shot: undefined});
   };
 
   const disableEventBridgeRule = async (gameId) => {
@@ -317,15 +335,6 @@ export default function Game(props) {
     }
   };
 
-  if (txIsPending)
-    enqueueSnackbar("Transaction pending...", { variant: "info" });
-  if (txIsError) {
-    console.error("Error: ", JSON.stringify(txError))
-    enqueueSnackbar("Error with tx.", { variant: "error" });
-  }
-
-  if (txStatus === "success")
-    enqueueSnackbar("Transaction successful!", { variant: "success" });
 
   return (
     <Fragment>
@@ -334,6 +343,7 @@ export default function Game(props) {
           <Stack spacing={2}>
             <ShipStatus ship={myShip} gameId={id} state={gameState} round={currentRound}/>
             <Logs gameId={id} rounds={rounds}/>
+            <LastRoundResults rounds={rounds}/>
           </Stack>
         </Grid>
 
@@ -342,18 +352,17 @@ export default function Game(props) {
           cells={cells}
           ships={ships}
           myShip={myShip}
-          travelEndpoint={travelEndpoint}
-          setTravelEndpoint={setTravelEndpoint}
-          shotEndpoint={shotEndpoint}
-          setShotEndpoint={setShotEndpoint}
+          endpoints={endpoints}
+          setEndpoints={setEndpoints}
         />
         }
 
         <Grid item xs={12} sm={4} md={2}>
+          {/* <Timer gameId={id}/> */}
           <Stack spacing={2}>
-            <CommitMoveButton gameId={gameId} myShip={myShip} travelEndpoint={travelEndpoint} shotEndpoint={shotEndpoint} clearTravelAndShotEndpoints={clearTravelAndShotEndpoints} />
-            <PlayerStatus ships={ships} />
-            <Timer gameId={gameId} />
+            <CommitMoveButton gameId={gameId} myShip={myShip} travelEndpoint={endpoints.travel} shotEndpoint={endpoints.shot} clearTravelAndShotEndpoints={clearTravelAndShotEndpoints}/>
+          <PlayerStatus ships={ships} />
+          <Timer gameId={gameId} />
           </Stack>
         </Grid>
       </Grid>

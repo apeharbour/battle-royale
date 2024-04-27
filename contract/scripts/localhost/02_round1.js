@@ -8,7 +8,6 @@
 const hre = require("hardhat");
 
 const deployedAddresses = require("../../ignition/deployments/chain-1337/deployed_addresses.json")
-
 const dir = {
   E: 0,
   NE: 1,
@@ -19,7 +18,7 @@ const dir = {
 };
 
 const SALT = 1
-const GAME_ID = 4
+const GAME_ID = 1
 
 const shortenAddress = (address) => {
   return address.substring(0, 6) + "..." + address.substring(address.length - 4, address.length);
@@ -77,9 +76,9 @@ const updateWorld = async (contract, gameId) => {
 }
 
 async function main() {
-  // const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+  const [owner, player1, player2, player3, player4] = await ethers.getSigners();
 
-  const [owner, player1] = await ethers.getSigners();
+  // const [owner, player1] = await ethers.getSigners();
 
   const game = await hre.ethers.getContractAt(
     "GamePunk",
@@ -87,32 +86,32 @@ async function main() {
     owner
   );
 
-  // const players = [player1, player2, player3, player4];
-  const players = [owner, player1];
-
-  // const travels = [
-  //   { direction: dir.NE, distance: 3 },
-  //   { direction: dir.SE, distance: 3 },
-  //   { direction: dir.E, distance: 1 },
-  //   { direction: dir.NW, distance: 1 },
-  // ];
-
-  // const shots = [
-  //   { direction: dir.W, distance: 1 },
-  //   { direction: dir.E, distance: 2 },
-  //   { direction: dir.E, distance: 1 },
-  //   { direction: dir.NW, distance: 2 },
-  // ];
+  const players = [player1, player2, player3, player4];
+  // const players = [owner, player1];
 
   const travels = [
-    { direction: dir.SW, distance: 2 },
     { direction: dir.NE, distance: 3 },
+    { direction: dir.SE, distance: 3 },
+    { direction: dir.E, distance: 1 },
+    { direction: dir.NW, distance: 1 },
   ];
 
   const shots = [
     { direction: dir.W, distance: 1 },
     { direction: dir.E, distance: 2 },
+    { direction: dir.E, distance: 1 },
+    { direction: dir.NW, distance: 2 },
   ];
+
+  // const travels = [
+  //   { direction: dir.SW, distance: 2 },
+  //   { direction: dir.NE, distance: 3 },
+  // ];
+
+  // const shots = [
+  //   { direction: dir.W, distance: 1 },
+  //   { direction: dir.E, distance: 2 },
+  // ];
 
 
   // await commitMove(game, players[0], travels[0], shots[0], SALT, GAME_ID);

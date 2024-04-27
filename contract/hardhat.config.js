@@ -1,6 +1,7 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-ignition");
 require("@nomicfoundation/hardhat-ignition-ethers")
+require("hardhat-gas-reporter");
 require("dotenv").config();
 
 const INFURA_API_KEY = process.env.INFURA_API;
@@ -31,4 +32,9 @@ module.exports = {
       chainId: 1337,
     },
   },
+  gasReporter: {
+    currency: 'EUR',
+    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
+    enabled: (process.env.REPORT_GAS) ? true : false
+  }
 };

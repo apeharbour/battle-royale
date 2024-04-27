@@ -334,6 +334,23 @@ export class Player extends Entity {
     this.set("state", Value.fromString(value));
   }
 
+  get killedInRound(): Bytes | null {
+    let value = this.get("killedInRound");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set killedInRound(value: Bytes | null) {
+    if (!value) {
+      this.unset("killedInRound");
+    } else {
+      this.set("killedInRound", Value.fromBytes(<Bytes>value));
+    }
+  }
+
   get kills(): i32 {
     let value = this.get("kills");
     if (!value || value.kind == ValueKind.NULL) {

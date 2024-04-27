@@ -1,13 +1,7 @@
 // Logs.jsx
 
 import React from "react";
-import {
-  Box,
-  Card,
-  CardContent,
-  CardHeader,
-  Typography,
-} from "@mui/material";
+import { Box, Card, CardContent, CardHeader, Typography } from "@mui/material";
 import { Hex, HexUtils } from "react-hexgrid";
 
 const shortenAddress = (address) => {
@@ -86,60 +80,31 @@ const calculateDirectionDistance = (origin, destination) => {
   };
 };
 
-export default function Logs({ rounds, ...props }) {
+export default function LastRoundResults({ rounds, ...props }) {
   return (
     <Card elevation={4}>
       <CardHeader
-        title="Logs"
+        title="Results"
         sx={{ backdropFilter: "brightness: 60%", opacity: 1 }}
       />
       <CardContent>
         {rounds &&
-          rounds.map((round, roundIndex) => (
-            <Box key={roundIndex}>
-              <Typography variant="subtitle1">Round {round.round}</Typography>
-              {round.moves.map((move, moveIndex) => (
-                <Box key={moveIndex} pl={2}>
-                  <Typography variant="body2">
-                    {shortenAddress(move.player.address)}
-                  </Typography>
-                  <Box pl={2}>
-                    {move && move.travel && (
-                      <Typography variant="body2">
-                        Move: [{move.travel.originQ}, {move.travel.originR}] to
-                        [{move.travel.destinationQ}, {move.travel.destinationR}]
-                        ={" "}
-                        {
-                          calculateDirectionDistance(
-                            { q: move.travel.originQ, r: move.travel.originR },
-                            {
-                              q: move.travel.destinationR,
-                              r: move.travel.destinationR,
-                            }
-                          ).prettyPrint
-                        }
-                      </Typography>
-                    )}
-                    {move && move.shot && (
-                      <Typography variant="body2">
-                        Shot: [{move.shot.originQ}, {move.shot.originR}] to [
-                        {move.shot.destinationQ}, {move.shot.destinationR}] ={" "}
-                        {
-                          calculateDirectionDistance(
-                            { q: move.shot.originQ, r: move.shot.originR },
-                            {
-                              q: move.shot.destinationR,
-                              r: move.shot.destinationR,
-                            }
-                          ).prettyPrint
-                        }
-                      </Typography>
-                    )}
-                  </Box>
-                </Box>
-              ))}
-            </Box>
-          ))}
+          rounds.map((round, roundIndex) =>
+            round.moves.map((move, moveIndex) => (
+                  move &&
+                    move.player &&
+                    move.player.killedInRound &&
+                    move.player.killedInRound.round === round.round && (
+                      <Box key={roundIndex}>
+                        <Typography variant="subtitle1">Round {round.round}</Typography>
+                        <Box key={moveIndex} pl={2}>
+                          <Typography variant="body2">
+                            {`${shortenAddress(move.player.address)} was ${move.player.state}`}
+                          </Typography>
+                      </Box>
+              </Box>
+            )))
+          )}
       </CardContent>
     </Card>
   );
