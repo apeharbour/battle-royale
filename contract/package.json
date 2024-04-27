@@ -5,14 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "infra:local:up": "npx hardhat node --hostname 0.0.0.0",
-    "infra:local-mining:up": "npx hardhat --config hardhat-mining.config.js node --hostname 0.0.0.0",
+    "infra:local:up": "pnpm exec hardhat node --hostname 0.0.0.0",
+    "infra:local-mining:up": "pnpm exec hardhat --config hardhat-mining.config.js node --hostname 0.0.0.0",
     "infra:local:down": "pkill -SIGINT hardhat node",
-    "deploy:local": "yes | npx hardhat ignition deploy ignition/modules/GamePunk.js --network localhost --reset && ./updateGraphNetworks.sh",
-    "run:local:01": "npx hardhat run --network localhost scripts/localhost/01_prepare.js",
-    "run:local:02": "npx hardhat run --network localhost scripts/localhost/02_round1.js",
-    "run:local:03": "npx hardhat run --network localhost scripts/localhost/03_round2.js",
-    "run:local:04": "npx hardhat run --network localhost scripts/localhost/04_round3.js"
+    "deploy:local": "yes | pnpm exec hardhat ignition deploy ignition/modules/GamePunk.js --network localhost --reset && ./updateNetworksLocalhost.sh",
+    "deploy:sepolia": "yes | pnpm exec hardhat ignition deploy ignition/modules/GamePunk.js --network sepolia --verify && ./updateNetworksSepolia.sh",
+    "run:local:01": "pnpm exec hardhat run --network localhost scripts/localhost/01_prepare.js",
+    "run:local:02": "pnpm exec hardhat run --network localhost scripts/localhost/02_round1.js",
+    "run:local:03": "pnpm exec hardhat run --network localhost scripts/localhost/03_round2.js",
+    "run:local:04": "pnpm exec hardhat run --network localhost scripts/localhost/04_round3.js"
   },
   "repository": {
     "type": "git",
