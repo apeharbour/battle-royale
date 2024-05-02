@@ -32,13 +32,13 @@ const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 // const sdk = getBuiltGraphSDK()
 
 const gameQuery = gql`
-  query getGame ($gameId: BigInt!) {
+query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
     games(where: { gameId: $gameId }) {
       gameId
       state
       radius
       currentRound { round }
-      cells {
+      cells(first: $first, skip: $skip) {
         q
         r
         island
@@ -71,6 +71,10 @@ const gameQuery = gql`
   }
 `;
 
+const registrationQuery = gql`
+
+`;
+
 export default function Game(props) {
   const { pathname } = useLocation();
   const id = parseInt(pathname.split("/")[1]);
@@ -88,8 +92,7 @@ export default function Game(props) {
 
   const { enqueueSnackbar } = useSnackbar();
 
-  const {address} = useAccount();
-  console.log("Account: ", address);
+  const { address } = useAccount();
 
   const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -102,9 +105,8 @@ export default function Game(props) {
     status: txStatus,
   } = useWriteContract();
 
-  const { data: blockNumber } = useBlockNumber({watch: true})
+  const { data: blockNumber } = useBlockNumber({ watch: true })
   useEffect(() => {
-    console.log("New block: ", blockNumber, "invalidating games query");
     queryClient.invalidateQueries(["game", BigInt(id).toString()]);
   }, [blockNumber]);
 
@@ -140,13 +142,13 @@ export default function Game(props) {
 
   useEffect(() => {
     if (ws && gameId) {
-        const message = {
-            action: 'setGameId',
-            gameId: gameId,
-        };
-        ws.send(JSON.stringify(message));
+      const message = {
+        action: 'setGameId',
+        gameId: gameId,
+      };
+      ws.send(JSON.stringify(message));
     }
-}, [ws, gameId]);
+  }, [ws, gameId]);
 
   /* Enrich the cell data with additional properties:
    * s: the cube coordinate s
@@ -223,12 +225,14 @@ export default function Game(props) {
   };
 
   const useGameQuery = (select) => useQuery({
-      queryKey: ["game", BigInt(id).toString()],
-      queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, gameQuery, {
-        gameId: id,
-      }),
-      select,
-    });
+    queryKey: ["game", BigInt(id).toString()],
+    queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, gameQuery, {
+      gameId: id,
+      first: 500,
+      skip: 0,
+    }),
+    select,
+  });
 
   const useCurrentRound = () => useGameQuery((data) => parseInt(data.games[0].currentRound.round))
 
@@ -247,11 +251,7 @@ export default function Game(props) {
 
   const useRounds = () => useGameQuery((data) => data.games[0].rounds);
 
-  const {data: result} = useGameQuery();
-
-  console.log("Game Query Result: ", result);
-
-
+  const { data: result } = useGameQuery();
 
   const { data: currentRound } = useCurrentRound();
   const { data: ships } = useShips();
@@ -259,65 +259,18 @@ export default function Game(props) {
   const { data: cells } = useCells();
   const { data: rounds } = useRounds();
 
-  console.log("Game ID: ", id);
-  console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
-  console.log("Current Round: ", currentRound);
-  console.log("Ships: ", ships);
-  console.log("My Ship: ", myShip);
-  console.log("Cells: ", cells);
-  console.log("Rounds: ", rounds);
+  // console.log("Game ID: ", id);
+  // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
+  // console.log("Current Round: ", currentRound);
+  // console.log("Ships: ", ships);
+  // console.log("My Ship: ", myShip);
+  // console.log("Cells: ", cells);
+  // console.log("Rounds: ", rounds);
 
   // //Helper Function to generate secret random number for hashing moves
   // function generateRandomInt() {
   //   return Math.floor(Math.random() * 99) + 1;
   // }
-
-  //To store players moves in the dynamoDB
-  const storePlayerMove = async ({
-    gameId,
-    playerAddress,
-    moveHash,
-    secretValue,
-    travelDirection,
-    travelDistance,
-    shotDirection,
-    shotDistance,
-  }) => {
-    if (!playerAddress) {
-      console.error("storePlayerMove: playerAddress is null or undefined.");
-      return;
-    }
-    const apiEndpoint =
-      "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/storePlayerMoves";
-    const moveData = {
-      gameId,
-      playerAddress,
-      moveHash,
-      secretValue,
-      travelDirection,
-      travelDistance,
-      shotDirection,
-      shotDistance,
-    };
-
-    try {
-      const response = await fetch(apiEndpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(moveData),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      console.log("Move stored successfully via API");
-    } catch (error) {
-      console.error("Error storing move via API", error);
-    }
-  };
 
   const clearTravelAndShotEndpoints = () => {
     setTravelEndpoint(undefined);
@@ -386,7 +339,7 @@ export default function Game(props) {
   //     functionName: "commitMove",
   //     args: [moveHash, BigInt(gameId)],
   //   });
-      
+
   //         await storePlayerMove({
   //         gameId,
   //          playerAddress: account.address,
@@ -435,7 +388,7 @@ export default function Game(props) {
   //   //   setShotEndpoint(undefined);
   //   //   setCells([...updatedCells]);
   //   // }
- 
+
 
   const disableEventBridgeRule = async (gameId) => {
     try {
@@ -470,7 +423,7 @@ export default function Game(props) {
     enqueueSnackbar("Transaction pending...", { variant: "info" });
   if (txIsError) {
     console.error("Error: ", JSON.stringify(txError))
-    enqueueSnackbar("Error with tx." , { variant: "error" });
+    enqueueSnackbar("Error with tx.", { variant: "error" });
   }
 
   if (txStatus === "success")
@@ -482,7 +435,7 @@ export default function Game(props) {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             <ShipStatus ship={myShip} />
-            <Logs gameId={id} rounds={rounds}/>
+            <Logs gameId={id} rounds={rounds} />
           </Stack>
         </Grid>
 
@@ -496,13 +449,13 @@ export default function Game(props) {
           shotEndpoint={shotEndpoint}
           setShotEndpoint={setShotEndpoint}
         />
-}
+        }
 
         <Grid item xs={12} sm={4} md={2}>
           {/* <Timer gameId={id}/> */}
           {/* <Box mt={2} mb={2}> */}
           <Stack spacing={2}>
-            <CommitMoveButton gameId={gameId} myShip={myShip} travelEndpoint={travelEndpoint} shotEndpoint={shotEndpoint} clearTravelAndShotEndpoints={clearTravelAndShotEndpoints}/>
+            <CommitMoveButton gameId={gameId} myShip={myShip} travelEndpoint={travelEndpoint} shotEndpoint={shotEndpoint} clearTravelAndShotEndpoints={clearTravelAndShotEndpoints} />
             {/* <Button
               variant="contained"
               onClick={commitMove}
@@ -512,8 +465,8 @@ export default function Game(props) {
             </Button> */}
             {/* </Box> */}
 
-          <PlayerStatus ships={ships} />
-          <Timer gameId={gameId} />
+            <PlayerStatus ships={ships} />
+            <Timer gameId={gameId} />
           </Stack>
         </Grid>
       </Grid>

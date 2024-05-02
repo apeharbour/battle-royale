@@ -59,19 +59,41 @@ const shortenAddress = (address) => {
   return `${address.slice(0, 6)}..${address.slice(-4)}`;
 };
 
+// const useRegistrationsQuery = (select) => {
+//   return useQuery({
+//     queryKey: ["registrations"],
+//     queryFn: async () =>
+//       request(
+//         import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION,
+//         registrationQuery
+//       ),
+//     select,
+//   });
+// };
+
 const useRegistrationsQuery = (select) => {
   return useQuery({
     queryKey: ["registrations"],
-    queryFn: async () =>
-      request(
-        import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION,
-        registrationQuery
-      ),
+    queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION, registrationQuery),
     select,
+    staleTime: 0, // Ensure the data is considered stale immediately
+    cacheTime: 0, // Minimize cache duration
+    refetchOnWindowFocus: 'always' // Refetch every time the window gains focus, useful in development
   });
 };
 
+
 const useRegistrations = (state) => useRegistrationsQuery((data) => data.registrations.filter((r) => r.state === state));
+const useRegistrationsPhase = (state) => useRegistrationsQuery((data) => {
+  const filteredByState = data.registrations.filter(r => r.state === state);
+  const highestPhase = Math.max(...filteredByState.map(r => parseInt(r.phase, 10)));
+  const highestPhaseGameIds = filteredByState.filter(r => parseInt(r.phase, 10) === highestPhase).map(r => r.firstGameId);
+  return {
+    highestPhaseGameIds,
+    fullData: filteredByState,
+  };
+});
+
 
 class RegistrationState {
   static OPEN = "OPEN";
@@ -86,47 +108,29 @@ export default function Admin(props) {
   const [testGameId, setTestGameId] = useState(0);
   const [testGameRadius, setTestGameRadius] = useState(0);
   const [updateWorldTestId, setUpdateWorldTestId] = useState(0);
-  const [registrationContractAddress, setRegistrationContractAdress] =
-    useState("");
+  const [highestPhaseClosedGameIdsInt, setHighestPhaseClosedGameIdsInt] = useState([]);
+  const [txInFlight, setTxInFlight] = useState(false);
 
 
 
-  const { data: closedRegistrations } = useRegistrations(RegistrationState.CLOSED)
-  const { data: openRegistrations } = useRegistrations(RegistrationState.OPEN)
-
-  // useEffect(() => {
-  //   const fetchContract = async () => {
-  //     const provider = new ethers.BrowserProvider(window.ethereum);
-  //     const signer = await provider.getSigner();
-  //     const gameContract = new ethers.Contract(GAME_ADDRESS, GAME_ABI, signer);
-  //     const regiContract = new ethers.Contract(
-  //       REGISTRATION_ADDRESS,
-  //       REGISTRATION_ABI,
-  //       signer
-  //     );
-  //     setGameContract(gameContract);
-  //     setRegiContract(regiContract);
-  //     setProvider(provider);
-  //     setPlayer(signer.address);
-  //   };
-
-  //   fetchContract();
-  // }, []);
-
-  // const registrationContract = async () => {
-  //   if (gameContract) {
-  //     const tx = await gameContract
-  //       .setRegistrationContract(registrationContractAddress)
-  //       .catch(console.error);
-  //     await tx.wait();
-  //   }
-  // };
+  const {
+    data: closedRegistrations,
+    refetch: refetchClosedRegistrations,
+  } = useRegistrations(RegistrationState.CLOSED);
+  const {
+    data: openRegistrations,
+    refetch: refetchOpenRegistrations,
+  } = useRegistrations(RegistrationState.OPEN);
+  const {
+    data: registrationData,
+    refetch: refetchRegistrationsData,
+  } = useRegistrationsPhase(RegistrationState.CLOSED);
 
   const account = useAccount();
 
   const {
     writeContract,
-    hash,
+    data: hash,
     isPending: isTxPending,
     isSuccess: isTxSuccess,
     isError: isTxError,
@@ -139,12 +143,25 @@ export default function Admin(props) {
     data: txData,
   } = useWaitForTransactionReceipt({ hash });
 
-  if (isTxConfirmed) {
-    console.log("Transaction Confirmed", txData);
-  }
-  if (isTxError) {
-    console.error("Transaction Error", txError);
-  }
+  useEffect(() => {
+    if (isTxConfirmed && txData && txInFlight) {
+      console.log('Transaction confirmed:', txData);
+      setTxInFlight(false);
+
+      refetchRegistrationsData().then(newData => {
+        console.log("Refetched data:", newData.data);
+        newData.data.highestPhaseGameIds.forEach(gameId => {
+          triggerLambdaFunction(gameId);
+        })
+      });
+    }
+  }, [isTxConfirmed, txData, txInFlight, refetchRegistrationsData]);
+
+  useEffect(() => {
+    if (isTxError && txError) {
+      console.error('Transaction error:', txError);
+    }
+  }, [isTxError, txError]);
 
   const startRegistration = async () => {
     writeContract({
@@ -152,11 +169,6 @@ export default function Admin(props) {
       address: REGISTRATION_ADDRESS,
       functionName: "startRegistration",
     });
-    // if (regiContract !== null) {
-    //   const tx = await regiContract.startRegistration().catch(console.error);
-    //   await tx.wait();
-    //   console.log(tx);
-    // }
   };
 
   const closeRegistration = async () => {
@@ -166,32 +178,15 @@ export default function Admin(props) {
       functionName: "closeRegistration",
       args: [MAX_PLAYERS_PER_GAME, RADIUS],
     });
-
-    // if (regiContract !== null) {
-    //   const tx = await regiContract
-    //     .closeRegistration(8, 6)
-    //     .catch(console.error);
-    //   await tx.wait();
-
-    //    const lastGameIdBigInt = await regiContract.lastGameId();
-    //    const lastGameId = Number(lastGameIdBigInt);
-    //    console.log(lastGameId);
-
-    //    for (let gameId = 1; gameId <= lastGameId; gameId++) {
-    //      triggerLambdaFunction(gameId);
-    //  }
-
-      triggerLambdaFunction(8);
-      triggerLambdaFunction(9);
-    }
-  // };
+    setTxInFlight(true);
+  }
 
   const triggerLambdaFunction = async (gameId) => {
     const apiEndpoint =
       "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated";
     const postData = {
       gameId: gameId.toString(),
-      scheduleRate: "2 minutes",
+      scheduleRate: "5 minutes",
     };
 
     try {
@@ -218,14 +213,6 @@ export default function Admin(props) {
       functionName: "startNewGame",
       args: [testGameId, testGameRadius],
     });
-
-    // if (gameContract !== null) {
-    //   const tx = await gameContract
-    //     .startNewGame(testGameId, testGameRadius)
-    //     .catch(console.error);
-    //   await tx.wait();
-    //   console.log(tx);
-    // }
   };
 
   const endTestGame = async () => {
@@ -235,12 +222,6 @@ export default function Admin(props) {
       functionName: "endGame",
       args: [testGameId],
     });
-
-    // if (gameContract !== null) {
-    //   const tx = await gameContract.endGame(testGameId).catch(console.error);
-    //   await tx.wait();
-    //   console.log(tx);
-    // }
   };
 
   const updateWorldTest = async () => {
@@ -250,28 +231,12 @@ export default function Admin(props) {
       functionName: "updateWorld",
       args: [updateWorldTestId],
     });
-    // if (gameContract !== null) {
-    //   const tx = await gameContract
-    //     .updateWorld(updateWorldTestId)
-    //     .catch(console.error);
-    //   await tx.wait();
-    //   console.log(tx);
-    // }
   };
 
   return (
     <Fragment>
       <Box mt={2}>
         <Stack spacing={2} direction="row">
-          {/* <TextField
-            variant="outlined"
-            value={registrationContractAddress}
-            label="Reg Contract"
-            onChange={(e) => setRegistrationContractAdress(e.target.value)}
-          /> */}
-          {/* <Button variant="contained" onClick={registrationContract}>
-            Set
-          </Button> */}
           <Button
             variant="contained"
             color="success"
@@ -322,7 +287,6 @@ export default function Admin(props) {
       </Box>
       <Box mt={5}>
         <Timer gameId={8} />
-        <Timer gameId={9} />
       </Box>
 
       <Grid container p={4}>

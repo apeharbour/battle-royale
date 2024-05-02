@@ -59,6 +59,53 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
     function generateRandomInt() {
       return Math.floor(Math.random() * 99) + 1;
     }
+
+        //To store players moves in the dynamoDB
+  const storePlayerMove = async ({
+    gameId,
+    playerAddress,
+    moveHash,
+    secretValue,
+    travelDirection,
+    travelDistance,
+    shotDirection,
+    shotDistance,
+  }) => {
+    if (!playerAddress) {
+      console.error("storePlayerMove: playerAddress is null or undefined.");
+      return;
+    }
+    const apiEndpoint =
+      "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/storePlayerMoves";
+    const moveData = {
+      gameId,
+      playerAddress,
+      moveHash,
+      secretValue,
+      travelDirection,
+      travelDistance,
+      shotDirection,
+      shotDistance,
+    };
+
+    try {
+      const response = await fetch(apiEndpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(moveData),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      console.log("Move stored successfully via API");
+    } catch (error) {
+      console.error("Error storing move via API", error);
+    }
+  };
   
 
   const commitMove = async () => {
@@ -117,6 +164,7 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
            shotDirection,
            shotDistance,
          });
+         setTxInFlight(true);
        } catch (error) {
          console.error(
            "Error in submitting moves or storing in DynamoDB",
@@ -124,37 +172,6 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
          );
        }
       };
-    //   try {
-    //     const tx = await contract
-    //       .commitMove(moveHash, gameId)
-    //       .catch(console.error);
-    //     await tx.wait();
-    //     console.log(tx);
-    //     console.log(moveHash);
-
-    //     await storePlayerMove({
-    //       gameId,
-    //       playerAddress: gamePlayer,
-    //       moveHash,
-    //       secretValue: randomInt,
-    //       travelDirection,
-    //       travelDistance,
-    //       shotDirection,
-    //       shotDistance,
-    //     });
-    //   } catch (error) {
-    //     console.error(
-    //       "Error in submitting moves or storing in DynamoDB",
-    //       error
-    //     );
-    //   }
-    //   const updatedCells = cells
-    //     .map(clearHighlights)
-    //     .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
-    //   setTravelEndpoint(undefined);
-    //   setShotEndpoint(undefined);
-    //   setCells([...updatedCells]);
-    // }
 
   if (isConfirmed && txInFlight) {
     enqueueSnackbar(`Commited move`, { variant: "success" });

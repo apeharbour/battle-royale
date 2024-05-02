@@ -101,6 +101,7 @@ contract RegistrationPunk is Ownable {
 
         for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
             if (gamePlayerCount == 0) {
+                emit RegistrationClosed(registrationPhase, lastGameId);
                 gamePunk.startNewGame(lastGameId, _radius); // Start a new game when the previous one is filled
             }
 
@@ -120,7 +121,6 @@ contract RegistrationPunk is Ownable {
             if (gamePlayerCount == _maxPlayersPerGame) {
                 lastGameId++;
                 gamePlayerCount = 0;
-                emit RegistrationClosed(registrationPhase, lastGameId);
             }
         }
     }
