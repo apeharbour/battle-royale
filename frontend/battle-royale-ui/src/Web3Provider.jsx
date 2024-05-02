@@ -14,7 +14,7 @@ import punkLogo from "./images/punkLogo.png";
 const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
-    chains: [ localhost, sepolia, mainnet, optimism],
+    chains: [ sepolia, localhost, mainnet, optimism],
     transports: {
       // RPC URL for each chain
       [localhost.id]:

@@ -63,7 +63,7 @@ export default function Board({
   const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
   const [shipPathLength, setShipPathLength] = useState(0);
   const [shootPathLength, setShootPathLength] = useState(0);
-  const [hexGridSize, setHexGridSize] = useState(500);
+  const [hexGridSize, setHexGridSize] = useState(200);
 
   
   const dimensions = useResizeObserver(parentRef);
@@ -85,10 +85,8 @@ export default function Board({
         if (isHighlighted(cell, highlights)) {
           if (state === TRAVELLING) {
             setTempTravelEndpoint(cell);
-            console.log("tempTravelEndpoint", cell);
           } else if (state === SHOOTING) {
             setTempShotEndpoint(cell);
-            console.log("tempShotEndpoint", cell);
           }
         }
       }
