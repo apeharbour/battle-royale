@@ -251,6 +251,8 @@ export default function Game(props) {
 
   const useRounds = () => useGameQuery((data) => data.games[0].rounds);
 
+  const useGameState = () => useGameQuery((data) => data.games[0].state);
+
   const { data: result } = useGameQuery();
 
   const { data: currentRound } = useCurrentRound();
@@ -258,6 +260,7 @@ export default function Game(props) {
   const { data: myShip } = useMyShip(address);
   const { data: cells } = useCells();
   const { data: rounds } = useRounds();
+  const { data: gameState } = useGameState();
 
   // console.log("Game ID: ", id);
   // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
@@ -272,123 +275,17 @@ export default function Game(props) {
   //   return Math.floor(Math.random() * 99) + 1;
   // }
 
+  useEffect(() => {
+    console.log("Game State: ", gameState);
+    if (gameState === 'finished') {
+      disableEventBridgeRule(gameId);
+    }
+  }, [gameState, gameId]);
+
   const clearTravelAndShotEndpoints = () => {
     setTravelEndpoint(undefined);
     setShotEndpoint(undefined);
   };
-
-  // const determineDirection = (deltaQ, deltaR) => {
-  // const determineDirection = (origin, destination) => {
-  //   const deltaQ = destination.q - origin.q;
-  //   const deltaR = destination.r - origin.r;
-
-  //   // Normalize the deltas to -1, 0, or 1
-  //   const sign = (num) => (num === 0 ? 0 : num > 0 ? 1 : -1);
-  //   const normDeltaQ = sign(deltaQ);
-  //   const normDeltaR = sign(deltaR);
-
-  //   if (normDeltaQ === 1 && normDeltaR === 0) return 0;
-  //   if (normDeltaQ === 1 && normDeltaR === -1) return 1;
-  //   if (normDeltaQ === 0 && normDeltaR === -1) return 2;
-  //   if (normDeltaQ === -1 && normDeltaR === 0) return 3;
-  //   if (normDeltaQ === -1 && normDeltaR === 1) return 4;
-  //   if (normDeltaQ === 0 && normDeltaR === 1) return 5;
-  //   return 6;
-  // };
-
-  // const commitMove = async () => {
-
-  //   if (!account.address) {
-  //     console.error("Player address is undefined or not set");
-  //     return; // Exit the function if gamePlayer is not set
-  //   }
-
-  //   // calculate distances and directions
-  //   const myShipHex = new Hex(myShip.q, myShip.r, (myShip.q + myShip.r) * -1);
-  //   const travelDistance = HexUtils.distance(myShipHex, travelEndpoint);
-  //   const shotDistance = HexUtils.distance(travelEndpoint, shotEndpoint);
-
-  //   const travelDirection = determineDirection(myShipHex, travelEndpoint);
-  //   const shotDirection = determineDirection(travelEndpoint, shotEndpoint);
-
-  //   setTravelEndpoint(undefined);
-  //   setShotEndpoint(undefined);
-
-  //   // if (contract) {
-  //   //   setRandomInt(generateRandomInt());
-  //   const randomInt = generateRandomInt();
-  //   const moveHash = ethers.solidityPackedKeccak256(
-  //     ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
-  //     [
-  //       travelDirection,
-  //       travelDistance,
-  //       shotDirection,
-  //       shotDistance,
-  //       randomInt,
-  //       account.address,
-  //     ]
-  //   );
-
-  //   console.log("Move Hash: ", moveHash);
-
-  //   try {
-
-  //   writeContract({
-  //     abi: GAME_ABI,
-  //     address: GAME_ADDRESS,
-  //     functionName: "commitMove",
-  //     args: [moveHash, BigInt(gameId)],
-  //   });
-
-  //         await storePlayerMove({
-  //         gameId,
-  //          playerAddress: account.address,
-  //          moveHash,
-  //          secretValue: randomInt,
-  //          travelDirection,
-  //          travelDistance,
-  //          shotDirection,
-  //          shotDistance,
-  //        });
-  //      } catch (error) {
-  //        console.error(
-  //          "Error in submitting moves or storing in DynamoDB",
-  //          error
-  //        );
-  //      }
-  //     };
-  //   //   try {
-  //   //     const tx = await contract
-  //   //       .commitMove(moveHash, gameId)
-  //   //       .catch(console.error);
-  //   //     await tx.wait();
-  //   //     console.log(tx);
-  //   //     console.log(moveHash);
-
-  //   //     await storePlayerMove({
-  //   //       gameId,
-  //   //       playerAddress: gamePlayer,
-  //   //       moveHash,
-  //   //       secretValue: randomInt,
-  //   //       travelDirection,
-  //   //       travelDistance,
-  //   //       shotDirection,
-  //   //       shotDistance,
-  //   //     });
-  //   //   } catch (error) {
-  //   //     console.error(
-  //   //       "Error in submitting moves or storing in DynamoDB",
-  //   //       error
-  //   //     );
-  //   //   }
-  //   //   const updatedCells = cells
-  //   //     .map(clearHighlights)
-  //   //     .map((cell) => highlightReachableCells(cell, myShip, myShip.range));
-  //   //   setTravelEndpoint(undefined);
-  //   //   setShotEndpoint(undefined);
-  //   //   setCells([...updatedCells]);
-  //   // }
-
 
   const disableEventBridgeRule = async (gameId) => {
     try {
