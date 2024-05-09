@@ -286,7 +286,7 @@ export default function Admin(props) {
         </Stack>
       </Box>
       <Box mt={5}>
-        <Timer gameId={8} />
+        <Timer gameId={22} />
       </Box>
 
       <Grid container p={4}>
