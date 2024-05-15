@@ -20,7 +20,7 @@ import { WebSocketProvider } from "./contexts/WebSocketContext";
 
 
 function App() {
-  const [darkMode, setDarkMode] = useLocalStorageState('darkMode', { defaultValue: true});
+  const [darkMode, setDarkMode] = useLocalStorageState('darkMode', { defaultValue: true });
 
   // create a darkTheme function to handle dark theme using createTheme
   const theme = createTheme({
@@ -47,24 +47,24 @@ function App() {
 
   return (
     <WebSocketProvider>
-    <SnackbarProvider maxSnack={3}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Web3Provider theme={theme}>
-          <AccountAppBar
-            toggleDarkMode={toggleDarkMode}
-          />
-          {/* <Header /> */}
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<ListGames />} />
-              <Route path=":gameId" element={<Game />} />
-              <Route path="/admin" element={<Admin />} />
-            </Routes>
-          </BrowserRouter>
-        </Web3Provider>
-      </ThemeProvider>
-    </SnackbarProvider>
+      <SnackbarProvider maxSnack={3}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Web3Provider theme={theme}>
+            {/* <Header /> */}
+            <BrowserRouter>
+              <AccountAppBar
+                toggleDarkMode={toggleDarkMode}
+              />
+              <Routes>
+                <Route path="/" element={<ListGames />} />
+                <Route path=":gameId" element={<Game />} />
+                <Route path="/admin" element={<Admin />} />
+              </Routes>
+            </BrowserRouter>
+          </Web3Provider>
+        </ThemeProvider>
+      </SnackbarProvider>
     </WebSocketProvider>
   );
 }

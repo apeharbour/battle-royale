@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useTheme } from "@emotion/react";
+import { useNavigate } from 'react-router-dom';
 
 import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
 // import Toolbar from "@mui/material/Toolbar";
@@ -19,7 +20,11 @@ import { ConnectKitButton } from "connectkit";
 export default function AccountAppBar({ toggleDarkMode }) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
+  const navigate = useNavigate();
 
+  const handleLogoClick = () => {
+    navigate('/');
+  };
 
   return (
     <AppBar position="sticky">
@@ -29,6 +34,7 @@ export default function AccountAppBar({ toggleDarkMode }) {
           sx={{ width: "48px" }}
           src={punkLogo}
           alt="Punkships Logo"
+          onClick={handleLogoClick}
         />
         <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
           PUNKSHIPS

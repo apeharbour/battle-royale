@@ -1,7 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { Grid, Stack } from "@mui/material";
-import Button from "@mui/material/Button";
-import { styled } from "@mui/material/styles";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useWatchContractEvent, useWriteContract } from "wagmi";
@@ -13,7 +11,6 @@ import { Hex, HexUtils } from "react-hexgrid";
 import ShipStatus from "./ShipStatus";
 import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
-
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
 import PunkshipsAbi from "./abis/Punkships.json";
@@ -21,6 +18,7 @@ import PunkshipsAbi from "./abis/Punkships.json";
 import MainBoardArea from "./MainBoardArea.jsx";
 import Timer from "./Timer.jsx";
 import CommitMoveButton from "./CommitMoveButton.jsx";
+import GameStatus from "./GameStatus.jsx";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
@@ -71,17 +69,12 @@ query getGame($gameId: BigInt!, $first: Int, $skip: Int) {
   }
 `;
 
-const registrationQuery = gql`
-
-`;
-
 export default function Game(props) {
   const { pathname } = useLocation();
   const id = parseInt(pathname.split("/")[1]);
   const [contract, setContract] = useState(null);
   const [gamePlayer, setGamePlayer] = useState(null);
-  // const [randomInt, setRandomInt] = useState(generateRandomInt());
-
+  const [playerStateDialogOpen, setPlayerStateDialogOpen] = useState(false);
   const [travelEndpoint, setTravelEndpoint] = useState(undefined);
   const [shotEndpoint, setShotEndpoint] = useState(undefined);
 
@@ -93,6 +86,7 @@ export default function Game(props) {
   const { enqueueSnackbar } = useSnackbar();
 
   const { address } = useAccount();
+ 
 
   const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -128,10 +122,6 @@ export default function Game(props) {
       console.log("World Updated: ", logs);
       const { gameId } = logs[0].args;
       console.log("World updated for game: ", gameId);
-      // delay(5000).then(() => {
-      //   console.log('Invalidating query because of world update');
-      //   queryClient.invalidateQueries(["game", id]);
-      // });
     }
   });
 
@@ -253,6 +243,13 @@ export default function Game(props) {
 
   const useGameState = () => useGameQuery((data) => data.games[0].state);
 
+  const usePlayerState = (address) => useGameQuery((data) => {
+    const player = data.games[0].players.find((p) => p.address.toLowerCase() === address.toLowerCase());
+    return player ? player.state : null;
+  });
+
+  const useWinner = () => useGameQuery((data) => data.games[0].players.find((p) => p.state === 'won'));
+
   const { data: result } = useGameQuery();
 
   const { data: currentRound } = useCurrentRound();
@@ -261,6 +258,8 @@ export default function Game(props) {
   const { data: cells } = useCells();
   const { data: rounds } = useRounds();
   const { data: gameState } = useGameState();
+  const { data: playerState } = usePlayerState(address);
+  const { data: winner } = useWinner();
 
   // console.log("Game ID: ", id);
   // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
@@ -269,11 +268,7 @@ export default function Game(props) {
   // console.log("My Ship: ", myShip);
   // console.log("Cells: ", cells);
   // console.log("Rounds: ", rounds);
-
-  // //Helper Function to generate secret random number for hashing moves
-  // function generateRandomInt() {
-  //   return Math.floor(Math.random() * 99) + 1;
-  // }
+  // console.log("Game Winner: ", winner);
 
   useEffect(() => {
     console.log("Game State: ", gameState);
@@ -281,6 +276,13 @@ export default function Game(props) {
       disableEventBridgeRule(gameId);
     }
   }, [gameState, gameId]);
+
+  useEffect(() => {
+    console.log("Player State: ", playerState);
+    if (playerState === 'dropped' || playerState === 'beached' || playerState === 'crashed' || playerState === 'shot' || playerState === 'draw' || playerState === 'won') {
+      setPlayerStateDialogOpen(true);
+    }
+  }, [playerState]);
 
   const clearTravelAndShotEndpoints = () => {
     setTravelEndpoint(undefined);
@@ -306,16 +308,11 @@ export default function Game(props) {
 
       const data = await response.json();
       console.log("Success:", data);
-      // Handle success response
     } catch (error) {
       console.error("Error calling the API:", error.message);
-      // Handle error response
     }
   };
 
-  // if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
-  // if (isError)
-  //   enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
   if (txIsPending)
     enqueueSnackbar("Transaction pending...", { variant: "info" });
   if (txIsError) {
@@ -349,24 +346,16 @@ export default function Game(props) {
         }
 
         <Grid item xs={12} sm={4} md={2}>
-          {/* <Timer gameId={id}/> */}
-          {/* <Box mt={2} mb={2}> */}
           <Stack spacing={2}>
             <CommitMoveButton gameId={gameId} myShip={myShip} travelEndpoint={travelEndpoint} shotEndpoint={shotEndpoint} clearTravelAndShotEndpoints={clearTravelAndShotEndpoints} />
-            {/* <Button
-              variant="contained"
-              onClick={commitMove}
-              disabled={!shotEndpoint || !travelEndpoint}
-            >
-              Commit Moves
-            </Button> */}
-            {/* </Box> */}
-
             <PlayerStatus ships={ships} />
             <Timer gameId={gameId} />
           </Stack>
         </Grid>
       </Grid>
+      {playerStateDialogOpen && (
+       <GameStatus playerStateDialogOpen={playerStateDialogOpen} winner={winner} playerState={playerState} />
+      )}
     </Fragment>
   );
 }
