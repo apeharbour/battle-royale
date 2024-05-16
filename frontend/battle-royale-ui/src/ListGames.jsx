@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import {
   Box,
   Button,
@@ -6,84 +6,109 @@ import {
   CardActions,
   CardContent,
   Typography,
-  Grid
+  Grid,
+  Tooltip
 } from "@mui/material";
 
 import Registration from "./Registration";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { request, gql } from 'graphql-request'
+import { request, gql } from 'graphql-request';
 import { useAccount, useBlockNumber } from "wagmi";
 
-
 const GET_GAMES = gql`
-  query getGames {
-    games {
-      id
+query getGame($address: Bytes) {
+  players(where: {address: $address}) {
+    address
+    state
+    game {
       gameId
       state
     }
   }
+}
 `;
 
 export default function ListGames(props) {
-  const [sortedGames, setSortedGames] = useState([]);
-
-  const account = useAccount();
-  const { data: blockNumber } = useBlockNumber({watch: true})
+  const { address } = useAccount();
+  const { data: blockNumber } = useBlockNumber({ watch: true });
 
   const queryClient = useQueryClient();
 
-  const { data, isLoading, isError, error, isFetching, isRefetching  } = useQuery({
-    queryKey: ["games"],
-    queryFn: async () =>
-      request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAMES),
+  const useGameQuery = (select) => useQuery({
+    queryKey: ["players"],
+    queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, GET_GAMES, {
+      address: address,
+    }),
+    select,
   });
 
-  useEffect(() => {
-    console.log("New block: ", blockNumber, "invalidating games query");
-    queryClient.invalidateQueries(['games']);
-  }, [blockNumber]);
+  const useGameData = () => useGameQuery((data) => data.players);
 
-
-  // const { loading, error, data } = useQuery(GET_GAMES, {
-  //   pollInterval: 5000,
-  // });
-
-  // const data = [ { gameStarteds: [ { id: 1, gameId: 1 }, { id: 2, gameId: 2 } ] } ];
-  // const loading = false;
-  // const error = null;
-
-  useEffect(() => {
-    if (data && data.games) {
-      const sorted = data.games
-        .sort((a, b) => a.gameId - b.gameId);
-      setSortedGames(sorted);
-    }
-  }, [data]);
-
-  if (isLoading) {console.log("Loading...");};
-  if (isError) {console.log("Error: ", error);};
+  const { data: gameData } = useGameData();
 
   return (
     <Grid container spacing={2} p={4}>
       <Grid item xs={6} md={6}>
-        {sortedGames.map(({ id, gameId }) => (
-          <Box mt={1} key={id}>
-            <Card>
-              <CardContent>
-                <Typography variant="h5" component="div">
-                  Game {gameId}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button variant="contained" href={`/${gameId}`}>
-                  Show
-                </Button>
-              </CardActions>
-            </Card>
-          </Box>
-        ))}
+        <Box
+          maxHeight="680px"
+          overflow="auto"
+          sx={{
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+            '-ms-overflow-style': 'none',
+            'scrollbar-width': 'none',
+          }}
+        >
+          {gameData && gameData.map(({ game, address, state }, index) => {
+            let hoverMessage;
+            if (state === "active") {
+              hoverMessage = `You are active in game with ${game.gameId}`;
+            } else if (state === "won") {
+              hoverMessage = `You won the game with game ${game.gameId}`;
+            } else if (state === "beached") {
+              hoverMessage = `You were beached. Try again next time!`;
+            } else if (state === "dropped") {
+              hoverMessage = `You lost the game with game ${game.gameId}, due to dropping out of the map!`;
+            } else if (state === "crashed") {
+              hoverMessage = `You lost the game with game ${game.gameId}, due to crashing into an island!`;
+            } else if (state === "shot") {
+              hoverMessage = `You lost the game with game ${game.gameId}, due to being shot down!`;
+            } else if (state === "draw") {
+              hoverMessage = `It was a draw in game ${game.gameId}!, try again!`;
+            }
+
+            return (
+              <Tooltip title={hoverMessage} key={index}>
+                <Box mt={1}>
+                  <Card>
+                    <CardContent>
+                      <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Typography variant="h5" component="div">
+                          Game {game.gameId}
+                        </Typography>
+                        <Typography variant="subtitle1" color="textSecondary">
+                          {game.state}
+                        </Typography>
+                      </Box>
+                    </CardContent>
+                    <CardActions>
+                      <Button
+                        variant="contained"
+                        href={`/${game.gameId}`}
+                        disabled={game.state !== "active"}
+                      >
+                        Show
+                      </Button>
+                    </CardActions>
+                  </Card>
+                </Box>
+              </Tooltip>
+            );
+          })}
+        </Box>
       </Grid>
+
       <Grid item xs={6} md={6}>
         <Registration />
       </Grid>

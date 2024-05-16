@@ -60,7 +60,7 @@ export default function Registration(props) {
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
   useEffect(() => {
-    console.log("New block: ", blockNumber, "invalidating punkships query");
+    //console.log("New block: ", blockNumber, "invalidating punkships query");
     queryClient.invalidateQueries(['ships']);
   }, [blockNumber]);
 
