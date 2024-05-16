@@ -8,8 +8,10 @@
     "create-local": "graph create --node http://localhost:8020/ registration",
     "remove-local": "graph remove --node http://localhost:8020/ registration",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 registration --version-label `date '+%s'` --network localhost",
+    "deploy-sepolia": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 registration --version-label `date '+%s'` --network sepolia",
     "deploy-local-win": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 registration --version-label v1 --network localhost",
     "deploy:local": "pnpm run codegen && pnpm run create-local && pnpm run deploy-local",
+    "deploy:local:sepolia": "pnpm run codegen && pnpm run create-local && pnpm run deploy-sepolia",
     "update:local": "pnpm run deploy-local",    "test": "graph test"
   },
   "dependencies": {

@@ -1,7 +1,6 @@
 require("@nomicfoundation/hardhat-toolbox");
 require("@nomicfoundation/hardhat-ignition");
 require("@nomicfoundation/hardhat-ignition-ethers")
-require("hardhat-gas-reporter");
 require("dotenv").config();
 
 const INFURA_API_KEY = process.env.INFURA_API;
@@ -19,7 +18,9 @@ module.exports = {
     },
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY,
+    apiKey: {
+      sepolia: process.env.ETHERSCAN_API_KEY,
+    },
   },
   networks: {
     sepolia: {
@@ -28,11 +29,10 @@ module.exports = {
     },
     hardhat: {
       chainId: 1337,
+      mining: {
+        auto: false,
+        interval: 5000,
+      },
     },
   },
-  gasReporter: {
-    currency: 'EUR',
-    coinmarketcap: process.env.COINMARKETCAP_API_KEY,
-    enabled: (process.env.REPORT_GAS) ? true : false
-  }
 };

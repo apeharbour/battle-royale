@@ -284,29 +284,39 @@ export function handleShipCollidedWithIsland(
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
-  // update player state and position
-  let player = new Player(playerId)
-  
-  player.state = PlayerState.BEACHED
-  player.q = event.params.q
-  player.r = event.params.r
-  player.save()
+  const game = Game.load(gameId)
+
+  if (game) {
+    // update player state and position
+    let player = new Player(playerId)
+    
+    player.state = PlayerState.BEACHED
+    player.killedInRound = game.currentRound
+    player.q = event.params.q
+    player.r = event.params.r
+    player.save()
+  }
 }
 
 export function handleShipHit(event: ShipHitEvent): void {
   log.info('Ship of {} hit by {} in game {}', [shortenAddress(event.params.victim), shortenAddress(event.params.attacker), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
-  
-  const victimId = gameId.concat(event.params.victim)
-  let victim = new Player(victimId)
-  victim.state = PlayerState.SHOT
-  victim.save()
 
-  const attackerId = gameId.concat(event.params.attacker)
-  let attacker = Player.load(attackerId)
-  if (attacker) {
-    attacker.kills++
-    attacker.save()
+  const game = Game.load(gameId)
+  
+  if (game) {
+    const victimId = gameId.concat(event.params.victim)
+    let victim = new Player(victimId)
+    victim.state = PlayerState.SHOT
+    victim.killedInRound = game.currentRound
+    victim.save()
+
+    const attackerId = gameId.concat(event.params.attacker)
+    let attacker = Player.load(attackerId)
+    if (attacker) {
+      attacker.kills++
+      attacker.save()
+    }
   }
 }
 
@@ -354,9 +364,14 @@ export function handleShipSunk(event: ShipSunkEvent): void {
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
-  let player = new Player(playerId)
-  player.state = PlayerState.CRASHED
-  player.save()
+  const game = Game.load(gameId)
+
+  if (game) {
+    let player = new Player(playerId)
+    player.state = PlayerState.CRASHED
+    player.killedInRound = game.currentRound
+    player.save()
+  }
 }
 
 export function handleShipSunkOutOfMap(event: ShipSunkOutOfMapEvent): void {
@@ -364,11 +379,14 @@ export function handleShipSunkOutOfMap(event: ShipSunkOutOfMapEvent): void {
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
-  let player = new Player(playerId)
-  log.info('Player {} created', [shortenAddress(playerId)])
-  player.state = PlayerState.DROPPED
-  player.save()
-  log.info('Player {} saved in state {}', [shortenAddress(playerId), player.state])
+  const game = Game.load(gameId)
+
+  if (game) {
+    let player = new Player(playerId)
+    player.state = PlayerState.DROPPED
+    player.killedInRound = game.currentRound
+    player.save()
+  }
 }
 
 export function handleSubmitPhaseStarted(event: SubmitPhaseStartedEvent): void {
