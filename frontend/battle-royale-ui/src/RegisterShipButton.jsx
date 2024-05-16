@@ -25,7 +25,7 @@ export default function RegisterShipButton({ shipId, ...props }) {
   const { enqueueSnackbar } = useSnackbar();
   const {address, isConnected } = useAccount();
 
-  console.log("Ship", shipId)
+  //console.log("Ship", shipId)
 
   const { data: hash, writeContract } = useWriteContract();
 
