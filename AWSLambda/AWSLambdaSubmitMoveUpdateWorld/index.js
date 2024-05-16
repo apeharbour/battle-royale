@@ -1249,7 +1249,7 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0xB275d5115edcC905944Da33E1eE63b7618CC87A1";
+const contractAddress = "0x874076Da0885330a68d1808B518821C4b14e125f";
 
 // Initialize ApiGatewayManagementApi with your WebSocket URL
 const apiGwManagementApi = new AWS.ApiGatewayManagementApi({

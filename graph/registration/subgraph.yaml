@@ -9,8 +9,8 @@ dataSources:
     network: sepolia
     source:
       abi: Registration
-      address: "0x8b39fE32c7f1415d645D5a3D6bDe734e23A221D6"
-      startBlock: 5781076
+      address: "0x7e28FC8823c636f299Eb542A7A2dAD47Ea4827F9"
+      startBlock: 5915735
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

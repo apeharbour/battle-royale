@@ -9,8 +9,8 @@ dataSources:
     network: sepolia
     source:
       abi: Punkships
-      address: "0xcc846Eb3b8f3f6c2EEd7B42C52Eaf3d130EB9d83"
-      startBlock: 5781066
+      address: "0xc79C2B3cfC37c1C7633C1c535C2ae4EBd192d4DF"
+      startBlock: 5915725
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
