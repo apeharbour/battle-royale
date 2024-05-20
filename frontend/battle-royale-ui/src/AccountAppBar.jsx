@@ -1,14 +1,11 @@
 import * as React from "react";
 import { useTheme } from "@emotion/react";
 import { useNavigate, useLocation } from 'react-router-dom';
-
-import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, IconButton, Toolbar, Typography } from "@mui/material";
 import punkLogo from "./images/punkLogo.png";
 import { useAccount } from "wagmi";
-
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
-
 import { ConnectKitButton } from "connectkit";
 
 export default function AccountAppBar({ toggleDarkMode }) {
@@ -36,13 +33,23 @@ export default function AccountAppBar({ toggleDarkMode }) {
           alt="Punkships Logo"
           onClick={handleLogoClick}
         />
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        <Typography variant="h6" component="div" sx={{ marginLeft: 1 }}>
           PUNKSHIPS
         </Typography>
+        {address && (
+          <Button color="inherit" onClick={() => navigate('/menu')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
+            Main Menu
+          </Button>
+        )}
+        {address && (address === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f") && (
+           <Button color="inherit" onClick={() => navigate('/admin')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
+           Admin
+         </Button>
+        )}
+        <Box sx={{ flexGrow: 1 }} />
         <IconButton aria-label="darkmode" onClick={toggleDarkMode}>
           {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
-
         {location.pathname !== '/' && <ConnectKitButton />}
       </Toolbar>
     </AppBar>
