@@ -1,29 +1,29 @@
 import * as React from "react";
 import { useTheme } from "@emotion/react";
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
-// import Toolbar from "@mui/material/Toolbar";
-// import Typography from "@mui/material/Typography";
-// import Button from "@mui/material/Button";
-// import IconButton from "@mui/material/IconButton";
-// import MenuIcon from "@mui/icons-material/Menu";
-// import punkShips from "./images/punkshipsLogo.png";
 import punkLogo from "./images/punkLogo.png";
+import { useAccount } from "wagmi";
 
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 
 import { ConnectKitButton } from "connectkit";
 
-
 export default function AccountAppBar({ toggleDarkMode }) {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
   const navigate = useNavigate();
+  const { address } = useAccount();
+  const location = useLocation(); // Get the current location
 
   const handleLogoClick = () => {
-    navigate('/');
+    if (!address) {
+      navigate('/');
+    } else {
+      navigate('/menu');
+    }
   };
 
   return (
@@ -31,7 +31,7 @@ export default function AccountAppBar({ toggleDarkMode }) {
       <Toolbar>
         <Box
           component="img"
-          sx={{ width: "48px" }}
+          sx={{ width: "48px", cursor: "pointer" }}
           src={punkLogo}
           alt="Punkships Logo"
           onClick={handleLogoClick}
@@ -43,19 +43,7 @@ export default function AccountAppBar({ toggleDarkMode }) {
           {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
 
-        <ConnectKitButton />
-
-        {/* {!signer && (
-            <Button variant="outlined" onClick={onConnect}>Connect</Button>
-        )}
-        {signer && (
-            <>
-            <Typography variant="h6" pr={2} >
-              { `${signer.address.slice(0, 5)}...${signer.address.slice(-3)} `}
-              </Typography>
-            <Button variant="outlined" onClick={onDisconnect}>Disconnect</Button>
-            </>
-        )} */}
+        {location.pathname !== '/' && <ConnectKitButton />}
       </Toolbar>
     </AppBar>
   );

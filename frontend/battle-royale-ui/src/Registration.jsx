@@ -1,20 +1,17 @@
 import React, { useState, useEffect, Fragment } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useBlockNumber, useAccountEffect, useConfig, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useBlockNumber, useAccountEffect } from "wagmi";
 import { useSnackbar } from "notistack";
 
 import {
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
+  Box,
   Button,
   Card,
   CardContent,
   CardMedia,
   Grid,
   Typography,
-  Box,
   Chip,
 } from "@mui/material";
 
@@ -49,6 +46,17 @@ const GET_SHIPS = gql`
   }
 `;
 
+const registrationQuery = gql`
+  query registrations {
+    registrations {
+      firstGameId
+      phase
+      state
+    }
+  }
+`;
+
+
 export default function Registration(props) {
   const [selectedYacht, setSelectedYacht] = useState(null);
   const [showYachtSelectError, setShowYachtSelectError] = useState(false);
@@ -60,7 +68,6 @@ export default function Registration(props) {
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
   useEffect(() => {
-    //console.log("New block: ", blockNumber, "invalidating punkships query");
     queryClient.invalidateQueries(['ships']);
   }, [blockNumber]);
 
@@ -74,12 +81,11 @@ export default function Registration(props) {
       }),
   });
 
-
   useAccountEffect({
     onDisconnect() {
-      setSelectedYacht(null)
+      setSelectedYacht(null);
     },
-  })
+  });
 
   useEffect(() => {
     if (!data || (data && !data.account)) {
@@ -105,6 +111,7 @@ export default function Registration(props) {
       });
 
       setPunkships(ships);
+      console.log("ships", ships);
     }
   }, [data]);
 
@@ -113,55 +120,80 @@ export default function Registration(props) {
     setShowYachtSelectError(false);
   };
 
+  const useRegistrationQuery = (select) => useQuery({
+    queryKey: ["registrations"],
+    queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION, registrationQuery, {
+    }),
+    select,
+  });
 
-  // if (isFetching) enqueueSnackbar("Loading...", { variant: "info" });
+  const useRegistrationState = () => useRegistrationQuery((data) => {
+    return data.registrations.filter(registration => registration.state === "OPEN");
+  });
+
+  const { data: registrationData } = useRegistrationState();
+
+  console.log("data", registrationData);
+
   if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
 
   return (
     <Fragment>
-      <Accordion>
-        <AccordionSummary>
-          <Typography variant="h6">Register your ship</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Grid container spacing={2}>
-            {punkShips.map((ship, index) => (
-              <Grid item xs={3} key={index}>
-                <Card
-                  sx={{
-                    border: selectedYacht === ship ? "2px solid blue" : "none",
-                  }}
-                  onClick={() => handleCardClick(ship)}
-                >
-                  <CardMedia
-                    component="img"
-                    alt={ship.name}
-                    // height={80}
-                    image={ship.image}
-                    title={ship.name}
-                    // sx={{ width: 151 }}
-                  />
-                  <CardContent sx={{ flex: "1 0 auto" }}>
-                    <Typography gutterBottom variant="h5" component="div">
-                      {ship.name}
-                    </Typography>
-                    <Chip label={`Movement: ${ship.movement}`} />
-                    <Chip label={`Shoot: ${ship.shoot}`} />
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-            <Grid item xs={5}>
+      <Grid container spacing={2} p={4}>
+        <Grid item xs={12}>
+          <Grid container spacing={2} justifyContent="center">
+            <Grid item>
               <RegisterShipButton shipId={selectedYacht?.tokenId} />
             </Grid>
-
-            <Grid item xs={5}>
+            <Grid item>
               <MintShipButton />
             </Grid>
-
           </Grid>
-        </AccordionDetails>
-      </Accordion>
+        </Grid>
+        <Grid item xs={12}>
+          <Box
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            textAlign="center"
+          >
+            {registrationData && registrationData.length > 0 ? (
+              <Typography variant="h6" color="green">
+                Registration is now Open!!
+              </Typography>
+            ) : (
+              <Typography variant="h6" color="red">
+                Registration is currently closed!!
+              </Typography>
+            )}
+          </Box>
+        </Grid>
+        {punkShips.map((ship, index) => (
+          <Grid item xs={12} sm={6} md={4} key={index}>
+            <Card
+              sx={{
+                border: selectedYacht === ship ? "2px solid blue" : "none",
+              }}
+              onClick={() => handleCardClick(ship)}
+            >
+              <CardMedia
+                component="img"
+                alt={ship.name}
+                image={ship.image}
+                title={ship.name}
+                sx={{ height: 140, objectFit: "contain" }} // Adjust height as needed
+              />
+              <CardContent sx={{ flex: "1 0 auto" }}>
+                <Typography gutterBottom variant="h5" component="div">
+                  {ship.name} {ship.tokenId}
+                </Typography>
+                <Chip label={`Movement: ${ship.movement}`} sx={{ mr: 2 }} />
+                <Chip label={`Shoot: ${ship.shoot}`} />
+              </CardContent>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
     </Fragment>
   );
 }

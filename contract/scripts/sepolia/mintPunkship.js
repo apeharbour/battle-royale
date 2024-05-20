@@ -10,11 +10,11 @@ async function main() {
   const [owner, player1, player2, player3, player4] = await ethers.getSigners();
 
   const deployedAddresses = {
-    "BattleRoyale#MapPunk": "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-    "BattleRoyale#Punkships": "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
-    "BattleRoyale#GamePunk": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
+    "BattleRoyale#MapPunk": "0xF4551a0759e972a7B7d77f7F6b35357cDAc1D613",
+    "BattleRoyale#Punkships": "0xc79C2B3cfC37c1C7633C1c535C2ae4EBd192d4DF",
+    "BattleRoyale#GamePunk": "0x874076Da0885330a68d1808B518821C4b14e125f",
     "BattleRoyale#RegistrationPunk":
-      "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9",
+      "0x7e28FC8823c636f299Eb542A7A2dAD47Ea4827F9",
   };
 
     const customAddresses = [
@@ -85,8 +85,8 @@ async function main() {
 
   await mintShips(SHIPS_TO_MINT, customAddresses[0])
   await mintShips(SHIPS_TO_MINT, customAddresses[1])
-  await mintShips(SHIPS_TO_MINT, customAddresses[2])
-  await mintShips(SHIPS_TO_MINT, customAddresses[3])
+  //await mintShips(SHIPS_TO_MINT, customAddresses[2])
+  //await mintShips(SHIPS_TO_MINT, customAddresses[3])
 }
 
 // We recommend this pattern to be able to use async/await everywhere
