@@ -7,6 +7,7 @@ import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
+import { useAccount } from "wagmi";
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -29,6 +30,11 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
 export default function GameStatus({ playerStateDialogOpen, winner, playerState }) {
 
     const navigate = useNavigate();
+    const { address } = useAccount();
+
+    console.log('address', address);
+    console.log('winner', winner.address);
+
 
     const handleClose = () => {
         navigate('/');
@@ -41,8 +47,19 @@ export default function GameStatus({ playerStateDialogOpen, winner, playerState 
                 onClose={handleClose}
                 maxWidth="md"
             >
-                <DialogTitle sx={{ m: 0, p: 2, color: 'red', fontSize: '2rem', fontWeight: 700, display: 'flex', justifyContent: 'center', alignItems: 'center' }} id="customized-dialog-title">
-                    Game Over!!
+                <DialogTitle
+                    sx={{
+                        m: 0, p: 2,
+                        color: address.toLowerCase() === (winner?.address).toLowerCase() ? 'green' : 'red',
+                        fontSize: '2rem',
+                        fontWeight: 700,
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center'
+                    }}
+                    id="customized-dialog-title"
+                >
+                    {address.toLowerCase() === (winner?.address).toLowerCase() ? 'Game Over -> You Won!!' : 'Game Over!!'}
                 </DialogTitle>
                 <IconButton
                     aria-label="close"

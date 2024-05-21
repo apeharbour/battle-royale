@@ -16,18 +16,13 @@ import {
   CardContent,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import img1 from "./images/6.png";
-import img2 from "./images/8.png";
-import img3 from "./images/7.png";
-import img4 from "./images/4.png";
-import img5 from "./images/5.png";
 
 const punkShips = [
-  { name: "Sailing Ship", range: 6, speed: 2, image: img1 },
-  { name: "Three-master", range: 5, speed: 3, image: img2 },
-  { name: "Four-master", range: 4, speed: 4, image: img3 },
-  { name: "Five-master", range: 3, speed: 5, image: img4 },
-  { name: "Superyacht", range: 2, speed: 6, image: img5 },
+  { name: "Sailing Ship", range: 6, speed: 2 },
+  { name: "Three-master", range: 5, speed: 3 },
+  { name: "Four-master", range: 4, speed: 4 },
+  { name: "Five-master", range: 3, speed: 5 },
+  { name: "Superyacht", range: 2, speed: 6 },
 ];
 
 const PlayerPaper = styled(Paper)({
