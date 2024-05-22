@@ -94,6 +94,7 @@ export default function Game(props) {
 
   const { data: blockNumber } = useBlockNumber({watch: true})
   useEffect(() => {
+    console.log("Invalidating game query because of new block number", blockNumber);
     queryClient.invalidateQueries(["game", BigInt(id).toString()]);
   }, [blockNumber]);
 
@@ -118,10 +119,10 @@ export default function Game(props) {
     }
   });
 
-  useWatchBlockNumber( async (blockNumber) => {
-    console.log("New block: ", blockNumber, "invalidating game query");
-    queryClient.invalidateQueries(["game", BigInt(id).toString()]);
-  });
+  // useWatchBlockNumber( async (blockNumber) => {
+  //   console.log("New block: ", blockNumber, "invalidating game query");
+  //   queryClient.invalidateQueries(["game", BigInt(id).toString()]);
+  // });
 
   useEffect(() => {
     if (ws && gameId) {
@@ -299,6 +300,11 @@ export default function Game(props) {
       disableEventBridgeRule(gameId);
     }
   }, [gameState, gameId]);
+
+  useEffect(() => {
+    console.log("Clearing endpoints for new round");
+    setEndpoints({travel: undefined, shot: undefined});
+  }, [currentRound]);
 
   useEffect(() => {
     console.log("Player State: ", playerState);

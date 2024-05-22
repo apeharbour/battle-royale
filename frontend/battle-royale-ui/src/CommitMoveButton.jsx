@@ -41,6 +41,7 @@ const determineDirection = (origin, destination) => {
 
 export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip, clearTravelAndShotEndpoints, gameId, ...props }) {
   const [txInFlight, setTxInFlight] = useState(false);
+  const [moveCommitted, setMoveCommitted] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
   const {address, isConnected} = useAccount();
@@ -123,10 +124,7 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
     const travelDirection = determineDirection(myShipHex, travelEndpoint);
     const shotDirection = determineDirection(travelEndpoint, shotEndpoint);
 
-    clearTravelAndShotEndpoints();
-
-    // setTravelEndpoint(undefined);
-    // setShotEndpoint(undefined);
+    // clearTravelAndShotEndpoints();
 
     // if (contract) {
     //   setRandomInt(generateRandomInt());
@@ -177,10 +175,12 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
     enqueueSnackbar(`Commited move`, { variant: "success" });
     console.log(`Commited move for player ${address} with hash ${hash}`, receipt);
     setTxInFlight(false);
+    setMoveCommitted(true);
   }
 
   return (
-    <Button variant="outlined" onClick={commitMove} disabled={isConfirming || !isConnected || !shotEndpoint || !travelEndpoint}>
+    // <Button variant="outlined" onClick={commitMove} disabled={isConfirming || !isConnected || !shotEndpoint || !travelEndpoint}>
+    <Button variant="contained" onClick={commitMove} disabled={isConfirming || !isConnected || !shotEndpoint || !travelEndpoint || moveCommitted}>
       {isConfirming ? "Confirming..." : "Commit Move"}
     </Button>
   );
