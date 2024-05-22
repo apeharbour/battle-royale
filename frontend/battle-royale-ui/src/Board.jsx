@@ -207,6 +207,7 @@ export default function Board({
     }
   }).join(" ");
 
+
   return (
     <HexGrid width={hexGridSize} height={hexGridSize}>
             <style>
@@ -287,13 +288,13 @@ export default function Board({
         origin={shift}
       >
         {/* cells */}
-        {cells.filter(c => !c.deletedPreviously && !c.deletedThisRound).map(({ id, q, r, s, state, deleted, neighborCode }) => (
+        {cells.filter(c => !c.deletedPreviously && !c.deletedThisRound).map(({ q, r, s, state, deleted, neighborCode }) => (
           <Hexagon
             className={[
               state,
               isHighlighted(new Hex(q, r, s), highlights) ? "highlighted" : "",
             ].join(" ")}
-            key={id}
+            key={`hex-active-${q}-${r}`}
             q={q}
             r={r}
             s={s}
@@ -307,12 +308,12 @@ export default function Board({
         ))}
 
         {/* deleted cells */}
-        {cells.filter(c => c.deletedThisRound ).map(({ id, q, r, s }) => (
+        {cells.filter(c => c.deletedThisRound ).map(({ q, r, s }) => (
           <Hexagon
-          className={[
+            className={[
             state,
             "deleted"].join(" ")}
-            key={id}
+            key={`hex-deleted-${q}-${r}`}
             q={q}
             r={r}
             s={s}

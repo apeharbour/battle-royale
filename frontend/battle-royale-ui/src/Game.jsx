@@ -367,7 +367,7 @@ export default function Game(props) {
           {/* <Timer gameId={id}/> */}
           <Stack spacing={2}>
             <CommitMoveButton gameId={gameId} myShip={myShip} travelEndpoint={endpoints.travel} shotEndpoint={endpoints.shot} clearTravelAndShotEndpoints={clearTravelAndShotEndpoints}/>
-          <PlayerStatus ships={ships} />
+          {/* <PlayerStatus ships={ships} /> */}
           <Timer gameId={gameId} />
           </Stack>
         </Grid>
