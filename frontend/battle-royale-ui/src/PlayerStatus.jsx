@@ -25,13 +25,13 @@ const punkShips = [
   { name: "Superyacht", range: 2, speed: 6 },
 ];
 
-const PlayerPaper = styled(Paper)({
-  maxWidth: "240px",
-  borderRadius: "45px",
-  overflow: "hidden",
-  backgroundColor: "rgba(195, 208, 243, 0.9)",
-  margin: "60px auto auto auto",
-});
+// const PlayerPaper = styled(Paper)({
+//   maxWidth: "240px",
+//   borderRadius: "45px",
+//   overflow: "hidden",
+//   backgroundColor: "rgba(195, 208, 243, 0.9)",
+//   margin: "60px auto auto auto",
+// });
 
 const ShipImage = styled("img")({
   width: "60%",
@@ -39,12 +39,14 @@ const ShipImage = styled("img")({
 });
 
 const PlayerStatus = ({ ships }) => {
-  const findShipImage = (range, speed) => {
-    const ship = punkShips.find(
-      (ship) => ship.range === range && ship.speed === speed
-    );
-    return ship ? ship.image : null;
-  };
+  // const findShipImage = (range, speed) => {
+  //   const ship = punkShips.find(
+  //     (ship) => ship.range === range && ship.speed === speed
+  //   );
+  //   return ship ? ship.image : null;
+  // };
+
+  console.log({ ships });
 
   return (
     <>

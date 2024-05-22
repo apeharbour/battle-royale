@@ -1,4 +1,37 @@
+import { Stack, Typography } from "@mui/material";
 import { Hexagon } from "react-hexgrid";
+
+
+const shortenAddress = (address) => {
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
+
+function Tooltip({ q, r, s, range, shotRange, kills, player }) {
+  console.log({ range, shotRange, kills, player });
+  return (
+    <Hexagon id={`${player}-ship`} q={q} r={r} s={s} fill="none" style={{display:'none'}}>
+      <rect x="2" y="-6" width="11" height="4" stroke="#fff" strokeWidth="0.2" fill="rgba(80, 80, 80, 0.9)" rx="1" ry="1" />
+
+      <text x="3" y="-4" style={{fill: 'white', fillOpacity: 1}}>
+        <tspan fontWeight="bold">Player {shortenAddress(player)}</tspan>
+        <tspan x="3" dy="1">Movement: {range}, Shot: {shotRange}</tspan>
+      </text>
+    </Hexagon>
+  )
+}
+
+const showTooltip = (event, player) => {
+  console.log("Show tooltip", event.clientX, event.clientY, `${player}-ship`)
+  const tooltip = document.getElementById(`${player}-ship`);
+  // tooltip.setAttribute('transform', `translate( ${event.clientX} , ${event.clientY} )`);
+  tooltip.style.display = 'block';
+}
+
+const hideTooltip = (player) => {
+  console.log("Hide tooltip", `${player}-ship`)
+  const tooltip = document.getElementById(`${player}-ship`);
+  tooltip.style.display = 'none';
+}
 
 export default function Ship({ ship, size }) {
   const { q, r, s, mine, image, state } = ship;
@@ -19,6 +52,9 @@ export default function Ship({ ship, size }) {
   if (ship.state === "active") {
     return (
       <g>
+
+        {/* <title>range={ship.range} shotRange={ship.shotRange} kills={ship.kills} player={ship.address} </title> */}
+        <Tooltip q={q} r={r} s={s} range={ship.range} shotRange={ship.shotRange} kills={ship.kills} player={ship.address} />
         <Hexagon
           q={q}
           r={r}
@@ -26,6 +62,7 @@ export default function Ship({ ship, size }) {
           key={ship.address}
           fill="none"
           className={`ship-${ship.address}`}
+          onMouseOver={(event) => showTooltip(event, ship.address)} onMouseOut={() => hideTooltip(ship.address)}
         >
           <image href={dataURL} height={size.x} transform={`translate(${-size.x*4/3/2} ${-size.y/2})`} />
         </Hexagon>
