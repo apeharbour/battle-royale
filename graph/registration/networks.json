@@ -1,16 +1,16 @@
 {
   "sepolia": {
     "GamePunk": {
-      "address": "0x874076Da0885330a68d1808B518821C4b14e125f",
-      "startBlock": 5915730
+      "address": "0xB99c9977dBE6A9c9f1225318081542f6175Fb93C",
+      "startBlock": 5961373
     },
     "Punkships": {
-      "address": "0xc79C2B3cfC37c1C7633C1c535C2ae4EBd192d4DF",
-      "startBlock": 5915725
+      "address": "0x1E26A8564Ef6C9aeA312C4D9FFcAFFAC080c25A2",
+      "startBlock": 5961358
     },
     "Registration": {
-      "address": "0x7e28FC8823c636f299Eb542A7A2dAD47Ea4827F9",
-      "startBlock": 5915735
+      "address": "0x23844255B9889527F6b322c228bb09b979c9CF44",
+      "startBlock": 5961368
     }
   },
   "localhost": {
