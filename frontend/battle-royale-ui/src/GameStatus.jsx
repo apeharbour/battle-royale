@@ -9,7 +9,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { useAccount } from "wagmi";
 
-
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
         padding: theme.spacing(2),
@@ -19,25 +18,12 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     },
 }));
 
-// '& .MuiPaper-root': {
-//     backgroundImage: `url(${pixelatedBackground})`,
-//     backgroundSize: 'cover',
-//     backgroundPosition: 'center',
-//     border: 'none',
-//     boxShadow: 'none',
-// },
-
-export default function GameStatus({ playerStateDialogOpen, winner, playerState }) {
-
+export default function GameStatus({ playerStateDialogOpen, winner, playerState, setPlayerStateDialogOpen }) {
     const navigate = useNavigate();
     const { address } = useAccount();
 
-    console.log('address', address);
-    console.log('winner', winner.address);
-
-
     const handleClose = () => {
-        navigate('/');
+        setPlayerStateDialogOpen(false);
     };
 
     return (
@@ -120,5 +106,5 @@ export default function GameStatus({ playerStateDialogOpen, winner, playerState 
                 </DialogContent>
             </BootstrapDialog>
         </Fragment>
-    )
+    );
 }

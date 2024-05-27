@@ -88,12 +88,12 @@ const calculateDirectionDistance = (origin, destination) => {
 
 export default function Logs({ rounds, ...props }) {
   return (
-    <Card elevation={4}>
+    <Card elevation={4} sx={{ height: '400px', overflow: 'hidden' }} >
       <CardHeader
         title="Logs"
         sx={{ backdropFilter: "brightness: 60%", opacity: 1 }}
       />
-      <CardContent>
+      <CardContent sx={{ height: 'calc(100% - 64px)', overflowY: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
         {rounds &&
           rounds.map((round, roundIndex) => (
             <Box key={roundIndex}>

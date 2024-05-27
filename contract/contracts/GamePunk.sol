@@ -221,7 +221,7 @@ contract GamePunk is Ownable {
         uint8[] memory _secrets,
         address[] memory _playerAddresses,
         uint256 gameId
-    ) public {
+    ) public onlyOwner {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
@@ -293,6 +293,7 @@ contract GamePunk is Ownable {
                 );
             }
         }
+        updateWorld(gameId);
     }
 
     function initGame(uint8 _radius, uint256 gameId) internal {

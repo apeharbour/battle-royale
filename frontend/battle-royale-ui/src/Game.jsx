@@ -373,7 +373,7 @@ export default function Game(props) {
         </Grid>
       </Grid>
       {playerStateDialogOpen && (
-       <GameStatus playerStateDialogOpen={playerStateDialogOpen} winner={winner} playerState={playerState} />
+       <GameStatus playerStateDialogOpen={playerStateDialogOpen} winner={winner} playerState={playerState} setPlayerStateDialogOpen={setPlayerStateDialogOpen} />
       )}
     </Fragment>
   );

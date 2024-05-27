@@ -1249,7 +1249,7 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0x874076Da0885330a68d1808B518821C4b14e125f";
+const contractAddress = "0xB99c9977dBE6A9c9f1225318081542f6175Fb93C";
 
 // Initialize ApiGatewayManagementApi with your WebSocket URL
 const apiGwManagementApi = new AWS.ApiGatewayManagementApi({
@@ -1335,12 +1335,12 @@ exports.handler = async (event) => {
       gameId
     );
     await tx.wait();
-    console.log("submitMove executed:", tx.hash);
+    console.log("submitMove and updateWorld executed:", tx.hash);
 
     // Call the smart contract function updateWorld
-    const txUpdate = await contract.updateWorld(gameId);
-    await txUpdate.wait();
-    console.log("updateWorld executed:", txUpdate.hash);
+    // const txUpdate = await contract.updateWorld(gameId);
+    // await txUpdate.wait();
+    // console.log("updateWorld executed:", txUpdate.hash);
 
     // After successful smart contract execution, delete player moves
     await deletePlayerMoves(gameId);
