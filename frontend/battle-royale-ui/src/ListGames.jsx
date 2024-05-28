@@ -27,6 +27,17 @@ query getGame($address: Bytes) {
 }
 `;
 
+const registrationQuery = gql`
+query registrations {
+  registrations {
+    firstGameId
+    phase
+    state
+    players{state, gameId, address}
+  }
+}
+`;
+
 export default function ListGames(props) {
   const { address } = useAccount();
   const { data: blockNumber } = useBlockNumber({ watch: true });
@@ -45,8 +56,39 @@ export default function ListGames(props) {
 
   const { data: gameData } = useGameData();
 
+  const useRegistrationQuery = (select) => useQuery({
+    queryKey: ["registrations"],
+    queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION, registrationQuery, {}),
+    select,
+  });
+
+  const useRegiState = () => useRegistrationQuery((data) => {
+  
+    const openRegistrations = data.registrations.filter(registration => registration.state === "OPEN");
+  
+    const hasRegisteredPlayer = openRegistrations.some(registration => 
+      registration.players.some(player => {
+        const isMatchingAddress = player.address.toLowerCase() === address.toLowerCase();
+        const isRegistered = player.state === "REGISTERED";
+        return isMatchingAddress && isRegistered;
+      })
+    );
+  
+    return hasRegisteredPlayer;
+  });
+  
+  // Usage in your component
+  const { data: hasRegisteredPlayer } = useRegiState();
+
   return (
     <Grid container spacing={2} p={4}>
+      {hasRegisteredPlayer && (
+        <Grid item xs={12}>
+          <Typography variant="h5" color='green' component="div">
+            You are registered for the game in the next phase! You have to wait for the registration to close to view your game screen.
+          </Typography>
+        </Grid>
+      )}
       {gameData && gameData.map(({ game, address, state }, index) => {
         let hoverMessage;
         if (state === "active") {
