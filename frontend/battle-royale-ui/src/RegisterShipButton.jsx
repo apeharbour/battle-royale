@@ -1,4 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   useAccount,
   useWriteContract,
@@ -25,7 +26,7 @@ export default function RegisterShipButton({ shipId, ...props }) {
   const { enqueueSnackbar } = useSnackbar();
   const {address, isConnected } = useAccount();
 
-  //console.log("Ship", shipId)
+  const navigate = useNavigate();
 
   const { data: hash, writeContract } = useWriteContract();
 
@@ -52,6 +53,7 @@ export default function RegisterShipButton({ shipId, ...props }) {
     enqueueSnackbar(`Ship ${shipId} registered`, { variant: "success" });
     console.log(`Ship ${shipId} registered`, receipt);
     setTxInFlight(false);
+    navigate("/listgames");
   }
 
   return (

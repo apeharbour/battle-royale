@@ -123,7 +123,7 @@ export default function Board({
   useEffect(() => {
     if (dimensions) {
       setHexGridSize(Math.min(dimensions.width, window.visualViewport.height, window.visualViewport.width));
-      console.log("new Size:", Math.min(dimensions.width, window.visualViewport.height, window.visualViewport.width))
+      //console.log("new Size:", Math.min(dimensions.width, window.visualViewport.height, window.visualViewport.width))
     }
   }, [dimensions]);
 

@@ -40,8 +40,9 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
     event Mint(address indexed owner, uint256 indexed id, string tokenURI);
 
     uint256 private _nextTokenId;
+    address private gameContract;
 
-    mapping (ShipType => uint256[2]) private bitMasks;
+    mapping(ShipType => uint256[2]) private bitMasks;
 
     modifier onlyMinted(uint256 tokenId) {
         if (_ownerOf(tokenId) == address(0)) {
@@ -50,23 +51,48 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         _;
     }
 
+    modifier onlyGameContract() {
+        require(msg.sender == gameContract, "Caller is not the game contract");
+        _;
+    }
+
     constructor(
         address initialOwner
     ) ERC721("Punkships", "PNKS") Ownable(initialOwner) {
         // set bitmasks for each ship type
-        bitMasks[ShipType.ship1Master] = [16725558901494115785419202518751519294095360, 22126520631778269869533838308493558309511168];
-        bitMasks[ShipType.ship3Master] = [4860506217279811509646059063990415761321492480, 90495335133133213900115431374286650994058720240];
-        bitMasks[ShipType.ship4Master] = [6048814437193289925617386769605409608971598848, 360006232741571133565032047329048718624112459004];
-        bitMasks[ShipType.ship5Master] = [1151013953719605458307710602397234870358351072, 709065859407158377640086230027040835960688581886];
+        bitMasks[ShipType.ship1Master] = [
+            16725558901494115785419202518751519294095360,
+            22126520631778269869533838308493558309511168
+        ];
+        bitMasks[ShipType.ship3Master] = [
+            4860506217279811509646059063990415761321492480,
+            90495335133133213900115431374286650994058720240
+        ];
+        bitMasks[ShipType.ship4Master] = [
+            6048814437193289925617386769605409608971598848,
+            360006232741571133565032047329048718624112459004
+        ];
+        bitMasks[ShipType.ship5Master] = [
+            1151013953719605458307710602397234870358351072,
+            709065859407158377640086230027040835960688581886
+        ];
         bitMasks[ShipType.shipYacht] = [0, 0];
     }
 
     fallback() external {}
 
+    function setGameContract(address _gameContract) external onlyOwner {
+        gameContract = _gameContract;
+    }
+
     function safeMint(address to) public {
         uint256 tokenId = _nextTokenId++;
         _safeMint(to, tokenId);
         emit Mint(to, tokenId, tokenURI(tokenId));
+    }
+
+      function burnByGameContract(uint256 tokenId) external onlyGameContract {
+        _burn(tokenId);
     }
 
     function getByte(
@@ -106,19 +132,93 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             string.concat(
                 "<defs>",
                 '<style type="text/css">',
-                ".sailTop { stop-color: rgb(", Strings.toString(sailTop.r), ",", Strings.toString(sailTop.g), ",", Strings.toString(sailTop.b), "); }",
-                ".sailBottom { stop-color: rgb(", Strings.toString(sailBottom.r), ",", Strings.toString(sailBottom.g), ",", Strings.toString(sailBottom.b), "); }",
-                ".bodyColor1 { fill: rgb(", Strings.toString(sailTop.r), ",", Strings.toString(sailTop.g), ",", Strings.toString(sailTop.b), "); }",
-                ".bodyColor2 { fill: rgb(", Strings.toString(sailBottom.r), ",", Strings.toString(sailBottom.g), ",", Strings.toString(sailBottom.b), "); }",
-                ".hull { fill: rgb(", Strings.toString(hull.r), ",", Strings.toString(hull.g), ",", Strings.toString(hull.b), "); }", 
-                ".windowLine { fill: rgb(", Strings.toString(windowLine.r), ",", Strings.toString(windowLine.g), ",", Strings.toString(windowLine.b), "); }",
-                ".window { fill: rgb(", Strings.toString(window.r), ",", Strings.toString(window.g), ",", Strings.toString(window.b), "); }",
-                ".masts { stroke: rgb(", Strings.toString(masts.r), ",", Strings.toString(masts.g), ",", Strings.toString(masts.b), "); }",
-                ".flags { stroke: rgb(", Strings.toString(flags.r), ",", Strings.toString(flags.g), ",", Strings.toString(flags.b), "); }",
-                ".signet1 { fill: rgb(", Strings.toString(signet1.r), ",", Strings.toString(signet1.g), ",", Strings.toString(signet1.b), "); }",
-                ".signet2 { fill: rgb(", Strings.toString(signet2.r), ",", Strings.toString(signet2.g), ",", Strings.toString(signet2.b), "); }",
-                ".signet3 { fill: rgb(", Strings.toString(signet3.r), ",", Strings.toString(signet3.g), ",", Strings.toString(signet3.b), "); }",
-                ".flagsBorder { opacity:", flagsPresent ? "1" : "0", "; }",
+                ".sailTop { stop-color: rgb(",
+                Strings.toString(sailTop.r),
+                ",",
+                Strings.toString(sailTop.g),
+                ",",
+                Strings.toString(sailTop.b),
+                "); }",
+                ".sailBottom { stop-color: rgb(",
+                Strings.toString(sailBottom.r),
+                ",",
+                Strings.toString(sailBottom.g),
+                ",",
+                Strings.toString(sailBottom.b),
+                "); }",
+                ".bodyColor1 { fill: rgb(",
+                Strings.toString(sailTop.r),
+                ",",
+                Strings.toString(sailTop.g),
+                ",",
+                Strings.toString(sailTop.b),
+                "); }",
+                ".bodyColor2 { fill: rgb(",
+                Strings.toString(sailBottom.r),
+                ",",
+                Strings.toString(sailBottom.g),
+                ",",
+                Strings.toString(sailBottom.b),
+                "); }",
+                ".hull { fill: rgb(",
+                Strings.toString(hull.r),
+                ",",
+                Strings.toString(hull.g),
+                ",",
+                Strings.toString(hull.b),
+                "); }",
+                ".windowLine { fill: rgb(",
+                Strings.toString(windowLine.r),
+                ",",
+                Strings.toString(windowLine.g),
+                ",",
+                Strings.toString(windowLine.b),
+                "); }",
+                ".window { fill: rgb(",
+                Strings.toString(window.r),
+                ",",
+                Strings.toString(window.g),
+                ",",
+                Strings.toString(window.b),
+                "); }",
+                ".masts { stroke: rgb(",
+                Strings.toString(masts.r),
+                ",",
+                Strings.toString(masts.g),
+                ",",
+                Strings.toString(masts.b),
+                "); }",
+                ".flags { stroke: rgb(",
+                Strings.toString(flags.r),
+                ",",
+                Strings.toString(flags.g),
+                ",",
+                Strings.toString(flags.b),
+                "); }",
+                ".signet1 { fill: rgb(",
+                Strings.toString(signet1.r),
+                ",",
+                Strings.toString(signet1.g),
+                ",",
+                Strings.toString(signet1.b),
+                "); }",
+                ".signet2 { fill: rgb(",
+                Strings.toString(signet2.r),
+                ",",
+                Strings.toString(signet2.g),
+                ",",
+                Strings.toString(signet2.b),
+                "); }",
+                ".signet3 { fill: rgb(",
+                Strings.toString(signet3.r),
+                ",",
+                Strings.toString(signet3.g),
+                ",",
+                Strings.toString(signet3.b),
+                "); }",
+                ".flagsBorder { opacity:",
+                flagsPresent ? "1" : "0",
+                "; }",
                 ".border { fill: #fff }",
                 "</style>",
                 '<linearGradient id="sailGradient" gradientTransform="rotate(90)"> <stop offset="5%"  class="sailTop"/> <stop offset="95%" class="sailBottom"/> </linearGradient>',
@@ -126,15 +226,21 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             );
     }
 
-    function createSignetGroup(bool[] memory signets, uint8 rowLength, uint8 shiftX, uint8 shiftY) private pure returns (string memory) {
-        string memory signetGroup = '<g id="signets" transform="scale(10)"> <g id="signet1" class="signet1">';
+    function createSignetGroup(
+        bool[] memory signets,
+        uint8 rowLength,
+        uint8 shiftX,
+        uint8 shiftY
+    ) private pure returns (string memory) {
+        string
+            memory signetGroup = '<g id="signets" transform="scale(10)"> <g id="signet1" class="signet1">';
         for (uint16 i = 0; i < signets.length; i++) {
             if (signets[i]) {
                 signetGroup = string.concat(
                     signetGroup,
                     '<path d="M',
-                    Strings.toString(i % rowLength + shiftX),
-                    ' ', 
+                    Strings.toString((i % rowLength) + shiftX),
+                    " ",
                     Strings.toString(i / rowLength + shiftY),
                     ' h1 v1 h-1 z" />'
                 );
@@ -162,21 +268,22 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
 
         bool[] memory signets = createSignetsV2(shipType, random);
 
-        return createSvg(
-            colorSail1,
-            colorSail2,
-            colorHull,
-            colorWindowRow,
-            colorWindow,
-            colorMast,
-            colorFlag,
-            colorSignet1,
-            colorSignet2,
-            colorSignet3,
-            flag,
-            shipType,
-            signets
-        );
+        return
+            createSvg(
+                colorSail1,
+                colorSail2,
+                colorHull,
+                colorWindowRow,
+                colorWindow,
+                colorMast,
+                colorFlag,
+                colorSignet1,
+                colorSignet2,
+                colorSignet3,
+                flag,
+                shipType,
+                signets
+            );
     }
 
     function createSvg(
@@ -223,23 +330,30 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
     }
 
     function _getImage(uint256 tokenId) private view returns (string memory) {
-        return string.concat(
-            "data:image/svg+xml;base64,",
-            Base64.encode(bytes(createSvg(tokenId)))
-        );
+        return
+            string.concat(
+                "data:image/svg+xml;base64,",
+                Base64.encode(bytes(createSvg(tokenId)))
+            );
     }
 
-    function getImage(uint256 tokenId) external view onlyMinted(tokenId) returns (string memory) {
+    function getImage(
+        uint256 tokenId
+    ) external view onlyMinted(tokenId) returns (string memory) {
         return _getImage(tokenId);
     }
 
-    function createSignetsV2(ShipType shipType, uint256 random) private view returns (bool[] memory) {
-
+    function createSignetsV2(
+        ShipType shipType,
+        uint256 random
+    ) private view returns (bool[] memory) {
         uint256[] memory signets = new uint256[](2);
-        
+
         signets[0] = random & bitMasks[shipType][0];
 
-        signets[1] = uint256(keccak256(abi.encodePacked(random))) & bitMasks[shipType][1];
+        signets[1] =
+            uint256(keccak256(abi.encodePacked(random))) &
+            bitMasks[shipType][1];
 
         // ten rows can be set (rows 5-15), each 32 columns wide
         bool[] memory signetsArray = new bool[](10 * 32);
@@ -265,7 +379,9 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         return ranges[uint8(shipType)];
     }
 
-    function getRange(uint256 tokenId) external view onlyMinted(tokenId) returns (uint8) {
+    function getRange(
+        uint256 tokenId
+    ) external view onlyMinted(tokenId) returns (uint8) {
         return _getRange(tokenId);
     }
 
@@ -280,7 +396,9 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         return shootingRanges[uint8(shipType)];
     }
 
-    function getShootingRange(uint256 tokenId) external view onlyMinted(tokenId) returns (uint8) {
+    function getShootingRange(
+        uint256 tokenId
+    ) external view onlyMinted(tokenId) returns (uint8) {
         return _getShootingRange(tokenId);
     }
 
@@ -292,7 +410,9 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         return shipType;
     }
 
-    function _getShipTypeName(uint256 tokenId) private pure returns (string memory) {
+    function _getShipTypeName(
+        uint256 tokenId
+    ) private pure returns (string memory) {
         string[5] memory shipNames = [
             "Boat",
             "Sloop",
@@ -303,18 +423,19 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         return shipNames[uint8(_getShipType(tokenId))];
     }
 
-    function getShipTypeName(uint256 tokenId) public view onlyMinted(tokenId) returns (string memory) {
+    function getShipTypeName(
+        uint256 tokenId
+    ) public view onlyMinted(tokenId) returns (string memory) {
         return _getShipTypeName(tokenId);
     }
 
-    function tokenURI(uint256 tokenId) public view override onlyMinted(tokenId) returns (string memory) {
+    function tokenURI(
+        uint256 tokenId
+    ) public view override onlyMinted(tokenId) returns (string memory) {
         return _tokenURI(tokenId);
     }
 
-    function _tokenURI(
-        uint256 tokenId
-    ) internal view returns (string memory) {
-
+    function _tokenURI(uint256 tokenId) internal view returns (string memory) {
         // uint256 random = uint256(keccak256(abi.encodePacked(tokenId)));
 
         // ShipType shipType = _getShipType(tokenId);
@@ -375,7 +496,6 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
             "data:application/json;base64,",
             metadataBase64Encoded
         );
-
 
         return metadataDataUri;
     }
