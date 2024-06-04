@@ -8,7 +8,6 @@ import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { Hex, HexUtils, GridGenerator } from "react-hexgrid";
 import ShipStatus from "./ShipStatus";
-import PlayerStatus from "./PlayerStatus";
 import Logs from "./Logs";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
@@ -90,7 +89,6 @@ export default function Game(props) {
   const queryClient = useQueryClient();
 
   const {address} = useAccount();
-  console.log("Account: ", address);
 
   const { data: blockNumber } = useBlockNumber({watch: true})
   useEffect(() => {
@@ -302,12 +300,12 @@ export default function Game(props) {
   }, [gameState, gameId]);
 
   useEffect(() => {
-    console.log("Clearing endpoints for new round");
+    //console.log("Clearing endpoints for new round");
     setEndpoints({travel: undefined, shot: undefined});
   }, [currentRound]);
 
   useEffect(() => {
-    console.log("Player State: ", playerState);
+    //console.log("Player State: ", playerState);
     if (playerState === 'dropped' || playerState === 'beached' || playerState === 'crashed' || playerState === 'shot' || playerState === 'draw' || playerState === 'won') {
       setPlayerStateDialogOpen(true);
     }

@@ -7,7 +7,7 @@ const shortenAddress = (address) => {
 };
 
 function Tooltip({ q, r, s, range, shotRange, kills, player }) {
-  console.log({ range, shotRange, kills, player });
+  //console.log({ range, shotRange, kills, player });
   return (
     <Hexagon id={`${player}-ship`} q={q} r={r} s={s} fill="none" style={{display:'none'}}>
       <rect x="2" y="-6" width="11" height="4" stroke="#fff" strokeWidth="0.2" fill="rgba(80, 80, 80, 0.9)" rx="1" ry="1" />
@@ -21,14 +21,14 @@ function Tooltip({ q, r, s, range, shotRange, kills, player }) {
 }
 
 const showTooltip = (event, player) => {
-  console.log("Show tooltip", event.clientX, event.clientY, `${player}-ship`)
+  //console.log("Show tooltip", event.clientX, event.clientY, `${player}-ship`)
   const tooltip = document.getElementById(`${player}-ship`);
   // tooltip.setAttribute('transform', `translate( ${event.clientX} , ${event.clientY} )`);
   tooltip.style.display = 'block';
 }
 
 const hideTooltip = (player) => {
-  console.log("Hide tooltip", `${player}-ship`)
+  //console.log("Hide tooltip", `${player}-ship`)
   const tooltip = document.getElementById(`${player}-ship`);
   tooltip.style.display = 'none';
 }

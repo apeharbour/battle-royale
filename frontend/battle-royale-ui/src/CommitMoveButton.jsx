@@ -8,7 +8,13 @@ import { ethers } from "ethers";
 import { useSnackbar } from "notistack";
 import { Hex, HexUtils } from "react-hexgrid";
 
-import { Button } from "@mui/material";
+import { Button, Stack } from "@mui/material";
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import { styled } from "@mui/material/styles";
 
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
@@ -20,6 +26,15 @@ const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
 const PUNKSHIPS_ABI = PunkshipsAbi.abi;
+
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
 
 const determineDirection = (origin, destination) => {
   const deltaQ = destination.q - origin.q;
@@ -42,9 +57,10 @@ const determineDirection = (origin, destination) => {
 export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip, clearTravelAndShotEndpoints, gameId, ...props }) {
   const [txInFlight, setTxInFlight] = useState(false);
   const [moveCommitted, setMoveCommitted] = useState(false);
+  const [commitMoveDialogOpen, setCommitMoveDialogOpen] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
-  const {address, isConnected} = useAccount();
+  const { address, isConnected } = useAccount();
 
   const { data: hash, writeContract } = useWriteContract();
 
@@ -56,12 +72,18 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
     hash,
   });
 
-    //Helper Function to generate secret random number for hashing moves
-    function generateRandomInt() {
-      return Math.floor(Math.random() * 99) + 1;
+  useEffect(() => {
+    if (travelEndpoint && shotEndpoint) {
+      setCommitMoveDialogOpen(true);
     }
+  }, [travelEndpoint, shotEndpoint]);
 
-        //To store players moves in the dynamoDB
+  //Helper Function to generate secret random number for hashing moves
+  function generateRandomInt() {
+    return Math.floor(Math.random() * 99) + 1;
+  }
+
+  //To store players moves in the dynamoDB
   const storePlayerMove = async ({
     gameId,
     playerAddress,
@@ -107,7 +129,7 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
       console.error("Error storing move via API", error);
     }
   };
-  
+
 
   const commitMove = async () => {
 
@@ -145,43 +167,76 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
 
     try {
 
-    writeContract({
-      abi: GAME_ABI,
-      address: GAME_ADDRESS,
-      functionName: "commitMove",
-      args: [moveHash, BigInt(gameId)],
-    });
-      
-          await storePlayerMove({
-          gameId,
-           playerAddress: address,
-           moveHash,
-           secretValue: randomInt,
-           travelDirection,
-           travelDistance,
-           shotDirection,
-           shotDistance,
-         });
-         setTxInFlight(true);
-       } catch (error) {
-         console.error(
-           "Error in submitting moves or storing in DynamoDB",
-           error
-         );
-       }
-      };
+      writeContract({
+        abi: GAME_ABI,
+        address: GAME_ADDRESS,
+        functionName: "commitMove",
+        args: [moveHash, BigInt(gameId)],
+      });
+
+      await storePlayerMove({
+        gameId,
+        playerAddress: address,
+        moveHash,
+        secretValue: randomInt,
+        travelDirection,
+        travelDistance,
+        shotDirection,
+        shotDistance,
+      });
+      setTxInFlight(true);
+      clearTravelAndShotEndpoints();
+    } catch (error) {
+      console.error(
+        "Error in submitting moves or storing in DynamoDB",
+        error
+      );
+    }
+  };
 
   if (isConfirmed && txInFlight) {
     enqueueSnackbar(`Commited move`, { variant: "success" });
     console.log(`Commited move for player ${address} with hash ${hash}`, receipt);
     setTxInFlight(false);
     setMoveCommitted(true);
+    setCommitMoveDialogOpen(false);
   }
 
+  const handleClose = () => {
+    clearTravelAndShotEndpoints();
+    setCommitMoveDialogOpen(false);
+  };
+
   return (
-    // <Button variant="outlined" onClick={commitMove} disabled={isConfirming || !isConnected || !shotEndpoint || !travelEndpoint}>
-    <Button variant="contained" onClick={commitMove} disabled={isConfirming || !isConnected || !shotEndpoint || !travelEndpoint || moveCommitted}>
-      {isConfirming ? "Confirming..." : "Commit Move"}
-    </Button>
+    <BootstrapDialog open={commitMoveDialogOpen} onClose={handleClose} maxWidth="sm">
+      <DialogTitle
+        sx={{
+          m: 0,
+          p: 2,
+          fontSize: '2rem',
+          fontWeight: 200,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        Commit your move
+      </DialogTitle>
+      <DialogContent dividers>
+        <Stack spacing={2} direction="row" justifyContent="space-between">
+          <Button variant="contained" onClick={handleClose} disabled={isConfirming}>
+            Edit Move
+          </Button>
+          <Button
+            variant="contained"
+            onClick={commitMove}
+           
+          >
+            {isConfirming ? "Confirming..." : "Commit Move"}
+          </Button>
+        </Stack>
+      </DialogContent>
+    </BootstrapDialog>
+
   );
 }

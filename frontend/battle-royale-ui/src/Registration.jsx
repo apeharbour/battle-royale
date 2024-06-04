@@ -111,7 +111,6 @@ export default function Registration(props) {
       });
 
       setPunkships(ships);
-      console.log("ships", ships);
     }
   }, [data]);
 
@@ -133,7 +132,6 @@ export default function Registration(props) {
 
   const { data: registrationData } = useRegistrationState();
 
-  console.log("data", registrationData);
 
   if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
 

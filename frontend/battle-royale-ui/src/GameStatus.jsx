@@ -26,6 +26,8 @@ export default function GameStatus({ playerStateDialogOpen, winner, playerState,
         setPlayerStateDialogOpen(false);
     };
 
+    const isWinner = winner && winner.address && address.toLowerCase() === winner.address.toLowerCase();
+
     return (
         <Fragment>
             <BootstrapDialog
@@ -36,7 +38,7 @@ export default function GameStatus({ playerStateDialogOpen, winner, playerState,
                 <DialogTitle
                     sx={{
                         m: 0, p: 2,
-                        color: address.toLowerCase() === (winner?.address).toLowerCase() ? 'green' : 'red',
+                        color: isWinner ? 'green' : 'red',
                         fontSize: '2rem',
                         fontWeight: 700,
                         display: 'flex',
@@ -45,7 +47,7 @@ export default function GameStatus({ playerStateDialogOpen, winner, playerState,
                     }}
                     id="customized-dialog-title"
                 >
-                    {address.toLowerCase() === (winner?.address).toLowerCase() ? 'Game Over -> You Won!!' : 'Game Over!!'}
+                    {isWinner ? 'Game Over -> You Won!!' : 'Game Over!!'}
                 </DialogTitle>
                 <IconButton
                     aria-label="close"

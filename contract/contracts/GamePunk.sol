@@ -16,6 +16,7 @@ interface IPunkships {
     function getShipTypeName(uint256 tokenId) external pure returns (string memory);
     function getImage(uint256 tokenId) external pure returns (string memory);
     function ownerOf(uint256 tokenId) external pure returns (address);
+    function burnByGameContract(uint256 tokenId) external;
 }
 
 contract GamePunk is Ownable {
@@ -172,14 +173,6 @@ contract GamePunk is Ownable {
         games[gameId].letCommitMoves = true;
         emit CommitPhaseStarted(gameId);
     }
-
-    // function to let players submit moves
-    //  function allowSubmitMoves(uint256 gameId) internal {
-    //     require(games[gameId].gameInProgress == true, 'Game has not started yet!');
-    //     // games[gameId].letCommitMoves = false;
-    //     games[gameId].letSubmitMoves = true;
-    //     emit SubmitPhaseStarted(gameId, games[gameId].round);
-    // }
 
     //commit moves
     function commitMove(bytes32 moveHash, uint256 gameId) public {
