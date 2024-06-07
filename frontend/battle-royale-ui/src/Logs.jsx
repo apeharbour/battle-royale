@@ -10,7 +10,7 @@ import { styled } from "@mui/material/styles";
 import { Hex, HexUtils } from "react-hexgrid";
 
 const shortenAddress = (address) => {
-  return `${address.slice(0, 6)}..${address.slice(-4)}`;
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
 };
 
 const calculateDirectionDistance = (origin, destination) => {

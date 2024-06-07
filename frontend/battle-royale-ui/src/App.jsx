@@ -17,6 +17,7 @@ import AccountAppBar from "./AccountAppBar";
 import BackdropComponent from './Backdrop';
 import Registration from "./Registration";
 import Menu from "./Menu";
+import FinalArtData from "./FinalArtData.jsx";
 import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
 import useLocalStorageState from 'use-local-storage-state';
@@ -71,7 +72,8 @@ function App() {
             <BackdropComponent open={loading} />
             <Routes>
               <Route path="/" element={<Homepage />} />
-              <Route path=":gameId" element={<Game />} />
+              <Route path="/:gameId" element={<Game />} />
+              <Route path="/:gameId/finalart" element={<FinalArtData />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/listgames" element={<ListGames />} />
               <Route path="/registration" element={<Registration />} />
