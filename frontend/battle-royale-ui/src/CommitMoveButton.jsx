@@ -185,7 +185,8 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
         shotDistance,
       });
       setTxInFlight(true);
-      clearTravelAndShotEndpoints();
+      // clearTravelAndShotEndpoints() shouldn't be called here, so that the highlighting is not removed before the transaction is confirmed
+      // clearTravelAndShotEndpoints();
     } catch (error) {
       console.error(
         "Error in submitting moves or storing in DynamoDB",
