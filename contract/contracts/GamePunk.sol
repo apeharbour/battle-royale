@@ -100,6 +100,7 @@ contract GamePunk is Ownable {
         uint8 yachtSpeed;
         uint8 yachtRange;
         uint256 gameId;
+        uint256 punkshipId;
     }
 
     struct GameInstance {
@@ -377,7 +378,8 @@ contract GamePunk is Ownable {
             playerAddress,
             range,
             shootingRange,
-            gameId
+            gameId,
+            _punkshipId
         );
 
 
@@ -421,6 +423,7 @@ contract GamePunk is Ownable {
             "Game has not started yet!"
         );
         emit PlayerDefeated(captain, gameId);
+        punkships.burnByGameContract(games[gameId].ships[captain].punkshipId);
         delete (games[gameId].ships[captain]);
         games[gameId].players[index] = address(0);
     }

@@ -1007,6 +1007,11 @@ const contractABI = [
             "internalType": "uint256",
             "name": "gameId",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "punkshipId",
+            "type": "uint256"
           }
         ],
         "internalType": "struct GamePunk.Ship[]",
@@ -1249,7 +1254,7 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0xB99c9977dBE6A9c9f1225318081542f6175Fb93C";
+const contractAddress = "0x62e246444f8af3BB010d3d6D9E9b17D2330225ca";
 
 // Initialize ApiGatewayManagementApi with your WebSocket URL
 const apiGwManagementApi = new AWS.ApiGatewayManagementApi({
