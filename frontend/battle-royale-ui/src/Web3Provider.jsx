@@ -33,6 +33,10 @@ const config = createConfig(
         http(import.meta.env.VITE_OPTIMISM_RPC_URL),
         http("https://optimism-rpc.wagmi.io"),
       ]),
+      [baseSepolia.id]: fallback([
+        http(import.meta.env.VITE_BASE_SEPOLIA_RPC_URL),
+        http("https://base-sepolia-rpc.wagmi.io"),
+      ]),
     },
 
     // Required API Keys
