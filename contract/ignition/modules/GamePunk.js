@@ -10,6 +10,7 @@ module.exports = buildModule("BattleRoyale", (m) => {
   const registration = m.contract("RegistrationPunk", [game, punkships]);
 
   m.call(game, "setRegistrationContract", [registration])
+  m.call(punkships, "setGameContract", [game])
 
   return { game, registration, punkships };
 });
