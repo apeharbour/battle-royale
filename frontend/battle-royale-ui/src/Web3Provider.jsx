@@ -5,6 +5,7 @@ import {
   optimismSepolia,
   sepolia,
   optimism,
+  baseSepolia,
 } from "wagmi/chains";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -14,7 +15,7 @@ import punkLogo from "./images/punkLogo.png";
 const config = createConfig(
   getDefaultConfig({
     // Your dApps chains
-    chains: [ sepolia, localhost, mainnet, optimism],
+    chains: [ baseSepolia, sepolia, localhost, mainnet, optimism],
     transports: {
       // RPC URL for each chain
       [localhost.id]:
