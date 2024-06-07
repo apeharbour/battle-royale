@@ -24,6 +24,8 @@ const TRAVELLING = 0;
 const SHOOTING = 1;
 const DONE = 2;
 
+const MAX_RADIUS = 9;
+
 const isReachable = (destination, origin, distance) => {
   const originHex = new Hex(origin.q, origin.r, origin.r * -1 - origin.q);
   const destinationHex = new Hex(destination.q, destination.r, destination.r * -1 - destination.q);
@@ -64,7 +66,7 @@ export default function Board({
     return { x: -1 * factor * x * radius + maxRadius, y: -1 * factor * y * radius  + maxRadius };
   }
 
-  const hexagonSize = calcSize({x: 1, y: 1}, center.q, 10);
+  const hexagonSize = calcSize({x: 1, y: 1}, center.q, MAX_RADIUS);
   const islandSize = {x: hexagonSize.x * 0.866, y: hexagonSize.y * 1};
   const waterSize = islandSize
 
