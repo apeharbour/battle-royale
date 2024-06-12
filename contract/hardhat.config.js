@@ -31,7 +31,7 @@ module.exports = {
     },
     base: {
       url: process.env.BASE_URL,
-      accounts: [process.env.SEPOLIA_PRIVATE_KEY],
+      accounts: [process.env.SEPOLIA_PRIVATE_KEY, process.env.PLAYER1_PRIVATE_KEY],
     },
   },
   gasReporter: {

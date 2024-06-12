@@ -6,15 +6,20 @@ exports.handler = async (event) => {
     const ruleName = `TriggerContractFunctionForGame_${gameId}`;
 
     try {
-        // Retrieve the current rule configuration
-        const rule = await eventbridge.describeRule({ Name: ruleName }).promise();
+        // Retrieve the targets associated with the rule
+        const targets = await eventbridge.listTargetsByRule({ Rule: ruleName }).promise();
 
-        // Disable the EventBridge rule while maintaining its existing schedule pattern or cron
-        await eventbridge.putRule({
-            Name: ruleName,
-            ScheduleExpression: rule.ScheduleExpression, // Maintain the original schedule
-            EventPattern: rule.EventPattern, // Maintain original pattern if applicable
-            State: 'DISABLED' // Disable the rule
+        // Remove all targets from the rule
+        if (targets.Targets.length > 0) {
+            await eventbridge.removeTargets({
+                Rule: ruleName,
+                Ids: targets.Targets.map(target => target.Id)
+            }).promise();
+        }
+
+        // Delete the EventBridge rule
+        await eventbridge.deleteRule({
+            Name: ruleName
         }).promise();
 
         return {
@@ -24,7 +29,7 @@ exports.handler = async (event) => {
                 "Access-Control-Allow-Headers": "Content-Type",
                 "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
             },
-            body: JSON.stringify({ message: 'EventBridge rule disabled successfully' }),
+            body: JSON.stringify({ message: 'EventBridge rule deleted successfully' }),
         };
     } catch (error) {
         console.error('Error:', error);
@@ -35,7 +40,7 @@ exports.handler = async (event) => {
                 "Access-Control-Allow-Headers": "Content-Type",
                 "Access-Control-Allow-Methods": "OPTIONS,POST,GET"
             },
-            body: JSON.stringify({ message: 'Error disabling EventBridge rule', error: error.message }),
+            body: JSON.stringify({ message: 'Error deleting EventBridge rule', error: error.message }),
         };
     }
 };
