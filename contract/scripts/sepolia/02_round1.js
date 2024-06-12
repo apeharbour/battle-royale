@@ -15,15 +15,15 @@ const dir = {
   SE: 5,
 };
 
-const SALT = 1
-const GAME_ID = 4
+const SALT = 1;
+const GAME_ID = 5;
 
 const deployedAddresses = {
- "BattleRoyale#MapPunk": "0x37C9C3C18D5BD93224C2fF808C9dA7564c9694E5",
-"BattleRoyale#Punkships": "0x595ecB1DbeDaDEB7703c5e98Fd5E3b6DcB87A1e2",
-"BattleRoyale#GamePunk": "0xcf79eB6013F05b6EF445cD9ddf1C60179DfF434e",
-"BattleRoyale#RegistrationPunk": "0x2Ab37C7D1acd2BF04Da5Df57Aa3A0950479f305D",
-}
+  "BattleRoyale#MapPunk": "0x08472F16772BFdF63d29808A7b5F397115FFB249",
+  "BattleRoyale#Punkships": "0xA17f71EB576fEd77296b58E7FD503c8ECc0B4028",
+  "BattleRoyale#GamePunk": "0x62e246444f8af3BB010d3d6D9E9b17D2330225ca",
+  "BattleRoyale#RegistrationPunk": "0xd60fC37C9bD107D069ad35afc745D426B8646C57"
+};
 
 const shortenAddress = (address) => {
   return address.substring(0, 6) + "..." + address.substring(address.length - 4, address.length);
@@ -49,7 +49,6 @@ const commitMove = async (contract, player, travel, shot, salt, gameId) => {
 }
 
 const submitMoves = async (contract, players, travels, shots, salt, gameId) => {
-
   const travelDirs = travels.map((travel) => travel.direction);
   const travelDists = travels.map((travel) => travel.distance);
   const shotDirs = shots.map((shot) => shot.direction);
@@ -81,9 +80,11 @@ const updateWorld = async (contract, gameId) => {
 }
 
 async function main() {
-  // const [owner, player1, player2, player3, player4] = await ethers.getSigners();
+  const ownerAddress = "0xCd9680dd8318b0df924f0bD47a407c05B300e36f";
+  const player1Address = "0xC71E2f803586D2Fe6ddCF1243EB14A6A1705D0A0";
 
-  const [owner, player1] = await ethers.getSigners();
+  const owner = await ethers.getSigner(ownerAddress);
+  const player1 = await ethers.getSigner(player1Address);
 
   const game = await hre.ethers.getContractAt(
     "GamePunk",
@@ -91,38 +92,17 @@ async function main() {
     owner
   );
 
-  // const players = [player1, player2, player3, player4];
   const players = [owner, player1];
 
-  // const travels = [
-  //   { direction: dir.NE, distance: 3 },
-  //   { direction: dir.SE, distance: 3 },
-  //   { direction: dir.E, distance: 1 },
-  //   { direction: dir.NW, distance: 1 },
-  // ];
-
-  // const shots = [
-  //   { direction: dir.W, distance: 1 },
-  //   { direction: dir.E, distance: 2 },
-  //   { direction: dir.E, distance: 1 },
-  //   { direction: dir.NW, distance: 2 },
-  // ];
-
   const travels = [
-    { direction: dir.SW, distance: 2 },
-    { direction: dir.NE, distance: 3 },
+    { direction: dir.E, distance: 2 },
+    { direction: dir.E, distance: 3 },
   ];
 
   const shots = [
-    { direction: dir.W, distance: 1 },
+    { direction: dir.E, distance: 1 },
     { direction: dir.E, distance: 2 },
   ];
-
-
-  // await commitMove(game, players[0], travels[0], shots[0], SALT, GAME_ID);
-  // await commitMove(game, players[1], travels[1], shots[1], SALT, GAME_ID);
-  // await commitMove(game, players[2], travels[2], shots[2], SALT, GAME_ID);
-  // await commitMove(game, players[3], travels[3], shots[3], SALT, GAME_ID);
 
   for (let i = 0; i < players.length; i++) {
     await commitMove(game, players[i], travels[i], shots[i], SALT, GAME_ID);
@@ -131,7 +111,6 @@ async function main() {
   await submitMoves(game, players, travels, shots, SALT, GAME_ID);
 
   await updateWorld(game, GAME_ID);
-
 }
 
 // We recommend this pattern to be able to use async/await everywhere
