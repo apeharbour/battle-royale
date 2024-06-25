@@ -1,0 +1,65 @@
+/* animations.css */
+
+.ship-path {
+  animation: shippathdraw 3s linear forwards;
+  stroke: lightgray;
+  stroke-width: 0.5;
+  stroke-linecap: round;
+  stroke-dasharray: var(--ship-path-dasharray);
+  stroke-dashoffset: var(--ship-path-dashoffset-reverse);
+}
+
+.shoot-path {
+  animation: shippathdraw 3s linear forwards;
+  stroke: red;
+  stroke-width: 0.5;
+  stroke-linecap: round;
+  stroke-dasharray: var(--shoot-path-dasharray);
+  stroke-dashoffset: var(--shoot-path-dashoffset-reverse);
+}
+
+.explosion {
+  animation: explode 0.5s ease-in forwards;
+  animation-delay: 3.5s;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-width: 0.1;
+  stroke: black;
+  fill: yellow;
+  transform: scale(0.5);
+  opacity: 0;
+}
+
+.deleted {
+  animation: fade-out 3s ease-in forwards;
+}
+
+@keyframes explode {
+  0% {
+      transform: scale(0.1);
+      opacity: 0;
+  }
+  50% {
+      transform: scale(0.75);
+      opacity: 1;
+  }
+  100% {
+      transform: scale(0.75);
+      opacity: 0;
+  }
+}
+
+@keyframes shippathdraw {
+  to {
+      stroke-dashoffset: 0;
+  }
+}
+
+@keyframes fade-out {
+  0% {
+      opacity: 1;
+  }
+  100% {
+      opacity: 0;
+  }
+}
