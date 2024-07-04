@@ -186,7 +186,7 @@ export default function Admin(props) {
       "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated";
     const postData = {
       gameId: gameId.toString(),
-      scheduleRate: "3 minutes",
+      scheduleRate: "2 minutes",
     };
 
     try {

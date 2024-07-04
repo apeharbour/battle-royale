@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect } from "react";
 import {
   useAccount,
   useWriteContract,
@@ -7,25 +7,15 @@ import {
 import { ethers } from "ethers";
 import { useSnackbar } from "notistack";
 import { Hex, HexUtils } from "react-hexgrid";
-
 import { Button, Stack } from "@mui/material";
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
-import IconButton from '@mui/material/IconButton';
-import CloseIcon from '@mui/icons-material/Close';
 import { styled } from "@mui/material/styles";
-
-import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
-import PunkshipsAbi from "./abis/Punkships.json";
 
-const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
-const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
-const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
-const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -201,6 +191,7 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
     setTxInFlight(false);
     setMoveCommitted(true);
     setCommitMoveDialogOpen(false);
+    clearTravelAndShotEndpoints();
   }
 
   const handleClose = () => {

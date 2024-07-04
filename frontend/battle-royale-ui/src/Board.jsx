@@ -9,11 +9,9 @@ import {
 } from "react-hexgrid";
 import ShipPath from "./ShipPath.jsx";
 import * as images from "./assets/tiles/clean/index.js";
-import Coordinates from "./Coordinates.jsx";
 import Ship from "./Ship.jsx";
 import ShootPath from "./ShootPath.jsx";
 import useResizeObserver from "./utils/useResizeObserver.jsx";
-import { Tooltip } from "@mui/material";
 import './animations.css'; // Import the CSS file
 
 const TRAVELLING = 0;
@@ -56,6 +54,8 @@ export default function Board({
   const [hexGridSize, setHexGridSize] = useState(200);
   const [animationClass, setAnimationClass] = useState('');
   const [animationKey, setAnimationKey] = useState(0);
+  const [animationComplete, setAnimationComplete] = useState(false);
+
 
   const calcSize = ({ x, y }, radius, maxRadius) => {
     const factor = 0.9;
@@ -132,11 +132,13 @@ export default function Board({
   }, [tempTravelEndpoint, tempShotEndpoint]);
 
   useEffect(() => {
-    // Trigger animation class toggle
     setAnimationClass('animation-trigger');
+    setAnimationComplete(false);
     const timer = setTimeout(() => {
-      setAnimationClass(''); // Remove the class after animation ends
-    }, 3000); // Set this to the duration of your longest animation
+      setAnimationClass('');
+      setAnimationComplete(true);
+      setTempShotEndpoint(undefined);
+    }, 1000); // Adjust this to match your animation duration
 
     return () => clearTimeout(timer);
   }, [endpoints]);
@@ -192,10 +194,10 @@ export default function Board({
         animation-iteration-count: 1; /* Play the animation once */
       }`
       const keyFrames = `@keyframes shot-${ship.address} { 
-        0% {  transform: translate(${origin.x}px, ${origin.y}px); }
-        80% { opacity: 1; }
-        70% { opacity: 1; }
-        100% { transform: translate(${destination.x}px, ${destination.y}px); } 
+        0% {  transform: translate(${origin.x}px, ${origin.y}px); opacity: 0; }
+        10% { opacity: 1; }
+        90% { opacity: 1; }
+        100% { transform: translate(${destination.x}px, ${destination.y}px); opacity: 0; } 
       }`;
       return [styles, keyFrames].join(" ");
     } else {
@@ -217,7 +219,7 @@ export default function Board({
   }, [myShip]);
 
   return (
-    <HexGrid key={animationKey} width={hexGridSize} height={hexGridSize} 
+    <HexGrid key={animationKey} width={hexGridSize} height={hexGridSize}
       style={{
         "--ship-path-dasharray": shipPathLength,
         "--ship-path-dashoffset": shipPathLength,
@@ -294,6 +296,7 @@ export default function Board({
         ))}
 
         {myShip &&
+        <>
           <ShipPath
             start={new Hex(myShip.q, myShip.r, myShip.r * -1 - myShip.q)}
             end={tempTravelEndpoint}
@@ -302,14 +305,14 @@ export default function Board({
             size={hexagonSize}
             className={`ship-path ${animationClass}`}
           />
-        }
-
-        <ShootPath
+          <ShootPath
           start={tempTravelEndpoint}
           end={tempShotEndpoint}
           updateShotPath={setShootPathLength}
           className={`shoot-path ${animationClass}`}
         />
+        </>
+        }
       </Layout>
     </HexGrid>
   );
