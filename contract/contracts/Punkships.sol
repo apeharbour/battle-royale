@@ -38,6 +38,7 @@ string constant SHIP_YACHT = '<g transform="scale(10)"> <g id="border" class="bo
 contract Punkships is ERC721, ERC721Burnable, Ownable {
     error InvalidPosition(uint8 position);
     event Mint(address indexed owner, uint256 indexed id, string tokenURI);
+    event Burn(address indexed owner, uint256 indexed tokenId);
 
     uint256 private _nextTokenId;
     address private gameContract;
@@ -91,8 +92,10 @@ contract Punkships is ERC721, ERC721Burnable, Ownable {
         emit Mint(to, tokenId, tokenURI(tokenId));
     }
 
-      function burnByGameContract(uint256 tokenId) external onlyGameContract {
+    function burnByGameContract(uint256 tokenId) external onlyGameContract {
+        address owner = ownerOf(tokenId);
         _burn(tokenId);
+        emit Burn(owner, tokenId);
     }
 
     function getByte(

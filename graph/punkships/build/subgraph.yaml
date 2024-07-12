@@ -9,8 +9,8 @@ dataSources:
     network: base-sepolia
     source:
       abi: Punkships
-      address: "0xA17f71EB576fEd77296b58E7FD503c8ECc0B4028"
-      startBlock: 10969964
+      address: "0xd84b911BeFABFC47BE66920aF195078871A92261"
+      startBlock: 12385010
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -21,6 +21,10 @@ dataSources:
         - OwnershipTransferred
         - Transfer
         - Mint
+        - Token
+        - Contract
+        - Account
+        - Attribute
       abis:
         - name: Punkships
           file: Punkships\abis\Punkships.json
@@ -35,4 +39,6 @@ dataSources:
           handler: handleTransfer
         - event: Mint(indexed address,indexed uint256,string)
           handler: handleMint
+        - event: Burn(indexed address,indexed uint256)
+          handler: handleBurn
       file: Punkships\Punkships.wasm

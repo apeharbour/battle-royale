@@ -36,6 +36,7 @@ const GET_SHIPS = gql`
       id
       punkships {
         tokenId
+        burned
         attributes {
           trait
           value
@@ -56,7 +57,6 @@ const registrationQuery = gql`
   }
 `;
 
-
 export default function Registration(props) {
   const [selectedYacht, setSelectedYacht] = useState(null);
   const [showYachtSelectError, setShowYachtSelectError] = useState(false);
@@ -68,7 +68,7 @@ export default function Registration(props) {
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
   useEffect(() => {
-    queryClient.invalidateQueries(['ships']);
+    queryClient.invalidateQueries(["ships"]);
   }, [blockNumber]);
 
   const account = useAccount();
@@ -103,6 +103,7 @@ export default function Registration(props) {
         ).value;
         return {
           tokenId: ship.tokenId,
+          burned: ship.burned,
           movement: movement,
           shoot: shoot,
           name: shipType,
@@ -115,23 +116,28 @@ export default function Registration(props) {
   }, [data]);
 
   const handleCardClick = (ship) => {
-    setSelectedYacht(ship);
-    setShowYachtSelectError(false);
+    if (!ship.burned) {
+      setSelectedYacht(ship);
+      setShowYachtSelectError(false);
+    } else {
+      enqueueSnackbar("You cannot select a burned ship", { variant: "warning" });
+    }
   };
 
-  const useRegistrationQuery = (select) => useQuery({
-    queryKey: ["registrations"],
-    queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION, registrationQuery, {
-    }),
-    select,
-  });
+  const useRegistrationQuery = (select) =>
+    useQuery({
+      queryKey: ["registrations"],
+      queryFn: async () =>
+        request(import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION, registrationQuery, {}),
+      select,
+    });
 
-  const useRegistrationState = () => useRegistrationQuery((data) => {
-    return data.registrations.filter(registration => registration.state === "OPEN");
-  });
+  const useRegistrationState = () =>
+    useRegistrationQuery((data) => {
+      return data.registrations.filter((registration) => registration.state === "OPEN");
+    });
 
   const { data: registrationData } = useRegistrationState();
-
 
   if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
 
@@ -141,7 +147,7 @@ export default function Registration(props) {
         <Grid item xs={12}>
           <Grid container spacing={2} justifyContent="center">
             <Grid item>
-              <RegisterShipButton shipId={selectedYacht?.tokenId} />
+              <RegisterShipButton shipId={selectedYacht?.tokenId} burned={selectedYacht?.burned} />
             </Grid>
             <Grid item>
               <MintShipButton />
@@ -149,12 +155,7 @@ export default function Registration(props) {
           </Grid>
         </Grid>
         <Grid item xs={12}>
-          <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="center"
-            textAlign="center"
-          >
+          <Box display="flex" justifyContent="center" alignItems="center" textAlign="center">
             {registrationData && registrationData.length > 0 ? (
               <Typography variant="h6" color="green">
                 Registration is now Open!!
@@ -171,6 +172,8 @@ export default function Registration(props) {
             <Card
               sx={{
                 border: selectedYacht === ship ? "2px solid blue" : "none",
+                opacity: ship.burned ? 0.5 : 1, 
+                cursor: ship.burned ? "not-allowed" : "pointer",
               }}
               onClick={() => handleCardClick(ship)}
             >
@@ -179,14 +182,15 @@ export default function Registration(props) {
                 alt={ship.name}
                 image={ship.image}
                 title={ship.name}
-                sx={{ height: 140, objectFit: "contain" }} // Adjust height as needed
+                sx={{ height: 140, objectFit: "contain" }}
               />
               <CardContent sx={{ flex: "1 0 auto" }}>
                 <Typography gutterBottom variant="h5" component="div">
                   {ship.name} {ship.tokenId}
                 </Typography>
                 <Chip label={`Movement: ${ship.movement}`} sx={{ mr: 2 }} />
-                <Chip label={`Shoot: ${ship.shoot}`} />
+                <Chip label={`Shoot: ${ship.shoot}`} sx={{ mr: 2 }} />
+                <Chip label={ship.burned ? "Burned" : "Active"} />
               </CardContent>
             </Card>
           </Grid>

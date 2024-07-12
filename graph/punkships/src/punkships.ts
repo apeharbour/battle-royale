@@ -1,11 +1,10 @@
-import { Bytes, JSONValueKind, TypedMap, json, log } from "@graphprotocol/graph-ts";
-import { decode } from "as-base64";
 import {
   Approval as ApprovalEvent,
   ApprovalForAll as ApprovalForAllEvent,
   OwnershipTransferred as OwnershipTransferredEvent,
   Transfer as TransferEvent,
   Mint as MintEvent,
+  Burn as BurnEvent
 } from "../generated/Punkships/Punkships";
 import {
   Account,
@@ -15,90 +14,12 @@ import {
   OwnershipTransferred,
   Token,
   Transfer,
-  Attribute,
+  Attribute
 } from "../generated/schema";
+import { log, Bytes, JSONValueKind, TypedMap, json } from "@graphprotocol/graph-ts";
+import { decode } from "as-base64";
 
-const NULL_ADDRESS = "0x0000000000000000000000000000000000000000"
-
-export function handleApproval(event: ApprovalEvent): void {
-  let entity = new Approval(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.owner = event.params.owner;
-  entity.approved = event.params.approved;
-  entity.tokenId = event.params.tokenId;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleApprovalForAll(event: ApprovalForAllEvent): void {
-  let entity = new ApprovalForAll(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.owner = event.params.owner;
-  entity.operator = event.params.operator;
-  entity.approved = event.params.approved;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleOwnershipTransferred(
-  event: OwnershipTransferredEvent
-): void {
-  let entity = new OwnershipTransferred(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.previousOwner = event.params.previousOwner;
-  entity.newOwner = event.params.newOwner;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-}
-
-export function handleTransfer(event: TransferEvent): void {
-  log.info('Transferring token {} from {} to {}', [event.params.tokenId.toString(), event.params.from.toHex(), event.params.to.toHex()]);
-  let entity = new Transfer(
-    event.transaction.hash.concatI32(event.logIndex.toI32())
-  );
-  entity.from = event.params.from;
-  entity.to = event.params.to;
-  entity.tokenId = event.params.tokenId;
-
-  entity.blockNumber = event.block.number;
-  entity.blockTimestamp = event.block.timestamp;
-  entity.transactionHash = event.transaction.hash;
-
-  entity.save();
-
-  if (event.params.from.toHex() != NULL_ADDRESS) {
-    // this is not a mint, it's a transfer
-    const account = new Account(event.params.to);
-    account.contract = event.address;
-    account.save();
-
-    const tokenId = event.address.concatI32(event.params.tokenId.toI32());
-    const token = Token.load(tokenId);
-
-    if (!token) {
-      const token = new Token(tokenId);
-      token.contract = event.address;
-      token.owner = event.params.to;
-      token.tokenId = event.params.tokenId;
-      token.save();
-    }
-  }
-}
+const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
 
 function decodeMetadata(dataUrl: string, tokenId: Bytes): TypedMap<string, string> {
   const result = new TypedMap<string, string>()
@@ -140,6 +61,101 @@ function decodeMetadata(dataUrl: string, tokenId: Bytes): TypedMap<string, strin
   return result
 }
 
+export function handleApproval(event: ApprovalEvent): void {
+  let entity = new Approval(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.owner = event.params.owner;
+  entity.approved = event.params.approved;
+  entity.tokenId = event.params.tokenId;
+
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+
+  entity.save();
+}
+
+export function handleApprovalForAll(event: ApprovalForAllEvent): void {
+  let entity = new ApprovalForAll(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.owner = event.params.owner;
+  entity.operator = event.params.operator;
+  entity.approved = event.params.approved;
+
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+
+  entity.save();
+}
+
+export function handleOwnershipTransferred(event: OwnershipTransferredEvent): void {
+  let entity = new OwnershipTransferred(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.previousOwner = event.params.previousOwner;
+  entity.newOwner = event.params.newOwner;
+
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+
+  entity.save();
+}
+
+export function handleTransfer(event: TransferEvent): void {
+  log.info('Transferring token {} from {} to {}', [event.params.tokenId.toString(), event.params.from.toHex(), event.params.to.toHex()]);
+  let entity = new Transfer(
+    event.transaction.hash.concatI32(event.logIndex.toI32())
+  );
+  entity.from = event.params.from;
+  entity.to = event.params.to;
+  entity.tokenId = event.params.tokenId;
+
+  entity.blockNumber = event.block.number;
+  entity.blockTimestamp = event.block.timestamp;
+  entity.transactionHash = event.transaction.hash;
+
+  entity.save();
+
+  const tokenId = event.address.concatI32(event.params.tokenId.toI32());
+  let token = Token.load(tokenId);
+
+  if (event.params.to.toHex() == NULL_ADDRESS) {
+    // Token is burned
+    if (token) {
+      token.burned = true;
+      token.save();
+    }
+  } else {
+    // Token is transferred or minted
+    let account = Account.load(event.params.to);
+    if (!account) {
+      account = new Account(event.params.to);
+      account.contract = event.address;
+      account.save();
+    }
+
+    if (!token) {
+      token = new Token(tokenId);
+      token.contract = event.address;
+      token.tokenId = event.params.tokenId;
+      token.tokenURI = ""; // Set a default value for tokenURI
+    }
+    token.owner = event.params.to;
+    token.burned = false; // Ensure token is marked as not burned
+
+    // Ensure tokenURI is set
+    if (!token.tokenURI) {
+      token.tokenURI = ""; // Set a default value for tokenURI
+    }
+
+    token.save();
+  }
+}
+
 export function handleMint(event: MintEvent): void {
   log.info('Minting token {}', [event.params.id.toString()]);
 
@@ -168,17 +184,30 @@ export function handleMint(event: MintEvent): void {
   if (token == null) {
     token = new Token(tokenId);
     token.contract = contract.id;
-    token.owner = account.id;
     token.tokenId = event.params.id;
-    token.tokenURI = event.params.tokenURI;
-  
-    const metadata = decodeMetadata(event.params.tokenURI, token.id);
-    if(metadata.isSet('image') && metadata.get('image') != ''){
-      token.image = metadata.get('image');
-    };
-    log.info('Token {}\'s image set', [token.tokenId.toI32().toString()]);
+    token.tokenURI = event.params.tokenURI ? event.params.tokenURI : ""; // Ensure tokenURI is set
+  }
+  token.owner = account.id;
 
+  const metadata = decodeMetadata(event.params.tokenURI, token.id);
+  if (metadata.get('image') != '') {
+    token.image = metadata.get('image');
+  }
+  token.burned = false;
+  log.info('Token {}\'s image set', [token.tokenId.toI32().toString()]);
+
+  token.save();
+}
+
+
+export function handleBurn(event: BurnEvent): void {
+  log.info('Burning token {}', [event.params.tokenId.toString()]);
+
+  const tokenId = event.address.concatI32(event.params.tokenId.toI32());
+  let token = Token.load(tokenId);
+
+  if (token) {
+    token.burned = true;
     token.save();
   }
 }
-
