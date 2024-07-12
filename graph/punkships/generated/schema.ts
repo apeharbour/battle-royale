@@ -763,6 +763,19 @@ export class Token extends Entity {
       this.set("image", Value.fromString(<string>value));
     }
   }
+
+  get burned(): boolean {
+    let value = this.get("burned");
+    if (!value || value.kind == ValueKind.NULL) {
+      return false;
+    } else {
+      return value.toBoolean();
+    }
+  }
+
+  set burned(value: boolean) {
+    this.set("burned", Value.fromBoolean(value));
+  }
 }
 
 export class Attribute extends Entity {

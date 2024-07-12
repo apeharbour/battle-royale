@@ -51,7 +51,8 @@ type Account @entity(immutable: true) {
   punkships: [Token!]! @derivedFrom(field: "owner")
 }
 
-type Token @entity(immutable: true) {
+type Token
+  @entity(immutable: false) {
   contract: Contract!
   id: Bytes!
   tokenId: BigInt!
@@ -60,6 +61,7 @@ type Token @entity(immutable: true) {
   tokenURI: String!
   attributes: [Attribute!]! @derivedFrom(field: "token")
   image: String
+  burned: Boolean! 
 }
 
 type Attribute @entity(immutable: true) {
@@ -68,4 +70,3 @@ type Attribute @entity(immutable: true) {
   value: String!
   token: Token!
 }
-

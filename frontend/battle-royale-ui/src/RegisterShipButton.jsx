@@ -6,21 +6,15 @@ import {
   useWaitForTransactionReceipt,
 } from "wagmi";
 import { useSnackbar } from "notistack";
-
 import { Button } from "@mui/material";
-
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
-import GameAbi from "./abis/GamePunk.json";
-import PunkshipsAbi from "./abis/Punkships.json";
+
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
-const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
-const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
-const GAME_ABI = GameAbi.abi;
-const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
-export default function RegisterShipButton({ shipId, ...props }) {
+
+export default function RegisterShipButton({ shipId, burned, ...props }) {
   const [txInFlight, setTxInFlight] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -57,7 +51,7 @@ export default function RegisterShipButton({ shipId, ...props }) {
   }
 
   return (
-    <Button variant="outlined" onClick={registerShip} disabled={!shipId || isConfirming || !isConnected}>
+    <Button variant="outlined" onClick={registerShip} disabled={!shipId || isConfirming || !isConnected || burned }>
       {isConfirming ? "Confirming..." : "Register Ship"}
     </Button>
   );

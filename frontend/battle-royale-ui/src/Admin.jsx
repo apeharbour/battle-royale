@@ -12,7 +12,6 @@ import { request, gql } from "graphql-request";
 
 import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
-import PunkshipsAbi from "./abis/Punkships.json";
 
 import {
   Box,
@@ -29,10 +28,9 @@ import Timer from "./Timer";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
-const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
-const PUNKSHIPS_ABI = PunkshipsAbi.abi;
+
 
 const GAME_ID = 1;
 
@@ -101,14 +99,10 @@ class RegistrationState {
 }
 
 export default function Admin(props) {
-  const [gameContract, setGameContract] = useState(null);
-  const [regiContract, setRegiContract] = useState(null);
-  const [provider, setProvider] = useState(null);
-  const [player, setPlayer] = useState(null);
+
   const [testGameId, setTestGameId] = useState(0);
   const [testGameRadius, setTestGameRadius] = useState(0);
   const [updateWorldTestId, setUpdateWorldTestId] = useState(0);
-  const [highestPhaseClosedGameIdsInt, setHighestPhaseClosedGameIdsInt] = useState([]);
   const [txInFlight, setTxInFlight] = useState(false);
 
 

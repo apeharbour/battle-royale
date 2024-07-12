@@ -62,6 +62,28 @@ export class ApprovalForAll__Params {
   }
 }
 
+export class Burn extends ethereum.Event {
+  get params(): Burn__Params {
+    return new Burn__Params(this);
+  }
+}
+
+export class Burn__Params {
+  _event: Burn;
+
+  constructor(event: Burn) {
+    this._event = event;
+  }
+
+  get owner(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get tokenId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
 export class Mint extends ethereum.Event {
   get params(): Mint__Params {
     return new Mint__Params(this);
@@ -518,6 +540,36 @@ export class BurnCall__Outputs {
   }
 }
 
+export class BurnByGameContractCall extends ethereum.Call {
+  get inputs(): BurnByGameContractCall__Inputs {
+    return new BurnByGameContractCall__Inputs(this);
+  }
+
+  get outputs(): BurnByGameContractCall__Outputs {
+    return new BurnByGameContractCall__Outputs(this);
+  }
+}
+
+export class BurnByGameContractCall__Inputs {
+  _call: BurnByGameContractCall;
+
+  constructor(call: BurnByGameContractCall) {
+    this._call = call;
+  }
+
+  get tokenId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class BurnByGameContractCall__Outputs {
+  _call: BurnByGameContractCall;
+
+  constructor(call: BurnByGameContractCall) {
+    this._call = call;
+  }
+}
+
 export class RenounceOwnershipCall extends ethereum.Call {
   get inputs(): RenounceOwnershipCall__Inputs {
     return new RenounceOwnershipCall__Inputs(this);
@@ -684,6 +736,36 @@ export class SetApprovalForAllCall__Outputs {
   _call: SetApprovalForAllCall;
 
   constructor(call: SetApprovalForAllCall) {
+    this._call = call;
+  }
+}
+
+export class SetGameContractCall extends ethereum.Call {
+  get inputs(): SetGameContractCall__Inputs {
+    return new SetGameContractCall__Inputs(this);
+  }
+
+  get outputs(): SetGameContractCall__Outputs {
+    return new SetGameContractCall__Outputs(this);
+  }
+}
+
+export class SetGameContractCall__Inputs {
+  _call: SetGameContractCall;
+
+  constructor(call: SetGameContractCall) {
+    this._call = call;
+  }
+
+  get _gameContract(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class SetGameContractCall__Outputs {
+  _call: SetGameContractCall;
+
+  constructor(call: SetGameContractCall) {
     this._call = call;
   }
 }
