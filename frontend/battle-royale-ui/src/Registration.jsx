@@ -20,6 +20,7 @@ import GameAbi from "./abis/GamePunk.json";
 import PunkshipsAbi from "./abis/Punkships.json";
 import MintShipButton from "./MintShipButton";
 import RegisterShipButton from "./RegisterShipButton";
+import ToggleBurnedShipsButton from "./ToggleBurnedShipsButton";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
@@ -61,6 +62,7 @@ export default function Registration(props) {
   const [selectedYacht, setSelectedYacht] = useState(null);
   const [showYachtSelectError, setShowYachtSelectError] = useState(false);
   const [punkShips, setPunkships] = useState([]);
+  const [showBurnedShips, setShowBurnedShips] = useState(true); // State for toggling burned ships
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -152,6 +154,12 @@ export default function Registration(props) {
             <Grid item>
               <MintShipButton />
             </Grid>
+            <Grid item>
+              <ToggleBurnedShipsButton
+                showBurnedShips={showBurnedShips}
+                onToggle={() => setShowBurnedShips(!showBurnedShips)}
+              />
+            </Grid>
           </Grid>
         </Grid>
         <Grid item xs={12}>
@@ -167,34 +175,67 @@ export default function Registration(props) {
             )}
           </Box>
         </Grid>
-        {punkShips.map((ship, index) => (
-          <Grid item xs={12} sm={6} md={4} key={index}>
-            <Card
-              sx={{
-                border: selectedYacht === ship ? "2px solid blue" : "none",
-                opacity: ship.burned ? 0.5 : 1, 
-                cursor: ship.burned ? "not-allowed" : "pointer",
-              }}
-              onClick={() => handleCardClick(ship)}
-            >
-              <CardMedia
-                component="img"
-                alt={ship.name}
-                image={ship.image}
-                title={ship.name}
-                sx={{ height: 140, objectFit: "contain" }}
-              />
-              <CardContent sx={{ flex: "1 0 auto" }}>
-                <Typography gutterBottom variant="h5" component="div">
-                  {ship.name} {ship.tokenId}
-                </Typography>
-                <Chip label={`Movement: ${ship.movement}`} sx={{ mr: 2 }} />
-                <Chip label={`Shoot: ${ship.shoot}`} sx={{ mr: 2 }} />
-                <Chip label={ship.burned ? "Burned" : "Active"} />
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+        {punkShips
+          .filter((ship) => showBurnedShips || !ship.burned)
+          .map((ship, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Card
+                sx={{
+                  border: selectedYacht === ship ? "2px solid blue" : "none",
+                  opacity: ship.burned ? 0.5 : 1,
+                  cursor: ship.burned ? "not-allowed" : "pointer",
+                }}
+                onClick={() => handleCardClick(ship)}
+              >
+                <CardMedia
+                  component="img"
+                  alt={ship.name}
+                  image={ship.image}
+                  title={ship.name}
+                  sx={{ height: 140, objectFit: "contain" }}
+                />
+                <CardContent sx={{ flex: "1 0 auto" }}>
+                  <Typography gutterBottom variant="h5" component="div">
+                    {ship.name} {ship.tokenId}
+                  </Typography>
+                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    <Chip
+                      label={`Movement: ${ship.movement}`}
+                      sx={{
+                        height: '32px',
+                        minWidth: '100px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    />
+                    <Chip
+                      label={`Shoot: ${ship.shoot}`}
+                      sx={{
+                        height: '32px',
+                        minWidth: '100px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    />
+                    <Chip
+                      label={ship.burned ? "Burned" : "Active"}
+                      sx={{
+                        height: '32px',
+                        minWidth: '100px',
+                        backgroundColor: ship.burned ? 'red' : 'green',
+                        color: 'white',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    />
+                  </Box>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
       </Grid>
     </Fragment>
   );
