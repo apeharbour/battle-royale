@@ -3,7 +3,7 @@ import { Typography, Card, CardHeader, CardContent } from '@mui/material';
 import { useWebSocket } from './contexts/WebSocketContext'; 
 
 export default function Timer({ gameId }) { 
-  const [timeLeft, setTimeLeft] = useState('Waiting for countdown...');
+  const [timeLeft, setTimeLeft] = useState('Waiting for transaction to complete...');
   const { ws } = useWebSocket();
 
   // Function to fetch endTime from the API
@@ -56,7 +56,7 @@ export default function Timer({ gameId }) {
 
     // Check if endTime is not yet available or countdown has not started
     if (!endTime || distance < 0) {
-      setTimeLeft("Waiting for countdown...");
+      setTimeLeft("Waiting for transaction to complete...");
       return true; // Indicates no active countdown
     } else {
       // Update countdown time
