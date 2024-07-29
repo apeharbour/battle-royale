@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Grid, Stack } from "@mui/material";
+import { Grid, Stack, Switch, FormControlLabel } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useWatchContractEvent, useWatchBlockNumber } from "wagmi";
@@ -9,6 +9,7 @@ import { useSnackbar } from "notistack";
 import { Hex, HexUtils, GridGenerator } from "react-hexgrid";
 import ShipStatus from "./ShipStatus";
 import Logs from "./Logs";
+import GameInfo from "./GameInfo";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
 import PunkshipsAbi from "./abis/Punkships.json";
@@ -79,6 +80,7 @@ export default function Game(props) {
   const [playerStateDialogOpen, setPlayerStateDialogOpen] = useState(false);
   const [travelEndpoint, setTravelEndpoint] = useState(undefined);
   const [shotEndpoint, setShotEndpoint] = useState(undefined);
+  const [showCoordinateField, setShowCoordinateField] = useState(false);
   // const [randomInt, setRandomInt] = useState(generateRandomInt());
 
   const [endpoints, setEndpoints] = useState({travel: undefined, shot: undefined});
@@ -345,7 +347,7 @@ export default function Game(props) {
       <Grid container spacing={2} p={4}>
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
-            <ShipStatus ship={myShip} gameId={id} state={gameState} round={currentRound}/>
+            <ShipStatus ship={myShip}/>
             <Logs gameId={id} rounds={rounds}/>
             <LastRoundResults rounds={rounds}/>
           </Stack>
@@ -358,6 +360,7 @@ export default function Game(props) {
           myShip={myShip}
           endpoints={endpoints}
           setEndpoints={setEndpoints}
+          showCoordinateField={showCoordinateField}
         />
         }
 
@@ -366,7 +369,12 @@ export default function Game(props) {
           <Stack spacing={2}>
             <CommitMoveButton gameId={gameId} myShip={myShip} travelEndpoint={endpoints.travel} shotEndpoint={endpoints.shot} clearTravelAndShotEndpoints={clearTravelAndShotEndpoints}/>
           {/* <PlayerStatus ships={ships} /> */}
+          <FormControlLabel
+              control={<Switch checked={showCoordinateField} onChange={() => setShowCoordinateField(!showCoordinateField)} />}
+              label={showCoordinateField ? "Hide Coordinates" : "Show Coordinates"}
+            />
           <Timer gameId={gameId} />
+          <GameInfo round={currentRound} gameId={gameId}/>
           </Stack>
         </Grid>
       </Grid>

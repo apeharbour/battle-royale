@@ -13,7 +13,7 @@ export default function AccountAppBar({ toggleDarkMode }) {
   const isDarkMode = theme.palette.mode === "dark";
   const navigate = useNavigate();
   const { address } = useAccount();
-  const location = useLocation(); // Get the current location
+  const location = useLocation();
 
   const handleLogoClick = () => {
     if (!address) {
@@ -37,14 +37,24 @@ export default function AccountAppBar({ toggleDarkMode }) {
           PUNKSHIPS
         </Typography>
         {address && (
-          <Button color="inherit" onClick={() => navigate('/menu')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
-            Main Menu
+          <Button color="inherit" onClick={() => navigate('/registration')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
+            Registration
+          </Button>
+        )}
+        {address && (
+          <Button color="inherit" onClick={() => navigate('/listgames')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
+            Active Games
+          </Button>
+        )}
+        {address && (
+          <Button color="inherit" onClick={() => navigate('/halloffame')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
+            Hall of Fame
           </Button>
         )}
         {address && (address === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f") && (
-           <Button color="inherit" onClick={() => navigate('/admin')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
-           Admin
-         </Button>
+          <Button color="inherit" onClick={() => navigate('/admin')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
+            Admin
+          </Button>
         )}
         <Box sx={{ flexGrow: 1 }} />
         <IconButton aria-label="darkmode" onClick={toggleDarkMode}>

@@ -262,7 +262,7 @@ export default function FinalArtData(props) {
     <Fragment>
       <Grid container spacing={2} p={4}>
         <Grid item xs={12}>
-          <Typography variant="h4" align="center">Final Art Display for Game #{gameId}</Typography>
+          <Typography variant="h4" align="center">Canvas of Victory #{gameId}</Typography>
         </Grid>
         <Grid item xs={12}>
           {cells && <FinalArtDisplay gameId={gameId} cells={cells} center={center} ships={ships} /> }
