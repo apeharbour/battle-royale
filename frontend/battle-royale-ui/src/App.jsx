@@ -15,8 +15,8 @@ import Game from "./Game";
 import Admin from "./Admin";
 import AccountAppBar from "./AccountAppBar";
 import BackdropComponent from './Backdrop';
+import HallOfFame from "./HallOfFame";
 import Registration from "./Registration";
-import Menu from "./Menu";
 import FinalArtData from "./FinalArtData.jsx";
 import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
@@ -26,7 +26,6 @@ import { WebSocketProvider } from "./contexts/WebSocketContext";
 function App() {
   const [darkMode, setDarkMode] = useLocalStorageState('darkMode', { defaultValue: true });
 
-  // create a darkTheme function to handle dark theme using createTheme
   const theme = createTheme({
     palette: {
       mode: darkMode ? "dark" : "light",
@@ -43,19 +42,13 @@ function App() {
     setDarkMode(!darkMode);
   };
 
-  const handleDisconnect = () => {
-    console.log("handleDisconnect");
-    setSigner(null);
-    setProvider(null);
-  };
-
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
     setLoading(true);
-    const timeoutId = setTimeout(() => setLoading(false), 1000); // Simulating loading time
+    const timeoutId = setTimeout(() => setLoading(false), 3000);
 
     return () => {
       clearTimeout(timeoutId);
@@ -64,7 +57,7 @@ function App() {
 
   return (
     <WebSocketProvider>
-      <SnackbarProvider maxSnack={3}>
+      <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Web3Provider theme={theme}>
@@ -77,7 +70,7 @@ function App() {
               <Route path="/admin" element={<Admin />} />
               <Route path="/listgames" element={<ListGames />} />
               <Route path="/registration" element={<Registration />} />
-              <Route path="/menu" element={<Menu />} />
+              <Route path="/halloffame" element={<HallOfFame />} />
             </Routes>
           </Web3Provider>
         </ThemeProvider>

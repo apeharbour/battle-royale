@@ -46,6 +46,7 @@ export default function Board({
   endpoints,
   setEndpoints,
   parentRef,
+  showCoordinateField
 }) {
   const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
   const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
@@ -250,6 +251,11 @@ export default function Board({
             onClick={handleMouseClick}
             fill={getFillPattern(state, neighborCode)}
           >
+           {showCoordinateField && (
+            <text x="0" y="0.3em" textAnchor="middle" fontSize="0.1em" fill="black">
+              {`${q},${r}`}
+            </text>
+          )}
           </Hexagon>
         ))}
 

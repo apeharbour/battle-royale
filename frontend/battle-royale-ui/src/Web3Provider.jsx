@@ -1,3 +1,4 @@
+import React, { createContext, useContext, useEffect, useState } from "react";
 import { WagmiProvider, createConfig, http, fallback, webSocket } from "wagmi";
 import {
   mainnet,
@@ -12,15 +13,15 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import punkLogo from "./images/punkLogo.png";
 
+const Web3Context = createContext();
+
+export const useWeb3 = () => useContext(Web3Context);
+
 const config = createConfig(
   getDefaultConfig({
-    // Your dApps chains
-    chains: [ baseSepolia, sepolia, localhost, mainnet, optimism],
+    chains: [baseSepolia, sepolia, localhost, mainnet, optimism],
     transports: {
-      // RPC URL for each chain
-      [localhost.id]:
-        // http( import.meta.env.VITE_LOCALHOST_RPC_URL || "http://localhost:8545" ),
-        webSocket("ws://localhost:8545"),
+      [localhost.id]: webSocket("ws://localhost:8545"),
       [sepolia.id]: fallback([
         http(import.meta.env.VITE_SEPOLIA_RPC_URL),
         http("https://sepolia-rpc.wagmi.io"),
@@ -38,31 +39,48 @@ const config = createConfig(
         http("https://base-sepolia-rpc.wagmi.io"),
       ]),
     },
-
-    // Required API Keys
     walletConnectProjectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
-
-    // Required App Info
     appName: "Punkships Royale",
-
-    // Optional App Info
     appDescription: "A battle royale game on the blockchain.",
-    appUrl: "https://punkships.io", // your app's url
-    appIcon: punkLogo, // your app's icon, no bigger than 1024x1024px (max. 1MB)
+    appUrl: "https://punkships.io",
+    appIcon: punkLogo,
   })
 );
 
 const queryClient = new QueryClient();
 
 export const Web3Provider = ({ theme, children }) => {
+  const [isConnected, setIsConnected] = useState(false);
+
+  useEffect(() => {
+    const storedConnection = localStorage.getItem("walletConnected");
+    if (storedConnection) {
+      setIsConnected(true);
+    }
+  }, []);
+
+  const connectWallet = () => {
+    localStorage.setItem("walletConnected", "true");
+    setIsConnected(true);
+  };
+
+  const disconnectWallet = () => {
+    localStorage.removeItem("walletConnected");
+    setIsConnected(false);
+  };
+
   return (
-    <WagmiProvider config={config}>
-      <QueryClientProvider client={queryClient}>
-        <ReactQueryDevtools initialIsOpen={false} />
-        <ConnectKitProvider theme="auto" mode={theme.palette.mode}>
-          {children}
-        </ConnectKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
+    <Web3Context.Provider
+      value={{ isConnected, connectWallet, disconnectWallet }}
+    >
+      <WagmiProvider config={config}>
+        <QueryClientProvider client={queryClient}>
+          <ReactQueryDevtools initialIsOpen={false} />
+          <ConnectKitProvider theme="auto" mode={theme.palette.mode}>
+            {children}
+          </ConnectKitProvider>
+        </QueryClientProvider>
+      </WagmiProvider>
+    </Web3Context.Provider>
   );
 };

@@ -144,9 +144,11 @@ export default function Admin(props) {
 
       refetchRegistrationsData().then(newData => {
         console.log("Refetched data:", newData.data);
-        newData.data.highestPhaseGameIds.forEach(gameId => {
-          triggerLambdaFunction(gameId);
-        })
+        setTimeout(() => {
+          newData.data.highestPhaseGameIds.forEach(gameId => {
+            triggerLambdaFunction(gameId);
+          });
+        }, 4000);
       });
     }
   }, [isTxConfirmed, txData, txInFlight, refetchRegistrationsData]);

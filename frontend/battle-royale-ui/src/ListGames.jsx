@@ -52,7 +52,7 @@ export default function ListGames(props) {
     select,
   });
 
-  const useGameData = () => useGameQuery((data) => data.players);
+  const useGameData = () => useGameQuery((data) => data.players.filter(player => player.game.state === "active"));
 
   const { data: gameData } = useGameData();
 
@@ -83,11 +83,50 @@ export default function ListGames(props) {
   return (
     <Grid container spacing={2} p={4}>
       {hasRegisteredPlayer && (
-        <Grid item xs={12}>
-          <Typography variant="h5" color='green' component="div">
-            You are registered for the game in the next phase! You have to wait for the registration to close to view your game screen.
-          </Typography>
-        </Grid>
+       <Grid container justifyContent="center" alignItems="center">
+       <Grid item xs={12} md={6}>
+         <Box 
+           sx={{ 
+             border: '1px solid green', 
+             borderRadius: '8px', 
+             padding: '16px', 
+             position: 'relative',
+             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)'
+           }}
+         >
+           <Typography 
+             variant="h5" 
+             color='green' 
+             component="div" 
+             textAlign="center"
+           >
+             You are registered for the game in the next phase!
+           </Typography>
+           <Typography 
+             variant="h5" 
+             color='green' 
+             component="div" 
+             textAlign="center"
+           >
+             Wait for the registration to close to view your new game screen.
+           </Typography>
+           <Box 
+             sx={{ 
+               position: 'absolute', 
+               top: '-10px', 
+               right: '16px', 
+               backgroundColor: 'white', 
+               padding: '0 8px', 
+               fontWeight: 'bold',
+               color: 'green',
+               borderRadius: '4px'
+             }}
+           >
+             NOTE
+           </Box>
+         </Box>
+       </Grid>
+     </Grid>
       )}
       {gameData && gameData.map(({ game, address, state }, index) => {
         let hoverMessage;

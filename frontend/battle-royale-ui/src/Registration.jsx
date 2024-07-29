@@ -62,7 +62,7 @@ export default function Registration(props) {
   const [selectedYacht, setSelectedYacht] = useState(null);
   const [showYachtSelectError, setShowYachtSelectError] = useState(false);
   const [punkShips, setPunkships] = useState([]);
-  const [showBurnedShips, setShowBurnedShips] = useState(true); // State for toggling burned ships
+  const [showBurnedShips, setShowBurnedShips] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -126,6 +126,10 @@ export default function Registration(props) {
     }
   };
 
+  const handleCancelRegistration = () => {
+    setSelectedYacht(null);
+  };
+
   const useRegistrationQuery = (select) =>
     useQuery({
       queryKey: ["registrations"],
@@ -149,7 +153,7 @@ export default function Registration(props) {
         <Grid item xs={12}>
           <Grid container spacing={2} justifyContent="center">
             <Grid item>
-              <RegisterShipButton shipId={selectedYacht?.tokenId} burned={selectedYacht?.burned} />
+              <RegisterShipButton shipId={selectedYacht?.tokenId} burned={selectedYacht?.burned} punkships={punkShips} onCancel={handleCancelRegistration} />
             </Grid>
             <Grid item>
               <MintShipButton />

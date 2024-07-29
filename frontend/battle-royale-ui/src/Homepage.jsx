@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { ConnectKitButton } from "connectkit";
 import { useNavigate } from "react-router-dom";
 import { Box, Typography, Button } from "@mui/material";
+import { useAccount } from "wagmi";
 
 export default function Homepage() {
     const [walletConnected, setWalletConnected] = useState(false);
     const navigate = useNavigate();
+    const { address } = useAccount();
 
     useEffect(() => {
         if (walletConnected) {
-            navigate('/menu');
+            navigate('/registration');
         }
     }, [walletConnected, navigate]);
 
@@ -35,7 +37,7 @@ export default function Homepage() {
 
                     return (
                         <Button variant="contained" onClick={show}>
-                            {isConnected ? "Wallet Connected" : "Connect"}
+                            {isConnected ? "Connected": "Connect"}
                         </Button>
                     );
                 }}
