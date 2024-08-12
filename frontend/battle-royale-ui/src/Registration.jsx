@@ -4,32 +4,11 @@ import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useAccountEffect } from "wagmi";
 import { useSnackbar } from "notistack";
 
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  CardMedia,
-  Grid,
-  Typography,
-  Chip,
-} from "@mui/material";
+import { Box, Grid, Typography } from "@mui/material";
 
-import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
-import GameAbi from "./abis/GamePunk.json";
-import PunkshipsAbi from "./abis/Punkships.json";
 import MintShipButton from "./MintShipButton";
 import RegisterShipButton from "./RegisterShipButton";
-import ToggleBurnedShipsButton from "./ToggleBurnedShipsButton";
-
-const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
-const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
-const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
-const REGISTRATION_ABI = RegistrationPunkAbi.abi;
-const GAME_ABI = GameAbi.abi;
-const PUNKSHIPS_ABI = PunkshipsAbi.abi;
-
-const NULL_ADDRESS = "0x0000000000000000000000000000000000000000";
+import ActiveShip from "./ActiveShip";
 
 const GET_SHIPS = gql`
   query getPunkships($accountAddress: ID!) {
@@ -122,7 +101,9 @@ export default function Registration(props) {
       setSelectedYacht(ship);
       setShowYachtSelectError(false);
     } else {
-      enqueueSnackbar("You cannot select a burned ship", { variant: "warning" });
+      enqueueSnackbar("You cannot select a burned ship", {
+        variant: "warning",
+      });
     }
   };
 
@@ -134,110 +115,107 @@ export default function Registration(props) {
     useQuery({
       queryKey: ["registrations"],
       queryFn: async () =>
-        request(import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION, registrationQuery, {}),
+        request(
+          import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION,
+          registrationQuery,
+          {}
+        ),
       select,
     });
 
   const useRegistrationState = () =>
     useRegistrationQuery((data) => {
-      return data.registrations.filter((registration) => registration.state === "OPEN");
+      return data.registrations.filter(
+        (registration) => registration.state === "OPEN"
+      );
     });
 
   const { data: registrationData } = useRegistrationState();
 
-  if (isError) enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
+  const isRegistrationOpen = registrationData && registrationData.length > 0;
+  const noteColor = isRegistrationOpen ? "green" : "red";
+
+  if (isError)
+    enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
 
   return (
     <Fragment>
       <Grid container spacing={2} p={4}>
         <Grid item xs={12}>
-          <Grid container spacing={2} justifyContent="center">
-            <Grid item>
-              <RegisterShipButton shipId={selectedYacht?.tokenId} burned={selectedYacht?.burned} punkships={punkShips} onCancel={handleCancelRegistration} />
-            </Grid>
-            <Grid item>
-              <MintShipButton />
-            </Grid>
-            <Grid item>
-              <ToggleBurnedShipsButton
-                showBurnedShips={showBurnedShips}
-                onToggle={() => setShowBurnedShips(!showBurnedShips)}
-              />
+          <Grid container justifyContent="center" alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Box
+                sx={{
+                  border: `1px solid ${noteColor}`,
+                  borderRadius: "8px",
+                  padding: "16px",
+                  position: "relative",
+                  boxShadow: "0 2px 5px rgba(0, 0, 0, 0.1)",
+                }}
+              >
+                <Typography
+                  variant="h5"
+                  color={noteColor}
+                  component="div"
+                  textAlign="center"
+                >
+                  {isRegistrationOpen
+                    ? "Registration is currently open! Register your ship now."
+                    : "Registration is currently closed!"}
+                </Typography>
+                <Typography
+                  variant="h5"
+                  color={noteColor}
+                  component="div"
+                  textAlign="center"
+                >
+                  {isRegistrationOpen
+                    ? "Wait for the registration to close to view your new game screen."
+                    : "Please check back later for more updates."}
+                </Typography>
+                <Box
+                  sx={{
+                    position: "absolute",
+                    top: "-10px",
+                    right: "16px",
+                    backgroundColor: "white",
+                    padding: "0 8px",
+                    fontWeight: "bold",
+                    color: noteColor,
+                    borderRadius: "4px",
+                  }}
+                >
+                  NOTE
+                </Box>
+              </Box>
             </Grid>
           </Grid>
-        </Grid>
-        <Grid item xs={12}>
-          <Box display="flex" justifyContent="center" alignItems="center" textAlign="center">
-            {registrationData && registrationData.length > 0 ? (
-              <Typography variant="h6" color="green">
-                Registration is now Open!!
-              </Typography>
-            ) : (
-              <Typography variant="h6" color="red">
-                Registration is currently closed!!
-              </Typography>
-            )}
-          </Box>
+          <Grid item xs={12} mt={2} mb={1}>
+            <Grid container spacing={2} justifyContent="center">
+              <Grid item>
+                <RegisterShipButton
+                  shipId={selectedYacht?.tokenId}
+                  burned={selectedYacht?.burned}
+                  punkships={punkShips}
+                  onCancel={handleCancelRegistration}
+                  isRegistrationOpen={isRegistrationOpen}
+                />
+              </Grid>
+              <Grid item>
+                <MintShipButton />
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid>
         {punkShips
           .filter((ship) => showBurnedShips || !ship.burned)
           .map((ship, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
-              <Card
-                sx={{
-                  border: selectedYacht === ship ? "2px solid blue" : "none",
-                  opacity: ship.burned ? 0.5 : 1,
-                  cursor: ship.burned ? "not-allowed" : "pointer",
-                }}
-                onClick={() => handleCardClick(ship)}
-              >
-                <CardMedia
-                  component="img"
-                  alt={ship.name}
-                  image={ship.image}
-                  title={ship.name}
-                  sx={{ height: 140, objectFit: "contain" }}
-                />
-                <CardContent sx={{ flex: "1 0 auto" }}>
-                  <Typography gutterBottom variant="h5" component="div">
-                    {ship.name} {ship.tokenId}
-                  </Typography>
-                  <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                    <Chip
-                      label={`Movement: ${ship.movement}`}
-                      sx={{
-                        height: '32px',
-                        minWidth: '100px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    />
-                    <Chip
-                      label={`Shoot: ${ship.shoot}`}
-                      sx={{
-                        height: '32px',
-                        minWidth: '100px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    />
-                    <Chip
-                      label={ship.burned ? "Burned" : "Active"}
-                      sx={{
-                        height: '32px',
-                        minWidth: '100px',
-                        backgroundColor: ship.burned ? 'red' : 'green',
-                        color: 'white',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    />
-                  </Box>
-                </CardContent>
-              </Card>
+              <ActiveShip
+                ship={ship}
+                handleCardClick={handleCardClick}
+                selectedYacht={selectedYacht}
+              />
             </Grid>
           ))}
       </Grid>

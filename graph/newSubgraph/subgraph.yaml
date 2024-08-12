@@ -7,8 +7,8 @@ dataSources:
     network: base-sepolia
     source:
       abi: GamePunk
-      address: "0xA12ab0948787AB686401228ece89260dB9B60FC8"
-      startBlock: 12385016
+      address: "0x4A5123a9127Bad535D4a989e02EbAF2E1B82CC53"
+      startBlock: 13602296
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -34,7 +34,7 @@ dataSources:
           handler: handleGameUpdated
         - event: GameWinner(indexed address,uint256)
           handler: handleGameWinner
-        - event: MapInitialized(uint8,uint256)
+        - event: MapInitialized(uint8,uint256,uint8)
           handler: handleMapInitialized
         - event: MapShrink(uint256)
           handler: handleMapShrink

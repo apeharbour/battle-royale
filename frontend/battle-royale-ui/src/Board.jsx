@@ -301,7 +301,7 @@ export default function Board({
           </React.Fragment>
         ))}
 
-        {myShip &&
+        {myShip && myShip.state === "active" &&
         <>
           <ShipPath
             start={new Hex(myShip.q, myShip.r, myShip.r * -1 - myShip.q)}

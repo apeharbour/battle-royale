@@ -174,6 +174,19 @@ export class Game extends Entity {
       "cells",
     );
   }
+
+  get mapShrink(): i32 {
+    let value = this.get("mapShrink");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set mapShrink(value: i32) {
+    this.set("mapShrink", Value.fromI32(value));
+  }
 }
 
 export class Player extends Entity {

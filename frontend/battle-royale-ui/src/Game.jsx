@@ -2,7 +2,12 @@ import React, { useState, useEffect, Fragment } from "react";
 import { Grid, Stack, Switch, FormControlLabel } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useBlockNumber, useWatchContractEvent, useWatchBlockNumber } from "wagmi";
+import {
+  useAccount,
+  useBlockNumber,
+  useWatchContractEvent,
+  useWatchBlockNumber,
+} from "wagmi";
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -30,43 +35,71 @@ const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 // const sdk = getBuiltGraphSDK()
 
 const gameQuery = gql`
-  query getGame ($gameId: BigInt!, $first: Int ) {
+  query getGame($gameId: BigInt!, $first: Int) {
     games(where: { gameId: $gameId }) {
       gameId
       state
       radius
+      mapShrink
       centerQ
       centerR
-      currentRound { round }
-      cells (first: $first) {
+      currentRound {
+        round
+      }
+      cells(first: $first) {
         q
         r
         island
-        deletedInRound { round }
-  		}
-  		rounds {
+        deletedInRound {
+          round
+        }
+      }
+      rounds {
         round
         radius
         shrunk
-        deletedCells { q r }
-        moves { 
-          player {address state killedInRound { round } }
-          round { round }
+        deletedCells {
+          q
+          r
+        }
+        moves {
+          player {
+            address
+            state
+            killedInRound {
+              round
+            }
+          }
+          round {
+            round
+          }
           commitment
-          travel {originQ, originR, destinationQ, destinationR}
-          shot {originQ, originR, destinationQ, destinationR}
+          travel {
+            originQ
+            originR
+            destinationQ
+            destinationR
+          }
+          shot {
+            originQ
+            originR
+            destinationQ
+            destinationR
+          }
         }
       }
       players {
         address
-        q 
+        q
         r
-        range 
+        range
         shotRange
         state
         kills
         image
-        killedInRound { round }
+        killedInRound {
+          round
+        }
       }
     }
   }
@@ -83,18 +116,24 @@ export default function Game(props) {
   const [showCoordinateField, setShowCoordinateField] = useState(false);
   // const [randomInt, setRandomInt] = useState(generateRandomInt());
 
-  const [endpoints, setEndpoints] = useState({travel: undefined, shot: undefined});
+  const [endpoints, setEndpoints] = useState({
+    travel: undefined,
+    shot: undefined,
+  });
 
   const gameId = id;
 
   const { ws } = useWebSocket();
   const queryClient = useQueryClient();
 
-  const {address} = useAccount();
+  const { address } = useAccount();
 
-  const { data: blockNumber } = useBlockNumber({watch: true})
+  const { data: blockNumber } = useBlockNumber({ watch: true });
   useEffect(() => {
-    console.log("Invalidating game query because of new block number", blockNumber);
+    console.log(
+      "Invalidating game query because of new block number",
+      blockNumber
+    );
     queryClient.invalidateQueries(["game", BigInt(id).toString()]);
   }, [blockNumber]);
 
@@ -104,8 +143,15 @@ export default function Game(props) {
     eventName: "MoveCommitted",
     onLogs: async (logs) => {
       const { gameId, player, moveHash } = logs[0].args;
-      console.log("MoveCommitted, GameId: ", gameId, "Player: ", player, "MoveHash: ", moveHash);
-    }
+      console.log(
+        "MoveCommitted, GameId: ",
+        gameId,
+        "Player: ",
+        player,
+        "MoveHash: ",
+        moveHash
+      );
+    },
   });
 
   useWatchContractEvent({
@@ -116,7 +162,7 @@ export default function Game(props) {
       console.log("World Updated: ", logs);
       const { gameId } = logs[0].args;
       console.log("World updated for game: ", gameId);
-    }
+    },
   });
 
   // useWatchBlockNumber( async (blockNumber) => {
@@ -127,27 +173,27 @@ export default function Game(props) {
   useEffect(() => {
     if (ws && gameId) {
       const message = {
-        action: 'setGameId',
+        action: "setGameId",
         gameId: gameId,
       };
       ws.send(JSON.stringify(message));
     }
   }, [ws, gameId]);
 
-  /** Add water cells to the array 
+  /** Add water cells to the array
    * @param {Array} islands - Array of islands (coming from the subgraph)
    * @param {Number} radius - The radius of the game board
    * @returns {Array} - Array of cells
    * This function is currently not used. It's here for reference and will be useful
    * when we change the smart contract to track islands only. In that case, we will need
    * to generate the game board with water cells on the front end, based on radius and islands.
-  */
+   */
   const addWaterCells = (islands, radius) => {
     const center = new Hex(radius, radius, -2 * radius);
     const generator = GridGenerator.getGenerator("ring");
 
     // generate the map with water only
-    const waterCells = [center]
+    const waterCells = [center];
     for (let i = 1; i <= radius; i++) {
       const cells = generator(center, i);
       waterCells.push(...cells);
@@ -156,11 +202,11 @@ export default function Game(props) {
     // check if a cell is an island and set the island property
     const cells = waterCells.map((cell) => {
       const island = islands.find((i) => i.q === cell.q && i.r === cell.r);
-      const isIsland = !!island && island.island
-      return {...cell, island: isIsland ? true : false};
-    })
+      const isIsland = !!island && island.island;
+      return { ...cell, island: isIsland ? true : false };
+    });
     return cells;
-  }
+  };
 
   /* Enrich the cell data with additional properties:
    * s: the cube coordinate s
@@ -214,64 +260,121 @@ export default function Game(props) {
   };
 
   const enrichShip = (ship, movesLastRound) => {
-    const move = movesLastRound.filter((m) => m.player.address === ship.address)[0];
+    const move = movesLastRound.filter(
+      (m) => m.player.address === ship.address
+    )[0];
 
-    const travel = {}
-    const shot = {}
+    const travel = {};
+    const shot = {};
 
     if (move && move.travel) {
-      travel.origin = new Hex(move.travel.originQ, move.travel.originR, (move.travel.originQ + move.travel.originR) * -1);
-      travel.destination = new Hex(move.travel.destinationQ, move.travel.destinationR, (move.travel.destinationQ + move.travel.destinationR) * -1);
+      travel.origin = new Hex(
+        move.travel.originQ,
+        move.travel.originR,
+        (move.travel.originQ + move.travel.originR) * -1
+      );
+      travel.destination = new Hex(
+        move.travel.destinationQ,
+        move.travel.destinationR,
+        (move.travel.destinationQ + move.travel.destinationR) * -1
+      );
     }
 
     if (move && move.shot) {
-      shot.origin = new Hex(move.shot.originQ, move.shot.originR, (move.shot.originQ + move.shot.originR) * -1);
-      shot.destination = new Hex(move.shot.destinationQ, move.shot.destinationR, (move.shot.destinationQ + move.shot.destinationR) * -1);
+      shot.origin = new Hex(
+        move.shot.originQ,
+        move.shot.originR,
+        (move.shot.originQ + move.shot.originR) * -1
+      );
+      shot.destination = new Hex(
+        move.shot.destinationQ,
+        move.shot.destinationR,
+        (move.shot.destinationQ + move.shot.destinationR) * -1
+      );
     }
 
     const s = (ship.q + ship.r) * -1;
-    const mine = !!address ? ship.address.toLowerCase() === address.toLowerCase() : false;
+    const mine = !!address
+      ? ship.address.toLowerCase() === address.toLowerCase()
+      : false;
     const newCell = { ...ship, s, travel, shot, mine };
     // const newCell = { ...ship, s, travel, shot };
     return newCell;
   };
 
-  const useGameQuery = (select) => useQuery({
+  const useGameQuery = (select) =>
+    useQuery({
       queryKey: ["game", BigInt(id).toString()],
-      queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, gameQuery, {
-        gameId: id,
-        first: 1000,
-      }),
+      queryFn: async () =>
+        request(import.meta.env.VITE_SUBGRAPH_URL_GAME, gameQuery, {
+          gameId: id,
+          first: 1000,
+        }),
       select,
     });
 
-  const useCurrentRound = () => useGameQuery((data) => parseInt(data.games[0].currentRound.round))
+  const useCurrentRound = () =>
+    useGameQuery((data) => parseInt(data.games[0].currentRound.round));
 
-  const useShips = () => useGameQuery((data) => {
-    let movesLastRound = [];
-    const currentRound = parseInt(data.games[0].currentRound.round)
-    if (currentRound > 1) {
-      movesLastRound = data.games[0].rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
-    }
-    return data.games[0].players.map(s => enrichShip(s, movesLastRound));
-  });
+  const useShips = () =>
+    useGameQuery((data) => {
+      let movesLastRound = [];
+      const currentRound = parseInt(data.games[0].currentRound.round);
+      if (currentRound > 1) {
+        movesLastRound = data.games[0].rounds.filter(
+          (r) => parseInt(r.round) === currentRound - 1
+        )[0].moves;
+      }
+      return data.games[0].players.map((s) => enrichShip(s, movesLastRound));
+    });
 
-  const useMyShip = (address) => useGameQuery((data) => data.games[0].players.filter((s) => s.address.toLowerCase() === address.toLowerCase())[0]);
+  const useMyShip = (address) =>
+    useGameQuery(
+      (data) =>
+        data.games[0].players.filter(
+          (s) => s.address.toLowerCase() === address.toLowerCase()
+        )[0]
+    );
 
   // const useCells = () => useGameQuery((data) => addWaterCells(data.games[0].cells, data.games[0].centerQ).map((c) => enrichCell(c, data.games[0].cells, parseInt(data.games[0].currentRound.round))));
-  const useCells = () => useGameQuery((data) => data.games[0].cells.map((c) => enrichCell(c, data.games[0].cells, parseInt(data.games[0].currentRound.round))));
+  const useCells = () =>
+    useGameQuery((data) =>
+      data.games[0].cells.map((c) =>
+        enrichCell(
+          c,
+          data.games[0].cells,
+          parseInt(data.games[0].currentRound.round)
+        )
+      )
+    );
 
   const useRounds = () => useGameQuery((data) => data.games[0].rounds);
 
+  const useMapShrink = () => useGameQuery((data) => data.games[0].mapShrink);
+
   const useGameState = () => useGameQuery((data) => data.games[0].state);
 
-  const usePlayerState = (address) => useGameQuery((data) => {
-    const player = data.games[0].players.find((p) => p.address.toLowerCase() === address.toLowerCase());
-    return player ? player.state : null;
-  });
-  const useCenter = () => useGameQuery((data) => new Hex(data.games[0].centerQ, data.games[0].centerR, (data.games[0].centerQ + data.games[0].centerR) * -1));
+  const usePlayerState = (address) =>
+    useGameQuery((data) => {
+      const player = data.games[0].players.find(
+        (p) => p.address.toLowerCase() === address.toLowerCase()
+      );
+      return player ? player.state : null;
+    });
+  const useCenter = () =>
+    useGameQuery(
+      (data) =>
+        new Hex(
+          data.games[0].centerQ,
+          data.games[0].centerR,
+          (data.games[0].centerQ + data.games[0].centerR) * -1
+        )
+    );
 
-  const useWinner = () => useGameQuery((data) => data.games[0].players.find((p) => p.state === 'won'));
+  const useWinner = () =>
+    useGameQuery((data) =>
+      data.games[0].players.find((p) => p.state === "won")
+    );
 
   const { data: result } = useGameQuery();
 
@@ -280,6 +383,7 @@ export default function Game(props) {
   const { data: myShip } = useMyShip(address);
   const { data: cells } = useCells();
   const { data: rounds } = useRounds();
+  const { data: mapShrink } = useMapShrink();
   const { data: gameState } = useGameState();
   const { data: playerState } = usePlayerState(address);
   const { data: winner } = useWinner();
@@ -288,33 +392,41 @@ export default function Game(props) {
   // console.log("Game ID: ", id);
   // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
   // console.log("Current Round: ", currentRound);
-  // console.log("Ships: ", ships);
+  //console.log("Ships: ", ships);
   // console.log("My Ship: ", myShip);
-  // console.log("Cells: ", cells);
+  //console.log("Cells: ", cells);
+  //console.log("Center: ", center);
   // console.log("Rounds: ", rounds);
   // console.log("Game Winner: ", winner);
 
   useEffect(() => {
     console.log("Game State: ", gameState);
-    if (gameState === 'finished') {
+    if (gameState === "finished") {
       disableEventBridgeRule(gameId);
     }
   }, [gameState, gameId]);
 
   useEffect(() => {
     //console.log("Clearing endpoints for new round");
-    setEndpoints({travel: undefined, shot: undefined});
+    setEndpoints({ travel: undefined, shot: undefined });
   }, [currentRound]);
 
   useEffect(() => {
     //console.log("Player State: ", playerState);
-    if (playerState === 'dropped' || playerState === 'beached' || playerState === 'crashed' || playerState === 'shot' || playerState === 'draw' || playerState === 'won') {
+    if (
+      playerState === "dropped" ||
+      playerState === "beached" ||
+      playerState === "crashed" ||
+      playerState === "shot" ||
+      playerState === "draw" ||
+      playerState === "won"
+    ) {
       setPlayerStateDialogOpen(true);
     }
   }, [playerState]);
 
   const clearTravelAndShotEndpoints = () => {
-    setEndpoints({travel: undefined, shot: undefined});
+    setEndpoints({ travel: undefined, shot: undefined });
   };
 
   const disableEventBridgeRule = async (gameId) => {
@@ -341,45 +453,63 @@ export default function Game(props) {
     }
   };
 
-
   return (
     <Fragment>
       <Grid container spacing={2} p={4}>
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
-            <ShipStatus ship={myShip}/>
-            <Logs gameId={id} rounds={rounds}/>
-            <LastRoundResults rounds={rounds}/>
+            <ShipStatus ship={myShip} />
+            <Logs gameId={id} rounds={rounds} />
+            <LastRoundResults rounds={rounds} />
           </Stack>
         </Grid>
 
-        {cells && <MainBoardArea
-          center={center}
-          cells={cells}
-          ships={ships}
-          myShip={myShip}
-          endpoints={endpoints}
-          setEndpoints={setEndpoints}
-          showCoordinateField={showCoordinateField}
-        />
-        }
+        {cells && (
+          <MainBoardArea
+            center={center}
+            cells={cells}
+            ships={ships}
+            myShip={myShip}
+            endpoints={endpoints}
+            setEndpoints={setEndpoints}
+            showCoordinateField={showCoordinateField}
+          />
+        )}
 
         <Grid item xs={12} sm={4} md={2}>
           {/* <Timer gameId={id}/> */}
           <Stack spacing={2}>
-            <CommitMoveButton gameId={gameId} myShip={myShip} travelEndpoint={endpoints.travel} shotEndpoint={endpoints.shot} clearTravelAndShotEndpoints={clearTravelAndShotEndpoints}/>
-          {/* <PlayerStatus ships={ships} /> */}
-          <FormControlLabel
-              control={<Switch checked={showCoordinateField} onChange={() => setShowCoordinateField(!showCoordinateField)} />}
-              label={showCoordinateField ? "Hide Coordinates" : "Show Coordinates"}
+            <CommitMoveButton
+              gameId={gameId}
+              myShip={myShip}
+              travelEndpoint={endpoints.travel}
+              shotEndpoint={endpoints.shot}
+              clearTravelAndShotEndpoints={clearTravelAndShotEndpoints}
             />
-          <Timer gameId={gameId} />
-          <GameInfo round={currentRound} gameId={gameId}/>
+            {/* <PlayerStatus ships={ships} /> */}
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={showCoordinateField}
+                  onChange={() => setShowCoordinateField(!showCoordinateField)}
+                />
+              }
+              label={
+                showCoordinateField ? "Hide Coordinates" : "Show Coordinates"
+              }
+            />
+            <Timer gameId={gameId} />
+            <GameInfo round={currentRound} gameId={gameId} mapShrink={mapShrink} />
           </Stack>
         </Grid>
       </Grid>
       {playerStateDialogOpen && (
-       <GameStatus playerStateDialogOpen={playerStateDialogOpen} winner={winner} playerState={playerState} setPlayerStateDialogOpen={setPlayerStateDialogOpen} />
+        <GameStatus
+          playerStateDialogOpen={playerStateDialogOpen}
+          winner={winner}
+          playerState={playerState}
+          setPlayerStateDialogOpen={setPlayerStateDialogOpen}
+        />
       )}
     </Fragment>
   );

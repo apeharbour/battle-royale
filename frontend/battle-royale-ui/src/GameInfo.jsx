@@ -18,24 +18,24 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
     textAlign: "center",
 }));
 
-export default function GameInfo({ round, gameId }) {
-
-    const shrinkInterval = 3;
-    const nextShrinkRound = Math.ceil(round / shrinkInterval) * shrinkInterval;
-    const roundsToShrink = nextShrinkRound - round;
+export default function GameInfo({ round, gameId, mapShrink }) {
 
     return (
-        <Card elevation={4} sx={{ height: "200px", overflow: "hidden" }}>
-            <CardHeader
-                title="Game Info"
-                sx={{ backdropFilter: "brightness: 60%", opacity: 1 }}
-            />
+        <Card elevation={4} sx={{ overflow: "hidden" }}>
+            
             <StyledCardContent>
                 <Typography variant="h5"> Game {gameId} </Typography>
                 <Typography variant="h5"> Round {round} </Typography>
-                <Typography variant="h5" sx={{ color: roundsToShrink === 1 ? 'red' : 'inherit' }}>
-                    {roundsToShrink === 1 ? 'Last round before shrink' : `Shrink in ${roundsToShrink} rounds`}
+                {mapShrink && mapShrink === 1 && (
+                <Typography variant="h5">
+                    Map will shrink every round
                 </Typography>
+                )}
+                {mapShrink && mapShrink !== 1 && (
+                <Typography variant="h5">
+                    Map will shrink every {mapShrink} rounds
+                </Typography>
+                )}
             </StyledCardContent>
         </Card>
     );

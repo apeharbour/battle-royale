@@ -142,12 +142,14 @@ export function handleMapInitialized(event: MapInitializedEvent): void {
       round = createNewRound(gameId, BigInt.zero(), 0);
     }
     game.currentRound = round.id;
+    game.mapShrink = event.params.mapShrink;
   }
 
   game.gameId = event.params.gameId;
   game.radius = event.params.radius;
   game.centerQ = event.params.radius;
   game.centerR = event.params.radius;
+  game.mapShrink = event.params.mapShrink;
 
   game.save();
 }

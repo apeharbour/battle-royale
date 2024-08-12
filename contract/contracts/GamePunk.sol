@@ -11,11 +11,19 @@ error NotOwnerOfShip(address player, uint256 tokenId);
 
 interface IPunkships {
     function safeMint(address to, uint256 tokenId) external;
+
     function getRange(uint256 tokenId) external pure returns (uint8);
+
     function getShootingRange(uint256 tokenId) external pure returns (uint8);
-    function getShipTypeName(uint256 tokenId) external pure returns (string memory);
+
+    function getShipTypeName(
+        uint256 tokenId
+    ) external pure returns (string memory);
+
     function getImage(uint256 tokenId) external pure returns (string memory);
+
     function ownerOf(uint256 tokenId) external pure returns (address);
+
     function burnByGameContract(uint256 tokenId) external;
 }
 
@@ -43,7 +51,11 @@ contract GamePunk is Ownable {
     event NewRound(uint256 gameId, uint256 roundId, uint8 radius);
     event CommitPhaseStarted(uint256 gameId);
     event SubmitPhaseStarted(uint256 gameId, uint256 round);
-    event MoveCommitted(address indexed player, uint256 gameId, bytes32 moveHash);
+    event MoveCommitted(
+        address indexed player,
+        uint256 gameId,
+        bytes32 moveHash
+    );
     event MoveSubmitted(
         address indexed player,
         uint256 gameId,
@@ -53,7 +65,7 @@ contract GamePunk is Ownable {
         uint8 shotQ,
         uint8 shotR
     );
-    event MapInitialized(uint8 radius, uint256 gameId);
+    event MapInitialized(uint8 radius, uint256 gameId, uint8 mapShrink);
     event ShipMoved(
         address indexed captain,
         uint8 initialQ,
@@ -106,6 +118,7 @@ contract GamePunk is Ownable {
     struct GameInstance {
         uint256 round;
         uint8 shrinkNo;
+        uint8 mapShrink;
         mapping(address => Ship) ships;
         address[] players;
         bool gameInProgress;
@@ -128,7 +141,10 @@ contract GamePunk is Ownable {
         _;
     }
 
-    constructor(address _mapAddress, address _punkshipsAddress) Ownable(msg.sender) {
+    constructor(
+        address _mapAddress,
+        address _punkshipsAddress
+    ) Ownable(msg.sender) {
         map = MapPunk(_mapAddress);
         punkships = IPunkships(_punkshipsAddress);
     }
@@ -143,26 +159,43 @@ contract GamePunk is Ownable {
     }
 
     function startNewGame(
-        uint256 gameId,
-        uint8 _radius
+        uint256 _gameId,
+        uint8 _radius,
+        uint8 _mapShrink
     ) public onlyRegistrationContractOrOwner {
         require(
-            !games[gameId].gameInProgress,
+            !games[_gameId].gameInProgress,
             "Game with this ID already in progress"
         );
-        games[gameId].gameInProgress = true;
-        initGame(_radius, gameId);
-        allowCommitMoves(gameId);
-        emit GameStarted(gameId);
+        games[_gameId].gameInProgress = true;
+        initGame(_radius, _gameId, _mapShrink);
+        allowCommitMoves(_gameId);
+        emit GameStarted(_gameId);
     }
 
-    function endGame(uint256 gameId) public onlyOwner {
+  
+
+    function initGame(
+        uint8 _radius,
+        uint256 _gameId,
+        uint8 _mapShrink
+    ) internal {
         require(
-            games[gameId].gameInProgress == true,
+            games[_gameId].gameInProgress == true,
             "Game has not started yet!"
         );
-        games[gameId].gameInProgress = false;
-        emit GameEnded(gameId);
+        // reset ships
+        for (uint256 i = 0; i < games[_gameId].players.length; i++) {
+            delete games[_gameId].ships[games[_gameId].players[i]];
+        }
+        delete games[_gameId].players;
+        addNewRound(_gameId);
+        games[_gameId].mapShrink = _mapShrink;
+        SharedStructs.Cell[] memory cells = map.initMap(_radius, _gameId);
+        for (uint j = 0; j < cells.length; j++) {
+            emit Cell(_gameId, cells[j].q, cells[j].r, cells[j].island);
+        }
+        emit MapInitialized(_radius, _gameId, _mapShrink);
     }
 
     //function to let players commit moves
@@ -240,13 +273,13 @@ contract GamePunk is Ownable {
         for (uint i = 0; i < _playerAddresses.length; i++) {
             // Calculate move hash
             bytes32 moveHash = encodeCommitment(
-                    _travelDirections[i],
-                    _travelDistances[i],
-                    _shotDirections[i],
-                    _shotDistances[i],
-                    _secrets[i],
-                    _playerAddresses[i]
-                );
+                _travelDirections[i],
+                _travelDistances[i],
+                _shotDirections[i],
+                _shotDistances[i],
+                _secrets[i],
+                _playerAddresses[i]
+            );
 
             // console.log("hashes match %s", games[gameId].moveHashes[_playerAddresses[i]] == moveHash);
 
@@ -290,25 +323,6 @@ contract GamePunk is Ownable {
         updateWorld(gameId);
     }
 
-    function initGame(uint8 _radius, uint256 gameId) internal {
-        require(
-            games[gameId].gameInProgress == true,
-            "Game has not started yet!"
-        );
-        // reset ships
-        for (uint256 i = 0; i < games[gameId].players.length; i++) {
-            delete games[gameId].ships[games[gameId].players[i]];
-        }
-        delete games[gameId].players;
-        addNewRound(gameId);
-
-        SharedStructs.Cell[] memory cells = map.initMap(_radius, gameId);
-        for (uint j = 0; j < cells.length; j++) {
-            emit Cell(gameId, cells[j].q, cells[j].r, cells[j].island);
-        }
-        emit MapInitialized(_radius, gameId);
-    }
-
     function addShip(
         address playerAddress,
         uint256 gameId,
@@ -322,7 +336,6 @@ contract GamePunk is Ownable {
         if (punkships.ownerOf(_punkshipId) != playerAddress) {
             revert NotOwnerOfShip(playerAddress, _punkshipId);
         }
-
 
         if (
             games[gameId].ships[playerAddress].coordinate.q > 0 &&
@@ -339,13 +352,7 @@ contract GamePunk is Ownable {
         do {
             alreadyTaken = false;
             coord = map.getRandomCoordinatePair(gameId);
-            // console.log("  New rnd pair %s, %s", coord.q, coord.r);
             for (uint8 i = 0; i < games[gameId].players.length; i++) {
-                // console.log(
-                //     "in loop %s, address: %s",
-                //     i,
-                //     games[gameId].players[i]
-                // );
                 if (
                     games[gameId]
                         .ships[games[gameId].players[i]]
@@ -381,7 +388,6 @@ contract GamePunk is Ownable {
             gameId,
             _punkshipId
         );
-
 
         games[gameId].ships[playerAddress] = ship;
         games[gameId].players.push(playerAddress);
@@ -442,9 +448,10 @@ contract GamePunk is Ownable {
             "Game has not started yet!"
         );
 
-        // shrink map every 3 rounds
-        if (games[gameId].round % 3 == 0) {
-            SharedStructs.Coordinate[] memory deletedCells = map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
+        // shrink map every [mapShrink] rounds
+        if (games[gameId].round % games[gameId].mapShrink == 0) {
+            SharedStructs.Coordinate[] memory deletedCells = map
+                .deleteOutermostRing(gameId, games[gameId].shrinkNo);
             games[gameId].shrinkNo++;
             emit MapShrink(gameId);
             for (uint8 i = 0; i < deletedCells.length; i++) {
@@ -487,7 +494,6 @@ contract GamePunk is Ownable {
 
         // Moving ships and handling deaths due to invalid moves
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
-
             // console.log("Processing player %s", games[gameId].players[i]);
             // Skip the moves of removed players
             if (
@@ -611,6 +617,54 @@ contract GamePunk is Ownable {
                             gameId
                         ); // Emitting event when ship is hit by another ship's shot
                         sinkShip(games[gameId].players[i], i, gameId);
+                    }
+                }
+            }
+        }
+
+        // Handle mutual shots where both players shoot each other
+        for (uint8 i = 0; i < games[gameId].players.length; i++) {
+            if (isActive[i]) {
+                for (uint8 j = i + 1; j < games[gameId].players.length; j++) {
+                    if (isActive[j]) {
+                        // Check if both players shoot each other
+                        if (
+                            shotDestinations[i].q ==
+                            games[gameId]
+                                .ships[games[gameId].players[j]]
+                                .coordinate
+                                .q &&
+                            shotDestinations[i].r ==
+                            games[gameId]
+                                .ships[games[gameId].players[j]]
+                                .coordinate
+                                .r &&
+                            shotDestinations[j].q ==
+                            games[gameId]
+                                .ships[games[gameId].players[i]]
+                                .coordinate
+                                .q &&
+                            shotDestinations[j].r ==
+                            games[gameId]
+                                .ships[games[gameId].players[i]]
+                                .coordinate
+                                .r
+                        ) {
+                            emit ShipHit(
+                                games[gameId].players[i],
+                                games[gameId].players[j],
+                                gameId
+                            );
+                            emit ShipHit(
+                                games[gameId].players[j],
+                                games[gameId].players[i],
+                                gameId
+                            );
+                            sinkShip(games[gameId].players[i], i, gameId);
+                            sinkShip(games[gameId].players[j], j, gameId);
+                            isActive[i] = false;
+                            isActive[j] = false;
+                        }
                     }
                 }
             }

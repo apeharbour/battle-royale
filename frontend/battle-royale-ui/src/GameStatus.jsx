@@ -26,7 +26,8 @@ export default function GameStatus({ playerStateDialogOpen, winner, playerState,
         setPlayerStateDialogOpen(false);
     };
 
-    const isWinner = winner && winner.address && address.toLowerCase() === winner.address.toLowerCase();
+    const isWinner = winner && winner.address && address && address.toLowerCase() === winner.address.toLowerCase();
+
 
     return (
         <Fragment>

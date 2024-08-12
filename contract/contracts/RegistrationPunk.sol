@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
 interface IGamePunk {
-    function startNewGame(uint256 gameId, uint8 radius) external;
+    function startNewGame(uint256 gameId, uint8 radius, uint8 mapShrink) external;
 
     function addShip(address players, uint256 gameId, uint256 tokenId) external;
 }
@@ -94,7 +94,8 @@ contract RegistrationPunk is Ownable {
 
     function closeRegistration(
         uint8 _maxPlayersPerGame,
-        uint8 _radius
+        uint8 _radius,
+        uint8 _mapShrink
     ) public onlyOwner {
         registrationClosed = true;
         uint8 gamePlayerCount = 0;
@@ -102,7 +103,7 @@ contract RegistrationPunk is Ownable {
         for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
             if (gamePlayerCount == 0) {
                 emit RegistrationClosed(registrationPhase, lastGameId);
-                gamePunk.startNewGame(lastGameId, _radius); // Start a new game when the previous one is filled
+                gamePunk.startNewGame(lastGameId, _radius, _mapShrink);
             }
 
             address playerAddress = registeredPlayerAddresses[i];

@@ -239,6 +239,12 @@ const contractABI = [
         "internalType": "uint256",
         "name": "gameId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "mapShrink",
+        "type": "uint8"
       }
     ],
     "name": "MapInitialized",
@@ -803,6 +809,11 @@ const contractABI = [
         "type": "uint8"
       },
       {
+        "internalType": "uint8",
+        "name": "mapShrink",
+        "type": "uint8"
+      },
+      {
         "internalType": "bool",
         "name": "gameInProgress",
         "type": "bool"
@@ -1130,12 +1141,17 @@ const contractABI = [
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "gameId",
+        "name": "_gameId",
         "type": "uint256"
       },
       {
         "internalType": "uint8",
         "name": "_radius",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_mapShrink",
         "type": "uint8"
       }
     ],
@@ -1254,7 +1270,7 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0xA12ab0948787AB686401228ece89260dB9B60FC8";
+const contractAddress = "0x4A5123a9127Bad535D4a989e02EbAF2E1B82CC53";
 
 // Initialize ApiGatewayManagementApi with your WebSocket URL
 const apiGwManagementApi = new AWS.ApiGatewayManagementApi({
