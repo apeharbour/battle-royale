@@ -5,8 +5,6 @@ import { Card, CardContent, CardMedia, Chip, Stack, Typography } from "@mui/mate
 
 export default function ShipStatus({ ship }) {
 
-console.log("Ship:", ship);
-
   if (!ship) return (
     <Card elevation={4}>
       <CardContent>
