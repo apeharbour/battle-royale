@@ -8,9 +8,9 @@ import { ethers } from "ethers";
 import { useSnackbar } from "notistack";
 import { Hex, HexUtils } from "react-hexgrid";
 import { Button, Stack } from "@mui/material";
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
 import { styled } from "@mui/material/styles";
 import GameAbi from "./abis/GamePunk.json";
 
@@ -18,10 +18,10 @@ const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const GAME_ABI = GameAbi.abi;
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
+  "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
   },
-  '& .MuiDialogActions-root': {
+  "& .MuiDialogActions-root": {
     padding: theme.spacing(1),
   },
 }));
@@ -44,7 +44,14 @@ const determineDirection = (origin, destination) => {
   return 6;
 };
 
-export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip, clearTravelAndShotEndpoints, gameId, ...props }) {
+export default function CommitMoveButton({
+  travelEndpoint,
+  shotEndpoint,
+  myShip,
+  clearTravelAndShotEndpoints,
+  gameId,
+  ...props
+}) {
   const [txInFlight, setTxInFlight] = useState(false);
   const [moveCommitted, setMoveCommitted] = useState(false);
   const [commitMoveDialogOpen, setCommitMoveDialogOpen] = useState(false);
@@ -120,12 +127,17 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
     }
   };
 
-
   const commitMove = async () => {
-
     if (!isConnected) {
       console.error("Player address is undefined or not set");
       return; // Exit the function if gamePlayer is not set
+    }
+
+    if (myShip.state !== "active") {
+      enqueueSnackbar(`You are not active in the game, cannot commit move!`, {
+        variant: "error",
+      });
+      return; // Exit the function if the player's ship is not active
     }
 
     // calculate distances and directions
@@ -136,10 +148,6 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
     const travelDirection = determineDirection(myShipHex, travelEndpoint);
     const shotDirection = determineDirection(travelEndpoint, shotEndpoint);
 
-    // clearTravelAndShotEndpoints();
-
-    // if (contract) {
-    //   setRandomInt(generateRandomInt());
     const randomInt = generateRandomInt();
     const moveHash = ethers.solidityPackedKeccak256(
       ["uint8", "uint8", "uint8", "uint8", "uint8", "address"],
@@ -156,7 +164,6 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
     console.log("Move Hash: ", moveHash);
 
     try {
-
       writeContract({
         abi: GAME_ABI,
         address: GAME_ADDRESS,
@@ -176,18 +183,17 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
       });
       setTxInFlight(true);
       // clearTravelAndShotEndpoints() shouldn't be called here, so that the highlighting is not removed before the transaction is confirmed
-      // clearTravelAndShotEndpoints();
     } catch (error) {
-      console.error(
-        "Error in submitting moves or storing in DynamoDB",
-        error
-      );
+      console.error("Error in submitting moves or storing in DynamoDB", error);
     }
   };
 
   if (isConfirmed && txInFlight) {
     enqueueSnackbar(`Commited move`, { variant: "success" });
-    console.log(`Commited move for player ${address} with hash ${hash}`, receipt);
+    console.log(
+      `Commited move for player ${address} with hash ${hash}`,
+      receipt
+    );
     setTxInFlight(false);
     setMoveCommitted(true);
     setCommitMoveDialogOpen(false);
@@ -200,35 +206,39 @@ export default function CommitMoveButton({ travelEndpoint, shotEndpoint, myShip,
   };
 
   return (
-    <BootstrapDialog open={commitMoveDialogOpen} onClose={handleClose} maxWidth="sm">
+    <BootstrapDialog
+      open={commitMoveDialogOpen}
+      onClose={handleClose}
+      maxWidth="sm"
+    >
       <DialogTitle
         sx={{
           m: 0,
           p: 2,
-          fontSize: '2rem',
+          fontSize: "2rem",
           fontWeight: 200,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         Commit your move
       </DialogTitle>
       <DialogContent dividers>
         <Stack spacing={2} direction="row" justifyContent="space-between">
-          <Button variant="contained" onClick={handleClose} disabled={isConfirming}>
-            Edit Move
-          </Button>
           <Button
             variant="contained"
-            onClick={commitMove}
-           
+            onClick={handleClose}
+            disabled={isConfirming}
+            color="error"
           >
+            Edit Move
+          </Button>
+          <Button variant="contained" onClick={commitMove} color="success">
             {isConfirming ? "Confirming..." : "Commit Move"}
           </Button>
         </Stack>
       </DialogContent>
     </BootstrapDialog>
-
   );
 }

@@ -28,7 +28,7 @@ import Timer from "./Timer";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
-const REGISTRATION_ABI = RegistrationPunkAbi.abi;
+const REGISTRATION_ABI = RegistrationPunkAbi;
 const GAME_ABI = GameAbi.abi;
 
 
@@ -36,6 +36,7 @@ const GAME_ID = 1;
 
 const MAX_PLAYERS_PER_GAME = 8;
 const RADIUS = 6;
+
 
 const registrationQuery = gql`
   query registrations {
@@ -100,11 +101,11 @@ class RegistrationState {
 
 export default function Admin(props) {
 
-  const [testGameId, setTestGameId] = useState(0);
-  const [testGameRadius, setTestGameRadius] = useState(0);
-  const [updateWorldTestId, setUpdateWorldTestId] = useState(0);
+  const [testGameId, setTestGameId] = useState();
+  const [testGameRadius, setTestGameRadius] = useState();
+  const [updateWorldTestId, setUpdateWorldTestId] = useState();
   const [txInFlight, setTxInFlight] = useState(false);
-
+  const [mapShrink, setMapShrink] = useState(3);
 
 
   const {
@@ -172,9 +173,10 @@ export default function Admin(props) {
       abi: REGISTRATION_ABI,
       address: REGISTRATION_ADDRESS,
       functionName: "closeRegistration",
-      args: [MAX_PLAYERS_PER_GAME, RADIUS],
+      args: [MAX_PLAYERS_PER_GAME, RADIUS, mapShrink],
     });
     setTxInFlight(true);
+    console.log("Closing registration", MAX_PLAYERS_PER_GAME, RADIUS, mapShrink);
   }
 
   const triggerLambdaFunction = async (gameId) => {
@@ -229,6 +231,7 @@ export default function Admin(props) {
     });
   };
 
+
   return (
     <Fragment>
       <Box mt={2}>
@@ -243,6 +246,12 @@ export default function Admin(props) {
           <Button variant="contained" onClick={closeRegistration} color="error">
             Stop Registration
           </Button>
+          <TextField
+            variant="outlined"
+            value={mapShrink}
+            label="Map Shrink"
+            onChange={(e) => setMapShrink(e.target.value)}
+          />
         </Stack>
       </Box>
       <Box mt={5}>
@@ -258,6 +267,12 @@ export default function Admin(props) {
             value={testGameRadius}
             label="Radius"
             onChange={(e) => setTestGameRadius(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            value={mapShrink}
+            label="Map Shrink"
+            onChange={(e) => setMapShrink(e.target.value)}
           />
           <Button variant="contained" onClick={startTestGame}>
             Start Game

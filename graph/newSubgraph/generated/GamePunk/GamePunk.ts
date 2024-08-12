@@ -188,6 +188,10 @@ export class MapInitialized__Params {
   get gameId(): BigInt {
     return this._event.parameters[1].value.toBigInt();
   }
+
+  get mapShrink(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
 }
 
 export class MapShrink extends ethereum.Event {
@@ -633,18 +637,20 @@ export class WorldUpdated__Params {
 export class GamePunk__gamesResult {
   value0: BigInt;
   value1: i32;
-  value2: boolean;
+  value2: i32;
   value3: boolean;
   value4: boolean;
   value5: boolean;
+  value6: boolean;
 
   constructor(
     value0: BigInt,
     value1: i32,
-    value2: boolean,
+    value2: i32,
     value3: boolean,
     value4: boolean,
     value5: boolean,
+    value6: boolean,
   ) {
     this.value0 = value0;
     this.value1 = value1;
@@ -652,6 +658,7 @@ export class GamePunk__gamesResult {
     this.value3 = value3;
     this.value4 = value4;
     this.value5 = value5;
+    this.value6 = value6;
   }
 
   toMap(): TypedMap<string, ethereum.Value> {
@@ -661,10 +668,14 @@ export class GamePunk__gamesResult {
       "value1",
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value1)),
     );
-    map.set("value2", ethereum.Value.fromBoolean(this.value2));
+    map.set(
+      "value2",
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(this.value2)),
+    );
     map.set("value3", ethereum.Value.fromBoolean(this.value3));
     map.set("value4", ethereum.Value.fromBoolean(this.value4));
     map.set("value5", ethereum.Value.fromBoolean(this.value5));
+    map.set("value6", ethereum.Value.fromBoolean(this.value6));
     return map;
   }
 
@@ -676,20 +687,24 @@ export class GamePunk__gamesResult {
     return this.value1;
   }
 
-  getGameInProgress(): boolean {
+  getMapShrink(): i32 {
     return this.value2;
   }
 
-  getStopAddingShips(): boolean {
+  getGameInProgress(): boolean {
     return this.value3;
   }
 
-  getLetCommitMoves(): boolean {
+  getStopAddingShips(): boolean {
     return this.value4;
   }
 
-  getLetSubmitMoves(): boolean {
+  getLetCommitMoves(): boolean {
     return this.value5;
+  }
+
+  getLetSubmitMoves(): boolean {
+    return this.value6;
   }
 }
 
@@ -772,6 +787,10 @@ export class GamePunk__getShipsResultValue0Struct extends ethereum.Tuple {
 
   get gameId(): BigInt {
     return this[9].toBigInt();
+  }
+
+  get punkshipId(): BigInt {
+    return this[10].toBigInt();
   }
 }
 
@@ -864,24 +883,25 @@ export class GamePunk extends ethereum.SmartContract {
   games(param0: BigInt): GamePunk__gamesResult {
     let result = super.call(
       "games",
-      "games(uint256):(uint256,uint8,bool,bool,bool,bool)",
+      "games(uint256):(uint256,uint8,uint8,bool,bool,bool,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
 
     return new GamePunk__gamesResult(
       result[0].toBigInt(),
       result[1].toI32(),
-      result[2].toBoolean(),
+      result[2].toI32(),
       result[3].toBoolean(),
       result[4].toBoolean(),
       result[5].toBoolean(),
+      result[6].toBoolean(),
     );
   }
 
   try_games(param0: BigInt): ethereum.CallResult<GamePunk__gamesResult> {
     let result = super.tryCall(
       "games",
-      "games(uint256):(uint256,uint8,bool,bool,bool,bool)",
+      "games(uint256):(uint256,uint8,uint8,bool,bool,bool,bool)",
       [ethereum.Value.fromUnsignedBigInt(param0)],
     );
     if (result.reverted) {
@@ -892,10 +912,11 @@ export class GamePunk extends ethereum.SmartContract {
       new GamePunk__gamesResult(
         value[0].toBigInt(),
         value[1].toI32(),
-        value[2].toBoolean(),
+        value[2].toI32(),
         value[3].toBoolean(),
         value[4].toBoolean(),
         value[5].toBoolean(),
+        value[6].toBoolean(),
       ),
     );
   }
@@ -988,7 +1009,7 @@ export class GamePunk extends ethereum.SmartContract {
   getShips(gameId: BigInt): Array<GamePunk__getShipsResultValue0Struct> {
     let result = super.call(
       "getShips",
-      "getShips(uint256):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint256)[])",
+      "getShips(uint256):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint256,uint256)[])",
       [ethereum.Value.fromUnsignedBigInt(gameId)],
     );
 
@@ -1000,7 +1021,7 @@ export class GamePunk extends ethereum.SmartContract {
   ): ethereum.CallResult<Array<GamePunk__getShipsResultValue0Struct>> {
     let result = super.tryCall(
       "getShips",
-      "getShips(uint256):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint256)[])",
+      "getShips(uint256):(((uint8,uint8),uint8,uint8,uint8,uint8,bool,address,uint8,uint8,uint256,uint256)[])",
       [ethereum.Value.fromUnsignedBigInt(gameId)],
     );
     if (result.reverted) {
@@ -1331,12 +1352,16 @@ export class StartNewGameCall__Inputs {
     this._call = call;
   }
 
-  get gameId(): BigInt {
+  get _gameId(): BigInt {
     return this._call.inputValues[0].value.toBigInt();
   }
 
   get _radius(): i32 {
     return this._call.inputValues[1].value.toI32();
+  }
+
+  get _mapShrink(): i32 {
+    return this._call.inputValues[2].value.toI32();
   }
 }
 

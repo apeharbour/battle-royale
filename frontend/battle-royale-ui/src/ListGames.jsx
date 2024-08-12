@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -13,6 +13,7 @@ import {
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from 'graphql-request';
 import { useAccount, useBlockNumber } from "wagmi";
+import BackdropComponent from "./Backdrop";
 
 const GET_GAMES = gql`
 query getGame($address: Bytes) {
@@ -43,6 +44,9 @@ export default function ListGames(props) {
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
   const queryClient = useQueryClient();
+
+  // State to control the visibility of the Backdrop
+  const [loading, setLoading] = useState(false);
 
   const useGameQuery = (select) => useQuery({
     queryKey: ["players"],
@@ -80,8 +84,21 @@ export default function ListGames(props) {
   // Usage in your component
   const { data: hasRegisteredPlayer } = useRegiState();
 
+  const handleButtonClick = (gameId) => {
+    // Show the backdrop
+    setLoading(true);
+    // Simulate an action that takes time, then navigate to the game screen
+    setTimeout(() => {
+      // Your navigation logic here
+      window.location.href = `/${gameId}`; // Navigate to the game page
+    }, 2000); // Simulate a 2 second delay
+  };
+
   return (
     <Grid container spacing={2} p={4}>
+      {/* Backdrop Component */}
+      <BackdropComponent open={loading} />
+
       {hasRegisteredPlayer && (
        <Grid container justifyContent="center" alignItems="center">
        <Grid item xs={12} md={6}>
@@ -164,7 +181,7 @@ export default function ListGames(props) {
                   <CardActions>
                     <Button
                       variant="contained"
-                      href={`/${game.gameId}`}
+                      onClick={() => handleButtonClick(game.gameId)}
                       disabled={game.state !== "active"}
                     >
                       Show

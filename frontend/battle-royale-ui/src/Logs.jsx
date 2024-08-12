@@ -97,30 +97,12 @@ export default function Logs({ rounds, ...props }) {
                       <Typography variant="body2">
                         Move: [{move.travel.originQ}, {move.travel.originR}] to
                         [{move.travel.destinationQ}, {move.travel.destinationR}]
-                        ={" "}
-                        {
-                          calculateDirectionDistance(
-                            { q: move.travel.originQ, r: move.travel.originR },
-                            {
-                              q: move.travel.destinationQ,
-                              r: move.travel.destinationR,
-                            }
-                          ).prettyPrint
-                        }
                       </Typography>
                     )}
                     {move && move.shot && (
                       <Typography variant="body2">
                         Shot: [{move.shot.originQ}, {move.shot.originR}] to [
-                        {move.shot.destinationQ}, {move.shot.destinationR}] ={" "}
-                        {
-                          calculateDirectionDistance(
-                            { q: move.shot.originQ, r: move.shot.originR },
-                            {
-                              q: move.shot.destinationQ, r: move.shot.destinationR
-                            },
-                          ).prettyPrint
-                        }
+                        {move.shot.destinationQ}, {move.shot.destinationR}]
                       </Typography>
                     )}
                   </Box>

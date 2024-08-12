@@ -1,341 +1,337 @@
-{
-  "_format": "hh-sol-artifact-1",
-  "contractName": "RegistrationPunk",
-  "sourceName": "contracts/RegistrationPunk.sol",
-  "abi": [
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "_gamePunkAddress",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_punkshipsAddress",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "nonpayable",
-      "type": "constructor"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "owner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnableInvalidOwner",
-      "type": "error"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "account",
-          "type": "address"
-        }
-      ],
-      "name": "OwnableUnauthorizedAccount",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "PlayerAlreadyRegisteredError",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "PlayerNotOwnerOfShipError",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "RegistrationClosedError",
-      "type": "error"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "previousOwner",
-          "type": "address"
-        },
-        {
-          "indexed": true,
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "OwnershipTransferred",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "registrationPhase",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "player",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "gameId",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "punkshipId",
-          "type": "uint256"
-        }
-      ],
-      "name": "PlayerAdded",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "registrationPhase",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "address",
-          "name": "player",
-          "type": "address"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "punkshipId",
-          "type": "uint256"
-        }
-      ],
-      "name": "PlayerRegistered",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "registrationPhase",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "gameId",
-          "type": "uint256"
-        }
-      ],
-      "name": "RegistrationClosed",
-      "type": "event"
-    },
-    {
-      "anonymous": false,
-      "inputs": [
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "registrationPhase",
-          "type": "uint256"
-        },
-        {
-          "indexed": false,
-          "internalType": "uint256",
-          "name": "firstGameId",
-          "type": "uint256"
-        }
-      ],
-      "name": "RegistrationStarted",
-      "type": "event"
-    },
-    {
-      "stateMutability": "nonpayable",
-      "type": "fallback"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint8",
-          "name": "_maxPlayersPerGame",
-          "type": "uint8"
-        },
-        {
-          "internalType": "uint8",
-          "name": "_radius",
-          "type": "uint8"
-        }
-      ],
-      "name": "closeRegistration",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "gamePunk",
-      "outputs": [
-        {
-          "internalType": "contract IGamePunk",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "lastGameId",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "owner",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "punkships",
-      "outputs": [
-        {
-          "internalType": "contract IPunkships",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "uint256",
-          "name": "_punkshipId",
-          "type": "uint256"
-        }
-      ],
-      "name": "registerPlayer",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "name": "registeredPlayers",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "registered",
-          "type": "bool"
-        },
-        {
-          "internalType": "uint256",
-          "name": "punkshipId",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "registrationClosed",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "registrationPhase",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "renounceOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "startRegistration",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "address",
-          "name": "newOwner",
-          "type": "address"
-        }
-      ],
-      "name": "transferOwnership",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    }
-  ],
-  "bytecode": "0x6080346100ef57601f610a2b38819003918201601f19168301916001600160401b038311848410176100f45780849260409485528339810103126100ef57610052602061004b8361010a565b920161010a565b33156100d65760008054336001600160a01b0319808316821784556040519590946001600160a01b03949093859391908416907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09080a3600160ff196005541617600555168360015416176001551690600254161760025561090c908161011f8239f35b604051631e4fbdf760e01b815260006004820152602490fd5b600080fd5b634e487b7160e01b600052604160045260246000fd5b51906001600160a01b03821682036100ef5756fe60406080815260048036101561001e575b50503461001957005b600080fd5b600091823560e01c806310b86695146106e45780633ee9d648146106c55780634bafce221461067c578063715018a61461061f578063821644e61461042f5780638da5cb5b1461040757806397701583146103de5780639f9a093c146103ba578063a9c06f2514610391578063ac11482d14610372578063f2fde38b146102e95763f78d431e146100af5750610010565b3461024157806003193601126102415781359160ff918284168094036102e5576024938435938085168095036102e1576100e761080e565b6001948560ff196005541617600555858889915b610103578980f35b86548210156102dd578316908115610245575b61011f8161085f565b909260018060a01b03809454600393841b1c1691828d52602052878c20938a5416916006928d8c8554970196875492803b15610241578f93838f91928f93889560649551988997889663b39116fd60e01b885287015285015260448401525af1801561023557916080917fc76726500476b014ff54846cd5f07ede81d39e33d9287c353f9bf7094f4b4ccf93610226575b506007549085549754908c519283526020830152878c8301526060820152a18581146102145790898095949392019287878516146101fb575b50506101f49061083a565b91926100fb565b6102079192935061083a565b905589906101f4386101e9565b634e487b7160e01b8c52601189528a8cfd5b61022f906108ac565b386101b0565b8e8b51903d90823e3d90fd5b8280fd5b6007547f64d0f40aa47b2a1f62d09ad9f129aadd33f1cf29ccaf08d792f73dae63ab0ec287600654928151908152836020820152a188546001600160a01b0316908b90823b156102d95760448a838e95898d519788968795634ab0aac960e01b87528601528401525af180156102cf576102c0575b50610116565b6102c9906108ac565b386102ba565b87513d8d823e3d90fd5b5080fd5b8980f35b8680fd5b8480fd5b5034610241576020366003190112610241576001600160a01b038235818116939192908490036102e55761031b61080e565b831561035c57505082546001600160a01b0319811683178455167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08380a380f35b51631e4fbdf760e01b8152908101849052602490fd5b8382346102d957816003193601126102d9576020906007549051908152f35b8382346102d957816003193601126102d95760015490516001600160a01b039091168152602090f35b8382346102d957816003193601126102d95760209060ff6005541690519015158152f35b8382346102d957816003193601126102d95760025490516001600160a01b039091168152602090f35b8382346102d957816003193601126102d957905490516001600160a01b039091168152602090f35b508290346102d957602090816003193601126102415783359060ff60055416610610573384526003835260ff81852054166106015760025481516331a9108f60e11b81528681018490526001600160a01b039185908290602490829086165afa9081156105f7578691610593575b50813391160361058357815182810181811067ffffffffffffffff821117610570578352600181526001858201858152338852600387528488209251151560ff801985541691161783555191015585546801000000000000000081101561055d579160609391610535848960017f1554eea6bdedf6e383fb69807ae2cb84a760cbea05b884c10fd0b94950addcc8999701905561085f565b819291549060031b9133831b921b19161790556007549281519384523390840152820152a180f35b634e487b7160e01b865260418752602486fd5b634e487b7160e01b875260418852602487fd5b8151631cff6a4d60e11b81528690fd5b9050843d86116105f0575b601f8101601f1916820167ffffffffffffffff8111838210176105dd57869183918652810103126105d9575181811681036105d9578761049d565b8580fd5b634e487b7160e01b885260418952602488fd5b503d61059e565b83513d88823e3d90fd5b516308d6305b60e11b81528490fd5b51632897002160e01b81528490fd5b833461067957806003193601126106795761063861080e565b80546001600160a01b03198116825581906001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b80fd5b50903461024157602036600319011261024157356001600160a01b03811690819003610241579181928152600360205220600160ff825416910154825191151582526020820152f35b8382346102d957816003193601126102d9576020906006549051908152f35b5090346102415782600319360112610241576106fe61080e565b600754906001918281018091116107fb576007556006548281018091116107fb576006556005805460ff191690558184815b6107b4575b50508054908481558161077a575b847fe43a2035d72fa9558e272ce1917b2d097611c94ed6280e5625d67fdd7335c46c8560075460065482519182526020820152a180f35b84527f8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b908101905b818110156107435784815582016107a2565b82548110156107f657806107ca6107f09261085f565b9054600391821b1c6001600160a01b03168852602052858720878155830187905561083a565b81610730565b610735565b634e487b7160e01b855260118252602485fd5b6000546001600160a01b0316330361082257565b60405163118cdaa760e01b8152336004820152602490fd5b60001981146108495760010190565b634e487b7160e01b600052601160045260246000fd5b6004548110156108965760046000527f8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b0190600090565b634e487b7160e01b600052603260045260246000fd5b67ffffffffffffffff81116108c057604052565b634e487b7160e01b600052604160045260246000fdfea26469706673582212201a56c90ecd4e1815d1ca73325b252660211e9d30edfdea1bd9c55766a16903f964736f6c63430008140033",
-  "deployedBytecode": "0x60406080815260048036101561001e575b50503461001957005b600080fd5b600091823560e01c806310b86695146106e45780633ee9d648146106c55780634bafce221461067c578063715018a61461061f578063821644e61461042f5780638da5cb5b1461040757806397701583146103de5780639f9a093c146103ba578063a9c06f2514610391578063ac11482d14610372578063f2fde38b146102e95763f78d431e146100af5750610010565b3461024157806003193601126102415781359160ff918284168094036102e5576024938435938085168095036102e1576100e761080e565b6001948560ff196005541617600555858889915b610103578980f35b86548210156102dd578316908115610245575b61011f8161085f565b909260018060a01b03809454600393841b1c1691828d52602052878c20938a5416916006928d8c8554970196875492803b15610241578f93838f91928f93889560649551988997889663b39116fd60e01b885287015285015260448401525af1801561023557916080917fc76726500476b014ff54846cd5f07ede81d39e33d9287c353f9bf7094f4b4ccf93610226575b506007549085549754908c519283526020830152878c8301526060820152a18581146102145790898095949392019287878516146101fb575b50506101f49061083a565b91926100fb565b6102079192935061083a565b905589906101f4386101e9565b634e487b7160e01b8c52601189528a8cfd5b61022f906108ac565b386101b0565b8e8b51903d90823e3d90fd5b8280fd5b6007547f64d0f40aa47b2a1f62d09ad9f129aadd33f1cf29ccaf08d792f73dae63ab0ec287600654928151908152836020820152a188546001600160a01b0316908b90823b156102d95760448a838e95898d519788968795634ab0aac960e01b87528601528401525af180156102cf576102c0575b50610116565b6102c9906108ac565b386102ba565b87513d8d823e3d90fd5b5080fd5b8980f35b8680fd5b8480fd5b5034610241576020366003190112610241576001600160a01b038235818116939192908490036102e55761031b61080e565b831561035c57505082546001600160a01b0319811683178455167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08380a380f35b51631e4fbdf760e01b8152908101849052602490fd5b8382346102d957816003193601126102d9576020906007549051908152f35b8382346102d957816003193601126102d95760015490516001600160a01b039091168152602090f35b8382346102d957816003193601126102d95760209060ff6005541690519015158152f35b8382346102d957816003193601126102d95760025490516001600160a01b039091168152602090f35b8382346102d957816003193601126102d957905490516001600160a01b039091168152602090f35b508290346102d957602090816003193601126102415783359060ff60055416610610573384526003835260ff81852054166106015760025481516331a9108f60e11b81528681018490526001600160a01b039185908290602490829086165afa9081156105f7578691610593575b50813391160361058357815182810181811067ffffffffffffffff821117610570578352600181526001858201858152338852600387528488209251151560ff801985541691161783555191015585546801000000000000000081101561055d579160609391610535848960017f1554eea6bdedf6e383fb69807ae2cb84a760cbea05b884c10fd0b94950addcc8999701905561085f565b819291549060031b9133831b921b19161790556007549281519384523390840152820152a180f35b634e487b7160e01b865260418752602486fd5b634e487b7160e01b875260418852602487fd5b8151631cff6a4d60e11b81528690fd5b9050843d86116105f0575b601f8101601f1916820167ffffffffffffffff8111838210176105dd57869183918652810103126105d9575181811681036105d9578761049d565b8580fd5b634e487b7160e01b885260418952602488fd5b503d61059e565b83513d88823e3d90fd5b516308d6305b60e11b81528490fd5b51632897002160e01b81528490fd5b833461067957806003193601126106795761063861080e565b80546001600160a01b03198116825581906001600160a01b03167f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e08280a380f35b80fd5b50903461024157602036600319011261024157356001600160a01b03811690819003610241579181928152600360205220600160ff825416910154825191151582526020820152f35b8382346102d957816003193601126102d9576020906006549051908152f35b5090346102415782600319360112610241576106fe61080e565b600754906001918281018091116107fb576007556006548281018091116107fb576006556005805460ff191690558184815b6107b4575b50508054908481558161077a575b847fe43a2035d72fa9558e272ce1917b2d097611c94ed6280e5625d67fdd7335c46c8560075460065482519182526020820152a180f35b84527f8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b908101905b818110156107435784815582016107a2565b82548110156107f657806107ca6107f09261085f565b9054600391821b1c6001600160a01b03168852602052858720878155830187905561083a565b81610730565b610735565b634e487b7160e01b855260118252602485fd5b6000546001600160a01b0316330361082257565b60405163118cdaa760e01b8152336004820152602490fd5b60001981146108495760010190565b634e487b7160e01b600052601160045260246000fd5b6004548110156108965760046000527f8a35acfbc15ff81a39ae7d344fd709f28e8600b4aa8c65c6b64bfe7fe36bd19b0190600090565b634e487b7160e01b600052603260045260246000fd5b67ffffffffffffffff81116108c057604052565b634e487b7160e01b600052604160045260246000fdfea26469706673582212201a56c90ecd4e1815d1ca73325b252660211e9d30edfdea1bd9c55766a16903f964736f6c63430008140033",
-  "linkReferences": {},
-  "deployedLinkReferences": {}
-}
+[
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_gamePunkAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_punkshipsAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableInvalidOwner",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PlayerAlreadyRegisteredError",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "PlayerNotOwnerOfShipError",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "RegistrationClosedError",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "registrationPhase",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "punkshipId",
+        "type": "uint256"
+      }
+    ],
+    "name": "PlayerAdded",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "registrationPhase",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "punkshipId",
+        "type": "uint256"
+      }
+    ],
+    "name": "PlayerRegistered",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "registrationPhase",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "RegistrationClosed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "registrationPhase",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "firstGameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "RegistrationStarted",
+    "type": "event"
+  },
+  {
+    "stateMutability": "nonpayable",
+    "type": "fallback"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "_maxPlayersPerGame",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_radius",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_mapShrink",
+        "type": "uint8"
+      }
+    ],
+    "name": "closeRegistration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "gamePunk",
+    "outputs": [
+      {
+        "internalType": "contract IGamePunk",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "lastGameId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "punkships",
+    "outputs": [
+      {
+        "internalType": "contract IPunkships",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_punkshipId",
+        "type": "uint256"
+      }
+    ],
+    "name": "registerPlayer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "name": "registeredPlayers",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "registered",
+        "type": "bool"
+      },
+      {
+        "internalType": "uint256",
+        "name": "punkshipId",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registrationClosed",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "registrationPhase",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "startRegistration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

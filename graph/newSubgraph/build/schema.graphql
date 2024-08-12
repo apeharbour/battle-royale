@@ -11,6 +11,7 @@ type Game @entity {
   players: [Player!]! @derivedFrom(field: "game")
   rounds: [Round!]! @derivedFrom(field: "game")
   cells: [Cell!]! @derivedFrom(field: "game")
+  mapShrink: Int
 }
 
 type Player @entity {

@@ -14,7 +14,7 @@ import { styled } from "@mui/material/styles";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
-const REGISTRATION_ABI = RegistrationPunkAbi.abi;
+const REGISTRATION_ABI = RegistrationPunkAbi;
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -25,7 +25,7 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-export default function RegisterShipButton({ shipId, burned, punkships, onCancel }) {
+export default function RegisterShipButton({ shipId, burned, punkships, onCancel, isRegistrationOpen }) {
   const [txInFlight, setTxInFlight] = useState(false);
   const [registrationDialogOpen, setRegistrationDialogOpen] = useState(false);
 
@@ -51,6 +51,15 @@ export default function RegisterShipButton({ shipId, burned, punkships, onCancel
   }, [shipId]);
 
   const registerShip = () => {
+
+    if(!isRegistrationOpen) {
+      enqueueSnackbar("Registration is closed, checkback later!", { variant: "error" });
+      return;
+    }
+
+    enqueueSnackbar(`Registering ship ${shipId} for ${address}`, {
+      variant: "info",
+    });
     console.log(`Registering ship ${shipId} for ${address}`);
     writeContract({
       abi: REGISTRATION_ABI,
@@ -120,7 +129,8 @@ export default function RegisterShipButton({ shipId, burned, punkships, onCancel
         <Stack spacing={2} direction="row" justifyContent="center">
           <Button
             variant="contained"
-            sx={{ backgroundColor: "red", fontSize: '1rem', padding: '10px 20px' }}
+            color="error"
+            sx={{ fontSize: '1rem', padding: '10px 20px' }}
             onClick={handleClose}
             disabled={isConfirming}
           >
@@ -128,7 +138,8 @@ export default function RegisterShipButton({ shipId, burned, punkships, onCancel
           </Button>
           <Button
             variant="contained"
-            sx={{ backgroundColor: "green", fontSize: '1rem', padding: '10px 20px' }}
+            color="success"
+            sx={{ fontSize: '1rem', padding: '10px 20px' }}
             onClick={registerShip}
             disabled={!shipId || isConfirming || !isConnected || burned}
           >
