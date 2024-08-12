@@ -53,7 +53,7 @@ export default function RegisterShipButton({ shipId, burned, punkships, onCancel
   const registerShip = () => {
 
     if(!isRegistrationOpen) {
-      enqueueSnackbar("Registration is closed, checkback later!", { variant: "error" });
+      enqueueSnackbar("Registration is closed, check back later!", { variant: "error" });
       return;
     }
 
