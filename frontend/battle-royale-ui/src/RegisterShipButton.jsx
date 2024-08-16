@@ -12,6 +12,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import { styled } from "@mui/material/styles";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
+import "./MintShip.css";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi;
@@ -127,24 +128,24 @@ export default function RegisterShipButton({ shipId, burned, punkships, onCancel
           />
         </Box>
         <Stack spacing={2} direction="row" justifyContent="center">
-          <Button
-            variant="contained"
-            color="error"
+          <button
+          className="holographic2-button"
+           
             sx={{ fontSize: '1rem', padding: '10px 20px' }}
             onClick={handleClose}
             disabled={isConfirming}
           >
             Cancel
-          </Button>
-          <Button
-            variant="contained"
-            color="success"
+          </button>
+          <button
+          className="holographic-button"
+          
             sx={{ fontSize: '1rem', padding: '10px 20px' }}
             onClick={registerShip}
             disabled={!shipId || isConfirming || !isConnected || burned}
           >
-            {isConfirming ? "Confirming..." : "Register Ship"}
-          </Button>
+            {isConfirming ? "Confirming..." : "Register"}
+          </button>
         </Stack>
       </DialogContent>
     </BootstrapDialog>

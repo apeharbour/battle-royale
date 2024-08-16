@@ -13,6 +13,7 @@ import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import { styled } from "@mui/material/styles";
 import GameAbi from "./abis/GamePunk.json";
+import "./MintShip.css";
 
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const GAME_ABI = GameAbi.abi;
@@ -215,7 +216,7 @@ export default function CommitMoveButton({
         sx={{
           m: 0,
           p: 2,
-          fontSize: "2rem",
+          fontSize: "2.8rem",
           fontWeight: 200,
           display: "flex",
           justifyContent: "center",
@@ -225,18 +226,17 @@ export default function CommitMoveButton({
         Commit your move
       </DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={2} direction="row" justifyContent="space-between">
-          <Button
-            variant="contained"
+        <Stack spacing={2} direction="row" justifyContent="center">
+          <button
+            className="holographic2-button"
             onClick={handleClose}
             disabled={isConfirming}
-            color="error"
           >
-            Edit Move
-          </Button>
-          <Button variant="contained" onClick={commitMove} color="success">
-            {isConfirming ? "Confirming..." : "Commit Move"}
-          </Button>
+            Edit
+          </button>
+          <button className="holographic-button" onClick={commitMove}>
+            {isConfirming ? "Confirming..." : "Commit"}
+          </button>
         </Stack>
       </DialogContent>
     </BootstrapDialog>

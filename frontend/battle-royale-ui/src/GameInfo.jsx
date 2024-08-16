@@ -23,17 +23,17 @@ export default function GameInfo({ round, gameId, mapShrink }) {
     return (
         <Card elevation={4} sx={{ overflow: "hidden" }}>
             
-            <StyledCardContent>
+            <StyledCardContent sx={{textAlign: "left"}}>
                 <Typography variant="h5"> Game {gameId} </Typography>
-                <Typography variant="h5"> Round {round} </Typography>
+                <Typography variant="h5"> Round: {round} </Typography>
                 {mapShrink && mapShrink === 1 && (
                 <Typography variant="h5">
-                    Map will shrink every round
+                    Shrink: In {mapShrink} round
                 </Typography>
                 )}
                 {mapShrink && mapShrink !== 1 && (
                 <Typography variant="h5">
-                    Map will shrink every {mapShrink} rounds
+                     Shrink: In {mapShrink} rounds
                 </Typography>
                 )}
             </StyledCardContent>

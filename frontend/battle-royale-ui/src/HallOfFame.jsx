@@ -14,6 +14,7 @@ import { useQuery, useQueries } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount } from "wagmi";
 import Backdrop from "./Backdrop";
+import "./MintShip.css";
 
 const GET_GAMES = gql`
   query getGames {
@@ -103,28 +104,34 @@ export default function HallOfFame(props) {
                               Game {game.gameId}
                             </Typography>
                             <CardMedia
-                            component="img"
-                            image={winnerData.image}
-                            alt={winnerData.address}
-                            sx={{ maxWidth: '25%', height: 'auto', marginLeft: '10px' }}
-                          /> 
-                              <Box>
-                                <Typography variant="body2">
-                                  Winner: {winnerData.address}
-                                </Typography>
-                                <Typography variant="body2">
-                                  Kills: {winnerData.kills}
-                                </Typography>
-                              </Box>
+                              component="img"
+                              image={winnerData.image}
+                              alt={winnerData.address}
+                              sx={{
+                                maxWidth: "25%",
+                                height: "auto",
+                                marginLeft: "10px",
+                              }}
+                            />
+                            <Box>
+                              <Typography variant="body2">
+                                Winner: {winnerData.address}
+                              </Typography>
+                              <Typography variant="body2">
+                                Kills: {winnerData.kills}
+                              </Typography>
+                            </Box>
                           </Box>
                         </CardContent>
                         <CardActions>
-                          <Button
-                            variant="contained"
-                            href={`/${game.gameId}/finalart`}
+                          <button
+                            className="holographic3-button"
+                            onClick={() =>
+                              (window.location.href = `/${game.gameId}/finalart`)
+                            }
                           >
                             Show
-                          </Button>
+                          </button>
                         </CardActions>
                       </Card>
                     </Box>

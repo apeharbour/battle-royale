@@ -9,16 +9,13 @@ import {
   Grid,
   Tooltip,
 } from "@mui/material";
-import {
-  HexGrid,
-  Hexagon,
-  Layout,
-} from "react-hexgrid";
+import { HexGrid, Hexagon, Layout } from "react-hexgrid";
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber } from "wagmi";
 import BackdropComponent from "./Backdrop";
+import "./MintShip.css";
 
 const GET_GAMES = gql`
   query getGame($address: Bytes, $first: Int) {
@@ -214,13 +211,13 @@ export default function ListGames(props) {
                     <Box>{renderHexGrid(game.cells)}</Box>
                   </CardContent>
                   <CardActions>
-                    <Button
-                      variant="contained"
+                    <button
+                      className="holographic3-button"
                       onClick={() => handleButtonClick(game.gameId)}
                       disabled={game.state !== "active"}
                     >
                       Show
-                    </Button>
+                    </button>
                   </CardActions>
                 </Card>
               </Box>
