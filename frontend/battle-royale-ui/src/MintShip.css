@@ -121,3 +121,31 @@
   color: #777;
   background: #333;
 }
+
+
+/* Yellow Chip*/
+.holographic-chip {
+  position: relative;
+  padding: 8px 16px;
+  background: black;
+  color: #ffcc00; 
+  border: 1.6px solid #ffcc00;
+  border-radius: 16px;
+  font-size: 14px;
+  overflow: hidden;
+  box-shadow: 0 0 8px #ffcc00, 0 0 16px #ffcc00;
+  transition: box-shadow 0.4s ease, transform 0.2s ease;
+}
+
+.holographic-chip:hover {
+  box-shadow: 0 0 12px #ffcc00, 0 0 20px #ffcc00;
+  transform: scale(1.05);
+}
+
+.holographic-chip:disabled {
+  cursor: not-allowed;
+  border-color: #555;
+  box-shadow: none;
+  color: #777;
+  background: #333;
+}

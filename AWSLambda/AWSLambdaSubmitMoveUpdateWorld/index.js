@@ -342,6 +342,25 @@ const contractABI = [
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address[]",
+        "name": "players",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "MutualShot",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "gameId",
         "type": "uint256"
@@ -773,19 +792,6 @@ const contractABI = [
       }
     ],
     "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "gameId",
-        "type": "uint256"
-      }
-    ],
-    "name": "endGame",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1270,7 +1276,7 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0x4A5123a9127Bad535D4a989e02EbAF2E1B82CC53";
+const contractAddress = "0x57d26D2718282C503b40Be2354b8B2C6877CFF11";
 
 // Initialize ApiGatewayManagementApi with your WebSocket URL
 const apiGwManagementApi = new AWS.ApiGatewayManagementApi({

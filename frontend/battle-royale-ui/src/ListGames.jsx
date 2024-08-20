@@ -24,6 +24,10 @@ const GET_GAMES = gql`
       state
       game {
         gameId
+        radius
+        totalPlayers
+        timeCreated
+        mapShrink
         state
         cells(first: $first) {
           q
@@ -76,7 +80,6 @@ export default function ListGames(props) {
     );
 
   const { data: gameData } = useGameData();
-  console.log("GameData", gameData);
 
   const useRegistrationQuery = (select) =>
     useQuery({
@@ -139,6 +142,11 @@ export default function ListGames(props) {
     </HexGrid>
   );
 
+  function formatTimestampToDate(timestamp) {
+    const date = new Date(timestamp * 1000);
+    return date.toLocaleString();
+  }
+
   return (
     <Grid container spacing={2} p={4}>
       <BackdropComponent open={loading} />
@@ -190,9 +198,9 @@ export default function ListGames(props) {
         </Grid>
       )}
       {gameData &&
-        gameData.map(({ game, address, state }, index) => {
+        gameData.map(({ game }, index) => {
           return (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Grid item xs={12} sm={6} md={3} key={index}>
               <Box mt={1}>
                 <Card sx={{ maxWidth: "300px" }}>
                   <CardContent>
@@ -209,6 +217,27 @@ export default function ListGames(props) {
                       </Typography>
                     </Box>
                     <Box>{renderHexGrid(game.cells)}</Box>
+                    <Box>
+                      <Typography variant="body1">
+                        Map Radius: {game.radius}
+                      </Typography>
+                      {game.mapShrink && game.mapShrink === 1 && (
+                        <Typography variant="body1">
+                          Map Shrink: Every round
+                        </Typography>
+                      )}
+                       {game.mapShrink && game.mapShrink > 1 && (
+                        <Typography variant="body1">
+                           Map Shrink: Every {game.mapShrink} rounds
+                        </Typography>
+                      )}
+                      <Typography variant="body1">
+                        Total Players: {game.totalPlayers}
+                      </Typography>
+                      <Typography variant="body1">
+                        Game Created On: {formatTimestampToDate(game.timeCreated)}
+                      </Typography>
+                    </Box>
                   </CardContent>
                   <CardActions>
                     <button

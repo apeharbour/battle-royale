@@ -187,6 +187,53 @@ export class Game extends Entity {
   set mapShrink(value: i32) {
     this.set("mapShrink", Value.fromI32(value));
   }
+
+  get totalPlayers(): i32 {
+    let value = this.get("totalPlayers");
+    if (!value || value.kind == ValueKind.NULL) {
+      return 0;
+    } else {
+      return value.toI32();
+    }
+  }
+
+  set totalPlayers(value: i32) {
+    this.set("totalPlayers", Value.fromI32(value));
+  }
+
+  get timeCreated(): BigInt | null {
+    let value = this.get("timeCreated");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timeCreated(value: BigInt | null) {
+    if (!value) {
+      this.unset("timeCreated");
+    } else {
+      this.set("timeCreated", Value.fromBigInt(<BigInt>value));
+    }
+  }
+
+  get timeEnded(): BigInt | null {
+    let value = this.get("timeEnded");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set timeEnded(value: BigInt | null) {
+    if (!value) {
+      this.unset("timeEnded");
+    } else {
+      this.set("timeEnded", Value.fromBigInt(<BigInt>value));
+    }
+  }
 }
 
 export class Player extends Entity {

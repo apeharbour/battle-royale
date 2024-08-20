@@ -3,16 +3,10 @@ import { ethers } from "ethers";
 import {
   useAccount,
   useWriteContract,
-  useConfig,
   useWaitForTransactionReceipt,
 } from "wagmi";
-
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-
-import GameAbi from "./abis/GamePunk.json";
-import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
-
 import {
   Box,
   TextField,
@@ -26,17 +20,17 @@ import {
 } from "@mui/material";
 import Timer from "./Timer";
 
+import GameAbi from "./abis/GamePunk.json";
+import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
+
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi;
 const GAME_ABI = GameAbi.abi;
 
-
 const GAME_ID = 1;
-
 const MAX_PLAYERS_PER_GAME = 8;
 const RADIUS = 6;
-
 
 const registrationQuery = gql`
   query registrations {
@@ -58,41 +52,40 @@ const shortenAddress = (address) => {
   return `${address.slice(0, 6)}..${address.slice(-4)}`;
 };
 
-// const useRegistrationsQuery = (select) => {
-//   return useQuery({
-//     queryKey: ["registrations"],
-//     queryFn: async () =>
-//       request(
-//         import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION,
-//         registrationQuery
-//       ),
-//     select,
-//   });
-// };
-
 const useRegistrationsQuery = (select) => {
   return useQuery({
     queryKey: ["registrations"],
-    queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION, registrationQuery),
+    queryFn: async () =>
+      request(
+        import.meta.env.VITE_SUBGRAPH_URL_REGISTRATION,
+        registrationQuery
+      ),
     select,
     staleTime: 0, // Ensure the data is considered stale immediately
     cacheTime: 0, // Minimize cache duration
-    refetchOnWindowFocus: 'always' // Refetch every time the window gains focus, useful in development
+    refetchOnWindowFocus: "always", // Refetch every time the window gains focus, useful in development
   });
 };
 
+const useRegistrations = (state) =>
+  useRegistrationsQuery((data) =>
+    data.registrations.filter((r) => r.state === state)
+  );
 
-const useRegistrations = (state) => useRegistrationsQuery((data) => data.registrations.filter((r) => r.state === state));
-const useRegistrationsPhase = (state) => useRegistrationsQuery((data) => {
-  const filteredByState = data.registrations.filter(r => r.state === state);
-  const highestPhase = Math.max(...filteredByState.map(r => parseInt(r.phase, 10)));
-  const highestPhaseGameIds = filteredByState.filter(r => parseInt(r.phase, 10) === highestPhase).map(r => r.firstGameId);
-  return {
-    highestPhaseGameIds,
-    fullData: filteredByState,
-  };
-});
-
+const useRegistrationsPhase = (state) =>
+  useRegistrationsQuery((data) => {
+    const filteredByState = data.registrations.filter((r) => r.state === state);
+    const highestPhase = Math.max(
+      ...filteredByState.map((r) => parseInt(r.phase, 10))
+    );
+    const highestPhaseGameIds = filteredByState
+      .filter((r) => parseInt(r.phase, 10) === highestPhase)
+      .map((r) => r.firstGameId);
+    return {
+      highestPhaseGameIds,
+      fullData: filteredByState,
+    };
+  });
 
 class RegistrationState {
   static OPEN = "OPEN";
@@ -100,26 +93,18 @@ class RegistrationState {
 }
 
 export default function Admin(props) {
-
   const [testGameId, setTestGameId] = useState();
   const [testGameRadius, setTestGameRadius] = useState();
   const [updateWorldTestId, setUpdateWorldTestId] = useState();
   const [txInFlight, setTxInFlight] = useState(false);
   const [mapShrink, setMapShrink] = useState(3);
 
-
-  const {
-    data: closedRegistrations,
-    refetch: refetchClosedRegistrations,
-  } = useRegistrations(RegistrationState.CLOSED);
-  const {
-    data: openRegistrations,
-    refetch: refetchOpenRegistrations,
-  } = useRegistrations(RegistrationState.OPEN);
-  const {
-    data: registrationData,
-    refetch: refetchRegistrationsData,
-  } = useRegistrationsPhase(RegistrationState.CLOSED);
+  const { data: closedRegistrations } = useRegistrations(
+    RegistrationState.CLOSED
+  );
+  const { data: openRegistrations } = useRegistrations(RegistrationState.OPEN);
+  const { data: registrationData, refetch: refetchRegistrationsData } =
+    useRegistrationsPhase(RegistrationState.CLOSED);
 
   const account = useAccount();
 
@@ -138,27 +123,59 @@ export default function Admin(props) {
     data: txData,
   } = useWaitForTransactionReceipt({ hash });
 
-  useEffect(() => {
-    if (isTxConfirmed && txData && txInFlight) {
-      console.log('Transaction confirmed:', txData);
-      setTxInFlight(false);
-
-      refetchRegistrationsData().then(newData => {
-        console.log("Refetched data:", newData.data);
-        setTimeout(() => {
-          newData.data.highestPhaseGameIds.forEach(gameId => {
-            triggerLambdaFunction(gameId);
-          });
-        }, 4000);
-      });
-    }
-  }, [isTxConfirmed, txData, txInFlight, refetchRegistrationsData]);
 
   useEffect(() => {
     if (isTxError && txError) {
-      console.error('Transaction error:', txError);
+      console.error("Transaction error:", txError);
     }
   }, [isTxError, txError]);
+
+  useEffect(() => {
+    const setupEventListener = async () => {
+      if (typeof window.ethereum !== "undefined") {
+        const provider = new ethers.BrowserProvider(window.ethereum);
+        const signer = await provider.getSigner();
+        const contract = new ethers.Contract(
+          REGISTRATION_ADDRESS,
+          REGISTRATION_ABI,
+          signer
+        );
+
+        // Debug: Ensure contract is being listened to
+        console.log(
+          "Listening to RegistrationClosed event on contract:",
+          REGISTRATION_ADDRESS
+        );
+
+        contract.on("RegistrationClosed", async (registrationPhase, gameId) => {
+          console.log(
+            "Registration closed event detected:",
+            registrationPhase,
+            gameId
+          );
+
+          const newData = await refetchRegistrationsData();
+          console.log("Refetched data:", newData.data);
+
+          if (newData.data && newData.data.highestPhaseGameIds.length > 0) {
+            newData.data.highestPhaseGameIds.forEach((gameId) => {
+              triggerLambdaFunction(gameId);
+            });
+          }
+        });
+
+        // Cleanup event listener on component unmount
+        return () => {
+          console.log("Removing event listener for RegistrationClosed");
+          contract.off("RegistrationClosed");
+        };
+      } else {
+        console.error("Ethereum provider is not available");
+      }
+    };
+
+    setupEventListener();
+  }, [refetchRegistrationsData]);
 
   const startRegistration = async () => {
     writeContract({
@@ -176,8 +193,13 @@ export default function Admin(props) {
       args: [MAX_PLAYERS_PER_GAME, RADIUS, mapShrink],
     });
     setTxInFlight(true);
-    console.log("Closing registration", MAX_PLAYERS_PER_GAME, RADIUS, mapShrink);
-  }
+    console.log(
+      "Closing registration",
+      MAX_PLAYERS_PER_GAME,
+      RADIUS,
+      mapShrink
+    );
+  };
 
   const triggerLambdaFunction = async (gameId) => {
     const apiEndpoint =
@@ -230,7 +252,6 @@ export default function Admin(props) {
       args: [updateWorldTestId],
     });
   };
-
 
   return (
     <Fragment>

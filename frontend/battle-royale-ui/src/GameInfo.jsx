@@ -19,23 +19,31 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
 }));
 
 export default function GameInfo({ round, gameId, mapShrink }) {
+    const roundsUntilShrink = mapShrink - (round % mapShrink);
+    const nextShrinkRound = round + roundsUntilShrink;
+
+    const shrinkMessage = () => {
+        if (roundsUntilShrink === 1) {
+            return (
+                <Typography variant="h5" color="error">
+                    1 round to shrink
+                </Typography>
+            );
+        } else {
+            return (
+                <Typography variant="h5">
+                    {roundsUntilShrink} rounds to shrink
+                </Typography>
+            );
+        }
+    };
 
     return (
         <Card elevation={4} sx={{ overflow: "hidden" }}>
-            
             <StyledCardContent sx={{textAlign: "left"}}>
-                <Typography variant="h5"> Game {gameId} </Typography>
-                <Typography variant="h5"> Round: {round} </Typography>
-                {mapShrink && mapShrink === 1 && (
-                <Typography variant="h5">
-                    Shrink: In {mapShrink} round
-                </Typography>
-                )}
-                {mapShrink && mapShrink !== 1 && (
-                <Typography variant="h5">
-                     Shrink: In {mapShrink} rounds
-                </Typography>
-                )}
+                <Typography variant="h5">Game {gameId}</Typography>
+                <Typography variant="h5">Round: {round}</Typography>
+                {shrinkMessage()}
             </StyledCardContent>
         </Card>
     );

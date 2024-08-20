@@ -7,8 +7,8 @@ dataSources:
     network: base-sepolia
     source:
       abi: GamePunk
-      address: "0x4A5123a9127Bad535D4a989e02EbAF2E1B82CC53"
-      startBlock: 13602296
+      address: "0x57d26D2718282C503b40Be2354b8B2C6877CFF11"
+      startBlock: 14154334
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -72,4 +72,6 @@ dataSources:
           handler: handleCellDeleted
         - event: NewRound(uint256,uint256,uint8)
           handler: handleNewRound
+        - event: MutualShot(address[],uint256)
+          handler: handleMutualShot
       file: GamePunk\GamePunk.wasm

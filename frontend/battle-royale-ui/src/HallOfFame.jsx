@@ -30,6 +30,8 @@ const GET_WINNER = gql`
   query getWinner($gameId: BigInt!) {
     games(where: { gameId: $gameId }) {
       gameId
+      totalPlayers
+      timeEnded
       players {
         address
         range
@@ -61,7 +63,6 @@ export default function HallOfFame(props) {
   const { data: gameData, isLoading, isError } = useGameData();
 
   const gameIds = gameData?.map((game) => game.gameId) || [];
-  console.log(gameIds);
 
   const winnerQueries = useQueries({
     queries: gameIds.map((gameId) => ({
@@ -71,6 +72,10 @@ export default function HallOfFame(props) {
       enabled: !!gameId,
     })),
   });
+
+  const shortenAddress = (address) => {
+    return `${address.slice(0, 6)}..${address.slice(-4)}`;
+  };
 
   if (isLoading || winnerQueries.some((query) => query.isLoading)) {
     return <Backdrop open={true} />;
@@ -84,58 +89,71 @@ export default function HallOfFame(props) {
     <Grid container spacing={2} p={4}>
       {gameData &&
         gameData.map((game, index) => {
-          const winnerData = winnerQueries[
-            index
-          ]?.data?.games[0]?.players?.find((player) => player.state === "won");
+          const winnerGameData = winnerQueries[index]?.data?.games[0];
+          const winnerData = winnerGameData?.players?.find(
+            (player) => player.state === "won"
+          );
           return (
             <Fragment>
               {winnerData && (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Tooltip>
-                    <Box mt={1}>
-                      <Card>
-                        <CardContent>
-                          <Box
-                            display="flex"
-                            justifyContent="space-between"
-                            alignItems="center"
-                          >
-                            <Typography variant="h5" component="div">
-                              Game {game.gameId}
-                            </Typography>
-                            <CardMedia
-                              component="img"
-                              image={winnerData.image}
-                              alt={winnerData.address}
-                              sx={{
-                                maxWidth: "25%",
-                                height: "auto",
-                                marginLeft: "10px",
-                              }}
-                            />
-                            <Box>
-                              <Typography variant="body2">
-                                Winner: {winnerData.address}
-                              </Typography>
-                              <Typography variant="body2">
-                                Kills: {winnerData.kills}
-                              </Typography>
-                            </Box>
-                          </Box>
-                        </CardContent>
-                        <CardActions>
-                          <button
-                            className="holographic3-button"
-                            onClick={() =>
-                              (window.location.href = `/${game.gameId}/finalart`)
-                            }
-                          >
-                            Show
-                          </button>
-                        </CardActions>
-                      </Card>
-                    </Box>
-                  </Tooltip>
+                <Grid item xs={12} sm={6} md={3} key={index}>
+                  <Box mt={1}>
+                    <Card
+                      sx={{
+                        maxWidth: "300px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                      }}
+                    >
+                      <CardContent sx={{ padding: "16px" }}>
+                        <Typography
+                          variant="h5"
+                          component="div"
+                          sx={{ marginBottom: "16px" }}
+                        >
+                          Game {game.gameId}
+                        </Typography>
+                        <Box
+                          component="img"
+                          src={winnerData.image}
+                          alt={winnerData.address}
+                          sx={{
+                            maxWidth: "80%",
+                            height: "auto",
+                            marginBottom: "16px",
+                          }}
+                        />
+                        <Tooltip title={winnerData.address}>
+                          <Typography variant="body1">
+                            Winner: {shortenAddress(winnerData.address)}
+                          </Typography>
+                        </Tooltip>
+                        <Typography variant="body1">
+                          Kills: {winnerData.kills}
+                        </Typography>
+                        <Typography variant="body1">
+                          Total Players: {winnerGameData.totalPlayers}
+                        </Typography>
+                        <Typography variant="body1">
+                          Game Ended On:{" "}
+                          {new Date(winnerGameData.timeEnded * 1000).toLocaleString()}
+                        </Typography>
+                      </CardContent>
+                      <CardActions
+                        sx={{ width: "100%", justifyContent: "flex-start" }}
+                      >
+                        <button
+                          className="holographic3-button"
+                          onClick={() =>
+                            (window.location.href = `/${game.gameId}/finalart`)
+                          }
+                        >
+                          Show
+                        </button>
+                      </CardActions>
+                    </Card>
+                  </Box>
                 </Grid>
               )}
             </Fragment>

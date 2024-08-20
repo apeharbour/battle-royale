@@ -24,7 +24,8 @@ import {
   // Island as IslandEvent,
   Cell as CellEvent,
   CellDeleted as CellDeletedEvent,
-  NewRound as NewRoundEvent
+  NewRound as NewRoundEvent,
+  MutualShot as MutualShotEvent
 } from "../generated/GamePunk/GamePunk"
 import {
   Game,
@@ -67,6 +68,19 @@ export function handleCommitPhaseStarted(event: CommitPhaseStartedEvent): void {
 
 export function handleGameEnded(event: GameEndedEvent): void {
   log.info('Game ended for game {}', [event.params.gameId.toString()])
+
+  
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
+  
+  let game = Game.load(gameId)
+
+  if (!game) {
+    game = new Game(gameId)
+    game.gameId = event.params.gameId
+    game.state = GameState.FINISHED
+    game.timeEnded = event.block.timestamp
+    game.save()
+  }
 }
 
 function createNewRound(_gameId: Bytes, _roundId: BigInt, _radius: i32): Round {
@@ -85,21 +99,45 @@ function createNewRound(_gameId: Bytes, _roundId: BigInt, _radius: i32): Round {
 export function handleNewRound(event: NewRoundEvent): void {
   log.info('New round {} started for game {}', [event.params.roundId.toString(), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
-  // const gameId = Bytes.fromI32(event.params.gameId.toI32())
+  
+  // Load the existing game or create a new one if it doesn't exist
+  let game = Game.load(gameId)
+
+  if (!game) {
+    game = new Game(gameId)
+    game.gameId = event.params.gameId
+    game.state = GameState.REGISTERING
+    game.timeCreated = event.block.timestamp
+    game.timeEnded = BigInt.zero()
+  }
 
   const round = createNewRound(gameId, event.params.roundId, event.params.radius);
 
-  // update game
-  let game = new Game(gameId);
+  // Update game with new round details
   game.currentRound = round.id;
   game.state = GameState.ACTIVE;
   game.save();
-
 }
+
 
 export function handleGameStarted(event: GameStartedEvent): void {
   log.info('Game started for game {}', [event.params.gameId.toString()])
+  log.info('Setting timeCreated for game {} to {}', [event.params.gameId.toString(), event.block.timestamp.toString()])
+
+
+  const gameId = Bytes.fromI32(event.params.gameId.toI32())
+  
+  let game = Game.load(gameId)
+
+  if (!game) {
+    game = new Game(gameId)
+    game.gameId = event.params.gameId
+    game.state = GameState.REGISTERING
+    game.timeCreated = event.block.timestamp
+    game.save()
+  }
 }
+
 
 export function handleGameUpdated(event: GameUpdatedEvent): void {
   log.info('Game updated for game {}', [event.params.gameId.toString()])
@@ -120,10 +158,12 @@ export function handleGameWinner(event: GameWinnerEvent): void {
   let game = new Game(gameId)
   game.state = GameState.FINISHED
   game.winner = playerId
+  game.timeEnded = event.block.timestamp
   game.save()
   } else {
     let game = new Game(gameId)
     game.state = GameState.FINISHED
+    game.timeEnded = event.block.timestamp
     game.save()
   }
 }
@@ -137,6 +177,7 @@ export function handleMapInitialized(event: MapInitializedEvent): void {
 
   if (!game) {
     game = new Game(gameId)
+    game.timeCreated = event.block.timestamp
     let round = Round.load(roundId)
     if (!round) {
       round = createNewRound(gameId, BigInt.zero(), 0);
@@ -153,6 +194,7 @@ export function handleMapInitialized(event: MapInitializedEvent): void {
 
   game.save();
 }
+
 
 export function handleMapShrink(event: MapShrinkEvent): void {
   log.info('Map shrunk for game {}', [event.params.gameId.toString()])
@@ -273,6 +315,12 @@ export function handlePlayerAdded(event: PlayerAddedEvent): void {
 
   player.save()
   log.info('Player {} saved in state {}', [shortenAddress(playerId), player.state])
+
+  let game = Game.load(gameId)
+  if (game) {
+    game.totalPlayers = game.totalPlayers + 1
+    game.save()
+  }
 }
 
 export function handlePlayerDefeated(event: PlayerDefeatedEvent): void {
@@ -321,6 +369,26 @@ export function handleShipHit(event: ShipHitEvent): void {
     }
   }
 }
+
+export function handleMutualShot(event: MutualShotEvent): void {
+  const gameId = Bytes.fromI32(event.params.gameId.toI32());
+  const game = Game.load(gameId);
+
+  if (game) {
+      for (let i = 0; i < event.params.players.length; i++) {
+          const playerId = gameId.concat(event.params.players[i]);
+          let player = Player.load(playerId);
+
+          if (player) {
+              player.state = PlayerState.SHOT;
+              player.killedInRound = game.currentRound;
+              player.kills = player.kills + 1; // Increment kill count
+              player.save();
+          }
+      }
+  }
+}
+
 
 export function handleShipMoved(event: ShipMovedEvent): void {
   log.info('Ship of {} moved to q {} r {} in game {}', [shortenAddress(event.params.captain), event.params.q.toString(), event.params.r.toString(), event.params.gameId.toString()])
