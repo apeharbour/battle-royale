@@ -1,17 +1,22 @@
-// ShipStatus.jsx
-
 import React from "react";
-import { Card, CardContent, CardMedia, Chip, Stack, Typography } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  CardMedia,
+  Stack,
+  Typography,
+} from "@mui/material";
+import "./MintShip.css";
 
 export default function ShipStatus({ ship }) {
-
-  if (!ship) return (
-    <Card elevation={4}>
-      <CardContent>
-        <Typography variant="h5" > Not playing in this game </Typography>
-      </CardContent>
-    </Card>
-  );
+  if (!ship)
+    return (
+      <Card elevation={4}>
+        <CardContent>
+          <Typography variant="h5"> Not playing in this game </Typography>
+        </CardContent>
+      </Card>
+    );
 
   return (
     <Card elevation={4}>
@@ -21,17 +26,16 @@ export default function ShipStatus({ ship }) {
         image={ship.image}
         title={ship.name}
         sx={{
-          width: '100%', // Adjust the width to leave space around the image
-          margin: 'auto', // Center the image horizontally
-          padding: '10px', // Optional: add padding around the image
+          width: "100%",
+          margin: "auto",
+          padding: "10px",
         }}
       />
       <CardContent sx={{ flex: "1 0 auto" }}>
         <Stack spacing={1} direction="row" justifyContent="center">
-          <Chip label={`Movement: ${ship.range}`} color='primary' />
-          <Chip label={`Shoot: ${ship.shotRange}`} color='primary' />
+          <div className="holographic-chip">Movement: {ship.range}</div>
+          <div className="holographic-chip">Shoot: {ship.shotRange}</div>
         </Stack>
-
       </CardContent>
     </Card>
   );

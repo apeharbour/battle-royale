@@ -6,7 +6,6 @@ import {
   useAccount,
   useBlockNumber,
   useWatchContractEvent,
-  useWatchBlockNumber,
 } from "wagmi";
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
@@ -15,9 +14,7 @@ import { Hex, HexUtils, GridGenerator } from "react-hexgrid";
 import ShipStatus from "./ShipStatus";
 import Logs from "./Logs";
 import GameInfo from "./GameInfo";
-import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import GameAbi from "./abis/GamePunk.json";
-import PunkshipsAbi from "./abis/Punkships.json";
 
 import MainBoardArea from "./MainBoardArea.jsx";
 import Timer from "./Timer.jsx";
@@ -25,12 +22,8 @@ import CommitMoveButton from "./CommitMoveButton.jsx";
 import GameStatus from "./GameStatus.jsx";
 import LastRoundResults from "./LastRoundResults.jsx";
 
-const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
-const PUNKSHIPS_ADDRESS = import.meta.env.VITE_PUNKSHIPS_ADDRESS;
-const REGISTRATION_ABI = RegistrationPunkAbi.abi;
 const GAME_ABI = GameAbi.abi;
-const PUNKSHIPS_ABI = PunkshipsAbi.abi;
 
 // const sdk = getBuiltGraphSDK()
 

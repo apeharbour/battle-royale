@@ -100,6 +100,7 @@ contract GamePunk is Ownable {
     event MapShrink(uint256 gameId);
     event Cell(uint256 gameId, uint8 q, uint8 r, bool island);
     event CellDeleted(uint256 gameId, uint8 q, uint8 r);
+    event MutualShot(address [] players, uint256 gameId);
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -442,16 +443,12 @@ contract GamePunk is Ownable {
         return !cell.exists;
     }
 
-    function updateWorld(uint256 gameId) public onlyOwner {
-        require(
-            games[gameId].gameInProgress == true,
-            "Game has not started yet!"
-        );
+   function updateWorld(uint256 gameId) public onlyOwner {
+        require(games[gameId].gameInProgress, "Game has not started yet!");
 
-        // shrink map every [mapShrink] rounds
+        // Shrink map every [mapShrink] rounds
         if (games[gameId].round % games[gameId].mapShrink == 0) {
-            SharedStructs.Coordinate[] memory deletedCells = map
-                .deleteOutermostRing(gameId, games[gameId].shrinkNo);
+            SharedStructs.Coordinate[] memory deletedCells = map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
             games[gameId].shrinkNo++;
             emit MapShrink(gameId);
             for (uint8 i = 0; i < deletedCells.length; i++) {
@@ -460,18 +457,14 @@ contract GamePunk is Ownable {
 
             // Sink players outside the invalid map cells
             for (uint8 i = 0; i < games[gameId].players.length; i++) {
-                SharedStructs.Coordinate memory shipCoord = games[gameId]
-                    .ships[games[gameId].players[i]]
-                    .coordinate;
+                SharedStructs.Coordinate memory shipCoord = games[gameId].ships[games[gameId].players[i]].coordinate;
 
                 if (isShipOutsideMap(shipCoord, gameId)) {
                     emit ShipSunkOutOfMap(games[gameId].players[i], gameId); // Emitting event when ship is sunk due to being outside the map
                     sinkShip(games[gameId].players[i], i, gameId);
 
                     // Adjust the players array
-                    games[gameId].players[i] = games[gameId].players[
-                        games[gameId].players.length - 1
-                    ]; // Swap with the last player
+                    games[gameId].players[i] = games[gameId].players[games[gameId].players.length - 1]; // Swap with the last player
                     games[gameId].players.pop(); // Remove the last player
                     if (i > 0) {
                         i--; // Adjust the loop counter to recheck the swapped player
@@ -480,11 +473,8 @@ contract GamePunk is Ownable {
             }
         }
 
-        // shot destination positions
-        SharedStructs.Coordinate[]
-            memory shotDestinations = new SharedStructs.Coordinate[](
-                games[gameId].players.length
-            );
+        // Shot destination positions
+        SharedStructs.Coordinate[] memory shotDestinations = new SharedStructs.Coordinate[](games[gameId].players.length);
         // Flag to check if ship is active
         bool[] memory isActive = new bool[](games[gameId].players.length);
         // Initialize all ships as active
@@ -494,41 +484,24 @@ contract GamePunk is Ownable {
 
         // Moving ships and handling deaths due to invalid moves
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
-            // console.log("Processing player %s", games[gameId].players[i]);
             // Skip the moves of removed players
-            if (
-                games[gameId].ships[games[gameId].players[i]].captain ==
-                address(0)
-            ) {
+            if (games[gameId].ships[games[gameId].players[i]].captain == address(0)) {
                 continue;
             }
 
             if (games[gameId].ships[games[gameId].players[i]].publishedMove) {
                 (bool dies, SharedStructs.Coordinate memory dest) = map.travel(
                     games[gameId].ships[games[gameId].players[i]].coordinate,
-                    games[gameId]
-                        .ships[games[gameId].players[i]]
-                        .travelDirection,
-                    games[gameId]
-                        .ships[games[gameId].players[i]]
-                        .travelDistance,
+                    games[gameId].ships[games[gameId].players[i]].travelDirection,
+                    games[gameId].ships[games[gameId].players[i]].travelDistance,
                     gameId
                 );
 
-                // console.log("Player %s %s when traveling", games[gameId].players[i], dies ? 'dies' : 'lives');
-
                 if (dies) {
-                    emit ShipCollidedWithIsland(
-                        games[gameId].players[i],
-                        gameId,
-                        dest.q,
-                        dest.r
-                    ); // Emitting event when ship collides and dies
+                    emit ShipCollidedWithIsland(games[gameId].players[i], gameId, dest.q, dest.r); // Emitting event when ship collides and dies
                     sinkShip(games[gameId].players[i], i, gameId);
                     isActive[i] = false;
-                    games[gameId]
-                        .ships[games[gameId].players[i]]
-                        .coordinate = dest;
+                    games[gameId].ships[games[gameId].players[i]].coordinate = dest;
                     continue;
                 }
                 emit ShipMoved(
@@ -545,7 +518,7 @@ contract GamePunk is Ownable {
             }
         }
 
-        // Calculate Shot destination for active ships
+        // Calculate shot destinations for active ships
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
             if (isActive[i]) {
                 SharedStructs.Coordinate memory shotDest = map.calculateShot(
@@ -565,6 +538,10 @@ contract GamePunk is Ownable {
             }
         }
 
+        // Track mutual shots
+        address[] memory playersInvolvedInMutualShot = new address[](games[gameId].players.length);
+        uint8 mutualShotCount = 0;
+
         // Handle ship collisions and shots
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
             for (uint8 j = 0; j < games[gameId].players.length; j++) {
@@ -573,22 +550,10 @@ contract GamePunk is Ownable {
                     if (
                         isActive[i] &&
                         isActive[j] &&
-                        games[gameId]
-                            .ships[games[gameId].players[j]]
-                            .coordinate
-                            .q ==
-                        games[gameId]
-                            .ships[games[gameId].players[i]]
-                            .coordinate
-                            .q &&
-                        games[gameId]
-                            .ships[games[gameId].players[j]]
-                            .coordinate
-                            .r ==
-                        games[gameId]
-                            .ships[games[gameId].players[i]]
-                            .coordinate
-                            .r
+                        games[gameId].ships[games[gameId].players[j]].coordinate.q ==
+                        games[gameId].ships[games[gameId].players[i]].coordinate.q &&
+                        games[gameId].ships[games[gameId].players[j]].coordinate.r ==
+                        games[gameId].ships[games[gameId].players[i]].coordinate.r
                     ) {
                         isActive[i] = false;
                         isActive[j] = false;
@@ -601,81 +566,46 @@ contract GamePunk is Ownable {
                     if (
                         isActive[i] &&
                         shotDestinations[j].q ==
-                        games[gameId]
-                            .ships[games[gameId].players[i]]
-                            .coordinate
-                            .q &&
+                        games[gameId].ships[games[gameId].players[i]].coordinate.q &&
                         shotDestinations[j].r ==
-                        games[gameId]
-                            .ships[games[gameId].players[i]]
-                            .coordinate
-                            .r
+                        games[gameId].ships[games[gameId].players[i]].coordinate.r
                     ) {
-                        emit ShipHit(
-                            games[gameId].players[i],
-                            games[gameId].players[j],
-                            gameId
-                        ); // Emitting event when ship is hit by another ship's shot
-                        sinkShip(games[gameId].players[i], i, gameId);
+                        // Mark both players as involved in mutual shooting
+                        if (!alreadyAddedToMutualShot(playersInvolvedInMutualShot, games[gameId].players[i])) {
+                            playersInvolvedInMutualShot[mutualShotCount] = games[gameId].players[i];
+                            mutualShotCount++;
+                        }
+
+                        if (!alreadyAddedToMutualShot(playersInvolvedInMutualShot, games[gameId].players[j])) {
+                            playersInvolvedInMutualShot[mutualShotCount] = games[gameId].players[j];
+                            mutualShotCount++;
+                        }
+
+                        // Deactivate players to avoid processing them again
+                        isActive[i] = false;
+                        isActive[j] = false;
                     }
                 }
             }
         }
 
-        // Handle mutual shots where both players shoot each other
-        for (uint8 i = 0; i < games[gameId].players.length; i++) {
-            if (isActive[i]) {
-                for (uint8 j = i + 1; j < games[gameId].players.length; j++) {
-                    if (isActive[j]) {
-                        // Check if both players shoot each other
-                        if (
-                            shotDestinations[i].q ==
-                            games[gameId]
-                                .ships[games[gameId].players[j]]
-                                .coordinate
-                                .q &&
-                            shotDestinations[i].r ==
-                            games[gameId]
-                                .ships[games[gameId].players[j]]
-                                .coordinate
-                                .r &&
-                            shotDestinations[j].q ==
-                            games[gameId]
-                                .ships[games[gameId].players[i]]
-                                .coordinate
-                                .q &&
-                            shotDestinations[j].r ==
-                            games[gameId]
-                                .ships[games[gameId].players[i]]
-                                .coordinate
-                                .r
-                        ) {
-                            emit ShipHit(
-                                games[gameId].players[i],
-                                games[gameId].players[j],
-                                gameId
-                            );
-                            emit ShipHit(
-                                games[gameId].players[j],
-                                games[gameId].players[i],
-                                gameId
-                            );
-                            sinkShip(games[gameId].players[i], i, gameId);
-                            sinkShip(games[gameId].players[j], j, gameId);
-                            isActive[i] = false;
-                            isActive[j] = false;
-                        }
-                    }
-                }
+        // If mutual shot happened, emit the MutualShot event
+        if (mutualShotCount > 0) {
+            address[] memory mutualShotPlayers = new address[](mutualShotCount);
+            for (uint8 k = 0; k < mutualShotCount; k++) {
+                mutualShotPlayers[k] = playersInvolvedInMutualShot[k];
+            }
+            emit MutualShot(mutualShotPlayers, gameId);
+
+            for (uint8 k = 0; k < mutualShotPlayers.length; k++) {
+                sinkShip(mutualShotPlayers[k], gameId);
             }
         }
 
         // Remove sunk players
         for (uint8 i = 0; i < games[gameId].players.length; i++) {
             if (games[gameId].players[i] == address(0)) {
-                games[gameId].players[i] = games[gameId].players[
-                    games[gameId].players.length - 1
-                ];
+                games[gameId].players[i] = games[gameId].players[games[gameId].players.length - 1];
                 games[gameId].players.pop();
                 if (i > 0) {
                     i--;
@@ -693,15 +623,9 @@ contract GamePunk is Ownable {
         } else {
             emit GameUpdated(false, games[gameId].players[0], gameId);
             for (uint8 i = 0; i < games[gameId].players.length; i++) {
-                games[gameId]
-                    .ships[games[gameId].players[i]]
-                    .travelDirection = SharedStructs.Directions.NO_MOVE;
-                games[gameId]
-                    .ships[games[gameId].players[i]]
-                    .travelDistance = 0;
-                games[gameId]
-                    .ships[games[gameId].players[i]]
-                    .shotDirection = SharedStructs.Directions.NO_MOVE;
+                games[gameId].ships[games[gameId].players[i]].travelDirection = SharedStructs.Directions.NO_MOVE;
+                games[gameId].ships[games[gameId].players[i]].travelDistance = 0;
+                games[gameId].ships[games[gameId].players[i]].shotDirection = SharedStructs.Directions.NO_MOVE;
                 games[gameId].ships[games[gameId].players[i]].shotDistance = 0;
             }
             games[gameId].letSubmitMoves = false;
@@ -710,6 +634,16 @@ contract GamePunk is Ownable {
         }
 
         emit WorldUpdated(gameId); // Emitting the WorldUpdated event
+    }
+
+    // Helper function to check if a player is already added to the mutual shot array
+    function alreadyAddedToMutualShot(address[] memory players, address player) internal pure returns (bool) {
+        for (uint8 i = 0; i < players.length; i++) {
+            if (players[i] == player) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function addNewRound(uint256 gameId) internal returns (uint256) {

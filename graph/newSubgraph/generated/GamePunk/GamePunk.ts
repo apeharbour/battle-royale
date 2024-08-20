@@ -280,6 +280,28 @@ export class MoveSubmitted__Params {
   }
 }
 
+export class MutualShot extends ethereum.Event {
+  get params(): MutualShot__Params {
+    return new MutualShot__Params(this);
+  }
+}
+
+export class MutualShot__Params {
+  _event: MutualShot;
+
+  constructor(event: MutualShot) {
+    this._event = event;
+  }
+
+  get players(): Array<Address> {
+    return this._event.parameters[0].value.toAddressArray();
+  }
+
+  get gameId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
 export class NewRound extends ethereum.Event {
   get params(): NewRound__Params {
     return new NewRound__Params(this);
@@ -1245,36 +1267,6 @@ export class CommitMoveCall__Outputs {
   _call: CommitMoveCall;
 
   constructor(call: CommitMoveCall) {
-    this._call = call;
-  }
-}
-
-export class EndGameCall extends ethereum.Call {
-  get inputs(): EndGameCall__Inputs {
-    return new EndGameCall__Inputs(this);
-  }
-
-  get outputs(): EndGameCall__Outputs {
-    return new EndGameCall__Outputs(this);
-  }
-}
-
-export class EndGameCall__Inputs {
-  _call: EndGameCall;
-
-  constructor(call: EndGameCall) {
-    this._call = call;
-  }
-
-  get gameId(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-}
-
-export class EndGameCall__Outputs {
-  _call: EndGameCall;
-
-  constructor(call: EndGameCall) {
     this._call = call;
   }
 }
