@@ -51,7 +51,9 @@ export default function CommitMoveButton({
   myShip,
   clearTravelAndShotEndpoints,
   gameId,
-  ...props
+  round,
+  setTempTravelEndpoint,
+  setTempShotEndpoint,
 }) {
   const [txInFlight, setTxInFlight] = useState(false);
   const [moveCommitted, setMoveCommitted] = useState(false);
@@ -131,7 +133,10 @@ export default function CommitMoveButton({
   const commitMove = async () => {
     if (!isConnected) {
       console.error("Player address is undefined or not set");
-      return; // Exit the function if gamePlayer is not set
+      enqueueSnackbar(`Please connect your wallet to commit move!`, {
+        variant: "error",
+      });
+      return;
     }
 
     if (myShip.state !== "active") {
@@ -140,6 +145,8 @@ export default function CommitMoveButton({
       });
       return; // Exit the function if the player's ship is not active
     }
+
+    enqueueSnackbar(`Committing move for Round ${round}`, { variant: "info" });
 
     // calculate distances and directions
     const myShipHex = new Hex(myShip.q, myShip.r, (myShip.q + myShip.r) * -1);
@@ -189,20 +196,38 @@ export default function CommitMoveButton({
     }
   };
 
-  if (isConfirmed && txInFlight) {
-    enqueueSnackbar(`Commited move`, { variant: "success" });
-    console.log(
-      `Commited move for player ${address} with hash ${hash}`,
-      receipt
-    );
-    setTxInFlight(false);
-    setMoveCommitted(true);
-    setCommitMoveDialogOpen(false);
-    clearTravelAndShotEndpoints();
-  }
+  useEffect(() => {
+    if (isConfirmed && txInFlight) {
+      enqueueSnackbar(`Commited your move for Round ${round}`, { variant: "success" });
+      console.log(
+        `Commited move for player ${address} with hash ${hash}`,
+        receipt
+      );
+      setTxInFlight(false);
+      setMoveCommitted(true);
+      setCommitMoveDialogOpen(false);
+      setTempTravelEndpoint(undefined);
+      setTempShotEndpoint(undefined);
+      clearTravelAndShotEndpoints();
+    }
+  }, [
+    isConfirmed,
+    txInFlight,
+    hash,
+    receipt,
+    address,
+    enqueueSnackbar,
+    clearTravelAndShotEndpoints,
+    round,
+    setTempTravelEndpoint,
+    setTempShotEndpoint,
+  ]);
 
   const handleClose = () => {
+    enqueueSnackbar("Selected moves were cleared", { variant: "info" });
     clearTravelAndShotEndpoints();
+    setTempTravelEndpoint(undefined);
+    setTempShotEndpoint(undefined);
     setCommitMoveDialogOpen(false);
   };
 

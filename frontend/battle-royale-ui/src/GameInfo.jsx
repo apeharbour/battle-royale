@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { Card, CardContent, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
@@ -15,24 +15,29 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
     "&::-webkit-scrollbar-track": {
         backgroundColor: theme.palette.background.paper,
     },
-    textAlign: "center",
+    textAlign: "left",
 }));
 
 export default function GameInfo({ round, gameId, mapShrink }) {
     const roundsUntilShrink = mapShrink - (round % mapShrink);
-    const nextShrinkRound = round + roundsUntilShrink;
 
     const shrinkMessage = () => {
-        if (roundsUntilShrink === 1) {
+        if (roundsUntilShrink === mapShrink) {
             return (
                 <Typography variant="h5" color="error">
-                    1 round to shrink
+                    Map will shrink after this round
+                </Typography>
+            );
+        } else if (roundsUntilShrink === 1) {
+            return (
+                <Typography variant="h5">
+                    Map Shrink in 1 round
                 </Typography>
             );
         } else {
             return (
                 <Typography variant="h5">
-                    {roundsUntilShrink} rounds to shrink
+                    Map Shrink in {roundsUntilShrink} rounds
                 </Typography>
             );
         }
@@ -40,7 +45,7 @@ export default function GameInfo({ round, gameId, mapShrink }) {
 
     return (
         <Card elevation={4} sx={{ overflow: "hidden" }}>
-            <StyledCardContent sx={{textAlign: "left"}}>
+            <StyledCardContent>
                 <Typography variant="h5">Game {gameId}</Typography>
                 <Typography variant="h5">Round: {round}</Typography>
                 {shrinkMessage()}

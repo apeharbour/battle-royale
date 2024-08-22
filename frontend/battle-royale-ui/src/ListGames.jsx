@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -62,6 +62,7 @@ export default function ListGames(props) {
 
   // State to control the visibility of the Backdrop
   const [loading, setLoading] = useState(false);
+  const [showRegisteredMessage, setShowRegisteredMessage] = useState(false);
 
   const useGameQuery = (select) =>
     useQuery({
@@ -114,6 +115,12 @@ export default function ListGames(props) {
   // Usage in your component
   const { data: hasRegisteredPlayer } = useRegiState();
 
+  useEffect(() => {
+    if(hasRegisteredPlayer){
+      setShowRegisteredMessage(true);
+    }
+  }, [hasRegisteredPlayer])
+
   const handleButtonClick = (gameId) => {
     setLoading(true);
     setTimeout(() => {
@@ -151,7 +158,7 @@ export default function ListGames(props) {
     <Grid container spacing={2} p={4}>
       <BackdropComponent open={loading} />
 
-      {hasRegisteredPlayer && (
+      {showRegisteredMessage && (
         <Grid container justifyContent="center" alignItems="center">
           <Grid item xs={12} md={6}>
             <Box

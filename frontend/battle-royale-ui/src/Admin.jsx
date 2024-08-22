@@ -61,9 +61,9 @@ const useRegistrationsQuery = (select) => {
         registrationQuery
       ),
     select,
-    staleTime: 0, // Ensure the data is considered stale immediately
-    cacheTime: 0, // Minimize cache duration
-    refetchOnWindowFocus: "always", // Refetch every time the window gains focus, useful in development
+    staleTime: 0,
+    cacheTime: 0,
+    refetchOnWindowFocus: "always",
   });
 };
 

@@ -7,9 +7,9 @@ import {
 } from "wagmi";
 import { useSnackbar } from "notistack";
 import { Box, Button, Stack, Typography } from "@mui/material";
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
 import { styled } from "@mui/material/styles";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import "./MintShip.css";
@@ -18,15 +18,21 @@ const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi;
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
-  '& .MuiDialogContent-root': {
+  "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
   },
-  '& .MuiDialogActions-root': {
+  "& .MuiDialogActions-root": {
     padding: theme.spacing(1),
   },
 }));
 
-export default function RegisterShipButton({ shipId, burned, punkships, onCancel, isRegistrationOpen }) {
+export default function RegisterShipButton({
+  shipId,
+  burned,
+  punkships,
+  onCancel,
+  isRegistrationOpen,
+}) {
   const [txInFlight, setTxInFlight] = useState(false);
   const [registrationDialogOpen, setRegistrationDialogOpen] = useState(false);
 
@@ -52,9 +58,10 @@ export default function RegisterShipButton({ shipId, burned, punkships, onCancel
   }, [shipId]);
 
   const registerShip = () => {
-
-    if(!isRegistrationOpen) {
-      enqueueSnackbar("Registration is closed, check back later!", { variant: "error" });
+    if (!isRegistrationOpen) {
+      enqueueSnackbar("Registration is closed, check back later!", {
+        variant: "error",
+      });
       return;
     }
 
@@ -71,13 +78,15 @@ export default function RegisterShipButton({ shipId, burned, punkships, onCancel
     setTxInFlight(true);
   };
 
-  if (isConfirmed && txInFlight) {
-    enqueueSnackbar(`Ship ${shipId} registered`, { variant: "success" });
-    console.log(`Ship ${shipId} registered`, receipt);
-    setTxInFlight(false);
-    setRegistrationDialogOpen(false);
-    navigate("/listgames");
-  }
+  useEffect(() => {
+    if (isConfirmed && txInFlight) {
+      enqueueSnackbar(`Ship ${shipId} registered`, { variant: "success" });
+      console.log(`Ship ${shipId} registered`, receipt);
+      setTxInFlight(false); // Reset after success to prevent re-triggering
+      setRegistrationDialogOpen(false);
+      navigate("/listgames");
+    }
+  }, [isConfirmed, txInFlight]);
 
   const handleClose = () => {
     setRegistrationDialogOpen(false);
@@ -88,69 +97,71 @@ export default function RegisterShipButton({ shipId, burned, punkships, onCancel
 
   return (
     <Fragment>
-  {shipData && (
-    <BootstrapDialog
-      open={registrationDialogOpen}
-      onClose={handleClose}
-      maxWidth="sm"
-    >
-      <DialogTitle
-        sx={{
-          m: 0,
-          p: 2,
-          fontSize: "2rem",
-          fontWeight: 200,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
-        Confirm your registration
-      </DialogTitle>
-      <DialogContent dividers>
-        <Box display="flex" justifyContent="center" alignItems="center" mb={2}>
-          <Box textAlign="left" mr={2}>
-            <Typography variant="h5" gutterBottom>
-              Name: {shipData.name}
-            </Typography>
-            <Typography variant="h5" gutterBottom>
-              Movement: {shipData.movement}
-            </Typography>
-            <Typography variant="h5" gutterBottom>
-              Shoot: {shipData.shoot}
-            </Typography>
-          </Box>
-          <Box
-            component="img"
-            src={shipData.image}
-            alt={shipData.name}
-            sx={{ maxWidth: '25%', height: 'auto', marginLeft: '10px' }}
-          />
-        </Box>
-        <Stack spacing={2} direction="row" justifyContent="center">
-          <button
-          className="holographic2-button"
-           
-            sx={{ fontSize: '1rem', padding: '10px 20px' }}
-            onClick={handleClose}
-            disabled={isConfirming}
+      {shipData && (
+        <BootstrapDialog
+          open={registrationDialogOpen}
+          onClose={handleClose}
+          maxWidth="sm"
+        >
+          <DialogTitle
+            sx={{
+              m: 0,
+              p: 2,
+              fontSize: "2rem",
+              fontWeight: 200,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
           >
-            Cancel
-          </button>
-          <button
-          className="holographic-button"
-          
-            sx={{ fontSize: '1rem', padding: '10px 20px' }}
-            onClick={registerShip}
-            disabled={!shipId || isConfirming || !isConnected || burned}
-          >
-            {isConfirming ? "Confirming..." : "Register"}
-          </button>
-        </Stack>
-      </DialogContent>
-    </BootstrapDialog>
-  )}
-</Fragment>
-
+            Confirm your registration
+          </DialogTitle>
+          <DialogContent dividers>
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              mb={2}
+            >
+              <Box textAlign="left" mr={2}>
+                <Typography variant="h5" gutterBottom>
+                  Name: {shipData.name}
+                </Typography>
+                <Typography variant="h5" gutterBottom>
+                  Movement: {shipData.movement}
+                </Typography>
+                <Typography variant="h5" gutterBottom>
+                  Shoot: {shipData.shoot}
+                </Typography>
+              </Box>
+              <Box
+                component="img"
+                src={shipData.image}
+                alt={shipData.name}
+                sx={{ maxWidth: "25%", height: "auto", marginLeft: "10px" }}
+              />
+            </Box>
+            <Stack spacing={2} direction="row" justifyContent="center">
+              <button
+                className="holographic2-button"
+                sx={{ fontSize: "1rem", padding: "10px 20px" }}
+                onClick={handleClose}
+                disabled={isConfirming}
+              >
+                Cancel
+              </button>
+              <button
+                className="holographic-button"
+                sx={{ fontSize: "1rem", padding: "10px 20px" }}
+                onClick={registerShip}
+                disabled={!shipId || isConfirming || !isConnected || burned}
+              >
+                {isConfirming ? "Confirming..." : "Register"}
+              </button>
+            </Stack>
+          </DialogContent>
+        </BootstrapDialog>
+      )}
+    </Fragment>
   );
 }
