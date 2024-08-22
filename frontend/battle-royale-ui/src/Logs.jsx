@@ -67,13 +67,14 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
     width: '0.5rem',
   },
   '&::-webkit-scrollbar-thumb': {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: '#000000', // Custom color for scrollbar thumb
     borderRadius: '4px',
   },
   '&::-webkit-scrollbar-track': {
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: '#808080', // Custom color for scrollbar track
   },
 }));
+
 
 export default function Logs({ rounds, ...props }) {
   return (

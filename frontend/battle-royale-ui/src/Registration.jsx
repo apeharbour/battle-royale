@@ -60,7 +60,14 @@ export default function Registration(props) {
       request(import.meta.env.VITE_SUBGRAPH_URL_PUNKSHIPS, GET_SHIPS, {
         accountAddress: account.address,
       }),
+    enabled: !!account.address, // Ensure query only runs when account.address exists
   });
+
+  useEffect(() => {
+    if (isError && error) {
+      enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
+    }
+  }, [isError, error, enqueueSnackbar]);
 
   useAccountEffect({
     onDisconnect() {
@@ -134,9 +141,6 @@ export default function Registration(props) {
 
   const isRegistrationOpen = registrationData && registrationData.length > 0;
   const noteColor = isRegistrationOpen ? "green" : "red";
-
-  if (isError)
-    enqueueSnackbar("Error: " + JSON.stringify(error), { variant: "error" });
 
   return (
     <Fragment>

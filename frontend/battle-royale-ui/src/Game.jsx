@@ -2,11 +2,7 @@ import React, { useState, useEffect, Fragment } from "react";
 import { Grid, Stack, Switch, FormControlLabel } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import {
-  useAccount,
-  useBlockNumber,
-  useWatchContractEvent,
-} from "wagmi";
+import { useAccount, useBlockNumber, useWatchContractEvent } from "wagmi";
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -107,6 +103,8 @@ export default function Game(props) {
   const [travelEndpoint, setTravelEndpoint] = useState(undefined);
   const [shotEndpoint, setShotEndpoint] = useState(undefined);
   const [showCoordinateField, setShowCoordinateField] = useState(false);
+  const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
+  const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
   // const [randomInt, setRandomInt] = useState(generateRandomInt());
 
   const [endpoints, setEndpoints] = useState({
@@ -123,10 +121,10 @@ export default function Game(props) {
 
   const { data: blockNumber } = useBlockNumber({ watch: true });
   useEffect(() => {
-    console.log(
-      "Invalidating game query because of new block number",
-      blockNumber
-    );
+    // console.log(
+    //   "Invalidating game query because of new block number",
+    //   blockNumber
+    // );
     queryClient.invalidateQueries(["game", BigInt(id).toString()]);
   }, [blockNumber]);
 
@@ -256,44 +254,52 @@ export default function Game(props) {
     const move = movesLastRound.filter(
       (m) => m.player.address === ship.address
     )[0];
-
-    const travel = {};
-    const shot = {};
-
-    if (move && move.travel) {
-      travel.origin = new Hex(
-        move.travel.originQ,
-        move.travel.originR,
-        (move.travel.originQ + move.travel.originR) * -1
-      );
-      travel.destination = new Hex(
-        move.travel.destinationQ,
-        move.travel.destinationR,
-        (move.travel.destinationQ + move.travel.destinationR) * -1
-      );
+  
+    let travel = {};
+    let shot = {};
+  
+    // Only populate travel and shot if the ship is active
+    if (ship.state === "active") {
+      if (move && move.travel) {
+        travel.origin = new Hex(
+          move.travel.originQ,
+          move.travel.originR,
+          (move.travel.originQ + move.travel.originR) * -1
+        );
+        travel.destination = new Hex(
+          move.travel.destinationQ,
+          move.travel.destinationR,
+          (move.travel.destinationQ + move.travel.destinationR) * -1
+        );
+      }
+  
+      if (move && move.shot) {
+        shot.origin = new Hex(
+          move.shot.originQ,
+          move.shot.originR,
+          (move.shot.originQ + move.shot.originR) * -1
+        );
+        shot.destination = new Hex(
+          move.shot.destinationQ,
+          move.shot.destinationR,
+          (move.shot.destinationQ + move.shot.destinationR) * -1
+        );
+      }
+    } else {
+      // If the ship is not active, set travel and shot to null or empty objects
+      travel = null;
+      shot = null;
     }
-
-    if (move && move.shot) {
-      shot.origin = new Hex(
-        move.shot.originQ,
-        move.shot.originR,
-        (move.shot.originQ + move.shot.originR) * -1
-      );
-      shot.destination = new Hex(
-        move.shot.destinationQ,
-        move.shot.destinationR,
-        (move.shot.destinationQ + move.shot.destinationR) * -1
-      );
-    }
-
+  
     const s = (ship.q + ship.r) * -1;
     const mine = !!address
       ? ship.address.toLowerCase() === address.toLowerCase()
       : false;
     const newCell = { ...ship, s, travel, shot, mine };
-    // const newCell = { ...ship, s, travel, shot };
+  
     return newCell;
   };
+  
 
   const useGameQuery = (select) =>
     useQuery({
@@ -385,7 +391,7 @@ export default function Game(props) {
   // console.log("Game ID: ", id);
   // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
   // console.log("Current Round: ", currentRound);
-  //console.log("Ships: ", ships);
+  // console.log("Ships: ", ships);
   // console.log("My Ship: ", myShip);
   //console.log("Cells: ", cells);
   //console.log("Center: ", center);
@@ -466,6 +472,11 @@ export default function Game(props) {
             endpoints={endpoints}
             setEndpoints={setEndpoints}
             showCoordinateField={showCoordinateField}
+            setTempTravelEndpoint={setTempTravelEndpoint}
+            setTempShotEndpoint={setTempShotEndpoint}
+            tempShotEndpoint={tempShotEndpoint}
+            tempTravelEndpoint={tempTravelEndpoint}
+            round={currentRound}
           />
         )}
 
@@ -478,6 +489,9 @@ export default function Game(props) {
               travelEndpoint={endpoints.travel}
               shotEndpoint={endpoints.shot}
               clearTravelAndShotEndpoints={clearTravelAndShotEndpoints}
+              round={currentRound}
+              setTempTravelEndpoint={setTempTravelEndpoint}
+              setTempShotEndpoint={setTempShotEndpoint}
             />
             {/* <PlayerStatus ships={ships} /> */}
             <FormControlLabel
@@ -492,7 +506,11 @@ export default function Game(props) {
               }
             />
             <Timer gameId={gameId} />
-            <GameInfo round={currentRound} gameId={gameId} mapShrink={mapShrink} />
+            <GameInfo
+              round={currentRound}
+              gameId={gameId}
+              mapShrink={mapShrink}
+            />
           </Stack>
         </Grid>
       </Grid>

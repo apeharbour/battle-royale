@@ -31,6 +31,7 @@ const GET_WINNER = gql`
     games(where: { gameId: $gameId }) {
       gameId
       totalPlayers
+      timeCreated
       timeEnded
       players {
         address
@@ -94,9 +95,9 @@ export default function HallOfFame(props) {
             (player) => player.state === "won"
           );
           return (
-            <Fragment>
+            <Fragment key={game.gameId}>
               {winnerData && (
-                <Grid item xs={12} sm={6} md={3} key={index}>
+                <Grid item xs={12} sm={6} md={3}>
                   <Box mt={1}>
                     <Card
                       sx={{
@@ -136,8 +137,16 @@ export default function HallOfFame(props) {
                           Total Players: {winnerGameData.totalPlayers}
                         </Typography>
                         <Typography variant="body1">
+                          Game Started On:{" "}
+                          {new Date(
+                            winnerGameData.timeCreated * 1000
+                          ).toLocaleString()}
+                        </Typography>
+                        <Typography variant="body1">
                           Game Ended On:{" "}
-                          {new Date(winnerGameData.timeEnded * 1000).toLocaleString()}
+                          {new Date(
+                            winnerGameData.timeEnded * 1000
+                          ).toLocaleString()}
                         </Typography>
                       </CardContent>
                       <CardActions

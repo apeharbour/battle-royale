@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ConnectKitButton } from "connectkit";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useAccount } from "wagmi";
+import "./MintShip.css";
 
 export default function Homepage() {
     const [walletConnected, setWalletConnected] = useState(false);
@@ -36,9 +37,9 @@ export default function Homepage() {
                     }
 
                     return (
-                        <Button variant="contained" onClick={show}>
+                        <button className="holographic3-button" onClick={show}>
                             {isConnected ? "Connected": "Connect"}
-                        </Button>
+                        </button>
                     );
                 }}
             </ConnectKitButton.Custom>
