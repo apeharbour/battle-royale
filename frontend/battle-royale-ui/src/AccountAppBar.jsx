@@ -1,7 +1,14 @@
 import * as React from "react";
 import { useTheme } from "@emotion/react";
-import { useNavigate, useLocation } from 'react-router-dom';
-import { AppBar, Box, Button, IconButton, Toolbar, Typography } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
+import {
+  AppBar,
+  Box,
+  Button,
+  IconButton,
+  Toolbar,
+  Typography,
+} from "@mui/material";
 import punkLogo from "./images/punkLogo.png";
 import { useAccount } from "wagmi";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -17,10 +24,17 @@ export default function AccountAppBar({ toggleDarkMode }) {
 
   const handleLogoClick = () => {
     if (!address) {
-      navigate('/');
+      navigate("/");
     } else {
-      navigate('/menu');
+      navigate("/menu");
     }
+  };
+
+  const isActiveRoute = (path) => location.pathname === path;
+
+  const activeButtonStyle = {
+    backgroundColor: theme.palette.primary.light,
+    color: theme.palette.primary.contrastText,
   };
 
   return (
@@ -37,30 +51,76 @@ export default function AccountAppBar({ toggleDarkMode }) {
           PUNKSHIPS
         </Typography>
         {address && (
-          <Button color="inherit" onClick={() => navigate('/registration')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/registration")}
+            sx={{
+              marginLeft: 4,
+              fontSize: "1.2rem",
+              ...(isActiveRoute("/registration") ? activeButtonStyle : {}),
+            }}
+          >
             Registration
           </Button>
         )}
         {address && (
-          <Button color="inherit" onClick={() => navigate('/listgames')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/listgames")}
+            sx={{
+              marginLeft: 4,
+              fontSize: "1.2rem",
+              ...(isActiveRoute("/listgames") ? activeButtonStyle : {}),
+            }}
+          >
             Active Games
           </Button>
         )}
         {address && (
-          <Button color="inherit" onClick={() => navigate('/halloffame')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/halloffame")}
+            sx={{
+              marginLeft: 4,
+              fontSize: "1.2rem",
+              ...(isActiveRoute("/halloffame") ? activeButtonStyle : {}),
+            }}
+          >
             Hall of Fame
           </Button>
         )}
-        {address && (address === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f") && (
-          <Button color="inherit" onClick={() => navigate('/admin')} sx={{ marginLeft: 4, fontSize: '1.2rem' }}>
-            Admin
+        {address && (
+          <Button
+            color="inherit"
+            onClick={() => navigate("/spectator")}
+            sx={{
+              marginLeft: 4,
+              fontSize: "1.2rem",
+              ...(isActiveRoute("/spectator") ? activeButtonStyle : {}),
+            }}
+          >
+            Spectate
           </Button>
         )}
+        {address &&
+          address === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" && (
+            <Button
+              color="inherit"
+              onClick={() => navigate("/admin")}
+              sx={{
+                marginLeft: 4,
+                fontSize: "1.2rem",
+                ...(isActiveRoute("/admin") ? activeButtonStyle : {}),
+              }}
+            >
+              Admin
+            </Button>
+          )}
         <Box sx={{ flexGrow: 1 }} />
         <IconButton aria-label="darkmode" onClick={toggleDarkMode}>
           {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
         </IconButton>
-        {location.pathname !== '/' && <ConnectKitButton />}
+        {location.pathname !== "/" && <ConnectKitButton />}
       </Toolbar>
     </AppBar>
   );

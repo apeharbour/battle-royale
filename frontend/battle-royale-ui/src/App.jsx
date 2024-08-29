@@ -17,6 +17,8 @@ import AccountAppBar from "./AccountAppBar";
 import BackdropComponent from './Backdrop';
 import HallOfFame from "./HallOfFame";
 import Registration from "./Registration";
+import Spectator from "./Spectator";
+import SpectateGame from "./SpectateGame";
 import FinalArtData from "./FinalArtData.jsx";
 import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
@@ -71,6 +73,8 @@ function App() {
               <Route path="/listgames" element={<ListGames />} />
               <Route path="/registration" element={<Registration />} />
               <Route path="/halloffame" element={<HallOfFame />} />
+              <Route path="/spectator" element={<Spectator />} />
+              <Route path="/spectator/:gameId" element={<SpectateGame />} />
             </Routes>
           </Web3Provider>
         </ThemeProvider>
