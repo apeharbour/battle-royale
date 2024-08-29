@@ -6,12 +6,13 @@ import {
   useWaitForTransactionReceipt,
 } from "wagmi";
 import { useSnackbar } from "notistack";
-import { Box, Button, Stack, Typography } from "@mui/material";
+import { Box, DialogActions, Divider, Stack, Typography } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import { styled } from "@mui/material/styles";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
+import RegistrationAcknowledgementDialog from "./RegistrationAcknowledgement";
 import "./MintShip.css";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
@@ -35,13 +36,15 @@ export default function RegisterShipButton({
 }) {
   const [txInFlight, setTxInFlight] = useState(false);
   const [registrationDialogOpen, setRegistrationDialogOpen] = useState(false);
+  const [acknowledgementDialogOpen, setAcknowledgementDialogOpen] =
+    useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
   const { address, isConnected } = useAccount();
 
   const navigate = useNavigate();
 
-  const { data: hash, writeContract } = useWriteContract();
+  const { data: hash, writeContract, error: writeError } = useWriteContract();
 
   const {
     data: receipt,
@@ -88,9 +91,40 @@ export default function RegisterShipButton({
     }
   }, [isConfirmed, txInFlight]);
 
+  useEffect(() => {
+    if (writeError) {
+      if (writeError.code === 4001) {
+        // User rejected the transaction
+        enqueueSnackbar("Transaction rejected by user", { variant: "error" });
+      } else {
+        // Other errors
+        enqueueSnackbar("An error occurred during the transaction", {
+          variant: "error",
+        });
+      }
+      setTxInFlight(false);
+    }
+  }, [writeError, enqueueSnackbar]);
+
   const handleClose = () => {
+    enqueueSnackbar("Registration cancelled", { variant: "info" });
     setRegistrationDialogOpen(false);
     onCancel();
+  };
+
+  const handleAgree = () => {
+    setAcknowledgementDialogOpen(false);
+    registerShip();
+  };
+
+  const handleRegisterClick = () => {
+    enqueueSnackbar("Please acknowledge the terms and conditions", {variant: "info"});
+    setAcknowledgementDialogOpen(true);
+  };
+
+  const handleAcknowledgementClose = () => {
+    setAcknowledgementDialogOpen(false);
+    handleClose();
   };
 
   const shipData = punkships.find((ship) => ship.tokenId === shipId);
@@ -141,27 +175,33 @@ export default function RegisterShipButton({
                 sx={{ maxWidth: "25%", height: "auto", marginLeft: "10px" }}
               />
             </Box>
-            <Stack spacing={2} direction="row" justifyContent="center">
-              <button
-                className="holographic2-button"
-                sx={{ fontSize: "1rem", padding: "10px 20px" }}
-                onClick={handleClose}
-                disabled={isConfirming}
-              >
-                Cancel
-              </button>
-              <button
-                className="holographic-button"
-                sx={{ fontSize: "1rem", padding: "10px 20px" }}
-                onClick={registerShip}
-                disabled={!shipId || isConfirming || !isConnected || burned}
-              >
-                {isConfirming ? "Confirming..." : "Register"}
-              </button>
-            </Stack>
           </DialogContent>
+          <DialogActions sx={{justifyContent: 'center'}}>
+            <button
+              className="holographic2-button"
+              sx={{ fontSize: "1rem", padding: "10px 20px" }}
+              onClick={handleClose}
+              disabled={isConfirming}
+            >
+              Cancel
+            </button>
+            <button
+              className="holographic-button"
+              sx={{ fontSize: "1rem", padding: "10px 20px" }}
+              onClick={handleRegisterClick}
+              disabled={!shipId || isConfirming || !isConnected || burned}
+            >
+              {isConfirming ? "Confirming..." : "Register"}
+            </button>
+          </DialogActions>
         </BootstrapDialog>
       )}
+
+      <RegistrationAcknowledgementDialog
+        open={acknowledgementDialogOpen}
+        onClose={handleAcknowledgementClose}
+        onAgree={handleAgree}
+      />
     </Fragment>
   );
 }

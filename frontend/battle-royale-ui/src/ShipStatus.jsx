@@ -3,6 +3,7 @@ import {
   Card,
   CardContent,
   CardMedia,
+  Chip,
   Stack,
   Typography,
 } from "@mui/material";
@@ -33,8 +34,8 @@ export default function ShipStatus({ ship }) {
       />
       <CardContent sx={{ flex: "1 0 auto" }}>
         <Stack spacing={1} direction="row" justifyContent="center">
-          <div className="holographic-chip">Movement: {ship.range}</div>
-          <div className="holographic-chip">Shoot: {ship.shotRange}</div>
+          <Chip label={`Movement: ${ship.range}`} />
+          <Chip label={`Shoot: ${ship.shotRange}`} />
         </Stack>
       </CardContent>
     </Card>

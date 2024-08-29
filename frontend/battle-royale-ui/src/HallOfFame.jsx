@@ -8,13 +8,14 @@ import {
   Typography,
   Grid,
   Tooltip,
+  formControlClasses,
 } from "@mui/material";
-import CardMedia from "@mui/material/CardMedia";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount } from "wagmi";
 import Backdrop from "./Backdrop";
 import "./MintShip.css";
+import { formatAbiItem } from "viem/utils";
 
 const GET_GAMES = gql`
   query getGames {
@@ -78,6 +79,23 @@ export default function HallOfFame(props) {
     return `${address.slice(0, 6)}..${address.slice(-4)}`;
   };
 
+  function formatTimestampToDate(timestamp) {
+    const date = new Date(timestamp * 1000);
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: false,
+      timeZone: "Europe/Berlin",
+      timeZoneName: "short",
+    };
+    return new Intl.DateTimeFormat("en-US", options)
+      .format(date)
+      .replace("GMT+2", "CET");
+  }
+
   if (isLoading || winnerQueries.some((query) => query.isLoading)) {
     return <Backdrop open={true} />;
   }
@@ -101,10 +119,7 @@ export default function HallOfFame(props) {
                   <Box mt={1}>
                     <Card
                       sx={{
-                        maxWidth: "300px",
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
+                        maxWidth: "320px",
                       }}
                     >
                       <CardContent sx={{ padding: "16px" }}>
@@ -126,39 +141,33 @@ export default function HallOfFame(props) {
                           }}
                         />
                         <Tooltip title={winnerData.address}>
-                          <Typography variant="body1">
+                          <Typography variant="body1" sx={{fontWeight: 'bold'}}>
                             Winner: {shortenAddress(winnerData.address)}
                           </Typography>
                         </Tooltip>
-                        <Typography variant="body1">
+                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
                           Kills: {winnerData.kills}
                         </Typography>
-                        <Typography variant="body1">
+                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
                           Total Players: {winnerGameData.totalPlayers}
                         </Typography>
-                        <Typography variant="body1">
-                          Game Started On:{" "}
-                          {new Date(
-                            winnerGameData.timeCreated * 1000
-                          ).toLocaleString()}
+                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
+                          Game Created On:{" "}
+                          {formatTimestampToDate(winnerGameData.timeCreated)}
                         </Typography>
-                        <Typography variant="body1">
+                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
                           Game Ended On:{" "}
-                          {new Date(
-                            winnerGameData.timeEnded * 1000
-                          ).toLocaleString()}
+                          {formatTimestampToDate(winnerGameData.timeEnded)}
                         </Typography>
                       </CardContent>
-                      <CardActions
-                        sx={{ width: "100%", justifyContent: "flex-start" }}
-                      >
+                      <CardActions sx={{marginBottom: 1}}>
                         <button
-                          className="holographic3-button"
+                          className="holographic4-button"
                           onClick={() =>
                             (window.location.href = `/${game.gameId}/finalart`)
                           }
                         >
-                          Show
+                          Canvas of Victory
                         </button>
                       </CardActions>
                     </Card>
