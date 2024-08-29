@@ -217,7 +217,7 @@ function formatTimestampToDate(timestamp) {
       {gameData &&
         gameData.map(({ game }, index) => {
           return (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item xs={12} sm={6} md={2} key={index}>
               <Box mt={1}>
                 <Card sx={{ maxWidth: "320px" }}>
                   <CardContent>
