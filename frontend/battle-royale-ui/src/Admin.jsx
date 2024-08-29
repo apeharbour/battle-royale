@@ -322,7 +322,7 @@ export default function Admin(props) {
       </Box>
 
       <Grid container p={4}>
-        {openRegistrations && (
+        {openRegistrations?.length > 0 && (
           <Grid item xs={12}>
             <Typography variant="h4">
               {`${openRegistrations.length} Open Registrations`}
@@ -350,7 +350,7 @@ export default function Admin(props) {
             </Grid>
           ))}
 
-        {closedRegistrations && (
+        {closedRegistrations?.length > 0 && (
           <Grid item xs={12}>
             <Typography variant="h4">
               {`${closedRegistrations.length} Closed Registrations`}

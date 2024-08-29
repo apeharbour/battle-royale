@@ -52,8 +52,6 @@ export default function MintShipButton() {
       });
       return;
     }
-
-    try {
       console.log(`Minting ship for ${address}`);
       enqueueSnackbar("Minting ship for you", { variant: "info" });
       writeContract({
@@ -63,12 +61,6 @@ export default function MintShipButton() {
         args: [address],
       });
       setTxInFlight(true);
-    } catch (error) {
-      enqueueSnackbar("Transaction rejected by you", {
-        variant: "error",
-      });
-      setTxInFlight(false);
-    }
   };
 
   return (

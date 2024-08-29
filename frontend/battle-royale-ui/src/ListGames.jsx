@@ -116,10 +116,10 @@ export default function ListGames(props) {
   const { data: hasRegisteredPlayer } = useRegiState();
 
   useEffect(() => {
-    if(hasRegisteredPlayer){
+    if (hasRegisteredPlayer) {
       setShowRegisteredMessage(true);
     }
-  }, [hasRegisteredPlayer])
+  }, [hasRegisteredPlayer]);
 
   const handleButtonClick = (gameId) => {
     setLoading(true);
@@ -149,10 +149,20 @@ export default function ListGames(props) {
     </HexGrid>
   );
 
-  function formatTimestampToDate(timestamp) {
+function formatTimestampToDate(timestamp) {
     const date = new Date(timestamp * 1000);
-    return date.toLocaleString();
-  }
+  const options = {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+    timeZone: 'Europe/Berlin',
+    timeZoneName: 'short',
+  };
+  return new Intl.DateTimeFormat('en-US', options).format(date).replace('GMT+2', 'CET');
+}
 
   return (
     <Grid container spacing={2} p={4}>
@@ -209,12 +219,13 @@ export default function ListGames(props) {
           return (
             <Grid item xs={12} sm={6} md={3} key={index}>
               <Box mt={1}>
-                <Card sx={{ maxWidth: "300px" }}>
+                <Card sx={{ maxWidth: "320px" }}>
                   <CardContent>
                     <Box
                       display="flex"
                       justifyContent="space-between"
                       alignItems="center"
+                      sx={{fontWeight: 700}}
                     >
                       <Typography variant="h5" component="div">
                         Game {game.gameId}
@@ -223,30 +234,31 @@ export default function ListGames(props) {
                         {game.state}
                       </Typography>
                     </Box>
-                    <Box>{renderHexGrid(game.cells)}</Box>
+                    <Box ml={2}>{renderHexGrid(game.cells)}</Box>
                     <Box>
-                      <Typography variant="body1">
-                        Map Radius: {game.radius}
+                      <Typography variant="body1" sx={{fontWeight: 'bold'}}>
+                        Map Size: {game.radius} rings
                       </Typography>
                       {game.mapShrink && game.mapShrink === 1 && (
-                        <Typography variant="body1">
-                          Map Shrink: Every round
+                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
+                          Shrink: Every round
                         </Typography>
                       )}
-                       {game.mapShrink && game.mapShrink > 1 && (
-                        <Typography variant="body1">
-                           Map Shrink: Every {game.mapShrink} rounds
+                      {game.mapShrink && game.mapShrink > 1 && (
+                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
+                          Map Shrink: Every {game.mapShrink} rounds
                         </Typography>
                       )}
-                      <Typography variant="body1">
+                      <Typography variant="body1" sx={{fontWeight: 'bold'}}>
                         Total Players: {game.totalPlayers}
                       </Typography>
-                      <Typography variant="body1">
-                        Game Created On: {formatTimestampToDate(game.timeCreated)}
+                      <Typography variant="body1" sx={{fontWeight: 'bold'}}>
+                        Game Created On:{" "}
+                        {formatTimestampToDate(game.timeCreated)}
                       </Typography>
                     </Box>
                   </CardContent>
-                  <CardActions>
+                  <CardActions sx={{marginBottom: 1}}>
                     <button
                       className="holographic3-button"
                       onClick={() => handleButtonClick(game.gameId)}

@@ -56,9 +56,11 @@
 svg g.island .hexagon {
    fill: #e69138 
 } */
+svg .highlighted.island .hexagon {
+  filter: brightness(130%);
+}
 
-svg .highlighted .hexagon {
-  /* fill: rgb(114, 195, 239); */
+svg .highlighted.water .hexagon {
   filter: brightness(170%);
 }
 

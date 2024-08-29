@@ -105,6 +105,7 @@ export default function Registration(props) {
 
   const handleCardClick = (ship) => {
     if (!ship.burned) {
+      enqueueSnackbar(`Selected ship ${ship.name} ${ship.tokenId} for registration`, {variant: "info"});
       setSelectedYacht(ship);
       setShowYachtSelectError(false);
     } else {
