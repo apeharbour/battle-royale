@@ -26,7 +26,7 @@ export default function SpectatePlayers({ ships }) {
   return (
     <Card elevation={4} sx={{ height: "225px", overflow: "hidden" }}>
       <CardHeader
-        title="Leaderboard"
+        title="Players"
         sx={{ backdropFilter: "brightness: 60%", opacity: 1 }}
       />
       <StyledCardContent>
