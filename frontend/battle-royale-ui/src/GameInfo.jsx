@@ -25,19 +25,14 @@ export default function GameInfo({ round, gameId, mapShrink }) {
     if (roundsUntilShrink === mapShrink) {
       return (
         <Typography variant="h5" color="error">
-          Map will shrink after this round when the world updates
-        </Typography>
-      );
-    } else if (roundsUntilShrink === 1) {
-      return (
-        <Typography variant="h5">
-          Map will shrink after the next round's world update
+          Shrink after world updates
         </Typography>
       );
     } else {
       return (
         <Typography variant="h5">
-          Map shrink in {roundsUntilShrink} rounds after world updates
+          Shrinking in {roundsUntilShrink}{" "}
+          {roundsUntilShrink === 1 ? "round" : "rounds"}
         </Typography>
       );
     }

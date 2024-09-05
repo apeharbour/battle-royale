@@ -20,6 +20,8 @@ import GameAbi from "./abis/GamePunk.json";
 import SpectateMainBoard from "./SpectateMainBoard.jsx";
 import Timer from "./Timer.jsx";
 import LastRoundResults from "./LastRoundResults.jsx";
+import SpectatePlayers from "./SpectatePlayers.jsx";
+import SpectateLeaderBoard from "./SpectateLeaderBoard.jsx";
 
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const GAME_ABI = GameAbi.abi;
@@ -394,6 +396,7 @@ export default function SpectateGame() {
       <Grid container spacing={2} p={4}>
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
+            <SpectatePlayers ships={ships} />
             <Logs gameId={id} rounds={rounds} />
             <LastRoundResults rounds={rounds} />
           </Stack>
@@ -436,6 +439,11 @@ export default function SpectateGame() {
               }
             />
           </Stack>
+        </Grid>
+      </Grid>
+      <Grid container alignItems="center" justifyContent="center">
+        <Grid item xs={8} ml={5} mr={5} mb={5}>
+        <SpectateLeaderBoard ships={ships} />
         </Grid>
       </Grid>
     </Fragment>
