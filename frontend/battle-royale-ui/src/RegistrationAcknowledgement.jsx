@@ -7,6 +7,7 @@ import {
   DialogTitle,
   FormControlLabel,
   Checkbox,
+  Stack,
   Typography,
 } from "@mui/material";
 import "./MintShip.css";
@@ -95,16 +96,18 @@ export default function RegistrationAcknowledgementDialog({
         </Box>
       </DialogContent>
       <DialogActions sx={{ justifyContent: "center" }}>
-        <button className="holographic2-button" onClick={onClose}>
-          Cancel
-        </button>
-        <button
-          className="holographic-button"
-          onClick={onAgree}
-          disabled={!isChecked} // Disabled until checkbox is checked
-        >
-          Agree
-        </button>
+      <Stack spacing={4} direction="row" justifyContent="center">
+          <button className="holographic2-button" onClick={onClose}>
+            Cancel
+          </button>
+          <button
+            className="holographic-button"
+            onClick={onAgree}
+            disabled={!isChecked} // Disabled until checkbox is checked
+          >
+            Agree
+          </button>
+        </Stack>
       </DialogActions>
     </Dialog>
   );

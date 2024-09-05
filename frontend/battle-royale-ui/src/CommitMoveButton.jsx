@@ -251,7 +251,7 @@ export default function CommitMoveButton({
         Commit your move
       </DialogTitle>
       <DialogContent dividers>
-        <Stack spacing={2} direction="row" justifyContent="center">
+        <Stack spacing={4} direction="row" justifyContent="center">
           <button
             className="holographic2-button"
             onClick={handleClose}

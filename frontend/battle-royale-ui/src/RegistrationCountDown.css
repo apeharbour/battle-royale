@@ -1,0 +1,40 @@
+/* Holographic Effect for Timer */
+.holographic-clock-box {
+    background-color: black;
+    border-radius: 10px;
+    padding: 15px;
+    min-width: 100px;
+    box-shadow: 0 0 10px #00ffcc, 0 0 20px #00ffcc;
+    transition: box-shadow 0.4s ease, transform 0.2s ease;
+  }
+  
+  .holographic-clock-box:hover {
+    box-shadow: 0 0 15px #00ffcc, 0 0 25px #00ffcc;
+    transform: scale(1.05);
+  }
+  
+  .glowing-number {
+    font-family: 'VT323', monospace;
+    font-size: 3rem;
+    color: #00ffcc;
+    text-shadow: 0 0 15px #00ffcc, 0 0 30px #00ffcc;
+  }
+  
+  .glowing-number-enter {
+    opacity: 0;
+  }
+  
+  .glowing-number-enter-active {
+    opacity: 1;
+    transition: opacity 0.5s ease-in;
+  }
+  
+  .glowing-number-exit {
+    opacity: 1;
+  }
+  
+  .glowing-number-exit-active {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+  }
+  

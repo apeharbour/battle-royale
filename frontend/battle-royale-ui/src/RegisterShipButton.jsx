@@ -6,7 +6,7 @@ import {
   useWaitForTransactionReceipt,
 } from "wagmi";
 import { useSnackbar } from "notistack";
-import { Box, DialogActions, Divider, Stack, Typography } from "@mui/material";
+import { Box, DialogActions, Stack, Typography } from "@mui/material";
 import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
@@ -177,6 +177,7 @@ export default function RegisterShipButton({
             </Box>
           </DialogContent>
           <DialogActions sx={{justifyContent: 'center'}}>
+          <Stack spacing={4} direction="row" justifyContent="center">
             <button
               className="holographic2-button"
               sx={{ fontSize: "1rem", padding: "10px 20px" }}
@@ -187,12 +188,13 @@ export default function RegisterShipButton({
             </button>
             <button
               className="holographic-button"
-              sx={{ fontSize: "1rem", padding: "10px 20px" }}
+              sx={{ fontSize: "1rem", padding: "10px 20px", marginLeft: "100px" }}
               onClick={handleRegisterClick}
               disabled={!shipId || isConfirming || !isConnected || burned}
             >
               {isConfirming ? "Confirming..." : "Register"}
             </button>
+            </Stack>
           </DialogActions>
         </BootstrapDialog>
       )}
