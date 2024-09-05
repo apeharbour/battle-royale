@@ -2,11 +2,7 @@ import { useState, useEffect } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import "@fontsource-variable/pixelify-sans";
 import "@fontsource/vt323";
-import {
-  CssBaseline,
-  ThemeProvider,
-  createTheme,
-} from "@mui/material";
+import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
 import "./App.css";
 import Homepage from "./Homepage";
@@ -14,7 +10,7 @@ import ListGames from "./ListGames";
 import Game from "./Game";
 import Admin from "./Admin";
 import AccountAppBar from "./AccountAppBar";
-import BackdropComponent from './Backdrop';
+import BackdropComponent from "./Backdrop";
 import HallOfFame from "./HallOfFame";
 import Registration from "./Registration";
 import Spectator from "./Spectator";
@@ -22,11 +18,13 @@ import SpectateGame from "./SpectateGame";
 import FinalArtData from "./FinalArtData.jsx";
 import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
-import useLocalStorageState from 'use-local-storage-state';
+import useLocalStorageState from "use-local-storage-state";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
 
 function App() {
-  const [darkMode, setDarkMode] = useLocalStorageState('darkMode', { defaultValue: true });
+  const [darkMode, setDarkMode] = useLocalStorageState("darkMode", {
+    defaultValue: true,
+  });
 
   const theme = createTheme({
     palette: {
@@ -57,6 +55,8 @@ function App() {
     };
   }, [location]);
 
+  const isSpectateGameRoute = location.pathname.startsWith("/spectator/");
+
   return (
     <WebSocketProvider>
       <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
@@ -64,7 +64,7 @@ function App() {
           <CssBaseline />
           <Web3Provider theme={theme}>
             <AccountAppBar toggleDarkMode={toggleDarkMode} />
-            <BackdropComponent open={loading} />
+            {!isSpectateGameRoute && <BackdropComponent open={loading} />}
             <Routes>
               <Route path="/" element={<Homepage />} />
               <Route path="/:gameId" element={<Game />} />

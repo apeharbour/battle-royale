@@ -8,6 +8,7 @@ import { Box, Grid, Typography } from "@mui/material";
 
 import MintShipButton from "./MintShipButton";
 import RegisterShipButton from "./RegisterShipButton";
+import RegistrationCountdown from "./RegistrationCountDown";
 import ActiveShip from "./ActiveShip";
 
 const GET_SHIPS = gql`
@@ -33,6 +34,9 @@ const registrationQuery = gql`
       firstGameId
       phase
       state
+      registrationStarted {
+        blockTimestamp
+      }
     }
   }
 `;
@@ -105,7 +109,10 @@ export default function Registration(props) {
 
   const handleCardClick = (ship) => {
     if (!ship.burned) {
-      enqueueSnackbar(`Selected ship ${ship.name} ${ship.tokenId} for registration`, {variant: "info"});
+      enqueueSnackbar(
+        `Selected ship ${ship.name} ${ship.tokenId} for registration`,
+        { variant: "info" }
+      );
       setSelectedYacht(ship);
       setShowYachtSelectError(false);
     } else {
@@ -140,8 +147,13 @@ export default function Registration(props) {
 
   const { data: registrationData } = useRegistrationState();
 
+  console.log("registrationData", registrationData);
+
   const isRegistrationOpen = registrationData && registrationData.length > 0;
-  const noteColor = isRegistrationOpen ? "green" : "red";
+  const noteColor = isRegistrationOpen ? "#00ffcc" : "red";
+  const openRegistrationTimestamp = isRegistrationOpen
+    ? parseInt(registrationData[0].registrationStarted.blockTimestamp, 10)
+    : null;
 
   return (
     <Fragment>
@@ -175,15 +187,28 @@ export default function Registration(props) {
                   textAlign="center"
                 >
                   {isRegistrationOpen
-                    ? "Wait for the registration to close to view your new game screen."
+                    ? "The game screen will be available in the 'Active Games' tab once registration ends."
                     : "Please check back later for more updates."}
                 </Typography>
+                {isRegistrationOpen && openRegistrationTimestamp ? (
+                  <RegistrationCountdown
+                    registrationTimestamp={openRegistrationTimestamp}
+                  />
+                ) : (
+                  <Typography
+                    variant="body1"
+                    color="textSecondary"
+                    textAlign="center"
+                  >
+                    Loading registration data...
+                  </Typography>
+                )}
                 <Box
                   sx={{
                     position: "absolute",
-                    top: "-10px",
+                    top: "-12px",
                     right: "16px",
-                    backgroundColor: "white",
+                    backgroundColor: "#black",
                     padding: "0 8px",
                     fontWeight: "bold",
                     color: noteColor,
@@ -215,7 +240,7 @@ export default function Registration(props) {
         {punkShips
           .filter((ship) => showBurnedShips || !ship.burned)
           .map((ship, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+            <Grid item xs={12} sm={6} md={3} key={index}>
               <ActiveShip
                 ship={ship}
                 handleCardClick={handleCardClick}

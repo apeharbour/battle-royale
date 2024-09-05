@@ -7,11 +7,9 @@ import {
   Layout,
   Pattern,
 } from "react-hexgrid";
-import ShipPath from "./ShipPath.jsx";
 import * as images from "./assets/tiles/clean/index.js";
 import { useSnackbar } from "notistack";
 import Ship from "./Ship.jsx";
-import ShootPath from "./ShootPath.jsx";
 import useResizeObserver from "./utils/useResizeObserver.jsx";
 import "./animations.css"; // Import the CSS file
 
