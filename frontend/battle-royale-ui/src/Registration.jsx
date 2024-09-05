@@ -147,12 +147,11 @@ export default function Registration(props) {
 
   const { data: registrationData } = useRegistrationState();
 
-  console.log("registrationData", registrationData);
 
   const isRegistrationOpen = registrationData && registrationData.length > 0;
   const noteColor = isRegistrationOpen ? "#00ffcc" : "red";
   const openRegistrationTimestamp = isRegistrationOpen
-    ? parseInt(registrationData[0].registrationStarted.blockTimestamp, 10)
+    ? parseInt(registrationData[0]?.registrationStarted.blockTimestamp, 10)
     : null;
 
   return (
