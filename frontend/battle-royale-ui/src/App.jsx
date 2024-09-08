@@ -20,6 +20,7 @@ import { Web3Provider } from "./Web3Provider";
 import { SnackbarProvider } from "notistack";
 import useLocalStorageState from "use-local-storage-state";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
+import CoV_Data from "./CoV_Data";
 
 function App() {
   const [darkMode, setDarkMode] = useLocalStorageState("darkMode", {
@@ -69,6 +70,7 @@ function App() {
               <Route path="/" element={<Homepage />} />
               <Route path="/:gameId" element={<Game />} />
               <Route path="/:gameId/finalart" element={<FinalArtData />} />
+              <Route path="/:gameId/cov" element={<CoV_Data />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/listgames" element={<ListGames />} />
               <Route path="/registration" element={<Registration />} />
