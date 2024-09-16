@@ -10,10 +10,11 @@ import {
   Typography,
 } from "@mui/material";
 import punkLogo from "./images/punkLogo.png";
+import yartsLogo from "./images/yartsLogo.svg";
 import { useAccount } from "wagmi";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
-import { ConnectKitButton } from "connectkit";
+import { Avatar, ConnectKitButton } from "connectkit";
 
 export default function AccountAppBar({ toggleDarkMode }) {
   const theme = useTheme();
@@ -40,16 +41,31 @@ export default function AccountAppBar({ toggleDarkMode }) {
   return (
     <AppBar position="sticky">
       <Toolbar>
-        <Box
-          component="img"
-          sx={{ width: "48px", cursor: "pointer" }}
-          src={punkLogo}
-          alt="Punkships Logo"
+      <Box
+          sx={{
+            width: '100px',
+            height: '50px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden', 
+            cursor: 'pointer',
+          }}
           onClick={handleLogoClick}
-        />
-        <Typography variant="h6" component="div" sx={{ marginLeft: 1 }}>
+        >
+          <Box
+            component="img"
+            sx={{
+              width: '400%', 
+              height: '400%',
+            }}
+            src={yartsLogo}
+            alt="Punkships Logo"
+          />
+        </Box>
+        {/* <Typography variant="h6" component="div" sx={{ marginLeft: 1 }}>
           PUNKSHIPS
-        </Typography>
+        </Typography> */}
         {address && (
           <Button
             color="inherit"
