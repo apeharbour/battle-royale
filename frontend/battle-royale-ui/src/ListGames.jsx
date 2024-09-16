@@ -149,20 +149,22 @@ export default function ListGames(props) {
     </HexGrid>
   );
 
-function formatTimestampToDate(timestamp) {
+  function formatTimestampToDate(timestamp) {
     const date = new Date(timestamp * 1000);
-  const options = {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-    hour12: false,
-    timeZone: 'Europe/Berlin',
-    timeZoneName: 'short',
-  };
-  return new Intl.DateTimeFormat('en-US', options).format(date).replace('GMT+2', 'CET');
-}
+    const options = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      hour12: false,
+      timeZone: "Europe/Berlin",
+      timeZoneName: "short",
+    };
+    return new Intl.DateTimeFormat("en-US", options)
+      .format(date)
+      .replace("GMT+2", "CET");
+  }
 
   return (
     <Grid container spacing={2} p={4}>
@@ -225,7 +227,7 @@ function formatTimestampToDate(timestamp) {
                       display="flex"
                       justifyContent="space-between"
                       alignItems="center"
-                      sx={{fontWeight: 700}}
+                      sx={{ fontWeight: 700 }}
                     >
                       <Typography variant="h5" component="div">
                         Game {game.gameId}
@@ -236,29 +238,43 @@ function formatTimestampToDate(timestamp) {
                     </Box>
                     <Box ml={2}>{renderHexGrid(game.cells)}</Box>
                     <Box>
-                      <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                        Map Size: {game.radius} rings
+                      <Typography variant="body1">
+                        <Box component="span">Map Size: </Box>
+                        <Box component="span" sx={{ fontWeight: "bold" }}>
+                          {game.radius} rings
+                        </Box>
                       </Typography>
                       {game.mapShrink && game.mapShrink === 1 && (
-                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                          Shrink: Every round
+                        <Typography variant="body1">
+                          <Box component="span">Shrink: </Box>
+                          <Box component="span" sx={{ fontWeight: "bold" }}>
+                            Every round
+                          </Box>
                         </Typography>
                       )}
                       {game.mapShrink && game.mapShrink > 1 && (
-                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                          Map Shrink: Every {game.mapShrink} rounds
+                        <Typography variant="body1">
+                          <Box component="span">Map Shrink: </Box>
+                          <Box component="span" sx={{ fontWeight: "bold" }}>
+                            Every {game.mapShrink} rounds
+                          </Box>
                         </Typography>
                       )}
-                      <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                        Total Players: {game.totalPlayers}
+                      <Typography variant="body1">
+                        <Box component="span">Total Players: </Box>
+                        <Box component="span" sx={{ fontWeight: "bold" }}>
+                          {game.totalPlayers}
+                        </Box>
                       </Typography>
-                      <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                        Game Created On:{" "}
-                        {formatTimestampToDate(game.timeCreated)}
+                      <Typography variant="body1">
+                        <Box component="span">Game Created On: </Box>
+                        <Box component="span" sx={{ fontWeight: "bold" }}>
+                          {formatTimestampToDate(game.timeCreated)}
+                        </Box>
                       </Typography>
                     </Box>
                   </CardContent>
-                  <CardActions sx={{marginBottom: 1}}>
+                  <CardActions sx={{ marginBottom: 1 }}>
                     <button
                       className="holographic3-button"
                       onClick={() => handleButtonClick(game.gameId)}

@@ -84,24 +84,39 @@ export default function SpectatorGameCard({
         </Box>
         <Box ml={2}>{renderHexGrid(cells)}</Box>
         <Box>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Map Size: {radius} rings
+          <Typography variant="body1">
+            <Box component="span">Map Size: </Box>
+            <Box component="span" sx={{ fontWeight: "bold" }}>
+              {radius} rings
+            </Box>
           </Typography>
           {mapShrink && mapShrink === 1 && (
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Shrink: Every round
+            <Typography variant="body1">
+              <Box component="span">Shrink: </Box>
+              <Box component="span" sx={{ fontWeight: "bold" }}>
+                Every round
+              </Box>
             </Typography>
           )}
           {mapShrink && mapShrink > 1 && (
-            <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-              Map Shrink: Every {mapShrink} rounds
+            <Typography variant="body1">
+              <Box component="span">Map Shrink: </Box>
+              <Box component="span" sx={{ fontWeight: "bold" }}>
+                Every {mapShrink} rounds
+              </Box>
             </Typography>
           )}
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Total Players: {totalPlayers}
+          <Typography variant="body1">
+            <Box component="span">Total Players: </Box>
+            <Box component="span" sx={{ fontWeight: "bold" }}>
+              {totalPlayers}
+            </Box>
           </Typography>
-          <Typography variant="body1" sx={{ fontWeight: "bold" }}>
-            Game Created On: {formatTimestampToDate(timeCreated)}
+          <Typography variant="body1">
+            <Box component="span">Game Created On: </Box>
+            <Box component="span" sx={{ fontWeight: "bold" }}>
+              {formatTimestampToDate(timeCreated)}
+            </Box>
           </Typography>
         </Box>
       </CardContent>

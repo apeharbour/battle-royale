@@ -2,55 +2,85 @@ import React, { useState, useEffect, Fragment } from "react";
 import { Grid, Stack, Typography } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
-import { useAccount, useBlockNumber, useWatchContractEvent, useWatchBlockNumber } from "wagmi";
+import {
+  useAccount,
+  useBlockNumber,
+  useWatchContractEvent,
+  useWatchBlockNumber,
+} from "wagmi";
 import { useLocation, useParams } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import { Hex, HexUtils, GridGenerator } from "react-hexgrid";
 import CoV_Art from "./CoV_Art";
 
-import { useElementSize } from '@mantine/hooks';
+import { useElementSize } from "@mantine/hooks";
 import FinalArtSvg from "./FinalArtSvg";
 
-
-
 const gameQuery = gql`
-  query getGame ($gameId: BigInt!, $first: Int ) {
+  query getGame($gameId: BigInt!, $first: Int) {
     games(where: { gameId: $gameId }) {
       gameId
       state
       radius
       centerQ
       centerR
-      currentRound { round }
-      cells (first: $first) {
+      currentRound {
+        round
+      }
+      cells(first: $first) {
         q
         r
         island
-        deletedInRound { round }
-  		}
-  		rounds {
+        deletedInRound {
+          round
+        }
+      }
+      rounds {
         round
         radius
         shrunk
-        deletedCells { q r }
-        moves { 
-          player {address state killedInRound { round } }
-          round { round }
+        deletedCells {
+          q
+          r
+        }
+        moves {
+          player {
+            address
+            state
+            killedInRound {
+              round
+            }
+          }
+          round {
+            round
+          }
           commitment
-          travel {originQ, originR, destinationQ, destinationR}
-          shot {originQ, originR, destinationQ, destinationR}
+          travel {
+            originQ
+            originR
+            destinationQ
+            destinationR
+          }
+          shot {
+            originQ
+            originR
+            destinationQ
+            destinationR
+          }
         }
       }
       players {
         address
-        q 
+        q
         r
-        range 
+        range
         shotRange
         state
         kills
         image
-        killedInRound { round }
+        killedInRound {
+          round
+        }
       }
     }
   }
@@ -61,20 +91,20 @@ export default function CoV_Data(props) {
 
   const queryClient = useQueryClient();
 
-  /** Add water cells to the array 
+  /** Add water cells to the array
    * @param {Array} islands - Array of islands (coming from the subgraph)
    * @param {Number} radius - The radius of the game board
    * @returns {Array} - Array of cells
    * This function is currently not used. It's here for reference and will be useful
    * when we change the smart contract to track islands only. In that case, we will need
    * to generate the game board with water cells on the front end, based on radius and islands.
-  */
+   */
   const addWaterCells = (islands, radius) => {
     const center = new Hex(radius, radius, -2 * radius);
     const generator = GridGenerator.getGenerator("ring");
 
     // generate the map with water only
-    const waterCells = [center]
+    const waterCells = [center];
     for (let i = 1; i <= radius; i++) {
       const cells = generator(center, i);
       waterCells.push(...cells);
@@ -83,11 +113,11 @@ export default function CoV_Data(props) {
     // check if a cell is an island and set the island property
     const cells = waterCells.map((cell) => {
       const island = islands.find((i) => i.q === cell.q && i.r === cell.r);
-      const isIsland = !!island && island.island
-      return {...cell, island: isIsland ? true : false};
-    })
+      const isIsland = !!island && island.island;
+      return { ...cell, island: isIsland ? true : false };
+    });
     return cells;
-  }
+  };
 
   /* Enrich the cell data with additional properties:
    * s: the cube coordinate s
@@ -146,84 +176,130 @@ export default function CoV_Data(props) {
     //   shot.destination = new Hex(move.shot.destinationQ, move.shot.destinationR, (move.shot.destinationQ + move.shot.destinationR) * -1);
     // }
 
-    const move = moves.filter((m) => m.address.toLowerCase() === ship.address.toLowerCase())[0]
-    const { travels, shots, travelLong } = move;
+    const move = moves.filter(
+      (m) => m.address.toLowerCase() === ship.address.toLowerCase()
+    )[0];
+    const { travels, shots, travelLong, shotLong } = move;
 
     const s = (ship.q + ship.r) * -1;
     const killed = !!ship.killedInRound;
 
     // const mine = !!address ? ship.address.toLowerCase() === address.toLowerCase() : false;
     // const newCell = { ...ship, s, travel, shot, mine };
-    return { ...ship, killed, s, travels, shots, travelLong};
+    return { ...ship, killed, s, travels, shots, travelLong, shotLong };
   };
 
   const getPlayersMoves = (data) => {
     const playerMoves = {};
-  
-    // Iterate through each game
-    data.games.forEach(game => {
-      // Iterate through each round in the game
-      game.rounds.forEach(round => {
-        // Iterate through each move in the round
-        round.moves.forEach(move => {
+
+    data.games.forEach((game) => {
+      game.rounds.forEach((round) => {
+        round.moves.forEach((move) => {
           const playerAddress = move.player.address;
-  
-          // If player is not already in the result object, add them
+
+          // Initialize player moves, travels, shots, and shotLong for the first time
           if (!playerMoves[playerAddress]) {
             playerMoves[playerAddress] = {
               address: playerAddress,
               travels: [],
-              travelLong: [new Hex(move.travel.originQ, move.travel.originR, (move.travel.originQ + move.travel.originR) * -1)],
+              travelLong: [
+                new Hex(
+                  move.travel.originQ,
+                  move.travel.originR,
+                  (move.travel.originQ + move.travel.originR) * -1
+                ),
+              ],
               shots: [],
+              shotLong: [
+                new Hex(
+                  move.shot.originQ,
+                  move.shot.originR,
+                  (move.shot.originQ + move.shot.originR) * -1
+                ),
+              ],
             };
           }
 
-          playerMoves[playerAddress].travelLong.push(new Hex(move.travel.destinationQ, move.travel.destinationR, (move.travel.destinationQ + move.travel.destinationR) * -1));
-  
-          // Add the current move to the player's moves
+          // Add travel information
+          playerMoves[playerAddress].travelLong.push(
+            new Hex(
+              move.travel.destinationQ,
+              move.travel.destinationR,
+              (move.travel.destinationQ + move.travel.destinationR) * -1
+            )
+          );
           playerMoves[playerAddress].travels.push({
             round: round.round,
-            from: new Hex(move.travel.originQ, move.travel.originR, (move.travel.originQ + move.travel.originR) * -1),
-            to: new Hex(move.travel.destinationQ, move.travel.destinationR, (move.travel.destinationQ + move.travel.destinationR) * -1),
+            from: new Hex(
+              move.travel.originQ,
+              move.travel.originR,
+              (move.travel.originQ + move.travel.originR) * -1
+            ),
+            to: new Hex(
+              move.travel.destinationQ,
+              move.travel.destinationR,
+              (move.travel.destinationQ + move.travel.destinationR) * -1
+            ),
           });
+
+          // Add shot information
+          playerMoves[playerAddress].shotLong.push(
+            new Hex(
+              move.shot.destinationQ,
+              move.shot.destinationR,
+              (move.shot.destinationQ + move.shot.destinationR) * -1
+            )
+          );
           playerMoves[playerAddress].shots.push({
             round: round.round,
-            from: new Hex(move.shot.originQ, move.shot.originR, (move.shot.originQ + move.shot.originR) * -1),
-            to: new Hex(move.shot.destinationQ, move.shot.destinationR, (move.shot.destinationQ + move.shot.destinationR) * -1),
+            from: new Hex(
+              move.shot.originQ,
+              move.shot.originR,
+              (move.shot.originQ + move.shot.originR) * -1
+            ),
+            to: new Hex(
+              move.shot.destinationQ,
+              move.shot.destinationR,
+              (move.shot.destinationQ + move.shot.destinationR) * -1
+            ),
           });
         });
       });
     });
-  
-    // Convert the result object to an array
-    return Object.values(playerMoves);
-  }
-  
 
-  const useGameQuery = (select) => useQuery({
+    return Object.values(playerMoves);
+  };
+
+  const useGameQuery = (select) =>
+    useQuery({
       queryKey: ["game", BigInt(gameId).toString()],
-      queryFn: async () => request(import.meta.env.VITE_SUBGRAPH_URL_GAME, gameQuery, {
-        gameId: gameId,
-        first: 1000,
-      }),
+      queryFn: async () =>
+        request(import.meta.env.VITE_SUBGRAPH_URL_GAME, gameQuery, {
+          gameId: gameId,
+          first: 1000,
+        }),
       select,
     });
 
   // const useCurrentRound = () => useGameQuery((data) => parseInt(data.games[0].currentRound.round))
 
-  const useShips = () => useGameQuery((data) => {
-    // let movesLastRound = [];
-    // const currentRound = parseInt(data.games[0].currentRound.round)
-    // if (currentRound > 1) {
-    //   movesLastRound = data.games[0].rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
-    // }
-    const playersMoves = getPlayersMoves(data);
-    return data.games[0].players.map(s => enrichShip(s, playersMoves));
-  });
+  const useShips = () =>
+    useGameQuery((data) => {
+      // let movesLastRound = [];
+      // const currentRound = parseInt(data.games[0].currentRound.round)
+      // if (currentRound > 1) {
+      //   movesLastRound = data.games[0].rounds.filter(r => parseInt(r.round) === currentRound - 1)[0].moves;
+      // }
+      const playersMoves = getPlayersMoves(data);
+      return data.games[0].players.map((s) => enrichShip(s, playersMoves));
+    });
 
   // const useMyShip = (address) => useGameQuery((data) => data.games[0].players.filter((s) => s.address.toLowerCase() === address.toLowerCase())[0]);
 
-  const useCells = () => useGameQuery((data) => data.games[0].cells.map((c) => enrichCell(c, data.games[0].cells)));
+  const useCells = () =>
+    useGameQuery((data) =>
+      data.games[0].cells.map((c) => enrichCell(c, data.games[0].cells))
+    );
 
   const useRounds = () => useGameQuery((data) => data.games[0].rounds);
 
@@ -233,9 +309,20 @@ export default function CoV_Data(props) {
   //   const player = data.games[0].players.find((p) => p.address.toLowerCase() === address.toLowerCase());
   //   return player ? player.state : null;
   // });
-  const useCenter = () => useGameQuery((data) => new Hex(data.games[0].centerQ, data.games[0].centerR, (data.games[0].centerQ + data.games[0].centerR) * -1));
+  const useCenter = () =>
+    useGameQuery(
+      (data) =>
+        new Hex(
+          data.games[0].centerQ,
+          data.games[0].centerR,
+          (data.games[0].centerQ + data.games[0].centerR) * -1
+        )
+    );
 
-  const useWinner = () => useGameQuery((data) => data.games[0].players.find((p) => p.state === 'won'));
+  const useWinner = () =>
+    useGameQuery((data) =>
+      data.games[0].players.find((p) => p.state === "won")
+    );
 
   const { data: result } = useGameQuery();
 
@@ -255,7 +342,7 @@ export default function CoV_Data(props) {
   // console.log("Ships: ", ships);
   // console.log("My Ship: ", myShip);
   console.log("Cells: ", cells);
-  console.log("Ships: ", ships)
+  console.log("Ships: ", ships);
   console.log("Rounds: ", rounds);
   console.log("Game Winner: ", winner);
   console.log("Center: ", center);
@@ -265,19 +352,26 @@ export default function CoV_Data(props) {
   console.log("Height: ", height);
   console.log("Ships", ships);
 
-
-
   return (
     <Fragment>
       <Grid container spacing={2} p={4}>
         <Grid item xs={12}>
-          <Typography variant="h4" align="center">Final Art Display for Game #{gameId}</Typography>
+          <Typography variant="h4" align="center">
+            Final Art Display for Game #{gameId}
+          </Typography>
           {/* <Typography variant="body" align="center">width: {width}, height: {height} </Typography> */}
         </Grid>
-        <Grid item xs={12} ref={ref} id='svgDrawing'>
-          {cells && <CoV_Art gameId={gameId} cells={cells} center={center} ships={ships} /> }
+        <Grid item xs={12} ref={ref} id="svgDrawing">
+          {cells && (
+            <CoV_Art
+              gameId={gameId}
+              cells={cells}
+              center={center}
+              ships={ships}
+              winner={winner}
+            />
+          )}
         </Grid>
-
       </Grid>
     </Fragment>
   );

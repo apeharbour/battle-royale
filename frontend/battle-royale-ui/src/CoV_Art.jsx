@@ -7,14 +7,10 @@ const shortenAddress = (address) => {
   return `${address.slice(2, 6)}\n${address.slice(-4)}`;
 };
 
-export default function CoV_Art({
-  center,
-  cells,
-  ships,
-  gameId,
-}) {
+export default function CoV_Art({ center, cells, ships, gameId, winner }) {
   // const svgRef = useRef(null);
 
+  console.log("Here winner:", winner);
   // Create a hexagonal grid using honeycomb
   const CustomHex = defineHex({
     dimensions: 30, // size of each hexagon
@@ -29,21 +25,26 @@ export default function CoV_Art({
     );
   };
 
-  const drawShips = (draw, ships) => {
+  const drawShips = (draw, ships, winner) => {
     ships.forEach((ship) => {
       const hex = new CustomHex({ q: ship.q, r: ship.r });
       const { x, y } = hex;
+
+      // Check if winner exists and has an address, and then compare with the ship's address
+      const isWinner =
+        winner && winner.address && ship.address === winner.address;
+
       draw
         .circle(10)
         .move(x - 5, y - 5)
-        .fill("red");
+        .fill(isWinner ? "blue" : "red"); // Blue for winner, red for others
     });
   };
 
   const drawSquigglyShipPath = (draw, ships) => {
     ships.forEach((ship) => {
       const hexes = ship.travelLong.map(
-        (cell) => new CustomHex({ q: cell.q, r: cell.r})
+        (cell) => new CustomHex({ q: cell.q, r: cell.r })
       );
 
       const controlPoint = new CustomHex({
@@ -54,21 +55,29 @@ export default function CoV_Art({
       const pathString = hexes
         .map((hex, index) => {
           const { x, y } = hex;
-          const prefix = index === 0 ? "M" : index === 1 ? `Q${controlPoint.x} ${controlPoint.y}` : "T";
+          const prefix =
+            index === 0
+              ? "M"
+              : index === 1
+              ? `Q${controlPoint.x} ${controlPoint.y}`
+              : "T";
           // const prefix = index === 0 ? `M ${x} ${y}` : "L";
           return `${prefix} ${x} ${y}`;
         })
         .join(" ");
 
       draw.path(pathString).fill("none").stroke({ color: "#ff0", width: 2 });
-      draw.circle(5).move(controlPoint.x - 2.5, controlPoint.y - 2.5).fill("#ccc");
+      draw
+        .circle(5)
+        .move(controlPoint.x - 2.5, controlPoint.y - 2.5)
+        .fill("#ccc");
     });
   };
 
   const drawStraightShipPath = (draw, ships) => {
     ships.forEach((ship) => {
       const hexes = ship.travelLong.map(
-        (cell) => new CustomHex({ q: cell.q, r: cell.r})
+        (cell) => new CustomHex({ q: cell.q, r: cell.r })
       );
 
       const pathStringStraight = hexes
@@ -79,20 +88,44 @@ export default function CoV_Art({
         })
         .join(" ");
 
-        draw.path(pathStringStraight).fill("none").stroke({ color: "#0f0", width: 2 });
+      draw
+        .path(pathStringStraight)
+        .fill("none")
+        .stroke({ color: "#0f0", width: 2 });
+    });
+  };
+
+  const drawStraightShipShotPath = (draw, ships) => {
+    ships.forEach((ship) => {
+      const hexes = ship.shotLong.map(
+        (cell) => new CustomHex({ q: cell.q, r: cell.r })
+      );
+
+      const pathStringStraight = hexes
+        .map((hex, index) => {
+          const { x, y } = hex;
+          const prefix = index === 0 ? "M" : "L";
+          return `${prefix} ${x} ${y}`;
+        })
+        .join(" ");
+
+      draw
+        .path(pathStringStraight)
+        .fill("none")
+        .stroke({ color: "#a7a7a7", width: 2 });
     });
   };
 
   const drawHexagons = (draw, cells) => {
     cells.forEach((cell) => {
-      const hex = new CustomHex({ q: cell.q, r: cell.r});
+      const hex = new CustomHex({ q: cell.q, r: cell.r });
 
       // Draw the hexagon
       draw
         .polygon(hex.corners.map(({ x, y }) => `${x},${y}`))
         .fill("none")
         .stroke({ color: "lightgray" });
-    })
+    });
   };
 
   const drawIslands = (draw, cells) => {
@@ -110,8 +143,7 @@ export default function CoV_Art({
           .fill("green");
       }
     });
-  }
-
+  };
 
   useEffect(() => {
     // if (!svgRef.current) return; // Make sure svgRef is available
@@ -119,17 +151,22 @@ export default function CoV_Art({
     // Reference to the SVG container
     const draw = SVG().addTo("#svgDrawing").size(800, 600); // adjust size of the drawing area
 
+    draw
+    .rect(800, 600) // width and height of the box (same as SVG size)
+    .stroke({ color: 'black', width: 2 }) // Border color and thickness
+    .fill('none');
 
-    // drawHexagons(draw, cells);
+    //drawHexagons(draw, cells);
     drawIslands(draw, cells);
     drawSquigglyShipPath(draw, ships);
-    drawStraightShipPath(draw, ships);
-    drawShips(draw, ships);
+    //drawStraightShipPath(draw, ships);
+    drawStraightShipShotPath(draw, ships);
+    drawShips(draw, ships, winner);
   }, [cells]);
 
   return (
     <>
-    <div></div>
+      <div></div>
     </>
   );
 }
