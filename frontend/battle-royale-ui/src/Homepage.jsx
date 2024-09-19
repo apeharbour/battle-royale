@@ -13,7 +13,7 @@ import Master6 from "./images/Master6.svg";
 import Master7 from "./images/Master7.svg";
 import Master8 from "./images/Master8.svg";
 import { useAccount } from "wagmi";
-import "./app.css";
+import "./App.css";
 
 const svgArray = [
   Master1,
