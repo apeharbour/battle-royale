@@ -1,46 +1,30 @@
-/* Green Button*/
+/* Green Button */
 .holographic-button {
   position: relative;
-  padding: 13.5px 27px; /* 10% reduction */
+  padding: 16px 27px; /* 10% reduction */
   background: black;
+  font-family: 'Montserrat Variable', sans-serif;
   color: #00ffcc;
   border: 1.8px solid #00ffcc; /* 10% reduction */
   border-radius: 27px; /* 10% reduction */
-  font-size: 16.2px; /* 10% reduction */
+  font-size: 1rem; /* 10% reduction */
   cursor: pointer;
   overflow: hidden;
-  box-shadow: 0 0 4.5px #00ffcc, 0 0 9px #00ffcc; /* 10% reduction */
-  transition: box-shadow 0.4s ease, transform 0.2s ease;
-}
-
-.holographic-button::before,
-.holographic-button::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: none;
-  opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: transform 0.2s ease;
 }
 
 .holographic-button:hover {
-  box-shadow: 0 0 13.5px #00ffcc, 0 0 22.5px #00ffcc; /* 10% reduction */
   transform: scale(1.05);
 }
 
 .holographic-button:disabled {
   cursor: not-allowed;
   border-color: #555;
-  box-shadow: none;
   color: #777;
   background: #333;
 }
 
-/* Red Button*/
-/* Red Button - Brighter Version */
+/* Red Button */
 .holographic2-button {
   position: relative;
   padding: 13.5px 27px; /* 10% reduction */
@@ -51,37 +35,21 @@
   font-size: 16.2px; /* 10% reduction */
   cursor: pointer;
   overflow: hidden;
-  box-shadow: 0 0 6px #ff3366, 0 0 12px #ff3366; /* Increased intensity */
-  transition: box-shadow 0.4s ease, transform 0.2s ease;
-}
-
-.holographic2-button::before,
-.holographic2-button::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: none;
-  opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: transform 0.2s ease;
 }
 
 .holographic2-button:hover {
-  box-shadow: 0 0 15px #ff3366, 0 0 25px #ff3366; /* Increased intensity */
   transform: scale(1.05);
 }
 
 .holographic2-button:disabled {
   cursor: not-allowed;
   border-color: #555;
-  box-shadow: none;
   color: #777;
   background: #333;
 }
 
-/* Blue Button*/
+/* Blue Button */
 .holographic3-button {
   position: relative;
   padding: 12px 24px; /* 20% reduction */
@@ -92,37 +60,21 @@
   font-size: 14.4px; /* 20% reduction */
   cursor: pointer;
   overflow: hidden;
-  box-shadow: 0 0 8px #00bfff, 0 0 16px #00bfff; /* 20% reduction */
-  transition: box-shadow 0.4s ease, transform 0.2s ease;
-}
-
-.holographic3-button::before,
-.holographic3-button::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: none;
-  opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: transform 0.2s ease;
 }
 
 .holographic3-button:hover {
-  box-shadow: 0 0 12px #00bfff, 0 0 20px #00bfff; /* 20% reduction */
   transform: scale(1.05);
 }
 
 .holographic3-button:disabled {
   cursor: not-allowed;
   border-color: #555;
-  box-shadow: none;
   color: #777;
   background: #333;
 }
 
-/* Gold Button*/
+/* Gold Button */
 .holographic4-button {
   position: relative;
   padding: 12px 24px; /* 20% reduction */
@@ -133,38 +85,21 @@
   font-size: 14.4px; /* 20% reduction */
   cursor: pointer;
   overflow: hidden;
-  box-shadow: 0 0 8px #FFD700, 0 0 16px #FFD700; /* 20% reduction */
-  transition: box-shadow 0.4s ease, transform 0.2s ease;
-}
-
-.holographic4-button::before,
-.holographic4-button::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: none;
-  opacity: 0;
-  transition: opacity 0.6s ease;
+  transition: transform 0.2s ease;
 }
 
 .holographic4-button:hover {
-  box-shadow: 0 0 12px #FFD700, 0 0 20px #FFD700; /* 20% reduction */
   transform: scale(1.05);
 }
 
 .holographic4-button:disabled {
   cursor: not-allowed;
   border-color: #555;
-  box-shadow: none;
   color: #777;
   background: #333;
 }
 
-
-/* Yellow Chip*/
+/* Yellow Chip */
 .holographic-chip {
   position: relative;
   padding: 8px 16px;
@@ -174,19 +109,16 @@
   border-radius: 16px;
   font-size: 14px;
   overflow: hidden;
-  box-shadow: 0 0 8px #ffcc00, 0 0 16px #ffcc00;
-  transition: box-shadow 0.4s ease, transform 0.2s ease;
+  transition: transform 0.2s ease;
 }
 
 .holographic-chip:hover {
-  box-shadow: 0 0 12px #ffcc00, 0 0 20px #ffcc00;
   transform: scale(1.05);
 }
 
 .holographic-chip:disabled {
   cursor: not-allowed;
   border-color: #555;
-  box-shadow: none;
   color: #777;
   background: #333;
 }

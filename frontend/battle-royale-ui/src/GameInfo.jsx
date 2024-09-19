@@ -24,13 +24,13 @@ export default function GameInfo({ round, gameId, mapShrink }) {
   const shrinkMessage = () => {
     if (roundsUntilShrink === mapShrink) {
       return (
-        <Typography variant="h5" color="error">
+        <Typography sx={{ fontSize: "1rem" }} color="error">
           Shrink after world updates
         </Typography>
       );
     } else {
       return (
-        <Typography variant="h5">
+        <Typography sx={{ fontSize: "1rem" }}>
           Shrinking in {roundsUntilShrink}{" "}
           {roundsUntilShrink === 1 ? "round" : "rounds"}
         </Typography>
@@ -41,8 +41,8 @@ export default function GameInfo({ round, gameId, mapShrink }) {
   return (
     <Card elevation={4} sx={{ overflow: "hidden" }}>
       <StyledCardContent>
-        <Typography variant="h5">Game {gameId}</Typography>
-        <Typography variant="h5">Round: {round}</Typography>
+        <Typography sx={{ fontSize: "1rem" }}>Game {gameId}</Typography>
+        <Typography sx={{ fontSize: "1rem" }}>Round: {round}</Typography>
         {shrinkMessage()}
       </StyledCardContent>
     </Card>

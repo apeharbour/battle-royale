@@ -1,8 +1,41 @@
 import React, { useState } from "react";
 import "./MintShip.css";
-import { Box, Card, CardActions, CardContent, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Card,
+  CardActions,
+  CardContent,
+  Typography,
+} from "@mui/material";
 import { HexGrid, Hexagon, Layout } from "react-hexgrid";
 import { useNavigate } from "react-router-dom";
+import { styled } from "@mui/material/styles";
+
+const HolographicButtonBlue = styled(Button)(({ theme }) => ({
+  position: "relative",
+  padding: "12px 24px",
+  color: "#00bfff",
+  border: "1.6px solid #00bfff",
+  borderRadius: "24px",
+  "& .MuiButton-label": {
+    fontSize: "1rem",
+  },
+  cursor: "pointer",
+  overflow: "hidden",
+  transition: "transform 0.2s ease",
+  fontFamily: theme.typography.fontFamily,
+  "&:hover": {
+    transform: "scale(1.05)",
+    background: "black",
+  },
+  "&:disabled": {
+    cursor: "not-allowed",
+    borderColor: "#555",
+    color: "#777",
+    background: "#333",
+  },
+}));
 
 export default function SpectatorGameCard({
   gameId,
@@ -75,58 +108,83 @@ export default function SpectatorGameCard({
           alignItems="center"
           sx={{ fontWeight: 700 }}
         >
-          <Typography variant="h5" component="div">
+          <Typography
+            sx={{ fontSize: "1rem", fontWeight: "600" }}
+            component="div"
+          >
             Game {gameId}
           </Typography>
-          <Typography variant="subtitle1" color="textSecondary">
+          <Typography sx={{ fontSize: "1rem" }} color="textSecondary">
             {state}
           </Typography>
         </Box>
         <Box ml={2}>{renderHexGrid(cells)}</Box>
-        <Box>
-          <Typography variant="body1">
-            <Box component="span">Map Size: </Box>
-            <Box component="span" sx={{ fontWeight: "bold" }}>
-              {radius} rings
-            </Box>
+        <Typography>
+          <Typography component="span" sx={{ fontSize: "1rem" }}>
+            Map Size:{" "}
           </Typography>
+          <Typography
+            component="span"
+            sx={{ fontSize: "1rem", fontWeight: "600" }}
+          >
+            {radius} rings
+          </Typography>
+        </Typography>
+        <Box>
           {mapShrink && mapShrink === 1 && (
-            <Typography variant="body1">
-              <Box component="span">Shrink: </Box>
-              <Box component="span" sx={{ fontWeight: "bold" }}>
+            <Typography>
+              <Typography component="span" sx={{ fontSize: "1rem" }}>
+                Shrink:{" "}
+              </Typography>
+              <Typography
+                component="span"
+                sx={{ fontSize: "1rem", fontWeight: "600" }}
+              >
                 Every round
-              </Box>
+              </Typography>
             </Typography>
           )}
           {mapShrink && mapShrink > 1 && (
-            <Typography variant="body1">
-              <Box component="span">Map Shrink: </Box>
-              <Box component="span" sx={{ fontWeight: "bold" }}>
+            <Typography>
+              <Typography component="span" sx={{ fontSize: "1rem" }}>
+                Map Shrink:{" "}
+              </Typography>
+              <Typography
+                component="span"
+                sx={{ fontSize: "1rem", fontWeight: "600" }}
+              >
                 Every {mapShrink} rounds
-              </Box>
+              </Typography>
             </Typography>
           )}
-          <Typography variant="body1">
-            <Box component="span">Total Players: </Box>
-            <Box component="span" sx={{ fontWeight: "bold" }}>
+          <Typography>
+            <Typography component="span" sx={{ fontSize: "1rem" }}>
+              Total Players:{" "}
+            </Typography>
+            <Typography
+              component="span"
+              sx={{ fontSize: "1rem", fontWeight: "600" }}
+            >
               {totalPlayers}
-            </Box>
+            </Typography>
           </Typography>
-          <Typography variant="body1">
-            <Box component="span">Game Created On: </Box>
-            <Box component="span" sx={{ fontWeight: "bold" }}>
+          <Typography>
+            <Typography component="span" sx={{ fontSize: "1rem" }}>
+              Game Created On:{" "}
+            </Typography>
+            <Typography
+              component="span"
+              sx={{ fontSize: "1rem", fontWeight: "600" }}
+            >
               {formatTimestampToDate(timeCreated)}
-            </Box>
+            </Typography>
           </Typography>
         </Box>
       </CardContent>
       <CardActions sx={{ marginBottom: 1 }}>
-        <button
-          className="holographic3-button"
-          onClick={handleButtonClick(gameId)}
-        >
+        <HolographicButtonBlue onClick={handleButtonClick(gameId)}>
           Show
-        </button>
+        </HolographicButtonBlue>
       </CardActions>
     </Card>
   );

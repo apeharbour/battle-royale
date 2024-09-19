@@ -41,23 +41,23 @@ export default function AccountAppBar({ toggleDarkMode }) {
   return (
     <AppBar position="sticky">
       <Toolbar>
-      <Box
+        <Box
           sx={{
-            width: '100px',
-            height: '50px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            overflow: 'hidden', 
-            cursor: 'pointer',
+            width: "180px",
+            height: "60px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            cursor: "pointer",
           }}
           onClick={handleLogoClick}
         >
           <Box
             component="img"
             sx={{
-              width: '400%', 
-              height: '400%',
+              width: "500%",
+              height: "450%",
             }}
             src={yartsLogo}
             alt="Punkships Logo"
@@ -66,26 +66,28 @@ export default function AccountAppBar({ toggleDarkMode }) {
         {/* <Typography variant="h6" component="div" sx={{ marginLeft: 1 }}>
           PUNKSHIPS
         </Typography> */}
-        {address && (
-          <Button
-            color="inherit"
-            onClick={() => navigate("/registration")}
-            sx={{
-              marginLeft: 4,
-              fontSize: "1.2rem",
-              ...(isActiveRoute("/registration") ? activeButtonStyle : {}),
-            }}
-          >
-            Registration
-          </Button>
-        )}
+        <Button
+          color="inherit"
+          onClick={() => navigate("/registration")}
+          sx={{
+            marginLeft: 2,
+            ...(isActiveRoute("/registration") ? activeButtonStyle : {}),
+            "& .MuiButton-label": {
+              fontSize: "1rem",
+            },
+          }}
+        >
+          Registration
+        </Button>
         {address && (
           <Button
             color="inherit"
             onClick={() => navigate("/listgames")}
             sx={{
-              marginLeft: 4,
-              fontSize: "1.2rem",
+              marginLeft: 2,
+              "& .MuiButton-label": {
+                fontSize: "1rem",
+              },
               ...(isActiveRoute("/listgames") ? activeButtonStyle : {}),
             }}
           >
@@ -97,8 +99,10 @@ export default function AccountAppBar({ toggleDarkMode }) {
             color="inherit"
             onClick={() => navigate("/halloffame")}
             sx={{
-              marginLeft: 4,
-              fontSize: "1.2rem",
+              marginLeft: 2,
+              "& .MuiButton-label": {
+                fontSize: "1rem",
+              },
               ...(isActiveRoute("/halloffame") ? activeButtonStyle : {}),
             }}
           >
@@ -110,8 +114,10 @@ export default function AccountAppBar({ toggleDarkMode }) {
             color="inherit"
             onClick={() => navigate("/spectator")}
             sx={{
-              marginLeft: 4,
-              fontSize: "1.2rem",
+              marginLeft: 2,
+              "& .MuiButton-label": {
+                fontSize: "1rem",
+              },
               ...(isActiveRoute("/spectator") ? activeButtonStyle : {}),
             }}
           >
@@ -124,8 +130,10 @@ export default function AccountAppBar({ toggleDarkMode }) {
               color="inherit"
               onClick={() => navigate("/admin")}
               sx={{
-                marginLeft: 4,
-                fontSize: "1.2rem",
+                marginLeft: 2,
+                "& .MuiButton-label": {
+                  fontSize: "1rem",
+                },
                 ...(isActiveRoute("/admin") ? activeButtonStyle : {}),
               }}
             >

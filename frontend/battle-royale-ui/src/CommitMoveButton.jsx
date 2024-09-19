@@ -18,6 +18,56 @@ import "./MintShip.css";
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const GAME_ABI = GameAbi.abi;
 
+const HolographicButtonGreen = styled(Button)(({ theme }) => ({
+  position: "relative",
+  padding: "5px 14px",
+  color: "#00ffcc",
+  border: "1.8px solid #00ffcc",
+  borderRadius: "20px",
+  "& .MuiButton-label": {
+    fontSize: "1rem",
+  },
+  cursor: "pointer",
+  overflow: "hidden",
+  transition: "transform 0.2s ease",
+  fontFamily: theme.typography.fontFamily,
+  "&:hover": {
+    transform: "scale(1.05)",
+    background: "black",
+  },
+  "&:disabled": {
+    cursor: "not-allowed",
+    borderColor: "#555",
+    color: "#777",
+    background: "#333",
+  },
+}));
+
+const HolographicButtonRed = styled(Button)(({ theme }) => ({
+  position: "relative",
+  padding: "5px 14px",
+  color: "#ff3366",
+  border: "1.8px solid #ff3366",
+  borderRadius: "20px",
+  "& .MuiButton-label": {
+    fontSize: "1rem",
+  },
+  cursor: "pointer",
+  overflow: "hidden",
+  transition: "transform 0.2s ease",
+  fontFamily: theme.typography.fontFamily,
+  "&:hover": {
+    transform: "scale(1.05)",
+    background: "black",
+  },
+  "&:disabled": {
+    cursor: "not-allowed",
+    borderColor: "#555",
+    color: "#777",
+    background: "#333",
+  },
+}));
+
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
     padding: theme.spacing(2),
@@ -55,6 +105,9 @@ export default function CommitMoveButton({
   setTempTravelEndpoint,
   setTempShotEndpoint,
 }) {
+
+  console.log("CommitMoveButton: travelEndpoint", travelEndpoint);
+  console.log("CommitMoveButton: shotEndpoint", shotEndpoint);
   const [txInFlight, setTxInFlight] = useState(false);
   const [moveCommitted, setMoveCommitted] = useState(false);
   const [commitMoveDialogOpen, setCommitMoveDialogOpen] = useState(false);
@@ -198,7 +251,9 @@ export default function CommitMoveButton({
 
   useEffect(() => {
     if (isConfirmed && txInFlight) {
-      enqueueSnackbar(`Commited your move for Round ${round}`, { variant: "success" });
+      enqueueSnackbar(`Commited your move for Round ${round}`, {
+        variant: "success",
+      });
       console.log(
         `Commited move for player ${address} with hash ${hash}`,
         receipt
@@ -241,7 +296,7 @@ export default function CommitMoveButton({
         sx={{
           m: 0,
           p: 2,
-          fontSize: "2.8rem",
+          fontSize: "2rem",
           fontWeight: 200,
           display: "flex",
           justifyContent: "center",
@@ -252,16 +307,12 @@ export default function CommitMoveButton({
       </DialogTitle>
       <DialogContent dividers>
         <Stack spacing={4} direction="row" justifyContent="center">
-          <button
-            className="holographic2-button"
-            onClick={handleClose}
-            disabled={isConfirming}
-          >
+          <HolographicButtonRed onClick={handleClose} disabled={isConfirming}>
             Edit
-          </button>
-          <button className="holographic-button" onClick={commitMove}>
+          </HolographicButtonRed>
+          <HolographicButtonGreen onClick={commitMove} disabled={isConfirming}>
             {isConfirming ? "Confirming..." : "Commit"}
-          </button>
+          </HolographicButtonGreen>
         </Stack>
       </DialogContent>
     </BootstrapDialog>

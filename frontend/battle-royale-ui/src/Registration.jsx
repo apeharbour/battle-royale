@@ -4,7 +4,8 @@ import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useAccountEffect } from "wagmi";
 import { useSnackbar } from "notistack";
 
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 
 import MintShipButton from "./MintShipButton";
 import RegisterShipButton from "./RegisterShipButton";
@@ -147,7 +148,6 @@ export default function Registration(props) {
 
   const { data: registrationData } = useRegistrationState();
 
-
   const isRegistrationOpen = registrationData && registrationData.length > 0;
   const noteColor = isRegistrationOpen ? "#00ffcc" : "red";
   const openRegistrationTimestamp = isRegistrationOpen
@@ -157,9 +157,9 @@ export default function Registration(props) {
   return (
     <Fragment>
       <Grid container spacing={2} p={4}>
-        <Grid item xs={12}>
+        <Grid item size={12}>
           <Grid container justifyContent="center" alignItems="center">
-            <Grid item xs={12} md={6}>
+            <Grid item size={12}>
               <Box
                 sx={{
                   border: `1px solid ${noteColor}`,
@@ -170,7 +170,7 @@ export default function Registration(props) {
                 }}
               >
                 <Typography
-                  variant="h5"
+                  sx={{ fontSize: "1rem" }}
                   color={noteColor}
                   component="div"
                   textAlign="center"
@@ -180,7 +180,7 @@ export default function Registration(props) {
                     : "Registration is currently closed!"}
                 </Typography>
                 <Typography
-                  variant="h5"
+                  sx={{ fontSize: "1rem" }}
                   color={noteColor}
                   component="div"
                   textAlign="center"
@@ -212,6 +212,7 @@ export default function Registration(props) {
                     fontWeight: "bold",
                     color: noteColor,
                     borderRadius: "4px",
+                    fontSize: "1rem",
                   }}
                 >
                   NOTE
@@ -219,7 +220,7 @@ export default function Registration(props) {
               </Box>
             </Grid>
           </Grid>
-          <Grid item xs={12} mt={2} mb={1}>
+          <Grid item size={12} mt={2} mb={1}>
             <Grid container spacing={2} justifyContent="center">
               <Grid item>
                 <RegisterShipButton
@@ -230,7 +231,7 @@ export default function Registration(props) {
                   isRegistrationOpen={isRegistrationOpen}
                 />
               </Grid>
-              <Grid item>
+              <Grid item size={12}>
                 <MintShipButton />
               </Grid>
             </Grid>
@@ -239,7 +240,7 @@ export default function Registration(props) {
         {punkShips
           .filter((ship) => showBurnedShips || !ship.burned)
           .map((ship, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid item size={2} key={index}>
               <ActiveShip
                 ship={ship}
                 handleCardClick={handleCardClick}

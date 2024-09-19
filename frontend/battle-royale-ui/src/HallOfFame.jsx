@@ -6,16 +6,42 @@ import {
   CardActions,
   CardContent,
   Typography,
-  Grid,
   Tooltip,
   formControlClasses,
 } from "@mui/material";
+import Grid from "@mui/material/Grid2";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount } from "wagmi";
 import Backdrop from "./Backdrop";
 import "./MintShip.css";
-import { formatAbiItem } from "viem/utils";
+import { styled } from "@mui/material/styles";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+
+const HolographicButtonYellow = styled(Button)(({ theme }) => ({
+  position: "relative",
+  padding: "12px 24px",
+  color: "#FFD700",
+  border: "1.6px solid #FFD700",
+  borderRadius: "24px",
+  "& .MuiButton-label": {
+    fontSize: "1rem",
+  },
+  cursor: "pointer",
+  overflow: "hidden",
+  transition: "transform 0.2s ease",
+  fontFamily: theme.typography.fontFamily,
+  "&:hover": {
+    transform: "scale(1.05)",
+    background: "black",
+  },
+  "&:disabled": {
+    cursor: "not-allowed",
+    borderColor: "#555",
+    color: "#777",
+    background: "#333",
+  },
+}));
 
 const GET_GAMES = gql`
   query getGames {
@@ -115,7 +141,7 @@ export default function HallOfFame(props) {
           return (
             <Fragment key={game.gameId}>
               {winnerData && (
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={2}>
                   <Box mt={1}>
                     <Card
                       sx={{
@@ -124,9 +150,8 @@ export default function HallOfFame(props) {
                     >
                       <CardContent sx={{ padding: "16px" }}>
                         <Typography
-                          variant="h5"
-                          component="div"
-                          sx={{ marginBottom: "16px" }}
+                          variant="inherit"
+                          sx={{ fontSize: "1rem", fontWeight: "600" }}
                         >
                           Game {game.gameId}
                         </Typography>
@@ -140,35 +165,114 @@ export default function HallOfFame(props) {
                             marginBottom: "16px",
                           }}
                         />
-                        <Tooltip title={winnerData.address}>
-                          <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                            Winner: {shortenAddress(winnerData.address)}
+                        <Box
+                          sx={{
+                            display: "flex",
+                            flexDirection: "column",
+                            flexWrap: "wrap",
+                          }}
+                        >
+                          <Typography
+                            component="span"
+                            sx={{ fontSize: "1rem" }}
+                          >
+                            Winner:{" "}
+                            <Tooltip
+                              title={
+                                <a
+                                  href={`https://basescan.org/address/${winnerData.address}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{
+                                    color: "inherit",
+                                    textDecoration: "none",
+                                    display: "flex",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <span>{winnerData.address}</span>
+                                  <OpenInNewIcon
+                                    sx={{ fontSize: "1rem", marginLeft: "4px" }}
+                                  />
+                                </a>
+                              }
+                              disableInteractive={false}
+                            >
+                              <Typography
+                                component="span"
+                                sx={{ fontSize: "1rem", cursor: "pointer" }}
+                              >
+                                {shortenAddress(winnerData.address)}
+                              </Typography>
+                            </Tooltip>
                           </Typography>
-                        </Tooltip>
-                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                          Kills: {winnerData.kills}
-                        </Typography>
-                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                          Total Players: {winnerGameData.totalPlayers}
-                        </Typography>
-                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                          Game Created On:{" "}
-                          {formatTimestampToDate(winnerGameData.timeCreated)}
-                        </Typography>
-                        <Typography variant="body1" sx={{fontWeight: 'bold'}}>
-                          Game Ended On:{" "}
-                          {formatTimestampToDate(winnerGameData.timeEnded)}
-                        </Typography>
+                          <Typography sx={{ fontSize: "1rem" }}>
+                            Kills:{" "}
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "1rem",
+                                fontWeight: "600",
+                                display: "inline",
+                              }}
+                            >
+                              {winnerData.kills}
+                            </Typography>
+                          </Typography>
+
+                          <Typography sx={{ fontSize: "1rem" }}>
+                            Total Players:{" "}
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "1rem",
+                                fontWeight: "600",
+                                display: "inline",
+                              }}
+                            >
+                              {winnerGameData.totalPlayers}
+                            </Typography>
+                          </Typography>
+
+                          <Typography sx={{ fontSize: "1rem" }}>
+                            Game Created On:{" "}
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "1rem",
+                                fontWeight: "600",
+                                display: "inline",
+                              }}
+                            >
+                              {formatTimestampToDate(
+                                winnerGameData.timeCreated
+                              )}
+                            </Typography>
+                          </Typography>
+
+                          <Typography sx={{ fontSize: "1rem" }}>
+                            Game Ended On:{" "}
+                            <Typography
+                              component="span"
+                              sx={{
+                                fontSize: "1rem",
+                                fontWeight: "600",
+                                display: "inline",
+                              }}
+                            >
+                              {formatTimestampToDate(winnerGameData.timeEnded)}
+                            </Typography>
+                          </Typography>
+                        </Box>
                       </CardContent>
-                      <CardActions sx={{marginBottom: 1}}>
-                        <button
-                          className="holographic4-button"
+                      <CardActions sx={{ marginBottom: 1 }}>
+                        <HolographicButtonYellow
                           onClick={() =>
-                            (window.location.href = `/${game.gameId}/finalart`)
+                            (window.location.href = `/${game.gameId}/cov`)
                           }
                         >
                           Canvas of Victory
-                        </button>
+                        </HolographicButtonYellow>
                       </CardActions>
                     </Card>
                   </Box>

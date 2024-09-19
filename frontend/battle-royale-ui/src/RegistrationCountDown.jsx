@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Box, Grid, Typography, useTheme } from "@mui/material";
-import "./RegistrationCountDown.css"; // Import the CSS file with holographic effects
+import { Box, Typography, useTheme } from "@mui/material";
+import Grid from "@mui/material/Grid2";
+import "./RegistrationCountDown.css";
 
 // Helper function to calculate time difference
 const calculateTimeLeft = (registrationTimestamp) => {
@@ -42,26 +43,23 @@ const RegistrationCountdownTimer = ({ registrationTimestamp }) => {
               textAlign: "center",
               padding: "16px",
               borderRadius: "10px",
-              backgroundColor: "#000", // Keep it black for holographic contrast
               minWidth: "100px",
               position: "relative",
-              color: "#00ffcc", // Neon green to match the buttons
+              color: "#ffffff",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              boxShadow: "0px 0px 10px #00ffcc, 0px 0px 20px #00ffcc", // Glowing shadow effect
-              transition: "box-shadow 0.4s ease, transform 0.2s ease",
+              transition: "transform 0.2s ease",
+              border: "1.8px solid #00ffcc",
             }}
           >
             <Typography variant="h3" className="glowing-number">
               {timeLeft[unit].toString().padStart(2, "0")}
             </Typography>
 
-            {/* Unit label (hours, minutes, seconds) */}
+            {/* Unit label (Hours, Minutes, Seconds) */}
             <Typography
-              variant="body1"
-              color="textSecondary"
-              sx={{ marginTop: "8px", color: "#00ffcc" }} // Same neon color
+              sx={{ marginTop: "8px", color: "#00ffcc", fontSize: "1rem" }}
             >
               {unit.charAt(0).toUpperCase() + unit.slice(1)}
             </Typography>

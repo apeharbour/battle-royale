@@ -14,6 +14,7 @@ import { styled } from "@mui/material/styles";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 import RegistrationAcknowledgementDialog from "./RegistrationAcknowledgement";
 import "./MintShip.css";
+import Button from "@mui/material/Button";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi;
@@ -24,6 +25,56 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
   "& .MuiDialogActions-root": {
     padding: theme.spacing(1),
+  },
+}));
+
+const HolographicButtonGreen = styled(Button)(({ theme }) => ({
+  position: "relative",
+  padding: "16px 27px",
+  color: "#00ffcc",
+  border: "1.8px solid #00ffcc",
+  borderRadius: "20px",
+  "& .MuiButton-label": {
+    fontSize: "1rem",
+  },
+  cursor: "pointer",
+  overflow: "hidden",
+  transition: "transform 0.2s ease",
+  fontFamily: theme.typography.fontFamily,
+  "&:hover": {
+    transform: "scale(1.05)",
+    background: "black",
+  },
+  "&:disabled": {
+    cursor: "not-allowed",
+    borderColor: "#555",
+    color: "#777",
+    background: "#333",
+  },
+}));
+
+const HolographicButtonRed = styled(Button)(({ theme }) => ({
+  position: "relative",
+  padding: "16px 27px",
+  color: "#ff3366",
+  border: "1.8px solid #ff3366",
+  borderRadius: "20px",
+  "& .MuiButton-label": {
+    fontSize: "1rem",
+  },
+  cursor: "pointer",
+  overflow: "hidden",
+  transition: "transform 0.2s ease",
+  fontFamily: theme.typography.fontFamily,
+  "&:hover": {
+    transform: "scale(1.05)",
+    background: "black",
+  },
+  "&:disabled": {
+    cursor: "not-allowed",
+    borderColor: "#555",
+    color: "#777",
+    background: "#333",
   },
 }));
 
@@ -118,7 +169,9 @@ export default function RegisterShipButton({
   };
 
   const handleRegisterClick = () => {
-    enqueueSnackbar("Please acknowledge the terms and conditions", {variant: "info"});
+    enqueueSnackbar("Please acknowledge the terms and conditions", {
+      variant: "info",
+    });
     setAcknowledgementDialogOpen(true);
   };
 
@@ -158,13 +211,13 @@ export default function RegisterShipButton({
               mb={2}
             >
               <Box textAlign="left" mr={2}>
-                <Typography variant="h5" gutterBottom>
+                <Typography gutterBottom sx={{ fontSize: "1rem" }}>
                   Name: {shipData.name}
                 </Typography>
-                <Typography variant="h5" gutterBottom>
+                <Typography gutterBottom sx={{ fontSize: "1rem" }}>
                   Movement: {shipData.movement}
                 </Typography>
-                <Typography variant="h5" gutterBottom>
+                <Typography gutterBottom sx={{ fontSize: "1rem" }}>
                   Shoot: {shipData.shoot}
                 </Typography>
               </Box>
@@ -176,24 +229,20 @@ export default function RegisterShipButton({
               />
             </Box>
           </DialogContent>
-          <DialogActions sx={{justifyContent: 'center'}}>
-          <Stack spacing={4} direction="row" justifyContent="center">
-            <button
-              className="holographic2-button"
-              sx={{ fontSize: "1rem", padding: "10px 20px" }}
-              onClick={handleClose}
-              disabled={isConfirming}
-            >
-              Cancel
-            </button>
-            <button
-              className="holographic-button"
-              sx={{ fontSize: "1rem", padding: "10px 20px", marginLeft: "100px" }}
-              onClick={handleRegisterClick}
-              disabled={!shipId || isConfirming || !isConnected || burned}
-            >
-              {isConfirming ? "Confirming..." : "Register"}
-            </button>
+          <DialogActions sx={{ justifyContent: "center" }}>
+            <Stack spacing={4} direction="row" justifyContent="center">
+              <HolographicButtonRed
+                onClick={handleClose}
+                disabled={isConfirming}
+              >
+                Cancel
+              </HolographicButtonRed>
+              <HolographicButtonGreen
+                onClick={handleRegisterClick}
+                disabled={!shipId || isConfirming || !isConnected || burned}
+              >
+                {isConfirming ? "Confirming..." : "Register"}
+              </HolographicButtonGreen>
             </Stack>
           </DialogActions>
         </BootstrapDialog>

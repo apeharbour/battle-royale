@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
 import "@fontsource-variable/pixelify-sans";
 import "@fontsource/vt323";
+import '@fontsource/fira-mono';
+import '@fontsource-variable/montserrat';
 import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
 import "./App.css";
@@ -32,7 +34,7 @@ function App() {
       mode: darkMode ? "dark" : "light",
     },
     typography: {
-      fontFamily: "VT323, sans-serif",
+      fontFamily: "'Montserrat Variable', sans-serif",
     },
     shape: {
       borderRadius: 30,
@@ -57,6 +59,7 @@ function App() {
   }, [location]);
 
   const isSpectateGameRoute = location.pathname.startsWith("/spectator/");
+  const isHomepage = location.pathname === "/";
 
   return (
     <WebSocketProvider>
@@ -64,7 +67,7 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Web3Provider theme={theme}>
-            <AccountAppBar toggleDarkMode={toggleDarkMode} />
+            {!isHomepage && <AccountAppBar toggleDarkMode={toggleDarkMode} />}
             {!isSpectateGameRoute && <BackdropComponent open={loading} />}
             <Routes>
               <Route path="/" element={<Homepage />} />

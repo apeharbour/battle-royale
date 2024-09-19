@@ -435,7 +435,11 @@ export default function SpectateGame() {
                 />
               }
               label={
-                showCoordinateField ? "Hide Coordinates" : "Show Coordinates"
+                <Typography style={{ fontSize: "1rem" }}>
+                  {showCoordinateField
+                    ? "Hide Coordinates"
+                    : "Show Coordinates"}
+                </Typography>
               }
             />
           </Stack>
@@ -443,7 +447,7 @@ export default function SpectateGame() {
       </Grid>
       <Grid container alignItems="center" justifyContent="center">
         <Grid item xs={8} ml={5} mr={5} mb={5}>
-        <SpectateLeaderBoard ships={ships} />
+          <SpectateLeaderBoard ships={ships} />
         </Grid>
       </Grid>
     </Fragment>

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { defineHex, Grid } from "honeycomb-grid";
 import { SVG } from "@svgdotjs/svg.js";
+import "@svgdotjs/svg.filter.js";
 import { Typography } from "@mui/material";
 
 const shortenAddress = (address) => {
@@ -8,7 +9,7 @@ const shortenAddress = (address) => {
 };
 
 export default function CoV_Art({ center, cells, ships, gameId, winner }) {
-  // const svgRef = useRef(null);
+  const svgRef = useRef(null);
 
   console.log("Here winner:", winner);
   // Create a hexagonal grid using honeycomb
@@ -25,19 +26,34 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
     );
   };
 
-  const drawShips = (draw, ships, winner) => {
+  const drawShips = (draw, ships) => {
     ships.forEach((ship) => {
       const hex = new CustomHex({ q: ship.q, r: ship.r });
       const { x, y } = hex;
 
-      // Check if winner exists and has an address, and then compare with the ship's address
-      const isWinner =
-        winner && winner.address && ship.address === winner.address;
+      // Determine the color based on the ship's state
+      let color;
+      if (ship.state === "won") {
+        color = "blue";
+      } else if (ship.state === "shot") {
+        color = "red";
+      } else if (ship.state === "dropped") {
+        color = "yellow";
+      } else {
+        color = "pink"; // For any other state
+      }
+
+      let size;
+      if (ship.state === "won") {
+        size = 30;
+      } else {
+        size = 20;
+      }
 
       draw
-        .circle(10)
+        .circle(size)
         .move(x - 5, y - 5)
-        .fill(isWinner ? "blue" : "red"); // Blue for winner, red for others
+        .fill(color);
     });
   };
 
@@ -61,12 +77,27 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
               : index === 1
               ? `Q${controlPoint.x} ${controlPoint.y}`
               : "T";
-          // const prefix = index === 0 ? `M ${x} ${y}` : "L";
           return `${prefix} ${x} ${y}`;
         })
         .join(" ");
 
-      draw.path(pathString).fill("none").stroke({ color: "#ff0", width: 2 });
+      const startPoint = hexes[0];
+      const endPoint = hexes[hexes.length - 1];
+
+      // Create a gradient that ends with red
+      const gradient = draw
+        .gradient("linear", function (add) {
+          add.stop(0, "#FFD700"); // Gold
+          add.stop(0.3, "#FFFF00"); // Yellow
+          add.stop(0.6, "#FFA500"); // Orange
+          add.stop(1, "#FF0000"); // Red (changed to pure red)
+        })
+        .from(startPoint.x, startPoint.y)
+        .to(endPoint.x, endPoint.y)
+        .attr({ gradientUnits: "userSpaceOnUse" });
+
+      draw.path(pathString).fill("none").stroke({ color: gradient, width: 5 });
+
       draw
         .circle(5)
         .move(controlPoint.x - 2.5, controlPoint.y - 2.5)
@@ -91,9 +122,30 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
       draw
         .path(pathStringStraight)
         .fill("none")
-        .stroke({ color: "#0f0", width: 2 });
+        .stroke({ color: "#0f0", width: 4 });
     });
   };
+
+  // const drawStraightShipShotPath = (draw, ships) => {
+  //   ships.forEach((ship) => {
+  //     const hexes = ship.shotLong.map(
+  //       (cell) => new CustomHex({ q: cell.q, r: cell.r })
+  //     );
+
+  //     const pathStringStraight = hexes
+  //       .map((hex, index) => {
+  //         const { x, y } = hex;
+  //         const prefix = index === 0 ? "M" : "L";
+  //         return `${prefix} ${x} ${y}`;
+  //       })
+  //       .join(" ");
+
+  //     draw
+  //       .path(pathStringStraight)
+  //       .fill("none")
+  //       .stroke({ color: "#a7a7a7", width: 2 });
+  //   });
+  // };
 
   const drawStraightShipShotPath = (draw, ships) => {
     ships.forEach((ship) => {
@@ -109,10 +161,26 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
         })
         .join(" ");
 
-      draw
+      // Calculate gradient direction based on the path's orientation
+      const startPoint = hexes[0];
+      const endPoint = hexes[hexes.length - 1];
+
+      // Create a gradient representing the shot
+      const gradient = draw
+        .gradient("linear", function (add) {
+          add.stop(0, "#00BFFF"); // DeepSkyBlue
+          add.stop(0.5, "#1E90FF"); // DodgerBlue
+          add.stop(1, "#FFFFFF"); // White
+        })
+        .from(startPoint.x, startPoint.y)
+        .to(endPoint.x, endPoint.y)
+        .attr({ gradientUnits: "userSpaceOnUse" });
+
+      // Draw the path
+      const path = draw
         .path(pathStringStraight)
         .fill("none")
-        .stroke({ color: "#a7a7a7", width: 2 });
+        .stroke({ color: gradient, width: 2 }); // Increased width for visibility
     });
   };
 
@@ -140,21 +208,56 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
         draw
           .circle(10)
           .move(x - 5, y - 5)
-          .fill("green");
+          .fill("#FFEFC2");
       }
     });
   };
 
+  // const drawIslands = (draw, cells) => {
+  //   // Define the gradient
+  //   const gradient = draw.gradient("radial", function (add) {
+  //     add.stop(0, "#00ffff"); // Cyan
+  //     add.stop(0.5, "#ff00ff"); // Magenta
+  //     add.stop(1, "#0000ff"); // Blue
+  //   });
+
+  //   // Animate the gradient colors (optional)
+  //   gradient.stop(0).animate(3000).attr({ color: "#ff1493" }).loop(true);
+  //   gradient.stop(1).animate(3000).attr({ color: "#ffa500" }).loop(true);
+
+  //   // Animate the gradient rotation
+  //   gradient.from(0.5, 0.5).to(0.5, 0.5);
+  //   gradient.animate(5000).ease("<>").rotate(360).loop();
+
+  //   // Define the glow filter inside drawIslands
+  //   const glowFilter = draw.filter(function (add) {
+  //     add.gaussianBlur(4); // Adjust for desired glow intensity
+  //     add.blend(add.sourceAlpha, add.source, "normal");
+  //   });
+
+  //   cells.forEach((cell) => {
+  //     const hex = new CustomHex({ q: cell.q, r: cell.r, s: cell.s });
+  //     const { x, y } = hex;
+
+  //     if (cell.island) {
+  //       draw
+  //         .circle(10)
+  //         .move(x - 5, y - 5)
+  //         .fill(gradient)
+  //         .filterWith(glowFilter);
+  //     }
+  //   });
+  // };
+
+
   useEffect(() => {
-    // if (!svgRef.current) return; // Make sure svgRef is available
+    if (svgRef.current) {
+      svgRef.current.clear();
+      svgRef.current.remove();
+    }
 
-    // Reference to the SVG container
-    const draw = SVG().addTo("#svgDrawing").size(800, 600); // adjust size of the drawing area
-
-    draw
-    .rect(800, 600) // width and height of the box (same as SVG size)
-    .stroke({ color: 'black', width: 2 }) // Border color and thickness
-    .fill('none');
+    svgRef.current = SVG().addTo("#svgDrawing").size(800, 600);
+    const draw = svgRef.current;
 
     //drawHexagons(draw, cells);
     drawIslands(draw, cells);
@@ -166,7 +269,7 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
 
   return (
     <>
-      <div></div>
+      <div id="svgDrawing"></div>
     </>
   );
 }
