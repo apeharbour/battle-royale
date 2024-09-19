@@ -1,6 +1,14 @@
 import React from "react";
-import { Box, Card, CardContent, CardHeader, Typography } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  CardHeader,
+  Tooltip,
+  Typography,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 
 const shortenAddress = (address) => {
   return `${address.slice(0, 6)}..${address.slice(-4)}`;
@@ -27,6 +35,7 @@ export default function SpectatePlayers({ ships }) {
     <Card elevation={4} sx={{ height: "225px", overflow: "hidden" }}>
       <CardHeader
         title="Players"
+        titleTypographyProps={{ fontSize: "1rem" }}
         sx={{ backdropFilter: "brightness: 60%", opacity: 1 }}
       />
       <StyledCardContent>
@@ -44,9 +53,31 @@ export default function SpectatePlayers({ ships }) {
                   marginRight: 5,
                 }}
               />
-              <Typography variant="subtitle1">
-                {shortenAddress(ship.address)}
-              </Typography>
+              <Tooltip
+                title={
+                  <a
+                    href={`https://basescan.org/address/${ship.address}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: "inherit",
+                      textDecoration: "none",
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span>{ship.address}</span>
+                    <OpenInNewIcon
+                      sx={{ fontSize: "1rem", marginLeft: "4px" }}
+                    />
+                  </a>
+                }
+                disableInteractive={false} // Make tooltip interactive
+              >
+                <Typography sx={{ fontSize: "1rem", cursor: "pointer" }}>
+                  {shortenAddress(ship.address)}
+                </Typography>
+              </Tooltip>
             </Box>
           ))}
       </StyledCardContent>

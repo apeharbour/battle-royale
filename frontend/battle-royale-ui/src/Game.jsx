@@ -1,5 +1,5 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Grid, Stack, Switch, FormControlLabel } from "@mui/material";
+import { Grid, Stack, Switch, FormControlLabel, Typography } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useWatchContractEvent } from "wagmi";
@@ -494,7 +494,7 @@ export default function Game(props) {
               setTempShotEndpoint={setTempShotEndpoint}
             />
             {/* <PlayerStatus ships={ships} /> */}
-            <FormControlLabel
+              <FormControlLabel
               control={
                 <Switch
                   checked={showCoordinateField}
@@ -502,7 +502,11 @@ export default function Game(props) {
                 />
               }
               label={
-                showCoordinateField ? "Hide Coordinates" : "Show Coordinates"
+                <Typography style={{ fontSize: "1rem" }}>
+                  {showCoordinateField
+                    ? "Hide Coordinates"
+                    : "Show Coordinates"}
+                </Typography>
               }
             />
             <Timer gameId={gameId} />

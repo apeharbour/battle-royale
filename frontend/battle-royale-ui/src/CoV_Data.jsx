@@ -357,11 +357,11 @@ export default function CoV_Data(props) {
       <Grid container spacing={2} p={4}>
         <Grid item xs={12}>
           <Typography variant="h4" align="center">
-            Final Art Display for Game #{gameId}
+            Canvas Of Victory for Game #{gameId}
           </Typography>
           {/* <Typography variant="body" align="center">width: {width}, height: {height} </Typography> */}
         </Grid>
-        <Grid item xs={12} ref={ref} id="svgDrawing">
+        <Grid item xs={12} ref={ref} id="svgDrawing" container justifyContent="center">
           {cells && (
             <CoV_Art
               gameId={gameId}

@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber } from "wagmi";
 import SpectatorGameCard from "./SpectatorGameCard";
-import Grid from "@mui/material/Grid";
+import Grid from "@mui/material/Grid2";
 
 const gameQuery = gql`
   query getGame($first: Int) {
@@ -48,10 +48,10 @@ export default function Spectator() {
   });
 
   return (
-    <Grid container spacing={2} mt={2}>
+    <Grid container spacing={2}>
       {gameData &&
         gameData.map((game) => (
-          <Grid item xs={12} sm={6} md={2} key={game.gameId}>
+          <Grid item size={2} key={game.gameId} mt={5}>
             <SpectatorGameCard
               gameId={game.gameId}
               totalPlayers={game.totalPlayers}

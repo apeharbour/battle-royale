@@ -15,6 +15,7 @@ export default function LastRoundResults({ rounds, ...props }) {
     <Card elevation={4}>
       <CardHeader
         title="Results"
+        titleTypographyProps={{ fontSize: "1rem" }}
         sx={{ backdropFilter: "brightness: 60%", opacity: 1 }}
       />
       <CardContent>

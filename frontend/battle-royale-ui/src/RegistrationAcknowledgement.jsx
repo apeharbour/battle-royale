@@ -30,7 +30,6 @@ export default function RegistrationAcknowledgementDialog({
           m: 0,
           p: 2,
           fontSize: "2rem",
-          fontWeight: 200,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -77,7 +76,7 @@ export default function RegistrationAcknowledgementDialog({
               7. **Last man standing**: The last player remaining in the game
               will receive the "Canvas of Victory."
             </Typography>
-            <Typography variant="body1" color="error" gutterBottom>
+            <Typography variant="body1" color="error" gutterBottom sx={{fontWeight: 700}}>
               Note: "Killed" means your punkship is burned.
             </Typography>
           </Box>
