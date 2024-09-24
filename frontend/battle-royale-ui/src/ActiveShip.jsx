@@ -14,6 +14,7 @@ export default function ActiveShip({ ship, handleCardClick, selectedYacht }) {
       sx={{
         border: selectedYacht === ship ? "2px solid blue" : "none",
         cursor: "pointer",
+        "&:hover": { border: "2px solid blue" },
       }}
       onClick={() => handleCardClick(ship)}
     >

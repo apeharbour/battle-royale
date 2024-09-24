@@ -4,14 +4,11 @@ import { SVG } from "@svgdotjs/svg.js";
 import "@svgdotjs/svg.filter.js";
 import { Typography } from "@mui/material";
 
-const shortenAddress = (address) => {
-  return `${address.slice(2, 6)}\n${address.slice(-4)}`;
-};
-
 export default function CoV_Art({ center, cells, ships, gameId, winner }) {
   const svgRef = useRef(null);
 
   console.log("Here winner:", winner);
+
   // Create a hexagonal grid using honeycomb
   const CustomHex = defineHex({
     dimensions: 30, // size of each hexagon
@@ -26,34 +23,51 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
     );
   };
 
+  const createGradient = (draw, colorStart, colorEnd) => {
+    return draw
+      .gradient("radial", (add) => {
+        add.stop(0, colorStart); // Center color
+        add.stop(1, colorEnd); // Edge color
+      })
+      .attr({
+        cx: 0.5, // Center X at 50% of the bounding box
+        cy: 0.5, // Center Y at 50% of the bounding box
+        r: 0.5, // Radius at 50% of the bounding box
+      });
+  };
+
   const drawShips = (draw, ships) => {
     ships.forEach((ship) => {
       const hex = new CustomHex({ q: ship.q, r: ship.r });
       const { x, y } = hex;
 
-      // Determine the color based on the ship's state
-      let color;
-      if (ship.state === "won") {
-        color = "blue";
-      } else if (ship.state === "shot") {
-        color = "red";
-      } else if (ship.state === "dropped") {
-        color = "yellow";
-      } else {
-        color = "pink"; // For any other state
+      // Determine the size based on the ship's state
+      const size = ship.state === "won" ? 30 : 20;
+
+      // Create the gradient based on state without passing x, y, size
+      let gradient;
+      switch (ship.state) {
+        case "won":
+          gradient = createGradient(draw, "lightblue", "blue");
+          break;
+        case "shot":
+          gradient = createGradient(draw, "lightcoral", "red");
+          break;
+        case "dropped":
+          gradient = createGradient(draw, "lightyellow", "yellow");
+          break;
+        case "beached":
+          gradient = createGradient(draw, "lightpurple", "purple");
+          break;
+        default:
+          gradient = createGradient(draw, "lightpink", "pink");
       }
 
-      let size;
-      if (ship.state === "won") {
-        size = 30;
-      } else {
-        size = 20;
-      }
-
+      // Draw the circle with the radial gradient fill
       draw
         .circle(size)
-        .move(x - 5, y - 5)
-        .fill(color);
+        .move(x - size / 2, y - size / 2) // Center the circle
+        .fill(gradient);
     });
   };
 
@@ -90,7 +104,7 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
           add.stop(0, "#FFD700"); // Gold
           add.stop(0.3, "#FFFF00"); // Yellow
           add.stop(0.6, "#FFA500"); // Orange
-          add.stop(1, "#FF0000"); // Red (changed to pure red)
+          add.stop(1, "#FF0000"); // Red
         })
         .from(startPoint.x, startPoint.y)
         .to(endPoint.x, endPoint.y)
@@ -125,27 +139,6 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
         .stroke({ color: "#0f0", width: 4 });
     });
   };
-
-  // const drawStraightShipShotPath = (draw, ships) => {
-  //   ships.forEach((ship) => {
-  //     const hexes = ship.shotLong.map(
-  //       (cell) => new CustomHex({ q: cell.q, r: cell.r })
-  //     );
-
-  //     const pathStringStraight = hexes
-  //       .map((hex, index) => {
-  //         const { x, y } = hex;
-  //         const prefix = index === 0 ? "M" : "L";
-  //         return `${prefix} ${x} ${y}`;
-  //       })
-  //       .join(" ");
-
-  //     draw
-  //       .path(pathStringStraight)
-  //       .fill("none")
-  //       .stroke({ color: "#a7a7a7", width: 2 });
-  //   });
-  // };
 
   const drawStraightShipShotPath = (draw, ships) => {
     ships.forEach((ship) => {
@@ -213,43 +206,6 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
     });
   };
 
-  // const drawIslands = (draw, cells) => {
-  //   // Define the gradient
-  //   const gradient = draw.gradient("radial", function (add) {
-  //     add.stop(0, "#00ffff"); // Cyan
-  //     add.stop(0.5, "#ff00ff"); // Magenta
-  //     add.stop(1, "#0000ff"); // Blue
-  //   });
-
-  //   // Animate the gradient colors (optional)
-  //   gradient.stop(0).animate(3000).attr({ color: "#ff1493" }).loop(true);
-  //   gradient.stop(1).animate(3000).attr({ color: "#ffa500" }).loop(true);
-
-  //   // Animate the gradient rotation
-  //   gradient.from(0.5, 0.5).to(0.5, 0.5);
-  //   gradient.animate(5000).ease("<>").rotate(360).loop();
-
-  //   // Define the glow filter inside drawIslands
-  //   const glowFilter = draw.filter(function (add) {
-  //     add.gaussianBlur(4); // Adjust for desired glow intensity
-  //     add.blend(add.sourceAlpha, add.source, "normal");
-  //   });
-
-  //   cells.forEach((cell) => {
-  //     const hex = new CustomHex({ q: cell.q, r: cell.r, s: cell.s });
-  //     const { x, y } = hex;
-
-  //     if (cell.island) {
-  //       draw
-  //         .circle(10)
-  //         .move(x - 5, y - 5)
-  //         .fill(gradient)
-  //         .filterWith(glowFilter);
-  //     }
-  //   });
-  // };
-
-
   useEffect(() => {
     if (svgRef.current) {
       svgRef.current.clear();
@@ -259,13 +215,13 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
     svgRef.current = SVG().addTo("#svgDrawing").size(800, 600);
     const draw = svgRef.current;
 
+    // Draw elements
     //drawHexagons(draw, cells);
     drawIslands(draw, cells);
     drawSquigglyShipPath(draw, ships);
-    //drawStraightShipPath(draw, ships);
     drawStraightShipShotPath(draw, ships);
-    drawShips(draw, ships, winner);
-  }, [cells]);
+    drawShips(draw, ships); // Gradients are created within drawShips
+  }, [cells, ships, winner]); // Ensure all dependencies are included
 
   return (
     <>

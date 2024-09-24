@@ -254,7 +254,7 @@ export default function ListGames(props) {
                     >
                       <Typography
                         variant="inherit"
-                        sx={{ fontSize: "1rem", fontWeight: "600" }}
+                        sx={{ fontSize: "1.25rem", fontWeight: "600" }}
                       >
                         Game {game.gameId}
                       </Typography>
@@ -270,7 +270,7 @@ export default function ListGames(props) {
                     <Box>
                       <Typography>
                         <Typography component="span" sx={{ fontSize: "1rem" }}>
-                          Map Size:{" "}
+                          Map:{" "}
                         </Typography>
                         <Typography
                           component="span"
@@ -301,7 +301,7 @@ export default function ListGames(props) {
                             component="span"
                             sx={{ fontSize: "1rem" }}
                           >
-                            Map Shrink:{" "}
+                            Shrink:{" "}
                           </Typography>
                           <Typography
                             component="span"
@@ -313,7 +313,7 @@ export default function ListGames(props) {
                       )}
                       <Typography>
                         <Typography component="span" sx={{ fontSize: "1rem" }}>
-                          Total Players:{" "}
+                          Players:{" "}
                         </Typography>
                         <Typography
                           component="span"
@@ -324,7 +324,7 @@ export default function ListGames(props) {
                       </Typography>
                       <Typography>
                         <Typography component="span" sx={{ fontSize: "1rem" }}>
-                          Game Created On:{" "}
+                          Created On:{" "}
                         </Typography>
                         <Typography
                           component="span"

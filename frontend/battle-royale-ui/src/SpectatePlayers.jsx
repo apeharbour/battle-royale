@@ -35,7 +35,7 @@ export default function SpectatePlayers({ ships }) {
     <Card elevation={4} sx={{ height: "225px", overflow: "hidden" }}>
       <CardHeader
         title="Players"
-        titleTypographyProps={{ fontSize: "1rem" }}
+        titleTypographyProps={{ fontSize: "1.25rem", fontWeight: "600" }}
         sx={{ backdropFilter: "brightness: 60%", opacity: 1 }}
       />
       <StyledCardContent>

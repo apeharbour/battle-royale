@@ -151,7 +151,10 @@ export default function Registration(props) {
   const isRegistrationOpen = registrationData && registrationData.length > 0;
   const noteColor = isRegistrationOpen ? "#00ffcc" : "red";
   const openRegistrationTimestamp = isRegistrationOpen
-    ? parseInt(registrationData[0]?.registrationStarted.blockTimestamp, 10)
+    ? parseInt(
+        registrationData[0]?.registrationStarted?.blockTimestamp || 0,
+        10
+      )
     : null;
 
   return (
@@ -220,9 +223,9 @@ export default function Registration(props) {
               </Box>
             </Grid>
           </Grid>
-          <Grid item size={12} mt={2} mb={1}>
+          <Grid size={12} mt={2} mb={1}>
             <Grid container spacing={2} justifyContent="center">
-              <Grid item>
+              <Grid item size={12}>
                 <RegisterShipButton
                   shipId={selectedYacht?.tokenId}
                   burned={selectedYacht?.burned}

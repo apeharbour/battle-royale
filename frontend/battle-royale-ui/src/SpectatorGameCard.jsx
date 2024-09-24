@@ -109,7 +109,7 @@ export default function SpectatorGameCard({
           sx={{ fontWeight: 700 }}
         >
           <Typography
-            sx={{ fontSize: "1rem", fontWeight: "600" }}
+            sx={{ fontSize: "1.25rem", fontWeight: "600" }}
             component="div"
           >
             Game {gameId}
@@ -121,7 +121,7 @@ export default function SpectatorGameCard({
         <Box ml={2}>{renderHexGrid(cells)}</Box>
         <Typography>
           <Typography component="span" sx={{ fontSize: "1rem" }}>
-            Map Size:{" "}
+            Map:{" "}
           </Typography>
           <Typography
             component="span"
@@ -147,7 +147,7 @@ export default function SpectatorGameCard({
           {mapShrink && mapShrink > 1 && (
             <Typography>
               <Typography component="span" sx={{ fontSize: "1rem" }}>
-                Map Shrink:{" "}
+                Shrink:{" "}
               </Typography>
               <Typography
                 component="span"
@@ -159,7 +159,7 @@ export default function SpectatorGameCard({
           )}
           <Typography>
             <Typography component="span" sx={{ fontSize: "1rem" }}>
-              Total Players:{" "}
+              Players:{" "}
             </Typography>
             <Typography
               component="span"
@@ -170,7 +170,7 @@ export default function SpectatorGameCard({
           </Typography>
           <Typography>
             <Typography component="span" sx={{ fontSize: "1rem" }}>
-              Game Created On:{" "}
+              Created On:{" "}
             </Typography>
             <Typography
               component="span"

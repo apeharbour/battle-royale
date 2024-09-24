@@ -421,13 +421,7 @@ export default function SpectateGame() {
 
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
-            <Timer gameId={gameId} />
-            <GameInfo
-              round={currentRound}
-              gameId={gameId}
-              mapShrink={mapShrink}
-            />
-            <FormControlLabel
+          <FormControlLabel
               control={
                 <Switch
                   checked={showCoordinateField}
@@ -435,12 +429,18 @@ export default function SpectateGame() {
                 />
               }
               label={
-                <Typography style={{ fontSize: "1rem" }}>
+                <Typography style={{ fontSize: "1.25rem", fontWeight: "600" }}>
                   {showCoordinateField
                     ? "Hide Coordinates"
                     : "Show Coordinates"}
                 </Typography>
               }
+            />
+            <Timer gameId={gameId} />
+            <GameInfo
+              round={currentRound}
+              gameId={gameId}
+              mapShrink={mapShrink}
             />
           </Stack>
         </Grid>

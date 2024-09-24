@@ -502,7 +502,7 @@ export default function Game(props) {
                 />
               }
               label={
-                <Typography style={{ fontSize: "1rem" }}>
+                <Typography style={{ fontSize: "1.25rem" }}>
                   {showCoordinateField
                     ? "Hide Coordinates"
                     : "Show Coordinates"}

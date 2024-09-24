@@ -106,8 +106,8 @@ export default function CommitMoveButton({
   setTempShotEndpoint,
 }) {
 
-  console.log("CommitMoveButton: travelEndpoint", travelEndpoint);
-  console.log("CommitMoveButton: shotEndpoint", shotEndpoint);
+  // console.log("CommitMoveButton: travelEndpoint", travelEndpoint);
+  // console.log("CommitMoveButton: shotEndpoint", shotEndpoint);
   const [txInFlight, setTxInFlight] = useState(false);
   const [moveCommitted, setMoveCommitted] = useState(false);
   const [commitMoveDialogOpen, setCommitMoveDialogOpen] = useState(false);

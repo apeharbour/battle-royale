@@ -151,7 +151,7 @@ export default function HallOfFame(props) {
                       <CardContent sx={{ padding: "16px" }}>
                         <Typography
                           variant="inherit"
-                          sx={{ fontSize: "1rem", fontWeight: "600" }}
+                          sx={{ fontSize: "1.25rem", fontWeight: "600" }}
                         >
                           Game {game.gameId}
                         </Typography>
@@ -163,6 +163,7 @@ export default function HallOfFame(props) {
                             maxWidth: "80%",
                             height: "auto",
                             marginBottom: "16px",
+                            marginLeft: "16px",
                           }}
                         />
                         <Box
@@ -221,7 +222,7 @@ export default function HallOfFame(props) {
                           </Typography>
 
                           <Typography sx={{ fontSize: "1rem" }}>
-                            Total Players:{" "}
+                            Players:{" "}
                             <Typography
                               component="span"
                               sx={{
@@ -235,7 +236,7 @@ export default function HallOfFame(props) {
                           </Typography>
 
                           <Typography sx={{ fontSize: "1rem" }}>
-                            Game Created On:{" "}
+                            Created On:{" "}
                             <Typography
                               component="span"
                               sx={{
@@ -251,7 +252,7 @@ export default function HallOfFame(props) {
                           </Typography>
 
                           <Typography sx={{ fontSize: "1rem" }}>
-                            Game Ended On:{" "}
+                            Ended On:{" "}
                             <Typography
                               component="span"
                               sx={{

@@ -7,9 +7,9 @@ const shortenAddress = (address) => {
 function Tooltip({ q, r, s, range, shotRange, kills, player }) {
   return (
     <Hexagon id={`${player}-ship`} q={q} r={r} s={s} fill="none" style={{ display: 'none' }}>
-       <rect x="-10" y="-15" width="30" height="14" stroke="#fff" strokeWidth="0.2" fill="rgba(80, 80, 80, 0.9)" rx="2" ry="2" />
+       <rect x="-10" y="-15" width="29" height="14" stroke="#fff" strokeWidth="0.2" fill="rgba(80, 80, 80, 0.9)" rx="2" ry="2" />
 
-      <text x="-8" y="-8" style={{ fill: 'white', fillOpacity: 1, fontSize: '0.2em' }}>
+      <text x="-8" y="-8" style={{ fill: 'white', fillOpacity: 1, fontSize: '0.15em' }}>
         <tspan fontWeight="bold">Player {shortenAddress(player)}</tspan>
         <tspan x="-8" dy="1.2em">Movement: {range}, Shot: {shotRange}</tspan>
       </text>

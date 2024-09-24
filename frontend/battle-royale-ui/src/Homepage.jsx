@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { ConnectKitButton } from "connectkit";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Typography} from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import yartsLogo from "./images/yartsLogo.svg";
+import yartsLogo from "./images/yartsLogo.png";
 import Master1 from "./images/Master1.svg";
 import Master2 from "./images/Master2.svg";
 import Master3 from "./images/Master3.svg";
@@ -46,79 +46,95 @@ export default function Homepage() {
   }, []);
 
   return (
-    <Grid container spacing={2}>
-      <Grid
-        item
-        size={12}
-        justifyContent="center"
-        alignContent="center"
-        alignItems="center"
-      >
+    <Grid
+      container
+      direction="column"
+      alignItems="center"
+      spacing={4} // Increased spacing for better visual separation
+      sx={{
+        padding: 2,
+        boxSizing: "border-box",
+      }}
+    >
+      {/* Yarts Logo */}
+      <Grid item xs={12}>
         <Box
-          component="img"
-          src={yartsLogo}
-          alt="Yarts Logo"
           sx={{
-            display: "block",
-            marginLeft: "auto",
-            marginRight: "auto",
-            marginTop: -40,
-            marginBottom: -50,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            width: "100%",
+            height: "auto", 
+            marginTop: "240px",
           }}
-        />
+        >
+          <Box
+            component="img"
+            src={yartsLogo}
+            alt="Yarts Logo"
+            sx={{
+              width: "100%", // Make the logo take full width of its container
+              height: "auto", // Maintain aspect ratio
+            }}
+          />
+        </Box>
       </Grid>
-      <Grid item size={12}>
+
+      {/* Changing SVG Image */}
+      <Grid item xs={12}>
         <Box
           component="img"
           src={svgArray[currentSvgIndex]}
           alt={`Master ${currentSvgIndex + 1}`}
           sx={{
-            width: "450px",
-            height: "300px",
+            width: "100%",
+            maxWidth: "200px", // Control the maximum width
+            height: "auto",
             display: "block",
-            marginLeft: "auto",
-            marginRight: "auto",
-            marginBottom: 4,
+            margin: "0 auto",
           }}
         />
       </Grid>
-      <Grid item size={12}>
-        <Typography variant="h5" align="center" fontWeight={700}>
+
+      {/* Typography */}
+      <Grid item xs={12}>
+        <Typography sx={{fontSize: '2rem'}} align="center" fontWeight={700}>
           Battle. Art. Onchain.
         </Typography>
       </Grid>
-      <Grid item size={12}>
-        <Box sx={{ display: "flex", justifyContent: "center", marginTop: 5 }}>
-          <ConnectKitButton.Custom>
-            {({ isConnected, show }) => {
-              if (isConnected && !walletConnected) {
-                setWalletConnected(true);
-              }
 
-              return (
-                <Button
-                  onClick={show}
-                  sx={{
-                    fontSize: "1.5rem",
-                    fontWeight: 700,
-                    backgroundColor: "transparent",
-                    color: "inherit",
-                    border: "none",
-                    "&:hover": {
-                      border: "1px solid currentColor",
-                    },
-                    "&:focus": {
-                      outline: "none",
-                    },
-                    textTransform: "none",
-                  }}
-                >
-                  {isConnected ? "Connected" : "Connect"}
-                </Button>
-              );
-            }}
-          </ConnectKitButton.Custom>
-        </Box>
+      {/* ConnectKit Button */}
+      <Grid item xs={12}>
+        <ConnectKitButton.Custom>
+          {({ isConnected, show }) => {
+            if (isConnected && !walletConnected) {
+              setWalletConnected(true);
+            }
+
+            return (
+              <Button
+                onClick={show}
+                sx={{
+                  fontSize: "1.5rem",
+                  fontWeight: 700,
+                  backgroundColor: "transparent",
+                  color: "inherit",
+                  border: "none",
+                  "&:hover": {
+                    border: "1px solid currentColor",
+                  },
+                  "&:focus": {
+                    outline: "none",
+                  },
+                  textTransform: "none",
+                  padding: "10px 20px", // Added padding for better click area
+                }}
+              >
+                {isConnected ? "Connected" : "Connect"}
+              </Button>
+            );
+          }}
+        </ConnectKitButton.Custom>
       </Grid>
     </Grid>
   );
