@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardContent, Typography } from "@mui/material";
+import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 import { styled } from "@mui/material/styles";
 
 const StyledCardContent = styled(CardContent)(({ theme }) => ({
@@ -40,8 +40,9 @@ export default function GameInfo({ round, gameId, mapShrink }) {
 
   return (
     <Card elevation={4} sx={{ overflow: "hidden" }}>
+      <CardHeader
+          title= {`Game ${gameId}`} titleTypographyProps={{ fontSize: "1.25rem", fontWeight: '600' }}/>
       <StyledCardContent>
-        <Typography sx={{ fontSize: "1rem" }}>Game {gameId}</Typography>
         <Typography sx={{ fontSize: "1rem" }}>Round: {round}</Typography>
         {shrinkMessage()}
       </StyledCardContent>

@@ -74,7 +74,7 @@ export default function Logs({ rounds, ...props }) {
     <Card elevation={4} sx={{ height: "400px", overflow: "hidden" }}>
       <CardHeader
         title="Logs"
-        titleTypographyProps={{ fontSize: "1rem" }}
+        titleTypographyProps={{ fontSize: "1.25rem", fontWeight: "600" }}
         sx={{ backdropFilter: "brightness: 60%", opacity: 1 }}
       />
       <StyledCardContent>
