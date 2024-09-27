@@ -73,7 +73,7 @@ export default function Homepage() {
             src={yartsLogo}
             alt="Yarts Logo"
             sx={{
-              width: "100%", // Make the logo take full width of its container
+              width: "90%", // Make the logo take full width of its container
               height: "auto", // Maintain aspect ratio
             }}
           />
@@ -87,8 +87,8 @@ export default function Homepage() {
           src={svgArray[currentSvgIndex]}
           alt={`Master ${currentSvgIndex + 1}`}
           sx={{
-            width: "100%",
-            maxWidth: "200px", // Control the maximum width
+            width: "90%",
+            maxWidth: "180px",
             height: "auto",
             display: "block",
             margin: "0 auto",
@@ -98,7 +98,7 @@ export default function Homepage() {
 
       {/* Typography */}
       <Grid item xs={12}>
-        <Typography sx={{ fontSize: "2rem" }} align="center" fontWeight={700}>
+        <Typography sx={{ fontSize: "1.8rem" }} align="center" fontWeight={700}>
           Battle. Art. Onchain.
         </Typography>
       </Grid>
@@ -115,7 +115,7 @@ export default function Homepage() {
               <Button
                 onClick={show}
                 sx={{
-                  fontSize: "1.5rem",
+                  fontSize: "1.35rem",
                   fontWeight: 700,
                   backgroundColor: "transparent",
                   color: "inherit",
@@ -127,7 +127,7 @@ export default function Homepage() {
                     outline: "none",
                   },
                   textTransform: "none",
-                  padding: "10px 20px", // Added padding for better click area
+                  padding: "9px 18px",
                 }}
               >
                 {isConnected ? "Connected" : "Connect"}
