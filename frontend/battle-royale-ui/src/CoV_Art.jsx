@@ -113,7 +113,7 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
       draw.path(pathString).fill("none").stroke({ color: gradient, width: 5 });
 
       draw
-        .circle(5)
+        .circle(0)
         .move(controlPoint.x - 2.5, controlPoint.y - 2.5)
         .fill("#ccc");
     });
@@ -206,22 +206,212 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
     });
   };
 
+  //Idea 1 Simple grey for shoot and white for hit for loosers
+
+  const drawStraightShipPathIdea1 = (draw, ships) => {
+    ships.forEach((ship) => {
+      const hexes = ship.shotLong.map(
+        (cell) => new CustomHex({ q: cell.q, r: cell.r })
+      );
+
+      const pathStringStraight = hexes
+        .map((hex, index) => {
+          const { x, y } = hex;
+          const prefix = index === 0 ? "M" : "L";
+          return `${prefix} ${x} ${y}`;
+        })
+        .join(" ");
+
+      const strokeColor = ship.state === "won" ? "blue" : "#808080";
+
+      draw
+        .path(pathStringStraight)
+        .fill("none")
+        .stroke({ color: strokeColor, width: 2 });
+    });
+  };
+
+  const drawSquigglyShipPathIdea1 = (draw, ships) => {
+    ships.forEach((ship) => {
+      const hexes = ship.travelLong.map(
+        (cell) => new CustomHex({ q: cell.q, r: cell.r })
+      );
+
+      const controlPoint = new CustomHex({
+        q: hexes[1].q - 0.25,
+        r: hexes[1].r - 0.25,
+      });
+
+      const pathString = hexes
+        .map((hex, index) => {
+          const { x, y } = hex;
+          const prefix =
+            index === 0
+              ? "M"
+              : index === 1
+              ? `Q${controlPoint.x} ${controlPoint.y}`
+              : "T";
+          return `${prefix} ${x} ${y}`;
+        })
+        .join(" ");
+
+      // Set stroke color based on ship state
+      const strokeColor = ship.state === "won" ? "green" : "white";
+
+      // Apply the stroke with dynamic color
+      draw
+        .path(pathString)
+        .fill("none")
+        .stroke({ color: strokeColor, width: 5 });
+
+      // Draw a circle at the control point
+      draw
+        .circle(0)
+        .move(controlPoint.x - 2.5, controlPoint.y - 2.5)
+        .fill("#ccc");
+    });
+  };
+
+  //Idea 2 Simple grey for shoot and white for hit for loosers
+
+  const drawStraightShipPathIdea2 = (draw, ships) => {
+    ships.forEach((ship) => {
+      const hexes = ship.shotLong.map(
+        (cell) => new CustomHex({ q: cell.q, r: cell.r })
+      );
+
+      const pathStringStraight = hexes
+        .map((hex, index) => {
+          const { x, y } = hex;
+          const prefix = index === 0 ? "M" : "L";
+          return `${prefix} ${x} ${y}`;
+        })
+        .join(" ");
+
+      const strokeColor = ship.state === "won" ? "blue" : "#808080";
+
+      draw
+        .path(pathStringStraight)
+        .fill("none")
+        .stroke({ color: strokeColor, width: 2 });
+    });
+  };
+
+  const drawSquigglyShipPathIdea2 = (draw, ships) => {
+    // Define a set of 8 colors
+    const colors = [
+      "#FF5733",
+      "#33FF57",
+      "#3357FF",
+      "#FF33A1",
+      "#33FFF5",
+      "#F5FF33",
+      "#8D33FF",
+      "#FF8D33",
+    ];
+
+    ships.forEach((ship, index) => {
+      const hexes = ship.travelLong.map(
+        (cell) => new CustomHex({ q: cell.q, r: cell.r })
+      );
+
+      const controlPoint = new CustomHex({
+        q: hexes[1].q - 0.25,
+        r: hexes[1].r - 0.25,
+      });
+
+      const pathString = hexes
+        .map((hex, index) => {
+          const { x, y } = hex;
+          const prefix =
+            index === 0
+              ? "M"
+              : index === 1
+              ? `Q${controlPoint.x} ${controlPoint.y}`
+              : "T";
+          return `${prefix} ${x} ${y}`;
+        })
+        .join(" ");
+
+      // Assign a color to the ship, cycling through the colors array
+      const strokeColor = colors[index % colors.length];
+
+      // Apply the stroke with the selected color
+      draw
+        .path(pathString)
+        .fill("none")
+        .stroke({ color: strokeColor, width: 5 });
+
+      // Draw a circle at the control point
+      draw
+        .circle(0)
+        .move(controlPoint.x - 2.5, controlPoint.y - 2.5)
+        .fill("#ccc");
+    });
+  };
+
   useEffect(() => {
     if (svgRef.current) {
       svgRef.current.clear();
       svgRef.current.remove();
     }
 
-    svgRef.current = SVG().addTo("#svgDrawing").size(800, 600);
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+
+    cells.forEach((cell) => {
+      const hex = new CustomHex({ q: cell.q, r: cell.r });
+      hex.corners.forEach(({ x, y }) => {
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+      });
+    });
+
+    ships.forEach((ship) => {
+      const hex = new CustomHex({ q: ship.q, r: ship.r });
+      const { x, y } = hex;
+      const size = ship.state === "won" ? 30 : 20;
+      minX = Math.min(minX, x - size / 2);
+      maxX = Math.max(maxX, x + size / 2);
+      minY = Math.min(minY, y - size / 2);
+      maxY = Math.max(maxY, y + size / 2);
+    });
+
+    const padding = 20;
+    minX -= padding;
+    minY -= padding;
+    maxX += padding;
+    maxY += padding;
+
+    const contentWidth = maxX - minX;
+    const contentHeight = maxY - minY;
+    const offsetX = (800 - contentWidth) / 2 - minX;
+    const offsetY = (600 - contentHeight) / 2 - minY;
+
+    // Create SVG with fixed size
+    svgRef.current = SVG().addTo("#svgDrawing").size(800, 600).attr({
+      style: "background-color: black; border: 5px solid #C0C0C0;",
+      preserveAspectRatio: "xMidYMid meet",
+    });
+
     const draw = svgRef.current;
 
-    // Draw elements
-    //drawHexagons(draw, cells);
-    drawIslands(draw, cells);
-    drawSquigglyShipPath(draw, ships);
-    drawStraightShipShotPath(draw, ships);
-    drawShips(draw, ships); // Gradients are created within drawShips
-  }, [cells, ships, winner]); // Ensure all dependencies are included
+    // Create a group and apply the translation
+    const group = draw.group();
+    group.translate(offsetX, offsetY);
+
+    // Draw elements using the group
+    //drawHexagons(group, cells);
+    drawIslands(group, cells);
+    drawStraightShipPathIdea1(group, ships);
+    //drawSquigglyShipPathIdea1(group, ships);
+    drawSquigglyShipPathIdea2(group, ships);
+    drawShips(group, ships);
+  }, [cells, ships, winner]);
 
   return (
     <>
