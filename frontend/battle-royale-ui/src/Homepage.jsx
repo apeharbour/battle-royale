@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ConnectKitButton } from "connectkit";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Typography} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import yartsLogo from "./images/yartsLogo.png";
 import Master1 from "./images/Master1.svg";
@@ -50,11 +50,12 @@ export default function Homepage() {
       container
       direction="column"
       alignItems="center"
-      spacing={4} // Increased spacing for better visual separation
+      justifyContent="center"
       sx={{
-        padding: 2,
+        height: "100vh",
         boxSizing: "border-box",
       }}
+      spacing={2}
     >
       {/* Yarts Logo */}
       <Grid item xs={12}>
@@ -64,8 +65,7 @@ export default function Homepage() {
             justifyContent: "center",
             alignItems: "center",
             width: "100%",
-            height: "auto", 
-            marginTop: "240px",
+            height: "auto",
           }}
         >
           <Box
@@ -74,6 +74,7 @@ export default function Homepage() {
             alt="Yarts Logo"
             sx={{
               width: "100%", // Make the logo take full width of its container
+              maxWidth: "300px", // Add max-width to prevent it from growing too large on large screens
               height: "auto", // Maintain aspect ratio
             }}
           />
@@ -98,7 +99,7 @@ export default function Homepage() {
 
       {/* Typography */}
       <Grid item xs={12}>
-        <Typography sx={{fontSize: '2rem'}} align="center" fontWeight={700}>
+        <Typography sx={{ fontSize: "2rem" }} align="center" fontWeight={700}>
           Battle. Art. Onchain.
         </Typography>
       </Grid>

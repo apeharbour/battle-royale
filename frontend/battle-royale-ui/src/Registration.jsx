@@ -192,18 +192,10 @@ export default function Registration(props) {
                     ? "The game screen will be available in the 'Active Games' tab once registration ends."
                     : "Please check back later for more updates."}
                 </Typography>
-                {isRegistrationOpen && openRegistrationTimestamp ? (
+                {isRegistrationOpen && openRegistrationTimestamp && (
                   <RegistrationCountdown
                     registrationTimestamp={openRegistrationTimestamp}
                   />
-                ) : (
-                  <Typography
-                    variant="body1"
-                    color="textSecondary"
-                    textAlign="center"
-                  >
-                    Loading registration data...
-                  </Typography>
                 )}
                 <Box
                   sx={{
