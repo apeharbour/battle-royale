@@ -74,7 +74,6 @@ export default function Homepage() {
             alt="Yarts Logo"
             sx={{
               width: "100%", // Make the logo take full width of its container
-              maxWidth: "300px", // Add max-width to prevent it from growing too large on large screens
               height: "auto", // Maintain aspect ratio
             }}
           />
