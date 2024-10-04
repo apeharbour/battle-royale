@@ -222,12 +222,27 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
         })
         .join(" ");
 
-      const strokeColor = ship.state === "won" ? "blue" : "#808080";
-
-      draw
-        .path(pathStringStraight)
-        .fill("none")
-        .stroke({ color: strokeColor, width: 2 });
+      // Check ship state and set stroke style
+      if (ship.state === "won") {
+        // Define a more prominent gradient for blue
+        const gradient = draw.gradient("linear", (add) => {
+          add.stop(0, "#0000FF"); // Dark blue
+          add.stop(0.33, "#1E90FF"); // Dodger blue
+          add.stop(0.66, "#87CEEB"); // Sky blue
+          add.stop(1, "#E0FFFF"); // Light cyan
+        });
+        draw
+          .path(pathStringStraight)
+          .fill("none")
+          .stroke({ color: gradient, width: 2 });
+      } else {
+        // Use solid grey for other states
+        const strokeColor = "#808080";
+        draw
+          .path(pathStringStraight)
+          .fill("none")
+          .stroke({ color: strokeColor, width: 2 });
+      }
     });
   };
 
@@ -255,20 +270,80 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
         })
         .join(" ");
 
-      // Set stroke color based on ship state
-      const strokeColor = ship.state === "won" ? "green" : "white";
-
-      // Apply the stroke with dynamic color
-      draw
-        .path(pathString)
-        .fill("none")
-        .stroke({ color: strokeColor, width: 5 });
+      // Check ship state and set stroke style
+      if (ship.state === "won") {
+        // Define a more prominent gradient for green
+        const gradient = draw.gradient("linear", (add) => {
+          add.stop(0, "#006400"); // Dark green
+          add.stop(0.33, "#32CD32"); // Lime green
+          add.stop(0.66, "#7FFF00"); // Chartreuse green
+          add.stop(1, "#ADFF2F"); // Green yellow
+        });
+        draw
+          .path(pathString)
+          .fill("none")
+          .stroke({ color: gradient, width: 5 });
+      } else {
+        // Use solid white for other states
+        const strokeColor = "white";
+        draw
+          .path(pathString)
+          .fill("none")
+          .stroke({ color: strokeColor, width: 5 });
+      }
 
       // Draw a circle at the control point
       draw
         .circle(0)
         .move(controlPoint.x - 2.5, controlPoint.y - 2.5)
         .fill("#ccc");
+    });
+  };
+
+  const drawShipsIdea1 = (draw, ships) => {
+    const baseSize = 20; // Starting size for ships killed in round 1
+    const sizeIncrementPerRound = 10; // Size increment for each round survived
+    const winnerExtraSize = 0; // Extra size for winners to ensure they are the largest
+
+    // First, determine the maximum round number from the ships
+    let maxRound = 0;
+    ships.forEach((ship) => {
+      if (ship.killedInRound && ship.killedInRound.round) {
+        const roundKilled = parseInt(ship.killedInRound.round, 10);
+        if (roundKilled > maxRound) {
+          maxRound = roundKilled;
+        }
+      }
+    });
+
+    ships.forEach((ship) => {
+      const hex = new CustomHex({ q: ship.q, r: ship.r });
+      const { x, y } = hex;
+
+      // Determine the size based on killedInRound data
+      let size;
+      if (ship.killedInRound && ship.killedInRound.round) {
+        const roundKilled = parseInt(ship.killedInRound.round, 10);
+        size = baseSize + (roundKilled - 1) * sizeIncrementPerRound;
+      } else {
+        size = baseSize + maxRound * sizeIncrementPerRound + winnerExtraSize; // Winners have the largest size
+      }
+
+      // Create the gradient based on state
+      let gradient;
+      switch (ship.state) {
+        case "won":
+          gradient = createGradient(draw, "lightblue", "blue");
+          break;
+        default:
+          gradient = createGradient(draw, "lightgrey", "grey");
+      }
+
+      // Draw the circle with the radial gradient fill
+      draw
+        .circle(size)
+        .move(x - size / 2, y - size / 2) // Center the circle
+        .fill(gradient);
     });
   };
 
@@ -366,7 +441,7 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
     const baseSize = 20; // Starting size for ships killed in round 1
     const sizeIncrementPerRound = 10; // Size increment for each round survived
     const winnerExtraSize = 0; // Extra size for winners to ensure they are the largest
-  
+
     // First, determine the maximum round number from the ships
     let maxRound = 0;
     ships.forEach((ship) => {
@@ -377,11 +452,11 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
         }
       }
     });
-  
+
     ships.forEach((ship) => {
       const hex = new CustomHex({ q: ship.q, r: ship.r });
       const { x, y } = hex;
-  
+
       // Determine the size based on killedInRound data
       let size;
       if (ship.killedInRound && ship.killedInRound.round) {
@@ -390,7 +465,7 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
       } else {
         size = baseSize + maxRound * sizeIncrementPerRound + winnerExtraSize; // Winners have the largest size
       }
-  
+
       // Create the gradient based on state
       let gradient;
       switch (ship.state) {
@@ -409,7 +484,7 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
         default:
           gradient = createGradient(draw, "lightpink", "pink");
       }
-  
+
       // Draw the circle with the radial gradient fill
       draw
         .circle(size)
@@ -417,7 +492,6 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
         .fill(gradient);
     });
   };
-  
 
   useEffect(() => {
     if (svgRef.current) {
@@ -477,7 +551,9 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
     //drawHexagons(group, cells);
     drawIslands(group, cells);
     drawStraightShipPathIdea1(group, ships);
+    //drawStraightShipPath(group, ships);
     //drawSquigglyShipPathIdea1(group, ships);
+    //drawShipsIdea1(group, ships);
     drawSquigglyShipPathIdea2(group, ships);
     drawShipsIdea2(group, ships);
     //drawShips(group, ships);
