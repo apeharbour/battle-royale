@@ -3,7 +3,7 @@ import { ConnectKitButton } from "connectkit";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import yartsLogo from "./images/yartsLogo.svg"; // Use the SVG logo now
+import yartsLogoTransparent from "./images/yartsLogoTransparent.svg";
 import Master1 from "./images/Master1.svg";
 import Master2 from "./images/Master2.svg";
 import Master3 from "./images/Master3.svg";
@@ -55,33 +55,20 @@ export default function Homepage() {
         height: "100vh",
         boxSizing: "border-box",
       }}
-      spacing={2}
+      spacing={4}
     >
-      {/* Yarts Logo */}
       <Grid item xs={12}>
         <Box
+          component="img"
+          src={yartsLogoTransparent}
+          alt="Yarts Logo"
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            width: "100%",
+            display: "block",
+            maxWidth: "100%",
             height: "auto",
-            overflow: "hidden", // This hides any unnecessary space around the SVG
+            margin: "0 auto",
           }}
-        >
-          <Box
-            component="img"
-            src={yartsLogo}
-            alt="Yarts Logo"
-            sx={{
-              width: "90%", // Adjust to control size, same as before
-              maxWidth: "200px", // Control max width of the logo
-              height: "auto", // Ensure aspect ratio is maintained
-              display: "block",
-              margin: "0 auto", // Centering the logo within its box
-            }}
-          />
-        </Box>
+        />
       </Grid>
 
       {/* Changing SVG Image */}

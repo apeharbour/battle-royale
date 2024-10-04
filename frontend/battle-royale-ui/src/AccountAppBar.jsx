@@ -9,8 +9,8 @@ import {
   Toolbar,
   Typography,
 } from "@mui/material";
-import punkLogo from "./images/punkLogo.png";
-import yartsLogo from "./images/yartsLogo.svg";
+
+import yartsLogo from "./images/yartsLogoTransparent.svg";
 import { useAccount } from "wagmi";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
@@ -27,7 +27,7 @@ export default function AccountAppBar({ toggleDarkMode }) {
     if (!address) {
       navigate("/");
     } else {
-      navigate("/menu");
+      navigate("/registration");
     }
   };
 
@@ -43,24 +43,25 @@ export default function AccountAppBar({ toggleDarkMode }) {
       <Toolbar>
         <Box
           sx={{
-            width: "180px",
-            height: "60px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            overflow: "hidden",
             cursor: "pointer",
+            width: "auto",
+            height: "auto", 
+            overflow: "hidden",
           }}
           onClick={handleLogoClick}
         >
           <Box
             component="img"
-            sx={{
-              width: "500%",
-              height: "450%",
-            }}
             src={yartsLogo}
             alt="Punkships Logo"
+            sx={{
+              maxWidth: "100%",
+              height: "60px",
+              objectFit: "contain",
+            }}
           />
         </Box>
         {/* <Typography variant="h6" component="div" sx={{ marginLeft: 1 }}>
@@ -70,7 +71,7 @@ export default function AccountAppBar({ toggleDarkMode }) {
           color="inherit"
           onClick={() => navigate("/registration")}
           sx={{
-            marginLeft: 2,
+            marginLeft: 4,
             ...(isActiveRoute("/registration") ? activeButtonStyle : {}),
             "& .MuiButton-label": {
               fontSize: "1rem",
