@@ -1289,7 +1289,7 @@ exports.handler = async (event) => {
   const numericGameId = Number(gameId);
 
   const url =
-    "https://base-sepolia.g.alchemy.com/v2/6xaHgvyjC-gz4ris3-hor5Tx9i397Fts";
+    "https://base-sepolia.g.alchemy.com/v2/CXb-Uv4eMWPuE5LFUHY8Su7E8a32zSNX";
   let privateKey;
 
   // Fetch the secret from AWS Secrets Manager

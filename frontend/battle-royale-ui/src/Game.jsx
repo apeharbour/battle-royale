@@ -1,5 +1,11 @@
 import React, { useState, useEffect, Fragment } from "react";
-import { Grid, Stack, Switch, FormControlLabel, Typography } from "@mui/material";
+import {
+  Grid,
+  Stack,
+  Switch,
+  FormControlLabel,
+  Typography,
+} from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useWatchContractEvent } from "wagmi";
@@ -39,9 +45,7 @@ const gameQuery = gql`
         q
         r
         island
-        deletedInRound {
-          round
-        }
+       
       }
       rounds {
         round
@@ -254,10 +258,10 @@ export default function Game(props) {
     const move = movesLastRound.filter(
       (m) => m.player.address === ship.address
     )[0];
-  
+
     let travel = {};
     let shot = {};
-  
+
     // Only populate travel and shot if the ship is active
     if (ship.state === "active") {
       if (move && move.travel) {
@@ -272,7 +276,7 @@ export default function Game(props) {
           (move.travel.destinationQ + move.travel.destinationR) * -1
         );
       }
-  
+
       if (move && move.shot) {
         shot.origin = new Hex(
           move.shot.originQ,
@@ -290,16 +294,15 @@ export default function Game(props) {
       travel = null;
       shot = null;
     }
-  
+
     const s = (ship.q + ship.r) * -1;
     const mine = !!address
       ? ship.address.toLowerCase() === address.toLowerCase()
       : false;
     const newCell = { ...ship, s, travel, shot, mine };
-  
+
     return newCell;
   };
-  
 
   const useGameQuery = (select) =>
     useQuery({
@@ -347,6 +350,8 @@ export default function Game(props) {
       )
     );
 
+  const useCells2 = () => useGameQuery((data) => data.games[0].cells);
+
   const useRounds = () => useGameQuery((data) => data.games[0].rounds);
 
   const useMapShrink = () => useGameQuery((data) => data.games[0].mapShrink);
@@ -387,16 +392,19 @@ export default function Game(props) {
   const { data: playerState } = usePlayerState(address);
   const { data: winner } = useWinner();
   const { data: center } = useCenter();
+  const { data: cells2 } = useCells2();
 
   // console.log("Game ID: ", id);
   // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
   // console.log("Current Round: ", currentRound);
-  // console.log("Ships: ", ships);
+  //console.log("Ships: ", ships);
   // console.log("My Ship: ", myShip);
   //console.log("Cells: ", cells);
   //console.log("Center: ", center);
   // console.log("Rounds: ", rounds);
   // console.log("Game Winner: ", winner);
+  //console.log("Result: ", result);
+  console.log("Cells2: ", cells2);
 
   useEffect(() => {
     console.log("Game State: ", gameState);
@@ -494,7 +502,7 @@ export default function Game(props) {
               setTempShotEndpoint={setTempShotEndpoint}
             />
             {/* <PlayerStatus ships={ships} /> */}
-              <FormControlLabel
+            <FormControlLabel
               control={
                 <Switch
                   checked={showCoordinateField}

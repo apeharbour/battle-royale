@@ -31,9 +31,6 @@ const gameQuery = gql`
         q
         r
         island
-        deletedInRound {
-          round
-        }
       }
       rounds {
         round
@@ -301,6 +298,8 @@ export default function CoV_Data(props) {
       data.games[0].cells.map((c) => enrichCell(c, data.games[0].cells))
     );
 
+  const useCell2 = () => useGameQuery((data) => data.games[0].cells);
+
   const useRounds = () => useGameQuery((data) => data.games[0].rounds);
 
   const useGameState = () => useGameQuery((data) => data.games[0].state);
@@ -330,27 +329,29 @@ export default function CoV_Data(props) {
   const { data: ships } = useShips();
   // const { data: myShip } = useMyShip(address);
   const { data: cells } = useCells();
+  const { data: cell2 } = useCell2();
   const { data: rounds } = useRounds();
   const { data: gameState } = useGameState();
   // const { data: playerState } = usePlayerState(address);
   const { data: winner } = useWinner();
   const { data: center } = useCenter();
 
-  console.log("Game ID: ", gameId);
+  //console.log("Game ID: ", gameId);
   // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
   // console.log("Current Round: ", currentRound);
   // console.log("Ships: ", ships);
   // console.log("My Ship: ", myShip);
-  console.log("Cells: ", cells);
-  console.log("Ships: ", ships);
-  console.log("Rounds: ", rounds);
-  console.log("Game Winner: ", winner);
-  console.log("Center: ", center);
+  //console.log("Cells: ", cells);
+  //console.log("Ships: ", ships);
+  // console.log("Rounds: ", rounds);
+  // console.log("Game Winner: ", winner);
+  // console.log("Center: ", center);
+  //console.log("Result: ", result);
 
   const { ref, width, height } = useElementSize();
-  console.log("Width: ", width);
-  console.log("Height: ", height);
-  console.log("Ships", ships);
+  //console.log("Width: ", width);
+  //console.log("Height: ", height);
+  //console.log("Ships", ships);
 
   return (
     <Fragment>
@@ -361,7 +362,14 @@ export default function CoV_Data(props) {
           </Typography>
           {/* <Typography variant="body" align="center">width: {width}, height: {height} </Typography> */}
         </Grid>
-        <Grid item xs={12} ref={ref} id="svgDrawing" container justifyContent="center">
+        <Grid
+          item
+          xs={12}
+          ref={ref}
+          id="svgDrawing"
+          container
+          justifyContent="center"
+        >
           {cells && (
             <CoV_Art
               gameId={gameId}
@@ -369,6 +377,7 @@ export default function CoV_Data(props) {
               center={center}
               ships={ships}
               winner={winner}
+              cell2={cell2}
             />
           )}
         </Grid>

@@ -269,7 +269,7 @@ export default function HallOfFame(props) {
                       <CardActions sx={{ marginBottom: 1 }}>
                         <HolographicButtonYellow
                           onClick={() =>
-                            (window.location.href = `/${game.gameId}/cov`)
+                            (window.location.href = `/cov/${game.gameId}`)
                           }
                         >
                           Canvas of Victory
