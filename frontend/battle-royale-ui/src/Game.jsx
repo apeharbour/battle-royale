@@ -404,7 +404,7 @@ export default function Game(props) {
   // console.log("Rounds: ", rounds);
   // console.log("Game Winner: ", winner);
   //console.log("Result: ", result);
-  console.log("Cells2: ", cells2);
+  //console.log("Cells2: ", cells2);
 
   useEffect(() => {
     console.log("Game State: ", gameState);

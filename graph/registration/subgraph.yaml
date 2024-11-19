@@ -6,11 +6,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: Registration
-    network: base-sepolia
+    network: apechain-curtis
     source:
       abi: Registration
-      address: "0xB2F43774e04E1124075d01aedbDFBe7fc8BacE38"
-      startBlock: 14154342
+      address: "0xf5E20d3cCB5d04BDc8BAf8ed95b3F78D0a9ea36a"
+      startBlock: 12578271
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

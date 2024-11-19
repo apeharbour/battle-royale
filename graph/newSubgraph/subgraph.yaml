@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: GamePunk
-    network: base-sepolia
+    network: apechain-curtis
     source:
       abi: GamePunk
-      address: "0x57d26D2718282C503b40Be2354b8B2C6877CFF11"
-      startBlock: 14154334
+      address: "0xb5F5b6FA057Ad09a18FFf5B0dD0fe6cF30c3286f"
+      startBlock: 12578260
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
