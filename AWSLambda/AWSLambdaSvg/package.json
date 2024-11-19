@@ -1,0 +1,21 @@
+{
+  "name": "awslambdasvg",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.666.0",
+    "@svgdotjs/svg.js": "^3.2.4",
+    "cross-fetch": "^4.0.0",
+    "graphql": "^15.9.0",
+    "graphql-request": "^4.3.0",
+    "honeycomb-grid": "^4.1.5",
+    "svgdom": "^0.1.19"
+  }
+}

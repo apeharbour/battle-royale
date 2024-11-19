@@ -1,13 +1,16 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { defineHex, Grid } from "honeycomb-grid";
 import { SVG } from "@svgdotjs/svg.js";
 import "@svgdotjs/svg.filter.js";
 import { Typography } from "@mui/material";
 
-export default function CoV_Art({ center, cells, ships, gameId, winner }) {
+export default function CoV_Art({ center, cells, ships, gameId, winner, cell2 }) {
   const svgRef = useRef(null);
+  const [svgDataUrl, setSvgDataUrl] = useState(null);
 
-  console.log("Here winner:", winner);
+  console.log("Cells:", cell2);
+
+  // console.log("Here winner:", winner);
 
   // Create a hexagonal grid using honeycomb
   const CustomHex = defineHex({
@@ -537,7 +540,7 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
 
     // Create SVG with fixed size
     svgRef.current = SVG().addTo("#svgDrawing").size(800, 600).attr({
-      style: "background-color: black; border: 5px solid #e5e8dc;",
+      style: "border: 5px solid #e5e8dc;",
       preserveAspectRatio: "xMidYMid meet",
     });
 
@@ -557,11 +560,29 @@ export default function CoV_Art({ center, cells, ships, gameId, winner }) {
     drawSquigglyShipPathIdea2(group, ships);
     drawShipsIdea2(group, ships);
     //drawShips(group, ships);
+
+
+
+    // Get the SVG data as a string and create a downloadable link
+    const svgString = svgRef.current.svg();
+    const blob = new Blob([svgString], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+    setSvgDataUrl(url); // Update the state to store the download link
+
+    return () => {
+      // Cleanup to revoke the object URL after the component is unmounted
+      URL.revokeObjectURL(url);
+    };
   }, [cells, ships, winner]);
 
   return (
     <>
       <div id="svgDrawing"></div>
+      {svgDataUrl && (
+        <a href={svgDataUrl} download="my-art.svg">
+          Download SVG
+        </a>
+      )}
     </>
   );
 }

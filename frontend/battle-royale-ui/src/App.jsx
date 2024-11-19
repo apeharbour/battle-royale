@@ -13,6 +13,7 @@ import Game from "./Game";
 import Admin from "./Admin";
 import AccountAppBar from "./AccountAppBar";
 import BackdropComponent from "./Backdrop";
+import Cov from "./Cov.jsx";
 import HallOfFame from "./HallOfFame";
 import Registration from "./Registration";
 import Spectator from "./Spectator";
@@ -74,6 +75,7 @@ function App() {
               <Route path="/:gameId" element={<Game />} />
               <Route path="/:gameId/finalart" element={<FinalArtData />} />
               <Route path="/:gameId/cov" element={<CoV_Data />} />
+              <Route path="/cov/:gameId" element={<Cov />} />
               <Route path="/admin" element={<Admin />} />
               <Route path="/listgames" element={<ListGames />} />
               <Route path="/registration" element={<Registration />} />

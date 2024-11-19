@@ -4,6 +4,7 @@ import {
   useAccount,
   useWriteContract,
   useWaitForTransactionReceipt,
+  useWatchContractEvent,
 } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
@@ -23,6 +24,7 @@ import Timer from "./Timer";
 import GameAbi from "./abis/GamePunk.json";
 import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
 
+// Constants
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const REGISTRATION_ABI = RegistrationPunkAbi;
@@ -30,8 +32,12 @@ const GAME_ABI = GameAbi.abi;
 
 const GAME_ID = 1;
 const MAX_PLAYERS_PER_GAME = 8;
-const RADIUS = 6;
+const RADIUS = 7;
+const MAX_RETRIES = 10;
+const RETRY_DELAY = 2000; // 2 seconds
+const SUBGRAPH_POLLING_INTERVAL = 1000; // 1 second
 
+// GraphQL Query
 const registrationQuery = gql`
   query registrations {
     registrations {
@@ -48,10 +54,14 @@ const registrationQuery = gql`
   }
 `;
 
+// Utility Functions
 const shortenAddress = (address) => {
   return `${address.slice(0, 6)}..${address.slice(-4)}`;
 };
 
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Custom Hooks
 const useRegistrationsQuery = (select) => {
   return useQuery({
     queryKey: ["registrations"],
@@ -63,6 +73,7 @@ const useRegistrationsQuery = (select) => {
     select,
     staleTime: 0,
     cacheTime: 0,
+    refetchInterval: SUBGRAPH_POLLING_INTERVAL,
     refetchOnWindowFocus: "always",
   });
 };
@@ -82,6 +93,7 @@ const useRegistrationsPhase = (state) =>
       .filter((r) => parseInt(r.phase, 10) === highestPhase)
       .map((r) => r.firstGameId);
     return {
+      highestPhase,
       highestPhaseGameIds,
       fullData: filteredByState,
     };
@@ -93,18 +105,26 @@ class RegistrationState {
 }
 
 export default function Admin(props) {
-  const [testGameId, setTestGameId] = useState();
-  const [testGameRadius, setTestGameRadius] = useState();
-  const [updateWorldTestId, setUpdateWorldTestId] = useState();
-  const [txInFlight, setTxInFlight] = useState(false);
+  // State
+  const [testGameId, setTestGameId] = useState("");
+  const [testGameRadius, setTestGameRadius] = useState("");
+  const [updateWorldTestId, setUpdateWorldTestId] = useState("");
   const [mapShrink, setMapShrink] = useState(3);
+  const [isClosingRegistration, setIsClosingRegistration] = useState(false);
+  const [lastProcessedPhase, setLastProcessedPhase] = useState(-1);
+  const [processingError, setProcessingError] = useState(null);
+  const [processedTransactions] = useState(new Set());
 
+  // Hooks
   const { data: closedRegistrations } = useRegistrations(
     RegistrationState.CLOSED
   );
   const { data: openRegistrations } = useRegistrations(RegistrationState.OPEN);
-  const { data: registrationData, refetch: refetchRegistrationsData } =
-    useRegistrationsPhase(RegistrationState.CLOSED);
+  const {
+    data: registrationData,
+    refetch: refetchRegistrationsData,
+    isLoading: isRegistrationDataLoading,
+  } = useRegistrationsPhase(RegistrationState.CLOSED);
 
   const account = useAccount();
 
@@ -123,81 +143,33 @@ export default function Admin(props) {
     data: txData,
   } = useWaitForTransactionReceipt({ hash });
 
-
-  useEffect(() => {
-    if (isTxError && txError) {
-      console.error("Transaction error:", txError);
-    }
-  }, [isTxError, txError]);
-
-  useEffect(() => {
-    const setupEventListener = async () => {
-      if (typeof window.ethereum !== "undefined") {
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const signer = await provider.getSigner();
-        const contract = new ethers.Contract(
-          REGISTRATION_ADDRESS,
-          REGISTRATION_ABI,
-          signer
-        );
-
-        // Debug: Ensure contract is being listened to
-        console.log(
-          "Listening to RegistrationClosed event on contract:",
-          REGISTRATION_ADDRESS
-        );
-
-        contract.on("RegistrationClosed", async (registrationPhase, gameId) => {
-          console.log(
-            "Registration closed event detected:",
-            registrationPhase,
-            gameId
-          );
-
-          const newData = await refetchRegistrationsData();
-          console.log("Refetched data:", newData.data);
-
-          if (newData.data && newData.data.highestPhaseGameIds.length > 0) {
-            newData.data.highestPhaseGameIds.forEach((gameId) => {
-              triggerLambdaFunction(gameId);
-            });
-          }
-        });
-
-        // Cleanup event listener on component unmount
-        return () => {
-          console.log("Removing event listener for RegistrationClosed");
-          contract.off("RegistrationClosed");
-        };
-      } else {
-        console.error("Ethereum provider is not available");
-      }
-    };
-
-    setupEventListener();
-  }, [refetchRegistrationsData]);
-
-  const startRegistration = async () => {
-    writeContract({
-      abi: REGISTRATION_ABI,
-      address: REGISTRATION_ADDRESS,
-      functionName: "startRegistration",
-    });
+  // Helper Functions
+  const hasNewRegistrationData = (newData, lastPhase) => {
+    if (!newData?.fullData?.length) return false;
+    const currentHighestPhase = Math.max(
+      ...newData.fullData.map((r) => parseInt(r.phase, 10))
+    );
+    return currentHighestPhase > lastPhase;
   };
 
-  const closeRegistration = async () => {
-    writeContract({
-      abi: REGISTRATION_ABI,
-      address: REGISTRATION_ADDRESS,
-      functionName: "closeRegistration",
-      args: [MAX_PLAYERS_PER_GAME, RADIUS, mapShrink],
-    });
-    setTxInFlight(true);
-    console.log(
-      "Closing registration",
-      MAX_PLAYERS_PER_GAME,
-      RADIUS,
-      mapShrink
+  const fetchRegistrationDataWithRetries = async (lastPhase) => {
+    for (let i = 0; i < MAX_RETRIES; i++) {
+      console.log(
+        `Attempt ${i + 1}/${MAX_RETRIES} to fetch updated registration data`
+      );
+
+      const newData = await refetchRegistrationsData();
+
+      if (hasNewRegistrationData(newData.data, lastPhase)) {
+        console.log("Found new registration data:", newData.data);
+        return newData.data;
+      }
+
+      console.log(`No new data found, waiting ${RETRY_DELAY}ms before retry`);
+      await wait(RETRY_DELAY);
+    }
+    throw new Error(
+      "Failed to get updated registration data after maximum retries"
     );
   };
 
@@ -210,7 +182,8 @@ export default function Admin(props) {
     };
 
     try {
-      console.log("Sending API Request for Game ID:", gameId, postData);
+      console.log(`Triggering Lambda for Game ID: ${gameId}`, postData);
+
       const response = await fetch(apiEndpoint, {
         method: "POST",
         headers: {
@@ -219,38 +192,179 @@ export default function Admin(props) {
         body: JSON.stringify(postData),
       });
 
+      if (!response.ok) {
+        throw new Error(
+          `Lambda API call failed with status: ${response.status}`
+        );
+      }
+
       const responseData = await response.json();
-      console.log("API Response for Game ID:", gameId, responseData);
+      console.log(`Lambda response for Game ID ${gameId}:`, responseData);
+      return true;
     } catch (error) {
-      console.error("API Call Error for Game ID:", gameId, error);
+      console.error(`Lambda error for Game ID ${gameId}:`, error);
+      return false;
+    }
+  };
+
+  // Contract Interaction Functions
+  const startRegistration = async () => {
+    try {
+      await writeContract({
+        abi: REGISTRATION_ABI,
+        address: REGISTRATION_ADDRESS,
+        functionName: "startRegistration",
+      });
+    } catch (error) {
+      console.error("Error starting registration:", error);
+      setProcessingError(error.message);
+    }
+  };
+
+  const closeRegistration = async () => {
+    try {
+      setIsClosingRegistration(true);
+      setProcessingError(null);
+
+      await writeContract({
+        abi: REGISTRATION_ABI,
+        address: REGISTRATION_ADDRESS,
+        functionName: "closeRegistration",
+        args: [MAX_PLAYERS_PER_GAME, RADIUS, mapShrink],
+      });
+
+      console.log("Closing registration with params:", {
+        maxPlayers: MAX_PLAYERS_PER_GAME,
+        radius: RADIUS,
+        mapShrink,
+      });
+    } catch (error) {
+      console.error("Error closing registration:", error);
+      setProcessingError(error.message);
+      setIsClosingRegistration(false);
     }
   };
 
   const startTestGame = async () => {
-    writeContract({
-      abi: GAME_ABI,
-      address: GAME_ADDRESS,
-      functionName: "startNewGame",
-      args: [testGameId, testGameRadius],
-    });
+    try {
+      await writeContract({
+        abi: GAME_ABI,
+        address: GAME_ADDRESS,
+        functionName: "startNewGame",
+        args: [testGameId, testGameRadius],
+      });
+    } catch (error) {
+      console.error("Error starting test game:", error);
+      setProcessingError(error.message);
+    }
   };
 
   const endTestGame = async () => {
-    writeContract({
-      abi: GAME_ABI,
-      address: GAME_ADDRESS,
-      functionName: "endGame",
-      args: [testGameId],
-    });
+    try {
+      await writeContract({
+        abi: GAME_ABI,
+        address: GAME_ADDRESS,
+        functionName: "endGame",
+        args: [testGameId],
+      });
+    } catch (error) {
+      console.error("Error ending test game:", error);
+      setProcessingError(error.message);
+    }
   };
 
   const updateWorldTest = async () => {
-    writeContract({
-      abi: GAME_ABI,
-      address: GAME_ADDRESS,
-      functionName: "updateWorld",
-      args: [updateWorldTestId],
-    });
+    try {
+      await writeContract({
+        abi: GAME_ABI,
+        address: GAME_ADDRESS,
+        functionName: "updateWorld",
+        args: [updateWorldTestId],
+      });
+    } catch (error) {
+      console.error("Error updating world:", error);
+      setProcessingError(error.message);
+    }
+  };
+
+// Replace the existing transaction confirmation effect with this updated version
+useEffect(() => {
+  const handleTransactionConfirmed = async () => {
+    if (!isTxConfirmed || !hash || !isClosingRegistration) return;
+    
+    // Check if we've already processed this transaction
+    if (processedTransactions.has(hash)) {
+      console.log("Transaction already processed:", hash);
+      return;
+    }
+
+    console.log("Close Registration transaction confirmed:", hash);
+    
+    try {
+      // Get current phase before fetching new data
+      const currentPhase = registrationData?.highestPhase ?? -1;
+      console.log("Current phase before fetching new data:", currentPhase);
+
+      // Wait for and fetch new registration data
+      const newData = await fetchRegistrationDataWithRetries(currentPhase);
+      
+      if (newData?.highestPhaseGameIds?.length) {
+        console.log("Processing game IDs:", newData.highestPhaseGameIds);
+        
+        const results = await Promise.all(
+          newData.highestPhaseGameIds.map(gameId => triggerLambdaFunction(gameId))
+        );
+
+        const successCount = results.filter(Boolean).length;
+        console.log(`Successfully processed ${successCount} of ${results.length} games`);
+
+        // Update last processed phase
+        const newPhase = Math.max(...newData.fullData.map(r => parseInt(r.phase, 10)));
+        setLastProcessedPhase(newPhase);
+        
+        if (successCount < results.length) {
+          setProcessingError("Some Lambda functions failed to process");
+        }
+        
+        // Add transaction to processed set
+        processedTransactions.add(hash);
+      } else {
+        console.log("No new game IDs to process");
+      }
+    } catch (error) {
+      console.error("Error processing registration closure:", error);
+      setProcessingError(error.message);
+    } finally {
+      setIsClosingRegistration(false);
+    }
+  };
+
+  handleTransactionConfirmed();
+}, [isTxConfirmed, hash, isClosingRegistration, registrationData]);
+
+  // Effect for handling transaction errors
+  useEffect(() => {
+    if (isTxError && txError) {
+      console.error("Transaction error:", txError);
+      setProcessingError(txError.message);
+      setIsClosingRegistration(false);
+    }
+  }, [isTxError, txError]);
+
+  const renderTransactionStatus = () => {
+    if (processingError)
+      return <Typography color="error">Error: {processingError}</Typography>;
+    if (isTxPending)
+      return <Typography color="primary">Transaction pending...</Typography>;
+    if (isTxConfirming)
+      return (
+        <Typography color="secondary">Transaction confirming...</Typography>
+      );
+    if (isTxConfirmed)
+      return <Typography color="success">Transaction confirmed!</Typography>;
+    if (isRegistrationDataLoading)
+      return <Typography>Loading registration data...</Typography>;
+    return null;
   };
 
   return (
