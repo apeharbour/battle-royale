@@ -3,7 +3,7 @@
 .ship-path {
   animation: shippathdraw 3s linear forwards;
   stroke: lightgray;
-  stroke-width: 0.5;
+  stroke-width: 0.3;
   stroke-linecap: round;
   stroke-dasharray: var(--ship-path-dasharray);
   stroke-dashoffset: var(--ship-path-dashoffset-reverse);
@@ -12,7 +12,7 @@
 .shoot-path {
   animation: shippathdraw 3s linear forwards;
   stroke: red;
-  stroke-width: 0.5;
+  stroke-width: 0.3;
   stroke-linecap: round;
   stroke-dasharray: var(--shoot-path-dasharray);
   stroke-dashoffset: var(--shoot-path-dashoffset-reverse);
