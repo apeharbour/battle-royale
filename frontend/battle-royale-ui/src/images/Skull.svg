@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="dead-ship-explosion">
+  <path 
+    d="M25 40 C10 50, 10 70, 25 80 
+       Q50 90, 75 80 
+       C90 70, 90 50, 75 40 
+       Q50 30, 25 40 
+       M35 50 Q40 55, 45 50 
+       M55 50 Q60 55, 65 50 
+       M40 70 Q50 75, 60 70" 
+    fill="black" 
+    stroke="gray" 
+    stroke-width="3"
+  />
+</svg>

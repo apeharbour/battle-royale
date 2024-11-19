@@ -154,7 +154,7 @@ export default function ListGames(props) {
   };
 
   const renderHexGrid = (cells) => (
-    <HexGrid width={220} height={200} viewBox="-10 -30 130 130">
+    <HexGrid width={250} height={200} viewBox="-10 -30 130 130">
       <Layout
         size={{ x: 4, y: 3.5 }}
         flat={false}
@@ -266,7 +266,7 @@ export default function ListGames(props) {
                         {game.state}
                       </Typography>
                     </Box>
-                    <Box ml={2}>{renderHexGrid(game.cells)}</Box>
+                    <Box ml={-3}>{renderHexGrid(game.cells)}</Box>
                     <Box>
                       <Typography>
                         <Typography component="span" sx={{ fontSize: "1rem" }}>
