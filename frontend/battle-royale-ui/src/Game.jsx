@@ -45,7 +45,7 @@ const gameQuery = gql`
         q
         r
         island
-       
+       deletedInRound{round}
       }
       rounds {
         round
