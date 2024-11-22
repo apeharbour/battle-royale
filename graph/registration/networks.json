@@ -27,18 +27,18 @@
       "startBlock": 14154342
     }
   },
-  "apechain-curtis": {
+ "apechain-curtis": {
     "GamePunk": {
-      "address": "0xb5F5b6FA057Ad09a18FFf5B0dD0fe6cF30c3286f",
-      "startBlock": 12578260
+      "address": "0x1948D30301eD95813e7BA8535c3b05B9eaDFC601",
+      "startBlock": 12707466
     },
     "Punkships": {
-      "address": "0x4CE93e8fBD2457Cb16a0A3D10998F7a5207A4319",
-      "startBlock": 12578252
+      "address": "0x63823D7e9aBeF5d6778c6fda389d8E3bA6D1f364",
+      "startBlock": 12707459
     },
     "Registration": {
-      "address": "0xf5E20d3cCB5d04BDc8BAf8ed95b3F78D0a9ea36a",
-      "startBlock": 12578271
+      "address": "0x9feb8260BC8520c8c7088b60ab11b3293288902E",
+      "startBlock":	12707483
     }
   },
   "localhost": {

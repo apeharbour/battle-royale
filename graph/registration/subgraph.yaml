@@ -9,8 +9,8 @@ dataSources:
     network: apechain-curtis
     source:
       abi: Registration
-      address: "0xf5E20d3cCB5d04BDc8BAf8ed95b3F78D0a9ea36a"
-      startBlock: 12578271
+      address: "0x9feb8260BC8520c8c7088b60ab11b3293288902E"
+      startBlock: 12707483
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

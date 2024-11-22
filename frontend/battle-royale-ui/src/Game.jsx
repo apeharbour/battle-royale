@@ -45,7 +45,9 @@ const gameQuery = gql`
         q
         r
         island
-       deletedInRound{round}
+        deletedInRound {
+          round
+        }
       }
       rounds {
         round
@@ -254,54 +256,70 @@ export default function Game(props) {
     };
   };
 
-  const enrichShip = (ship, movesLastRound) => {
-    const move = movesLastRound.filter(
-      (m) => m.player.address === ship.address
-    )[0];
+  const enrichShip = (ship, movesLastRound, currentPlayers, currentRound) => {
+    const move = movesLastRound.find((m) => m.player.address === ship.address);
 
     let travel = {};
     let shot = {};
 
-    // Only populate travel and shot if the ship is active
-    if (ship.state === "active") {
-      if (move && move.travel) {
-        travel.origin = new Hex(
-          move.travel.originQ,
-          move.travel.originR,
-          (move.travel.originQ + move.travel.originR) * -1
-        );
-        travel.destination = new Hex(
-          move.travel.destinationQ,
-          move.travel.destinationR,
-          (move.travel.destinationQ + move.travel.destinationR) * -1
-        );
-      }
+    // Determine if the ship is currently active
+    const isActive = !ship.killedInRound && ship.state === "active";
 
-      if (move && move.shot) {
-        shot.origin = new Hex(
-          move.shot.originQ,
-          move.shot.originR,
-          (move.shot.originQ + move.shot.originR) * -1
-        );
-        shot.destination = new Hex(
-          move.shot.destinationQ,
-          move.shot.destinationR,
-          (move.shot.destinationQ + move.shot.destinationR) * -1
-        );
-      }
-    } else {
-      // If the ship is not active, set travel and shot to null or empty objects
-      travel = null;
-      shot = null;
+    // Determine if the ship was destroyed in the last round
+    const wasDestroyedLastRound =
+      ship.killedInRound &&
+      parseInt(ship.killedInRound.round) === currentRound - 1;
+
+    // Exclude ships that were destroyed in earlier rounds
+    if (!isActive && !wasDestroyedLastRound) {
+      return null;
     }
 
-    const s = (ship.q + ship.r) * -1;
+    // Set the appropriate state
+    const shipState = isActive ? "active" : "destroyed";
+
+    // Populate travel and shot data
+    if (move && move.travel) {
+      travel.origin = new Hex(
+        move.travel.originQ,
+        move.travel.originR,
+        -move.travel.originQ - move.travel.originR
+      );
+      travel.destination = new Hex(
+        move.travel.destinationQ,
+        move.travel.destinationR,
+        -move.travel.destinationQ - move.travel.destinationR
+      );
+    }
+
+    if (move && move.shot) {
+      shot.origin = new Hex(
+        move.shot.originQ,
+        move.shot.originR,
+        -move.shot.originQ - move.shot.originR
+      );
+      shot.destination = new Hex(
+        move.shot.destinationQ,
+        move.shot.destinationR,
+        -move.shot.destinationQ - move.shot.destinationR
+      );
+    }
+
+    const s = -ship.q - ship.r;
     const mine = !!address
       ? ship.address.toLowerCase() === address.toLowerCase()
       : false;
-    const newCell = { ...ship, s, travel, shot, mine };
 
-    return newCell;
+    const newShip = {
+      ...ship,
+      s,
+      travel,
+      shot,
+      mine,
+      state: shipState,
+    };
+
+    return newShip;
   };
 
   const useGameQuery = (select) =>
@@ -320,14 +338,47 @@ export default function Game(props) {
 
   const useShips = () =>
     useGameQuery((data) => {
-      let movesLastRound = [];
       const currentRound = parseInt(data.games[0].currentRound.round);
+      let movesLastRound = [];
+      let lastRoundPlayers = [];
+
       if (currentRound > 1) {
-        movesLastRound = data.games[0].rounds.filter(
+        const lastRound = data.games[0].rounds.find(
           (r) => parseInt(r.round) === currentRound - 1
-        )[0].moves;
+        );
+
+        if (lastRound) {
+          movesLastRound = lastRound.moves;
+          lastRoundPlayers = movesLastRound
+            .map((m) => m.player)
+            .filter(
+              (player, index, self) =>
+                index === self.findIndex((p) => p.address === player.address)
+            );
+        }
       }
-      return data.games[0].players.map((s) => enrichShip(s, movesLastRound));
+
+      // Filter active players
+      const currentPlayers = data.games[0].players.filter(
+        (p) => !p.killedInRound && p.state === "active"
+      );
+
+      // Filter players who were destroyed in the last round
+      const destroyedLastRoundPlayers = data.games[0].players.filter(
+        (player) =>
+          player.killedInRound &&
+          parseInt(player.killedInRound.round) === currentRound - 1
+      );
+
+      // Combine current active players and destroyed last round players
+      const allRelevantPlayers = [
+        ...currentPlayers,
+        ...destroyedLastRoundPlayers,
+      ];
+
+      return allRelevantPlayers
+        .map((s) => enrichShip(s, movesLastRound, currentPlayers, currentRound))
+        .filter((ship) => ship !== null); // Exclude null ships
     });
 
   const useMyShip = (address) =>
@@ -397,7 +448,7 @@ export default function Game(props) {
   // console.log("Game ID: ", id);
   // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
   // console.log("Current Round: ", currentRound);
-  //console.log("Ships: ", ships);
+  //console.log("Game Ships: ", ships);
   // console.log("My Ship: ", myShip);
   //console.log("Cells: ", cells);
   //console.log("Center: ", center);

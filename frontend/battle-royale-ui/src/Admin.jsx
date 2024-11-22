@@ -31,10 +31,10 @@ const REGISTRATION_ABI = RegistrationPunkAbi;
 const GAME_ABI = GameAbi.abi;
 
 const GAME_ID = 1;
-const MAX_PLAYERS_PER_GAME = 8;
+const MAX_PLAYERS_PER_GAME = 9;
 const RADIUS = 7;
 const MAX_RETRIES = 10;
-const RETRY_DELAY = 2000; // 2 seconds
+const RETRY_DELAY = 3000; 
 const SUBGRAPH_POLLING_INTERVAL = 1000; // 1 second
 
 // GraphQL Query
@@ -114,6 +114,7 @@ export default function Admin(props) {
   const [lastProcessedPhase, setLastProcessedPhase] = useState(-1);
   const [processingError, setProcessingError] = useState(null);
   const [processedTransactions] = useState(new Set());
+  const [gameIdEventBridge, setGameIdEventBridge] = useState(null);
 
   // Hooks
   const { data: closedRegistrations } = useRegistrations(
@@ -178,7 +179,7 @@ export default function Admin(props) {
       "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated";
     const postData = {
       gameId: gameId.toString(),
-      scheduleRate: "2 minutes",
+      scheduleRate: "3 minutes",
     };
 
     try {
@@ -387,7 +388,16 @@ useEffect(() => {
             label="Map Shrink"
             onChange={(e) => setMapShrink(e.target.value)}
           />
+           <TextField
+            variant="outlined"
+            value={gameIdEventBridge}
+            label="Event Bridge"
+            onChange={(e) => setGameIdEventBridge(e.target.value)}
+          />
         </Stack>
+        <Button variant="contained" onClick={()=> {triggerLambdaFunction(gameIdEventBridge)}}>
+            Event Bridge
+          </Button>
       </Box>
       <Box mt={5}>
         <Stack spacing={2} direction="row">

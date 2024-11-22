@@ -100,7 +100,7 @@ contract GamePunk is Ownable {
     event MapShrink(uint256 gameId);
     event Cell(uint256 gameId, uint8 q, uint8 r, bool island);
     event CellDeleted(uint256 gameId, uint8 q, uint8 r);
-    event MutualShot(address [] players, uint256 gameId);
+    event MutualShot(address[] players, uint256 gameId);
 
     struct Ship {
         SharedStructs.Coordinate coordinate;
@@ -173,8 +173,6 @@ contract GamePunk is Ownable {
         allowCommitMoves(_gameId);
         emit GameStarted(_gameId);
     }
-
-  
 
     function initGame(
         uint8 _radius,
@@ -409,30 +407,9 @@ contract GamePunk is Ownable {
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
         );
-        // find player index
-        uint8 playerIndex = 0;
-        for (uint8 p = 0; p < games[gameId].players.length; p++) {
-            if (games[gameId].players[p] == captain) {
-                playerIndex = p;
-                break;
-            }
-        }
-        sinkShip(captain, playerIndex, gameId);
-    }
-
-    function sinkShip(address captain, uint8 index, uint256 gameId) internal {
-        require(
-            index < games[gameId].players.length,
-            "Index value out of range"
-        );
-        require(
-            games[gameId].gameInProgress == true,
-            "Game has not started yet!"
-        );
         emit PlayerDefeated(captain, gameId);
         punkships.burnByGameContract(games[gameId].ships[captain].punkshipId);
-        delete (games[gameId].ships[captain]);
-        games[gameId].players[index] = address(0);
+        delete games[gameId].ships[captain];
     }
 
     function isShipOutsideMap(
@@ -443,12 +420,13 @@ contract GamePunk is Ownable {
         return !cell.exists;
     }
 
-   function updateWorld(uint256 gameId) public onlyOwner {
+    function updateWorld(uint256 gameId) public onlyOwner {
         require(games[gameId].gameInProgress, "Game has not started yet!");
 
         // Shrink map every [mapShrink] rounds
         if (games[gameId].round % games[gameId].mapShrink == 0) {
-            SharedStructs.Coordinate[] memory deletedCells = map.deleteOutermostRing(gameId, games[gameId].shrinkNo);
+            SharedStructs.Coordinate[] memory deletedCells = map
+                .deleteOutermostRing(gameId, games[gameId].shrinkNo);
             games[gameId].shrinkNo++;
             emit MapShrink(gameId);
             for (uint8 i = 0; i < deletedCells.length; i++) {
@@ -456,160 +434,242 @@ contract GamePunk is Ownable {
             }
 
             // Sink players outside the invalid map cells
-            for (uint8 i = 0; i < games[gameId].players.length; i++) {
-                SharedStructs.Coordinate memory shipCoord = games[gameId].ships[games[gameId].players[i]].coordinate;
+            uint256 i = games[gameId].players.length;
+            while (i > 0) {
+                i--;
+                address player = games[gameId].players[i];
+                SharedStructs.Coordinate memory shipCoord = games[gameId]
+                    .ships[player]
+                    .coordinate;
 
                 if (isShipOutsideMap(shipCoord, gameId)) {
-                    emit ShipSunkOutOfMap(games[gameId].players[i], gameId); // Emitting event when ship is sunk due to being outside the map
-                    sinkShip(games[gameId].players[i], i, gameId);
+                    emit ShipSunkOutOfMap(player, gameId);
+                    sinkShip(player, gameId);
 
-                    // Adjust the players array
-                    games[gameId].players[i] = games[gameId].players[games[gameId].players.length - 1]; // Swap with the last player
-                    games[gameId].players.pop(); // Remove the last player
-                    if (i > 0) {
-                        i--; // Adjust the loop counter to recheck the swapped player
-                    }
+                    // Remove the player from the array
+                    games[gameId].players[i] = games[gameId].players[
+                        games[gameId].players.length - 1
+                    ];
+                    games[gameId].players.pop();
                 }
             }
         }
 
-        // Shot destination positions
-        SharedStructs.Coordinate[] memory shotDestinations = new SharedStructs.Coordinate[](games[gameId].players.length);
-        // Flag to check if ship is active
+        // Initialize shot destinations and active status
+        SharedStructs.Coordinate[]
+            memory shotDestinations = new SharedStructs.Coordinate[](
+                games[gameId].players.length
+            );
         bool[] memory isActive = new bool[](games[gameId].players.length);
+
         // Initialize all ships as active
-        for (uint8 i = 0; i < games[gameId].players.length; i++) {
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
             isActive[i] = true;
         }
 
-        // Moving ships and handling deaths due to invalid moves
-        for (uint8 i = 0; i < games[gameId].players.length; i++) {
-            // Skip the moves of removed players
-            if (games[gameId].ships[games[gameId].players[i]].captain == address(0)) {
+        // Move ships and handle deaths due to invalid moves
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
+            address player = games[gameId].players[i];
+            Ship storage ship = games[gameId].ships[player];
+
+            if (ship.captain == address(0)) {
                 continue;
             }
 
-            if (games[gameId].ships[games[gameId].players[i]].publishedMove) {
+            if (ship.publishedMove) {
                 (bool dies, SharedStructs.Coordinate memory dest) = map.travel(
-                    games[gameId].ships[games[gameId].players[i]].coordinate,
-                    games[gameId].ships[games[gameId].players[i]].travelDirection,
-                    games[gameId].ships[games[gameId].players[i]].travelDistance,
+                    ship.coordinate,
+                    ship.travelDirection,
+                    ship.travelDistance,
                     gameId
                 );
 
                 if (dies) {
-                    emit ShipCollidedWithIsland(games[gameId].players[i], gameId, dest.q, dest.r); // Emitting event when ship collides and dies
-                    sinkShip(games[gameId].players[i], i, gameId);
+                    emit ShipCollidedWithIsland(player, gameId, dest.q, dest.r);
+                    sinkShip(player, gameId);
                     isActive[i] = false;
-                    games[gameId].ships[games[gameId].players[i]].coordinate = dest;
+                    ship.coordinate = dest;
                     continue;
                 }
                 emit ShipMoved(
-                    games[gameId].players[i],
-                    games[gameId].ships[games[gameId].players[i]].coordinate.q,
-                    games[gameId].ships[games[gameId].players[i]].coordinate.r,
+                    player,
+                    ship.coordinate.q,
+                    ship.coordinate.r,
                     dest.q,
                     dest.r,
                     gameId
-                ); // Emitting event after ship moves
-                games[gameId].ships[games[gameId].players[i]].coordinate = dest;
+                );
+                ship.coordinate = dest;
 
-                emit ShipMovedInGame(games[gameId].players[i], gameId); // Emitting event with game ID
+                emit ShipMovedInGame(player, gameId);
             }
         }
 
         // Calculate shot destinations for active ships
-        for (uint8 i = 0; i < games[gameId].players.length; i++) {
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
             if (isActive[i]) {
+                address player = games[gameId].players[i];
+                Ship storage ship = games[gameId].ships[player];
+
                 SharedStructs.Coordinate memory shotDest = map.calculateShot(
-                    games[gameId].ships[games[gameId].players[i]].coordinate,
-                    games[gameId].ships[games[gameId].players[i]].shotDirection,
-                    games[gameId].ships[games[gameId].players[i]].shotDistance
+                    ship.coordinate,
+                    ship.shotDirection,
+                    ship.shotDistance
                 );
                 shotDestinations[i] = shotDest;
                 emit ShipShot(
-                    games[gameId].players[i],
-                    games[gameId].ships[games[gameId].players[i]].coordinate.q,
-                    games[gameId].ships[games[gameId].players[i]].coordinate.r,
+                    player,
+                    ship.coordinate.q,
+                    ship.coordinate.r,
                     shotDest.q,
                     shotDest.r,
                     gameId
-                ); // Emitting event after ship shoots
+                );
+            }
+        }
+
+        // Handle ship collisions
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
+            if (!isActive[i]) continue;
+
+            for (uint256 j = i + 1; j < games[gameId].players.length; j++) {
+                if (!isActive[j]) continue;
+
+                Ship storage shipI = games[gameId].ships[
+                    games[gameId].players[i]
+                ];
+                Ship storage shipJ = games[gameId].ships[
+                    games[gameId].players[j]
+                ];
+
+                if (
+                    shipI.coordinate.q == shipJ.coordinate.q &&
+                    shipI.coordinate.r == shipJ.coordinate.r
+                ) {
+                    // Collision occurred
+                    isActive[i] = false;
+                    isActive[j] = false;
+                    emit ShipSunk(games[gameId].players[i], gameId);
+                    emit ShipSunk(games[gameId].players[j], gameId);
+                    sinkShip(games[gameId].players[i], gameId);
+                    sinkShip(games[gameId].players[j], gameId);
+                }
+            }
+        }
+
+        // Track which ships have been shot and by whom
+        bool[] memory isShot = new bool[](games[gameId].players.length);
+        uint256[] memory shotBy = new uint256[](games[gameId].players.length);
+
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
+            isShot[i] = false;
+            shotBy[i] = type(uint256).max; // Max value represents 'no shooter'
+        }
+
+        // Identify ships that have been shot
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
+            if (!isActive[i]) continue;
+
+            for (uint256 j = 0; j < games[gameId].players.length; j++) {
+                if (i == j || !isActive[j]) continue;
+
+                Ship storage targetShip = games[gameId].ships[
+                    games[gameId].players[i]
+                ];
+                SharedStructs.Coordinate memory shotDest = shotDestinations[j];
+
+                if (
+                    shotDest.q == targetShip.coordinate.q &&
+                    shotDest.r == targetShip.coordinate.r
+                ) {
+                    isShot[i] = true;
+                    shotBy[i] = j;
+                }
             }
         }
 
         // Track mutual shots
-        address[] memory playersInvolvedInMutualShot = new address[](games[gameId].players.length);
-        uint8 mutualShotCount = 0;
+        address[] memory playersInvolvedInMutualShot = new address[](
+            games[gameId].players.length
+        );
+        uint256 mutualShotCount = 0;
 
-        // Handle ship collisions and shots
-        for (uint8 i = 0; i < games[gameId].players.length; i++) {
-            for (uint8 j = 0; j < games[gameId].players.length; j++) {
-                if (i != j) {
-                    // Check for collisions
+        // Handle shots
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
+            if (!isActive[i]) continue;
+
+            if (isShot[i]) {
+                uint256 attackerIndex = shotBy[i];
+                address attacker = games[gameId].players[attackerIndex];
+
+                // Check if mutual shot
+                if (isShot[attackerIndex] && shotBy[attackerIndex] == i) {
+                    // Mutual shot
                     if (
-                        isActive[i] &&
-                        isActive[j] &&
-                        games[gameId].ships[games[gameId].players[j]].coordinate.q ==
-                        games[gameId].ships[games[gameId].players[i]].coordinate.q &&
-                        games[gameId].ships[games[gameId].players[j]].coordinate.r ==
-                        games[gameId].ships[games[gameId].players[i]].coordinate.r
+                        !alreadyAddedToMutualShot(
+                            playersInvolvedInMutualShot,
+                            games[gameId].players[i]
+                        )
                     ) {
-                        isActive[i] = false;
-                        isActive[j] = false;
-                        emit ShipSunk(games[gameId].players[i], gameId); // Emitting event when ship is sunk
-                        emit ShipSunk(games[gameId].players[j], gameId); // Emitting event when ship is sunk
-                        sinkShip(games[gameId].players[i], i, gameId);
-                        sinkShip(games[gameId].players[j], j, gameId);
+                        playersInvolvedInMutualShot[mutualShotCount] = games[
+                            gameId
+                        ].players[i];
+                        mutualShotCount++;
                     }
-                    // Check for shots
                     if (
-                        isActive[i] &&
-                        shotDestinations[j].q ==
-                        games[gameId].ships[games[gameId].players[i]].coordinate.q &&
-                        shotDestinations[j].r ==
-                        games[gameId].ships[games[gameId].players[i]].coordinate.r
+                        !alreadyAddedToMutualShot(
+                            playersInvolvedInMutualShot,
+                            attacker
+                        )
                     ) {
-                        // Mark both players as involved in mutual shooting
-                        if (!alreadyAddedToMutualShot(playersInvolvedInMutualShot, games[gameId].players[i])) {
-                            playersInvolvedInMutualShot[mutualShotCount] = games[gameId].players[i];
-                            mutualShotCount++;
-                        }
-
-                        if (!alreadyAddedToMutualShot(playersInvolvedInMutualShot, games[gameId].players[j])) {
-                            playersInvolvedInMutualShot[mutualShotCount] = games[gameId].players[j];
-                            mutualShotCount++;
-                        }
-
-                        // Deactivate players to avoid processing them again
-                        isActive[i] = false;
-                        isActive[j] = false;
+                        playersInvolvedInMutualShot[mutualShotCount] = attacker;
+                        mutualShotCount++;
                     }
+                    isActive[i] = false;
+                    isActive[attackerIndex] = false;
+                } else {
+                    // Only the target ship is sunk
+                    emit ShipHit(games[gameId].players[i], attacker, gameId);
+                    isActive[i] = false;
+                    sinkShip(games[gameId].players[i], gameId);
                 }
             }
         }
 
-        // If mutual shot happened, emit the MutualShot event
+        // Handle mutual shots
         if (mutualShotCount > 0) {
             address[] memory mutualShotPlayers = new address[](mutualShotCount);
-            for (uint8 k = 0; k < mutualShotCount; k++) {
+            for (uint256 k = 0; k < mutualShotCount; k++) {
                 mutualShotPlayers[k] = playersInvolvedInMutualShot[k];
             }
             emit MutualShot(mutualShotPlayers, gameId);
-
-            for (uint8 k = 0; k < mutualShotPlayers.length; k++) {
+            for (uint256 k = 0; k < mutualShotPlayers.length; k++) {
                 sinkShip(mutualShotPlayers[k], gameId);
+                // Find the index of the player and set isActive to false
+                for (
+                    uint256 idx = 0;
+                    idx < games[gameId].players.length;
+                    idx++
+                ) {
+                    if (games[gameId].players[idx] == mutualShotPlayers[k]) {
+                        isActive[idx] = false;
+                        break;
+                    }
+                }
             }
         }
 
-        // Remove sunk players
-        for (uint8 i = 0; i < games[gameId].players.length; i++) {
-            if (games[gameId].players[i] == address(0)) {
-                games[gameId].players[i] = games[gameId].players[games[gameId].players.length - 1];
+        // Remove sunk players from the active list
+        uint256 i = games[gameId].players.length;
+        while (i > 0) {
+            i--;
+            if (!isActive[i]) {
+                // Remove the player
+                games[gameId].players[i] = games[gameId].players[
+                    games[gameId].players.length - 1
+                ];
                 games[gameId].players.pop();
-                if (i > 0) {
-                    i--;
-                }
+                // No need to update isActive[i]
             }
         }
 
@@ -622,22 +682,29 @@ contract GamePunk is Ownable {
             games[gameId].stopAddingShips = true;
         } else {
             emit GameUpdated(false, games[gameId].players[0], gameId);
-            for (uint8 i = 0; i < games[gameId].players.length; i++) {
-                games[gameId].ships[games[gameId].players[i]].travelDirection = SharedStructs.Directions.NO_MOVE;
-                games[gameId].ships[games[gameId].players[i]].travelDistance = 0;
-                games[gameId].ships[games[gameId].players[i]].shotDirection = SharedStructs.Directions.NO_MOVE;
-                games[gameId].ships[games[gameId].players[i]].shotDistance = 0;
+            for (uint256 i = 0; i < games[gameId].players.length; i++) {
+                Ship storage ship = games[gameId].ships[
+                    games[gameId].players[i]
+                ];
+                ship.travelDirection = SharedStructs.Directions.NO_MOVE;
+                ship.travelDistance = 0;
+                ship.shotDirection = SharedStructs.Directions.NO_MOVE;
+                ship.shotDistance = 0;
+                ship.publishedMove = false;
             }
             games[gameId].letSubmitMoves = false;
             addNewRound(gameId);
             allowCommitMoves(gameId);
         }
 
-        emit WorldUpdated(gameId); // Emitting the WorldUpdated event
+        emit WorldUpdated(gameId);
     }
 
     // Helper function to check if a player is already added to the mutual shot array
-    function alreadyAddedToMutualShot(address[] memory players, address player) internal pure returns (bool) {
+    function alreadyAddedToMutualShot(
+        address[] memory players,
+        address player
+    ) internal pure returns (bool) {
         for (uint8 i = 0; i < players.length; i++) {
             if (players[i] == player) {
                 return true;

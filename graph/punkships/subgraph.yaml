@@ -9,8 +9,8 @@ dataSources:
     network: apechain-curtis
     source:
       abi: Punkships
-      address: "0x4CE93e8fBD2457Cb16a0A3D10998F7a5207A4319"
-      startBlock: 12578252
+      address: "0x63823D7e9aBeF5d6778c6fda389d8E3bA6D1f364"
+      startBlock: 0
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
