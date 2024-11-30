@@ -16,7 +16,7 @@ import { Hex, HexUtils, GridGenerator } from "react-hexgrid";
 import ShipStatus from "./ShipStatus";
 import Logs from "./Logs";
 import GameInfo from "./GameInfo";
-import GameAbi from "./abis/GamePunk.json";
+import GameAbi from "./abis/Gameyarts.json";
 
 import MainBoardArea from "./MainBoardArea.jsx";
 import Timer from "./Timer.jsx";

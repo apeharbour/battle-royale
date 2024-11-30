@@ -15,7 +15,7 @@ import { useSnackbar } from "notistack";
 import { Hex, HexUtils, GridGenerator } from "react-hexgrid";
 import Logs from "./Logs";
 import GameInfo from "./GameInfo";
-import GameAbi from "./abis/GamePunk.json";
+import GameAbi from "./abis/Gameyarts.json";
 
 import SpectateMainBoard from "./SpectateMainBoard.jsx";
 import Timer from "./Timer.jsx";

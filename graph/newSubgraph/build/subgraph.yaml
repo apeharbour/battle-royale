@@ -3,12 +3,12 @@ schema:
   file: schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: GamePunk
+    name: Gameyarts
     network: apechain-curtis
     source:
-      abi: GamePunk
-      address: "0x1948D30301eD95813e7BA8535c3b05B9eaDFC601"
-      startBlock: 12707466
+      abi: Gameyarts
+      address: "0x1a42830C037579e9246Eceb5028648c597ea3Df9"
+      startBlock: 13201130
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
@@ -21,8 +21,8 @@ dataSources:
         - Shot
         - Cell
       abis:
-        - name: GamePunk
-          file: GamePunk\abis\GamePunk.json
+        - name: Gameyarts
+          file: Gameyarts\abis\Gameyarts.json
       eventHandlers:
         - event: CommitPhaseStarted(uint256)
           handler: handleCommitPhaseStarted
@@ -74,4 +74,4 @@ dataSources:
           handler: handleNewRound
         - event: MutualShot(address[],uint256)
           handler: handleMutualShot
-      file: GamePunk\GamePunk.wasm
+      file: Gameyarts\Gameyarts.wasm

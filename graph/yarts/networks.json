@@ -1,0 +1,14 @@
+{
+  "ApeChain": {
+    "Yarts": {
+      "address": "0x53792e6562F0823060BD016cC75F7B2997721143",
+      "startBlock": 4332961
+    }
+  },
+  "curtis": {
+    "Yarts": {
+      "address": "0xc55DE5bFef4eDcFd8E575FA4457C6bf23F328E4E",
+      "startBlock": 13201121
+    }
+  }
+}

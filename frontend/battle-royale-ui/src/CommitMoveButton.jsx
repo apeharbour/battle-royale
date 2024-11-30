@@ -12,7 +12,7 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import { styled } from "@mui/material/styles";
-import GameAbi from "./abis/GamePunk.json";
+import GameAbi from "./abis/Gameyarts.json";
 import "./MintShip.css";
 
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;

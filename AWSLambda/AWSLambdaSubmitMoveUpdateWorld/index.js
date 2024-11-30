@@ -20,7 +20,7 @@ const contractABI = [
       },
       {
         "internalType": "address",
-        "name": "_punkshipsAddress",
+        "name": "_yartsshipsAddress",
         "type": "address"
       }
     ],
@@ -418,7 +418,7 @@ const contractABI = [
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "punkshipId",
+        "name": "yartsshipId",
         "type": "uint256"
       },
       {
@@ -723,7 +723,7 @@ const contractABI = [
       },
       {
         "internalType": "uint256",
-        "name": "_punkshipId",
+        "name": "_yartsshipId",
         "type": "uint256"
       }
     ],
@@ -1027,11 +1027,11 @@ const contractABI = [
           },
           {
             "internalType": "uint256",
-            "name": "punkshipId",
+            "name": "yartsshipId",
             "type": "uint256"
           }
         ],
-        "internalType": "struct GamePunk.Ship[]",
+        "internalType": "struct Gameyarts.Ship[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -1276,7 +1276,7 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0x1948D30301eD95813e7BA8535c3b05B9eaDFC601";
+const contractAddress = "0x1a42830C037579e9246Eceb5028648c597ea3Df9";
 
 // Initialize ApiGatewayManagementApi with your WebSocket URL
 const apiGwManagementApi = new AWS.ApiGatewayManagementApi({

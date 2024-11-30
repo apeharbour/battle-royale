@@ -7,16 +7,16 @@ import { useSnackbar } from "notistack";
 import { Box, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 
-import MintShipButton from "./MintShipButton";
+// import MintShipButton from "./MintShipButton";
 import RegisterShipButton from "./RegisterShipButton";
 import RegistrationCountdown from "./RegistrationCountDown";
 import ActiveShip from "./ActiveShip";
 
 const GET_SHIPS = gql`
-  query getPunkships($accountAddress: ID!) {
-    account(id: $accountAddress) {
-      id
-      punkships {
+query getYarts($accountAddress: ID!){
+  account(id: $accountAddress){
+    id
+   punkships {
         tokenId
         burned
         attributes {
@@ -45,7 +45,7 @@ const registrationQuery = gql`
 export default function Registration(props) {
   const [selectedYacht, setSelectedYacht] = useState(null);
   const [showYachtSelectError, setShowYachtSelectError] = useState(false);
-  const [punkShips, setPunkships] = useState([]);
+  const [yarts, setyarts] = useState([]);
   const [showBurnedShips, setShowBurnedShips] = useState(false);
 
   const { enqueueSnackbar } = useSnackbar();
@@ -62,10 +62,10 @@ export default function Registration(props) {
   const { data, isFetching, isError, error } = useQuery({
     queryKey: ["ships", account.address],
     queryFn: async () =>
-      request(import.meta.env.VITE_SUBGRAPH_URL_PUNKSHIPS, GET_SHIPS, {
+      request(import.meta.env.VITE_SUBGRAPH_URL_YARTS, GET_SHIPS, {
         accountAddress: account.address,
       }),
-    enabled: !!account.address, // Ensure query only runs when account.address exists
+    enabled: !!account.address,
   });
 
   useEffect(() => {
@@ -82,17 +82,17 @@ export default function Registration(props) {
 
   useEffect(() => {
     if (!data || (data && !data.account)) {
-      setPunkships([]);
+      setyarts([]);
     } else if (data.account) {
       const ships = data.account.punkships.map((ship) => {
         const movement = ship.attributes.find(
-          (attr) => attr.trait === "range"
+          (attr) => attr.trait === "movement"
         ).value;
         const shoot = ship.attributes.find(
-          (attr) => attr.trait === "shootingRange"
+          (attr) => attr.trait === "range"
         ).value;
         const shipType = ship.attributes.find(
-          (attr) => attr.trait === "shipType"
+          (attr) => attr.trait === "type"
         ).value;
         return {
           tokenId: ship.tokenId,
@@ -104,7 +104,7 @@ export default function Registration(props) {
         };
       });
 
-      setPunkships(ships);
+      setyarts(ships);
     }
   }, [data]);
 
@@ -221,18 +221,18 @@ export default function Registration(props) {
                 <RegisterShipButton
                   shipId={selectedYacht?.tokenId}
                   burned={selectedYacht?.burned}
-                  punkships={punkShips}
+                  yarts={yarts}
                   onCancel={handleCancelRegistration}
                   isRegistrationOpen={isRegistrationOpen}
                 />
               </Grid>
-              <Grid item size={12}>
+              {/* <Grid item size={12}>
                 <MintShipButton />
-              </Grid>
+              </Grid> */}
             </Grid>
           </Grid>
         </Grid>
-        {punkShips
+        {yarts
           .filter((ship) => showBurnedShips || !ship.burned)
           .map((ship, index) => (
             <Grid item size={2} key={index}>

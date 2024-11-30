@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.12;
 
-import "./MapPunk.sol";
+import "./Mapyarts.sol";
 import "./SharedStructs.sol";
 import "./Random.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -9,30 +9,29 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 error NotOwnerOfShip(address player, uint256 tokenId);
 
-interface IPunkships {
-    function safeMint(address to, uint256 tokenId) external;
+interface Iyartsships {
 
-    function getRange(uint256 tokenId) external pure returns (uint8);
+    function getRange(uint256 tokenId) external view returns (uint8);
 
-    function getShootingRange(uint256 tokenId) external pure returns (uint8);
+    function getShootingRange(uint256 tokenId) external view returns (uint8);
 
     function getShipTypeName(
         uint256 tokenId
-    ) external pure returns (string memory);
+    ) external view returns (string memory);
 
-    function getImage(uint256 tokenId) external pure returns (string memory);
+    function getImage(uint256 tokenId) external view returns (string memory);
 
-    function ownerOf(uint256 tokenId) external pure returns (address);
+    function ownerOf(uint256 tokenId) external view returns (address);
 
     function burnByGameContract(uint256 tokenId) external;
 }
 
-contract GamePunk is Ownable {
+contract Gameyarts is Ownable {
     //Events
     event PlayerAdded(
         address indexed player,
         uint256 gameId,
-        uint256 punkshipId,
+        uint256 yartsshipId,
         uint8 q,
         uint8 r,
         uint8 speed,
@@ -113,7 +112,7 @@ contract GamePunk is Ownable {
         uint8 yachtSpeed;
         uint8 yachtRange;
         uint256 gameId;
-        uint256 punkshipId;
+        uint256 yartsshipId;
     }
 
     struct GameInstance {
@@ -129,8 +128,8 @@ contract GamePunk is Ownable {
         mapping(address => bytes32) moveHashes;
     }
     mapping(uint256 => GameInstance) public games;
-    MapPunk immutable map;
-    IPunkships immutable punkships;
+    Mapyarts immutable map;
+    Iyartsships immutable yartsships;
     address public registrationContract;
 
     // Modifier to restrict the call to the registration contract
@@ -144,10 +143,10 @@ contract GamePunk is Ownable {
 
     constructor(
         address _mapAddress,
-        address _punkshipsAddress
+        address _yartsshipsAddress
     ) Ownable(msg.sender) {
-        map = MapPunk(_mapAddress);
-        punkships = IPunkships(_punkshipsAddress);
+        map = Mapyarts(_mapAddress);
+        yartsships = Iyartsships(_yartsshipsAddress);
     }
 
     fallback() external {}
@@ -280,8 +279,6 @@ contract GamePunk is Ownable {
                 _playerAddresses[i]
             );
 
-            // console.log("hashes match %s", games[gameId].moveHashes[_playerAddresses[i]] == moveHash);
-
             // Check if moveHash matches the stored hash for this player
             if (games[gameId].moveHashes[_playerAddresses[i]] == moveHash) {
                 Ship storage ship = games[gameId].ships[_playerAddresses[i]];
@@ -325,15 +322,15 @@ contract GamePunk is Ownable {
     function addShip(
         address playerAddress,
         uint256 gameId,
-        uint256 _punkshipId
+        uint256 _yartsshipId
     ) public onlyRegistrationContractOrOwner {
         require(
             games[gameId].gameInProgress == true,
             "Game has not started yet!"
         );
 
-        if (punkships.ownerOf(_punkshipId) != playerAddress) {
-            revert NotOwnerOfShip(playerAddress, _punkshipId);
+        if (yartsships.ownerOf(_yartsshipId) != playerAddress) {
+            revert NotOwnerOfShip(playerAddress, _yartsshipId);
         }
 
         if (
@@ -370,9 +367,9 @@ contract GamePunk is Ownable {
             }
         } while (alreadyTaken);
 
-        uint8 range = punkships.getRange(_punkshipId);
-        uint8 shootingRange = punkships.getShootingRange(_punkshipId);
-        string memory image = punkships.getImage(_punkshipId);
+        uint8 range = yartsships.getRange(_yartsshipId);
+        uint8 shootingRange = yartsships.getShootingRange(_yartsshipId);
+        string memory image = yartsships.getImage(_yartsshipId);
 
         Ship memory ship = Ship(
             coord,
@@ -385,7 +382,7 @@ contract GamePunk is Ownable {
             range,
             shootingRange,
             gameId,
-            _punkshipId
+            _yartsshipId
         );
 
         games[gameId].ships[playerAddress] = ship;
@@ -393,7 +390,7 @@ contract GamePunk is Ownable {
         emit PlayerAdded(
             playerAddress,
             gameId,
-            _punkshipId,
+            _yartsshipId,
             coord.q,
             coord.r,
             range,
@@ -408,7 +405,7 @@ contract GamePunk is Ownable {
             "Game has not started yet!"
         );
         emit PlayerDefeated(captain, gameId);
-        punkships.burnByGameContract(games[gameId].ships[captain].punkshipId);
+        yartsships.burnByGameContract(games[gameId].ships[captain].yartsshipId);
         delete games[gameId].ships[captain];
     }
 
@@ -426,7 +423,7 @@ contract GamePunk is Ownable {
         // Shrink map every [mapShrink] rounds
         if (games[gameId].round % games[gameId].mapShrink == 0) {
             SharedStructs.Coordinate[] memory deletedCells = map
-                .deleteOutermostRing(gameId, games[gameId].shrinkNo);
+                .deleteOutermostRing(gameId);
             games[gameId].shrinkNo++;
             emit MapShrink(gameId);
             for (uint8 i = 0; i < deletedCells.length; i++) {
@@ -669,7 +666,6 @@ contract GamePunk is Ownable {
                     games[gameId].players.length - 1
                 ];
                 games[gameId].players.pop();
-                // No need to update isActive[i]
             }
         }
 

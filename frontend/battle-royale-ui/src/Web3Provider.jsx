@@ -12,6 +12,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import punkLogo from "./images/punkLogo.png";
+import yartsLogo from "./images/yartsLogo.png";
 
 const Web3Context = createContext();
 
@@ -65,10 +66,10 @@ const config = createConfig(
     //   ]),
     // },
     walletConnectProjectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
-    appName: "Punkships Royale",
+    appName: "Battle Royale",
     appDescription: "A battle royale game on the blockchain.",
-    appUrl: "https://punkships.io",
-    appIcon: punkLogo,
+    appUrl: "https://yarts.xyz",
+    appIcon: yartsLogo,
   })
 );
 

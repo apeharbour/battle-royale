@@ -21,14 +21,17 @@ import {
 } from "@mui/material";
 import Timer from "./Timer";
 
-import GameAbi from "./abis/GamePunk.json";
-import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
+import GameAbi from "./abis/Gameyarts.json";
+import RegistrationAbi from "./abis/Registrationyarts.json";
+import YartsAbi from "./abis/Yarts.json";
 
 // Constants
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
-const REGISTRATION_ABI = RegistrationPunkAbi;
+const YARTS_ADDRESS = import.meta.env.VITE_YARTS_ADDRESS;
+const REGISTRATION_ABI = RegistrationAbi;
 const GAME_ABI = GameAbi.abi;
+const YARTS_ABI = YartsAbi.abi;
 
 const GAME_ID = 1;
 const MAX_PLAYERS_PER_GAME = 9;
@@ -46,7 +49,7 @@ const registrationQuery = gql`
       state
       players {
         address
-        punkshipId
+        yartsshipId
         state
         gameId
       }
@@ -115,6 +118,8 @@ export default function Admin(props) {
   const [processingError, setProcessingError] = useState(null);
   const [processedTransactions] = useState(new Set());
   const [gameIdEventBridge, setGameIdEventBridge] = useState(null);
+  const [mintAddress, setMintAddress] = useState(null);
+  const [mintAmount, setMintAmount] = useState(null);
 
   // Hooks
   const { data: closedRegistrations } = useRegistrations(
@@ -243,6 +248,20 @@ export default function Admin(props) {
       console.error("Error closing registration:", error);
       setProcessingError(error.message);
       setIsClosingRegistration(false);
+    }
+  };
+
+  const safeMint = async () => {
+    try {
+      await writeContract({
+        abi: YARTS_ABI,
+        address: YARTS_ADDRESS,
+        functionName: "safeMint",
+        args: [mintAddress, mintAmount],
+      });
+    } catch (error) {
+      console.error("Error minting Yarts:", error);
+      setProcessingError(error.message);
     }
   };
 
@@ -403,6 +422,25 @@ useEffect(() => {
         <Stack spacing={2} direction="row">
           <TextField
             variant="outlined"
+            value={mintAddress}
+            label="Mint Address"
+            onChange={(e) => setMintAddress(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            value={mintAmount}
+            label="Mint Amount"
+            onChange={(e) => setMintAmount(e.target.value)}
+          />
+          <Button variant="contained" onClick={safeMint}>
+            Mint Yarts
+          </Button>
+        </Stack>
+      </Box>
+      <Box mt={5}>
+        <Stack spacing={2} direction="row">
+          <TextField
+            variant="outlined"
             value={testGameId}
             label="Game ID"
             onChange={(e) => setTestGameId(e.target.value)}
@@ -465,7 +503,7 @@ useEffect(() => {
                   {registration.players.map((player) => (
                     <Typography variant="h6" key={player.address} ml={2}>
                       {shortenAddress(player.address)} with ship{" "}
-                      {player.punkshipId} {player.state} for game{" "}
+                      {player.yartsshipId} {player.state} for game{" "}
                       {player.gameId}.
                     </Typography>
                   ))}
@@ -493,7 +531,7 @@ useEffect(() => {
                   {registration.players.map((player) => (
                     <Typography variant="h6" key={player.address} ml={2}>
                       {shortenAddress(player.address)} with ship{" "}
-                      {player.punkshipId} {player.state} for game{" "}
+                      {player.yartsshipId} {player.state} for game{" "}
                       {player.gameId}.
                     </Typography>
                   ))}

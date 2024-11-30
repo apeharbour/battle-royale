@@ -12,7 +12,7 @@ type PlayerAdded @entity(immutable: true) {
   registrationPhase: BigInt! # uint256
   player: Bytes! # address
   gameId: BigInt! # uint256
-  punkshipId: BigInt! # uint256
+  yartsshipId: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -23,7 +23,7 @@ type PlayerRegistered @entity(immutable: true) {
   id: Bytes!
   registrationPhase: BigInt! # uint256
   player: Bytes! # address
-  punkshipId: BigInt! # uint256
+  yartsshipId: BigInt! # uint256
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
@@ -53,7 +53,7 @@ type RegistrationStarted @entity(immutable: true) {
 type Player @entity {
   id: Bytes!
   address: Bytes!
-  punkshipId: BigInt!
+  yartsshipId: BigInt!
   registration: Registration!
   state: PlayerState!
   gameId: BigInt

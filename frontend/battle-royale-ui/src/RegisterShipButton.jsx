@@ -11,13 +11,13 @@ import Dialog from "@mui/material/Dialog";
 import DialogTitle from "@mui/material/DialogTitle";
 import DialogContent from "@mui/material/DialogContent";
 import { styled } from "@mui/material/styles";
-import RegistrationPunkAbi from "./abis/RegistrationPunk.json";
+import RegistrationyartsAbi from "./abis/Registrationyarts.json";
 import RegistrationAcknowledgementDialog from "./RegistrationAcknowledgement";
 import "./MintShip.css";
 import Button from "@mui/material/Button";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
-const REGISTRATION_ABI = RegistrationPunkAbi;
+const REGISTRATION_ABI = RegistrationyartsAbi;
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   "& .MuiDialogContent-root": {
@@ -81,7 +81,7 @@ const HolographicButtonRed = styled(Button)(({ theme }) => ({
 export default function RegisterShipButton({
   shipId,
   burned,
-  punkships,
+  yarts,
   onCancel,
   isRegistrationOpen,
 }) {
@@ -180,7 +180,7 @@ export default function RegisterShipButton({
     handleClose();
   };
 
-  const shipData = punkships.find((ship) => ship.tokenId === shipId);
+  const shipData = yarts.find((ship) => ship.tokenId === shipId);
 
   return (
     <Fragment>

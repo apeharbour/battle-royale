@@ -49,7 +49,7 @@ export function handlePlayerAdded(event: PlayerAddedEvent): void {
   entity.registrationPhase = event.params.registrationPhase;
   entity.player = event.params.player;
   entity.gameId = event.params.gameId;
-  entity.punkshipId = event.params.punkshipId;
+  entity.yartsshipId = event.params.yartsshipId;
 
   entity.blockNumber = event.block.number;
   entity.blockTimestamp = event.block.timestamp;
@@ -75,7 +75,7 @@ export function handlePlayerRegistered(event: PlayerRegisteredEvent): void {
   );
   entity.registrationPhase = event.params.registrationPhase;
   entity.player = event.params.player;
-  entity.punkshipId = event.params.punkshipId;
+  entity.yartsshipId = event.params.yartsshipId;
 
   entity.blockNumber = event.block.number;
   entity.blockTimestamp = event.block.timestamp;
@@ -89,7 +89,7 @@ export function handlePlayerRegistered(event: PlayerRegisteredEvent): void {
     event.params.player.concatI32(event.params.registrationPhase.toI32())
   );
   player.address = event.params.player;
-  player.punkshipId = event.params.punkshipId;
+  player.yartsshipId = event.params.yartsshipId;
   player.registration = Bytes.fromI32(event.params.registrationPhase.toI32());
   player.state = PlayerState.REGISTERED;
   player.save();

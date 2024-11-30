@@ -8,7 +8,7 @@
       },
       {
         "internalType": "address",
-        "name": "_punkshipsAddress",
+        "name": "_yartsshipsAddress",
         "type": "address"
       }
     ],
@@ -406,7 +406,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "punkshipId",
+        "name": "yartsshipId",
         "type": "uint256"
       },
       {
@@ -711,7 +711,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_punkshipId",
+        "name": "_yartsshipId",
         "type": "uint256"
       }
     ],
@@ -1015,11 +1015,11 @@
           },
           {
             "internalType": "uint256",
-            "name": "punkshipId",
+            "name": "yartsshipId",
             "type": "uint256"
           }
         ],
-        "internalType": "struct GamePunk.Ship[]",
+        "internalType": "struct Gameyarts.Ship[]",
         "name": "",
         "type": "tuple[]"
       }

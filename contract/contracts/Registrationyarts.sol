@@ -4,38 +4,42 @@ pragma solidity ^0.8.12;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "hardhat/console.sol";
 
-interface IGamePunk {
-    function startNewGame(uint256 gameId, uint8 radius, uint8 mapShrink) external;
+interface IGameyarts {
+    function startNewGame(
+        uint256 gameId,
+        uint8 radius,
+        uint8 mapShrink
+    ) external;
 
     function addShip(address players, uint256 gameId, uint256 tokenId) external;
 }
 
-interface IPunkships {
+interface Iyarts {
     function safeMint(address to, uint256 tokenId) external;
 
-    function getRange(uint256 tokenId) external pure returns (uint8);
+    function getRange(uint256 tokenId) external view returns (uint8);
 
-    function getShootingRange(uint256 tokenId) external pure returns (uint8);
+    function getShootingRange(uint256 tokenId) external view returns (uint8);
 
     function getShipTypeName(
         uint256 tokenId
-    ) external pure returns (string memory);
+    ) external view returns (string memory);
 
-    function ownerOf(uint256 tokenId) external pure returns (address);
+    function ownerOf(uint256 tokenId) external view returns (address);
 }
 
-contract RegistrationPunk is Ownable {
+contract Registrationyarts is Ownable {
     event RegistrationStarted(uint256 registrationPhase, uint256 firstGameId);
     event PlayerRegistered(
         uint256 registrationPhase,
         address player,
-        uint256 punkshipId
+        uint256 yartsshipId
     );
     event PlayerAdded(
         uint256 registrationPhase,
         address player,
         uint256 gameId,
-        uint256 punkshipId
+        uint256 yartsshipId
     );
     event RegistrationClosed(uint256 registrationPhase, uint256 gameId);
 
@@ -43,8 +47,8 @@ contract RegistrationPunk is Ownable {
     error PlayerAlreadyRegisteredError();
     error PlayerNotOwnerOfShipError();
 
-    IGamePunk public gamePunk;
-    IPunkships public punkships;
+    IGameyarts public gameyarts;
+    Iyarts public yarts;
 
     mapping(address => Player) public registeredPlayers;
     address[] private registeredPlayerAddresses;
@@ -54,15 +58,15 @@ contract RegistrationPunk is Ownable {
 
     struct Player {
         bool registered;
-        uint256 punkshipId;
+        uint256 yartsshipId;
     }
 
     constructor(
-        address _gamePunkAddress,
-        address _punkshipsAddress
+        address _gameyartsAddress,
+        address _yartsAddress
     ) Ownable(msg.sender) {
-        gamePunk = IGamePunk(_gamePunkAddress);
-        punkships = IPunkships(_punkshipsAddress);
+        gameyarts = IGameyarts(_gameyartsAddress);
+        yarts = Iyarts(_yartsAddress);
     }
 
     fallback() external {}
@@ -79,17 +83,17 @@ contract RegistrationPunk is Ownable {
         emit RegistrationStarted(registrationPhase, lastGameId);
     }
 
-    function registerPlayer(uint256 _punkshipId) public {
+    function registerPlayer(uint256 _yartsshipId) public {
         if (registrationClosed) revert RegistrationClosedError();
         if (registeredPlayers[msg.sender].registered)
             revert PlayerAlreadyRegisteredError();
-        if (punkships.ownerOf(_punkshipId) != msg.sender)
+        if (yarts.ownerOf(_yartsshipId) != msg.sender)
             revert PlayerNotOwnerOfShipError();
 
-        // registeredPlayers[msg.sender] = Player(true, _punkshipId, punkships.getRange(_punkshipId), punkships.getShootingRange(_punkshipId));
-        registeredPlayers[msg.sender] = Player(true, _punkshipId);
+        // registeredPlayers[msg.sender] = Player(true, _yartsshipId, yarts.getRange(_yartsshipId), yarts.getShootingRange(_yartsshipId));
+        registeredPlayers[msg.sender] = Player(true, _yartsshipId);
         registeredPlayerAddresses.push(msg.sender);
-        emit PlayerRegistered(registrationPhase, msg.sender, _punkshipId);
+        emit PlayerRegistered(registrationPhase, msg.sender, _yartsshipId);
     }
 
     function closeRegistration(
@@ -103,18 +107,18 @@ contract RegistrationPunk is Ownable {
         for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
             if (gamePlayerCount == 0) {
                 emit RegistrationClosed(registrationPhase, lastGameId);
-                gamePunk.startNewGame(lastGameId, _radius, _mapShrink);
+                gameyarts.startNewGame(lastGameId, _radius, _mapShrink);
             }
 
             address playerAddress = registeredPlayerAddresses[i];
             Player storage player = registeredPlayers[playerAddress];
 
-            gamePunk.addShip(playerAddress, lastGameId, player.punkshipId);
+            gameyarts.addShip(playerAddress, lastGameId, player.yartsshipId);
             emit PlayerAdded(
                 registrationPhase,
                 playerAddress,
                 lastGameId,
-                player.punkshipId
+                player.yartsshipId
             );
 
             gamePlayerCount++;

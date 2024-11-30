@@ -6,7 +6,7 @@ import "./SharedStructs.sol";
 
 error MapSizeMustBeInRange(uint suppliedSize, uint maxSize);
 
-contract MapPunk {
+contract Mapyarts {
     uint8 constant MAX_RADIUS = 127;
 
     mapping(SharedStructs.Directions => SharedStructs.Direction)
@@ -167,10 +167,9 @@ contract MapPunk {
         return cells;
     }
 
-    function deleteOutermostRing(uint256 gameId, uint8 shrinkNo) public returns (SharedStructs.Coordinate[] memory) {
+    function deleteOutermostRing(uint256 gameId) public returns (SharedStructs.Coordinate[] memory) {
         uint8 radius = gameRadii[gameId];
         SharedStructs.Coordinate memory centerCoord = center[gameId];
-        // uint8 actualRadius = radius - shrinkNo;
         SharedStructs.Coordinate[] memory outerRing = ring( centerCoord, radius );
         gameRadii[gameId] = radius - 1;
 

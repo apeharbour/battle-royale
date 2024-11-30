@@ -26,7 +26,7 @@ import {
   CellDeleted as CellDeletedEvent,
   NewRound as NewRoundEvent,
   MutualShot as MutualShotEvent
-} from "../generated/GamePunk/GamePunk"
+} from "../generated/Gameyarts/Gameyarts"
 import {
   Game,
   Travel,
@@ -295,7 +295,7 @@ export function handleOwnershipTransferred(
 }
 
 export function handlePlayerAdded(event: PlayerAddedEvent): void {
-  log.info('Player {} with ship {} added to game {}', [shortenAddress(event.params.player), event.params.punkshipId.toString(), event.params.gameId.toString()])
+  log.info('Player {} with ship {} added to game {}', [shortenAddress(event.params.player), event.params.yartsshipId.toString(), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.player)
 
@@ -307,7 +307,7 @@ export function handlePlayerAdded(event: PlayerAddedEvent): void {
   player.r = event.params.r
   player.range = event.params.range
   player.shotRange = event.params.speed
-  player.tokenId = event.params.punkshipId
+  player.tokenId = event.params.yartsshipId
   player.image = event.params.image
   player.game = gameId
   player.state = PlayerState.ACTIVE

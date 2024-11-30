@@ -8,7 +8,7 @@
       },
       {
         "internalType": "address",
-        "name": "_punkshipsAddress",
+        "name": "_yartsshipsAddress",
         "type": "address"
       }
     ],
@@ -227,6 +227,12 @@
         "internalType": "uint256",
         "name": "gameId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "mapShrink",
+        "type": "uint8"
       }
     ],
     "name": "MapInitialized",
@@ -324,6 +330,25 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address[]",
+        "name": "players",
+        "type": "address[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "MutualShot",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "gameId",
         "type": "uint256"
@@ -381,7 +406,7 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "punkshipId",
+        "name": "yartsshipId",
         "type": "uint256"
       },
       {
@@ -686,7 +711,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "_punkshipId",
+        "name": "_yartsshipId",
         "type": "uint256"
       }
     ],
@@ -761,19 +786,6 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "gameId",
-        "type": "uint256"
-      }
-    ],
-    "name": "endGame",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
         "name": "",
         "type": "uint256"
       }
@@ -788,6 +800,11 @@
       {
         "internalType": "uint8",
         "name": "shrinkNo",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "mapShrink",
         "type": "uint8"
       },
       {
@@ -995,9 +1012,14 @@
             "internalType": "uint256",
             "name": "gameId",
             "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "yartsshipId",
+            "type": "uint256"
           }
         ],
-        "internalType": "struct GamePunk.Ship[]",
+        "internalType": "struct Gameyarts.Ship[]",
         "name": "",
         "type": "tuple[]"
       }
@@ -1113,12 +1135,17 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "gameId",
+        "name": "_gameId",
         "type": "uint256"
       },
       {
         "internalType": "uint8",
         "name": "_radius",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8",
+        "name": "_mapShrink",
         "type": "uint8"
       }
     ],
