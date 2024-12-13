@@ -1305,15 +1305,7 @@ const contractABI = [
     "type": "function"
   }
 ];
-<<<<<<< Updated upstream
-const contractAddress = "0x1a42830C037579e9246Eceb5028648c597ea3Df9";
-=======
-<<<<<<< Updated upstream
-const contractAddress = "0xcf79eB6013F05b6EF445cD9ddf1C60179DfF434e";
-=======
 const contractAddress = "0x9Edb867F019dC10E48C49FC8131216B4f5C2eaF3";
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 
 // Initialize ApiGatewayManagementApi with your WebSocket URL
 const apiGwManagementApi = new AWS.ApiGatewayManagementApi({

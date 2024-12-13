@@ -9,17 +9,8 @@ dataSources:
     network: apechain-curtis
     source:
       abi: Registration
-<<<<<<< Updated upstream
-      address: "0xa5B7f0707834863c472c1c07c28C93B062eeF3E2"
-      startBlock: 13201138
-=======
-<<<<<<< Updated upstream
-      address: "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"
-=======
       address: "0xCa44d335bA23E9eB7B1C2AaA56d9660d5A44e841"
       startBlock: 13653825
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7
