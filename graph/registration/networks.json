@@ -5,13 +5,6 @@
       "startBlock": 5961373
     },
     "Punkships": {
-<<<<<<< Updated upstream
-=======
-<<<<<<< Updated upstream
-      "address": "0x595ecB1DbeDaDEB7703c5e98Fd5E3b6DcB87A1e2",
-      "startBlock": 5663720
-=======
->>>>>>> Stashed changes
       "address": "0x1E26A8564Ef6C9aeA312C4D9FFcAFFAC080c25A2",
       "startBlock": 5961358
     },
@@ -34,20 +27,8 @@
       "startBlock": 14154342
     }
   },
- "apechain-curtis": {
+  "apechain-curtis": {
     "Gameyarts": {
-<<<<<<< Updated upstream
-      "address": "0x1a42830C037579e9246Eceb5028648c597ea3Df9",
-      "startBlock": 13201130
-    },
-    "Yarts": {
-      "address": "0xc55DE5bFef4eDcFd8E575FA4457C6bf23F328E4E",
-      "startBlock": 13201121
-    },
-    "Registration": {
-      "address": "0xa5B7f0707834863c472c1c07c28C93B062eeF3E2",
-      "startBlock":	13201138
-=======
       "address": "0x9Edb867F019dC10E48C49FC8131216B4f5C2eaF3",
       "startBlock": 13653818
     },
@@ -58,8 +39,6 @@
     "Registration": {
       "address": "0xCa44d335bA23E9eB7B1C2AaA56d9660d5A44e841",
       "startBlock":	13653825
->>>>>>> Stashed changes
->>>>>>> Stashed changes
     }
   },
   "localhost": {
