@@ -10,6 +10,11 @@
         "internalType": "address",
         "name": "_yartsshipsAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_covAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -915,6 +920,30 @@
         "internalType": "struct SharedStructs.Coordinate[]",
         "name": "",
         "type": "tuple[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getIslands",
+    "outputs": [
+      {
+        "internalType": "uint8[]",
+        "name": "IslandsQ",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "IslandsR",
+        "type": "uint8[]"
       }
     ],
     "stateMutability": "view",

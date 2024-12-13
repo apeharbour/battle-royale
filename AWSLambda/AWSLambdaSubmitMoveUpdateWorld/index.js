@@ -22,6 +22,11 @@ const contractABI = [
         "internalType": "address",
         "name": "_yartsshipsAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_covAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -940,6 +945,30 @@ const contractABI = [
         "type": "uint256"
       }
     ],
+    "name": "getIslands",
+    "outputs": [
+      {
+        "internalType": "uint8[]",
+        "name": "IslandsQ",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "IslandsR",
+        "type": "uint8[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
     "name": "getRadius",
     "outputs": [
       {
@@ -1276,7 +1305,15 @@ const contractABI = [
     "type": "function"
   }
 ];
+<<<<<<< Updated upstream
 const contractAddress = "0x1a42830C037579e9246Eceb5028648c597ea3Df9";
+=======
+<<<<<<< Updated upstream
+const contractAddress = "0xcf79eB6013F05b6EF445cD9ddf1C60179DfF434e";
+=======
+const contractAddress = "0x9Edb867F019dC10E48C49FC8131216B4f5C2eaF3";
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 
 // Initialize ApiGatewayManagementApi with your WebSocket URL
 const apiGwManagementApi = new AWS.ApiGatewayManagementApi({

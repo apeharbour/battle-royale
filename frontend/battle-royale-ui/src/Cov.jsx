@@ -3,6 +3,10 @@ import { useParams } from "react-router-dom";
 import Grid from "@mui/material/Grid2";
 import { Typography } from "@mui/material";
 import CircularProgress from "@mui/material/CircularProgress";
+<<<<<<< Updated upstream
+=======
+import FetchNFT from "./FetchNFT";
+>>>>>>> Stashed changes
 
 export default function Cov() {
   const { gameId } = useParams();
@@ -59,6 +63,7 @@ export default function Cov() {
         </Typography>
       </Grid>
       <Grid item size={12}>
+<<<<<<< Updated upstream
         {loading && <CircularProgress />}
         {error && <Typography color="error">{error}</Typography>}
         {!loading && !error && svgData && (
@@ -67,6 +72,9 @@ export default function Cov() {
             style={{ textAlign: "center" }}
           />
         )}
+=======
+      <FetchNFT tokenId={1} />
+>>>>>>> Stashed changes
       </Grid>
     </Grid>
   );

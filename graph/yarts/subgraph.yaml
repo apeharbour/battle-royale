@@ -9,8 +9,13 @@ dataSources:
     network: apechain-curtis
     source:
       abi: Yarts
+<<<<<<< Updated upstream
       address: "0xc55DE5bFef4eDcFd8E575FA4457C6bf23F328E4E"
       startBlock: 13201121
+=======
+      address: "0x08fB3975b8D2D53a3b444Eb8518C956a5beC2408"
+      startBlock: 13653807
+>>>>>>> Stashed changes
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

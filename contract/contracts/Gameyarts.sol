@@ -6,11 +6,40 @@ import "./SharedStructs.sol";
 import "./Random.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+interface ICOV {
+    function mint(
+        address to,
+        uint256 tokenId,
+        uint256 gameId,
+        int16[] calldata islandsQ,
+        int16[] calldata islandsR,
+        address[] calldata players,
+        uint8[] calldata qs,
+        uint8[] calldata rs,
+        uint256[] calldata indices,
+        uint8[] calldata winnerQs,
+        uint8[] calldata winnerRs
+    ) external;
+}
+
 error ShipAlreadyAdded(address player, uint8 q, uint8 r);
 error NotOwnerOfShip(address player, uint256 tokenId);
 
+<<<<<<< Updated upstream:contract/contracts/Gameyarts.sol
 interface Iyartsships {
 
+=======
+<<<<<<< Updated upstream:contract/contracts/GamePunk.sol
+interface IPunkships {
+    function safeMint(address to, uint256 tokenId) external;
+    function getRange(uint256 tokenId) external pure returns (uint8);
+    function getShootingRange(uint256 tokenId) external pure returns (uint8);
+    function getShipTypeName(uint256 tokenId) external pure returns (string memory);
+    function getImage(uint256 tokenId) external pure returns (string memory);
+    function ownerOf(uint256 tokenId) external pure returns (address);
+=======
+interface Iyartsships {
+>>>>>>> Stashed changes:contract/contracts/GamePunk.sol
     function getRange(uint256 tokenId) external view returns (uint8);
 
     function getShootingRange(uint256 tokenId) external view returns (uint8);
@@ -24,6 +53,10 @@ interface Iyartsships {
     function ownerOf(uint256 tokenId) external view returns (address);
 
     function burnByGameContract(uint256 tokenId) external;
+<<<<<<< Updated upstream:contract/contracts/Gameyarts.sol
+=======
+>>>>>>> Stashed changes:contract/contracts/Gameyarts.sol
+>>>>>>> Stashed changes:contract/contracts/GamePunk.sol
 }
 
 contract Gameyarts is Ownable {
@@ -115,21 +148,40 @@ contract Gameyarts is Ownable {
         uint256 yartsshipId;
     }
 
+    struct MovementData {
+        uint8 destQ;
+        uint8 destR;
+    }
+
     struct GameInstance {
         uint256 round;
         uint8 shrinkNo;
         uint8 mapShrink;
         mapping(address => Ship) ships;
         address[] players;
+        address[] allPlayers;
         bool gameInProgress;
         bool stopAddingShips;
         bool letCommitMoves;
         bool letSubmitMoves;
         mapping(address => bytes32) moveHashes;
+        mapping(address => MovementData[]) movementHistory;
     }
+
     mapping(uint256 => GameInstance) public games;
+<<<<<<< Updated upstream:contract/contracts/Gameyarts.sol
     Mapyarts immutable map;
     Iyartsships immutable yartsships;
+=======
+<<<<<<< Updated upstream:contract/contracts/GamePunk.sol
+    MapPunk immutable map;
+    IPunkships immutable punkships;
+=======
+    Mapyarts immutable map;
+    Iyartsships immutable yartsships;
+    ICOV immutable cov;
+>>>>>>> Stashed changes:contract/contracts/Gameyarts.sol
+>>>>>>> Stashed changes:contract/contracts/GamePunk.sol
     address public registrationContract;
 
     // Modifier to restrict the call to the registration contract
@@ -141,12 +193,29 @@ contract Gameyarts is Ownable {
         _;
     }
 
+<<<<<<< Updated upstream:contract/contracts/Gameyarts.sol
     constructor(
         address _mapAddress,
         address _yartsshipsAddress
     ) Ownable(msg.sender) {
         map = Mapyarts(_mapAddress);
         yartsships = Iyartsships(_yartsshipsAddress);
+=======
+<<<<<<< Updated upstream:contract/contracts/GamePunk.sol
+    constructor(address _mapAddress, address _punkshipsAddress) Ownable(msg.sender) {
+        map = MapPunk(_mapAddress);
+        punkships = IPunkships(_punkshipsAddress);
+=======
+    constructor(
+        address _mapAddress,
+        address _yartsshipsAddress,
+        address _covAddress
+    ) Ownable(msg.sender) {
+        map = Mapyarts(_mapAddress);
+        yartsships = Iyartsships(_yartsshipsAddress);
+        cov = ICOV(_covAddress);
+>>>>>>> Stashed changes:contract/contracts/Gameyarts.sol
+>>>>>>> Stashed changes:contract/contracts/GamePunk.sol
     }
 
     fallback() external {}
@@ -237,7 +306,6 @@ contract Gameyarts is Ownable {
             );
     }
 
-    //SubmitMove
     function submitMove(
         SharedStructs.Directions[] memory _travelDirections,
         uint8[] memory _travelDistances,
@@ -279,6 +347,9 @@ contract Gameyarts is Ownable {
                 _playerAddresses[i]
             );
 
+            // Initialize variables for destination coordinates
+            SharedStructs.Coordinate memory dest;
+
             // Check if moveHash matches the stored hash for this player
             if (games[gameId].moveHashes[_playerAddresses[i]] == moveHash) {
                 Ship storage ship = games[gameId].ships[_playerAddresses[i]];
@@ -292,9 +363,9 @@ contract Gameyarts is Ownable {
                     : _shotDistances[i];
                 ship.publishedMove = true;
 
-                // Calculate and emit move coordinates
+                // Calculate move coordinates
                 SharedStructs.Coordinate memory shipCoord = ship.coordinate;
-                SharedStructs.Coordinate memory dest = map.move(
+                dest = map.move(
                     shipCoord,
                     _travelDirections[i],
                     _travelDistances[i]
@@ -315,8 +386,41 @@ contract Gameyarts is Ownable {
                     shotDestination.r
                 );
             }
+
+            MovementData memory movement = MovementData({
+                destQ: dest.q,
+                destR: dest.r
+            });
+            games[gameId].movementHistory[_playerAddresses[i]].push(movement);
         }
+<<<<<<< Updated upstream:contract/contracts/Gameyarts.sol
         updateWorld(gameId);
+=======
+<<<<<<< Updated upstream:contract/contracts/GamePunk.sol
+    }
+
+    function initGame(uint8 _radius, uint256 gameId) internal {
+        require(
+            games[gameId].gameInProgress == true,
+            "Game has not started yet!"
+        );
+        // reset ships
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
+            delete games[gameId].ships[games[gameId].players[i]];
+        }
+        delete games[gameId].players;
+        addNewRound(gameId);
+
+        SharedStructs.Cell[] memory cells = map.initMap(_radius, gameId);
+        for (uint j = 0; j < cells.length; j++) {
+            emit Cell(gameId, cells[j].q, cells[j].r, cells[j].island);
+        }
+        emit MapInitialized(_radius, gameId);
+=======
+
+        updateWorld(gameId);
+>>>>>>> Stashed changes:contract/contracts/Gameyarts.sol
+>>>>>>> Stashed changes:contract/contracts/GamePunk.sol
     }
 
     function addShip(
@@ -387,6 +491,14 @@ contract Gameyarts is Ownable {
 
         games[gameId].ships[playerAddress] = ship;
         games[gameId].players.push(playerAddress);
+        games[gameId].allPlayers.push(playerAddress);
+
+        MovementData memory initialMovement = MovementData({
+            destQ: coord.q,
+            destR: coord.r
+        });
+        games[gameId].movementHistory[playerAddress].push(initialMovement);
+
         emit PlayerAdded(
             playerAddress,
             gameId,
@@ -674,8 +786,55 @@ contract Gameyarts is Ownable {
             emit GameWinner(address(0), gameId);
             games[gameId].stopAddingShips = true;
         } else if (games[gameId].players.length == 1) {
-            emit GameWinner(games[gameId].players[0], gameId);
+            address winner = games[gameId].players[0];
+            emit GameWinner(winner, gameId);
             games[gameId].stopAddingShips = true;
+
+            // Get islands data
+            (uint8[] memory IslandsQ, uint8[] memory IslandsR) = getIslands(
+                gameId
+            );
+
+            // Get players' addresses and movement data
+            address[] memory players;
+            uint8[] memory qs;
+            uint8[] memory rs;
+            uint256[] memory indices;
+
+            (players, qs, rs, indices) = getPlayersMovementData(gameId, winner);
+
+            // Convert islands data to int16[]
+            int16[] memory islandsQ = uint8ArrayToInt16Array(IslandsQ);
+            int16[] memory islandsR = uint8ArrayToInt16Array(IslandsR);
+
+            // Generate a unique tokenId
+            uint256 tokenId = gameId;
+
+            // Extract winner's movement history
+            MovementData[] storage winnerMovements = games[gameId]
+                .movementHistory[winner];
+            uint8[] memory winnerQs = new uint8[](winnerMovements.length);
+            uint8[] memory winnerRs = new uint8[](winnerMovements.length);
+
+            for (uint256 i = 0; i < winnerMovements.length; i++) {
+                winnerQs[i] = winnerMovements[i].destQ;
+                winnerRs[i] = winnerMovements[i].destR;
+            }
+
+            // Call the cov contract's mint function
+            cov.mint(
+                winner,
+                tokenId,
+                gameId,
+                islandsQ,
+                islandsR,
+                players,
+                qs,
+                rs,
+                indices,
+                winnerQs,
+                winnerRs
+            );
         } else {
             emit GameUpdated(false, games[gameId].players[0], gameId);
             for (uint256 i = 0; i < games[gameId].players.length; i++) {
@@ -824,5 +983,109 @@ contract Gameyarts is Ownable {
             }
         }
         return cells;
+    }
+
+    function getIslands(
+        uint256 gameId
+    ) public view returns (uint8[] memory IslandsQ, uint8[] memory IslandsR) {
+        require(
+            games[gameId].gameInProgress == true,
+            "Game has not started yet!"
+        );
+
+        SharedStructs.Coordinate[] memory coordinates = getCoordinates(gameId);
+
+        uint256 islandCount = 0;
+        for (uint256 i = 0; i < coordinates.length; i++) {
+            SharedStructs.Cell memory cell = getCell(coordinates[i], gameId);
+            if (cell.exists && cell.island) {
+                islandCount++;
+            }
+        }
+
+        IslandsQ = new uint8[](islandCount);
+        IslandsR = new uint8[](islandCount);
+
+        uint256 index = 0;
+        for (uint256 i = 0; i < coordinates.length; i++) {
+            SharedStructs.Cell memory cell = getCell(coordinates[i], gameId);
+            if (cell.exists && cell.island) {
+                IslandsQ[index] = cell.q;
+                IslandsR[index] = cell.r;
+                index++;
+            }
+        }
+
+        return (IslandsQ, IslandsR);
+    }
+
+    function getPlayersMovementData(
+        uint256 gameId,
+        address winner
+    )
+        internal
+        view
+        returns (
+            address[] memory players,
+            uint8[] memory qs,
+            uint8[] memory rs,
+            uint256[] memory indices
+        )
+    {
+        address[] storage allPlayers = games[gameId].allPlayers;
+        uint256 totalPlayers = allPlayers.length;
+        uint256 playerCount = 0;
+        uint256 totalMovements = 0;
+
+        // First pass: count the players and total movements
+        for (uint256 i = 0; i < totalPlayers; i++) {
+            address player = allPlayers[i];
+            if (player != winner) {
+                playerCount++;
+                totalMovements += games[gameId].movementHistory[player].length;
+            }
+        }
+
+        // Initialize arrays
+        players = new address[](playerCount);
+        qs = new uint8[](totalMovements);
+        rs = new uint8[](totalMovements);
+        indices = new uint256[](playerCount + 1);
+
+        uint256 movementIndex = 0;
+        uint256 playerIndex = 0;
+
+        // Second pass: populate arrays
+        for (uint256 i = 0; i < totalPlayers; i++) {
+            address player = allPlayers[i];
+            if (player != winner) {
+                players[playerIndex] = player;
+                indices[playerIndex] = movementIndex;
+
+                MovementData[] storage movements = games[gameId]
+                    .movementHistory[player];
+                for (uint256 j = 0; j < movements.length; j++) {
+                    qs[movementIndex] = movements[j].destQ;
+                    rs[movementIndex] = movements[j].destR;
+                    movementIndex++;
+                }
+
+                playerIndex++;
+            }
+        }
+
+        indices[playerIndex] = movementIndex; // End index
+
+        return (players, qs, rs, indices);
+    }
+
+    function uint8ArrayToInt16Array(
+        uint8[] memory input
+    ) internal pure returns (int16[] memory output) {
+        output = new int16[](input.length);
+        for (uint256 i = 0; i < input.length; i++) {
+            output[i] = int16(uint16(input[i]));
+        }
+        return output;
     }
 }
