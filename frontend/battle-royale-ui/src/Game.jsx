@@ -11,7 +11,6 @@ import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useWatchContractEvent } from "wagmi";
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
-import { useSnackbar } from "notistack";
 import { Hex, HexUtils, GridGenerator } from "react-hexgrid";
 import ShipStatus from "./ShipStatus";
 import Logs from "./Logs";
@@ -26,8 +25,6 @@ import LastRoundResults from "./LastRoundResults.jsx";
 
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const GAME_ABI = GameAbi.abi;
-
-// const sdk = getBuiltGraphSDK()
 
 const gameQuery = gql`
   query getGame($gameId: BigInt!, $first: Int) {
@@ -127,10 +124,6 @@ export default function Game(props) {
 
   const { data: blockNumber } = useBlockNumber({ watch: true });
   useEffect(() => {
-    // console.log(
-    //   "Invalidating game query because of new block number",
-    //   blockNumber
-    // );
     queryClient.invalidateQueries(["game", BigInt(id).toString()]);
   }, [blockNumber]);
 
@@ -161,11 +154,6 @@ export default function Game(props) {
       console.log("World updated for game: ", gameId);
     },
   });
-
-  // useWatchBlockNumber( async (blockNumber) => {
-  //   console.log("New block: ", blockNumber, "invalidating game query");
-  //   queryClient.invalidateQueries(["game", BigInt(id).toString()]);
-  // });
 
   useEffect(() => {
     if (ws && gameId) {
@@ -256,29 +244,28 @@ export default function Game(props) {
     };
   };
 
-  const enrichShip = (ship, movesLastRound, currentPlayers, currentRound) => {
+  const enrichShip = (ship, movesLastRound, address, currentRound) => {
     const move = movesLastRound.find((m) => m.player.address === ship.address);
-
+  
     let travel = {};
     let shot = {};
-
-    // Determine if the ship is currently active
+  
+    // 1) Check if active
     const isActive = !ship.killedInRound && ship.state === "active";
-
-    // Determine if the ship was destroyed in the last round
-    const wasDestroyedLastRound =
-      ship.killedInRound &&
-      parseInt(ship.killedInRound.round) === currentRound - 1;
-
-    // Exclude ships that were destroyed in earlier rounds
-    if (!isActive && !wasDestroyedLastRound) {
-      return null;
+    
+    // 2) Determine final "state" for our front-end
+    let shipState;
+    if (isActive) {
+      shipState = "active";
+    } else if (ship.state === "won") {
+      // If the subgraph says they've won, we want to preserve that
+      shipState = "won";
+    } else {
+      // Otherwise, they're destroyed or some other final state
+      shipState = "destroyed";
     }
-
-    // Set the appropriate state
-    const shipState = isActive ? "active" : "destroyed";
-
-    // Populate travel and shot data
+  
+    // If there's a travel move, set travel origin/destination
     if (move && move.travel) {
       travel.origin = new Hex(
         move.travel.originQ,
@@ -291,7 +278,8 @@ export default function Game(props) {
         -move.travel.destinationQ - move.travel.destinationR
       );
     }
-
+  
+    // If there's a shot move, set shot origin/destination
     if (move && move.shot) {
       shot.origin = new Hex(
         move.shot.originQ,
@@ -304,13 +292,17 @@ export default function Game(props) {
         -move.shot.destinationQ - move.shot.destinationR
       );
     }
-
+  
+    // Calculate the “s” cube coordinate
     const s = -ship.q - ship.r;
-    const mine = !!address
+  
+    // Determine if this is my ship
+    const mine = address
       ? ship.address.toLowerCase() === address.toLowerCase()
       : false;
-
-    const newShip = {
+  
+    // Return our enriched ship object
+    return {
       ...ship,
       s,
       travel,
@@ -318,9 +310,8 @@ export default function Game(props) {
       mine,
       state: shipState,
     };
-
-    return newShip;
   };
+  
 
   const useGameQuery = (select) =>
     useQuery({
@@ -339,47 +330,34 @@ export default function Game(props) {
   const useShips = () =>
     useGameQuery((data) => {
       const currentRound = parseInt(data.games[0].currentRound.round);
-      let movesLastRound = [];
-      let lastRoundPlayers = [];
-
-      if (currentRound > 1) {
-        const lastRound = data.games[0].rounds.find(
-          (r) => parseInt(r.round) === currentRound - 1
-        );
-
-        if (lastRound) {
-          movesLastRound = lastRound.moves;
-          lastRoundPlayers = movesLastRound
-            .map((m) => m.player)
-            .filter(
-              (player, index, self) =>
-                index === self.findIndex((p) => p.address === player.address)
-            );
-        }
+      const gameState = data.games[0].state;
+  
+      // We'll figure out which round's "moves" we want to animate
+      // Normal case: we animate the "previous round" if the game is still ongoing
+      let roundToAnimate = currentRound > 1 ? currentRound - 1 : currentRound;
+  
+      // If the game is finished, we want to animate the final round itself
+      if (gameState === "finished") {
+        roundToAnimate = currentRound;
       }
-
-      // Filter active players
-      const currentPlayers = data.games[0].players.filter(
-        (p) => !p.killedInRound && p.state === "active"
+  
+      // Grab whichever round we decided to animate
+      const theRound = data.games[0].rounds.find(
+        (r) => parseInt(r.round) === roundToAnimate
       );
-
-      // Filter players who were destroyed in the last round
-      const destroyedLastRoundPlayers = data.games[0].players.filter(
-        (player) =>
-          player.killedInRound &&
-          parseInt(player.killedInRound.round) === currentRound - 1
-      );
-
-      // Combine current active players and destroyed last round players
-      const allRelevantPlayers = [
-        ...currentPlayers,
-        ...destroyedLastRoundPlayers,
-      ];
-
-      return allRelevantPlayers
-        .map((s) => enrichShip(s, movesLastRound, currentPlayers, currentRound))
-        .filter((ship) => ship !== null); // Exclude null ships
+  
+      let movesForAnimation = [];
+      if (theRound) {
+        movesForAnimation = theRound.moves;
+      }
+  
+      return data.games[0].players
+        .map((player) =>
+          enrichShip(player, movesForAnimation, address, currentRound)
+        )
+        .filter((ship) => ship !== null);
     });
+  
 
   const useMyShip = (address) =>
     useGameQuery(
@@ -448,7 +426,7 @@ export default function Game(props) {
   // console.log("Game ID: ", id);
   // console.log("Subgraph URL: ", import.meta.env.VITE_SUBGRAPH_URL_GAME);
   // console.log("Current Round: ", currentRound);
-  //console.log("Game Ships: ", ships);
+  // console.log("Game Ships: ", ships);
   // console.log("My Ship: ", myShip);
   //console.log("Cells: ", cells);
   //console.log("Center: ", center);
@@ -458,7 +436,7 @@ export default function Game(props) {
   //console.log("Cells2: ", cells2);
 
   useEffect(() => {
-    console.log("Game State: ", gameState);
+    //console.log("Game State: ", gameState);
     if (gameState === "finished") {
       disableEventBridgeRule(gameId);
     }
@@ -536,6 +514,7 @@ export default function Game(props) {
             tempShotEndpoint={tempShotEndpoint}
             tempTravelEndpoint={tempTravelEndpoint}
             round={currentRound}
+            gameState={gameState}
           />
         )}
 
@@ -568,16 +547,17 @@ export default function Game(props) {
                 </Typography>
               }
             />
-            <Timer gameId={gameId} />
+            <Timer gameId={gameId} gameState={gameState} />
             <GameInfo
               round={currentRound}
               gameId={gameId}
               mapShrink={mapShrink}
+              gameState={gameState}
             />
           </Stack>
         </Grid>
       </Grid>
-      {playerStateDialogOpen && (
+       {playerStateDialogOpen && (
         <GameStatus
           playerStateDialogOpen={playerStateDialogOpen}
           winner={winner}

@@ -15,6 +15,7 @@ import RegistrationyartsAbi from "./abis/Registrationyarts.json";
 import RegistrationAcknowledgementDialog from "./RegistrationAcknowledgement";
 import "./MintShip.css";
 import Button from "@mui/material/Button";
+import removeYachtBackground from "./RemoveYachtBackground";
 
 const REGISTRATION_ADDRESS = import.meta.env.VITE_REGISTRATION_ADDRESS;
 const REGISTRATION_ABI = RegistrationyartsAbi;
@@ -182,6 +183,14 @@ export default function RegisterShipButton({
 
   const shipData = yarts.find((ship) => ship.tokenId === shipId);
 
+  // Early return if no ship data found
+  if (!shipData) {
+    return null;
+  }
+
+  // Only call the background-removal if shipData is available
+  const modifiedImage = removeYachtBackground(shipData.image);
+
   return (
     <Fragment>
       {shipData && (
@@ -223,7 +232,7 @@ export default function RegisterShipButton({
               </Box>
               <Box
                 component="img"
-                src={shipData.image}
+                src={modifiedImage}
                 alt={shipData.name}
                 sx={{ maxWidth: "25%", height: "auto", marginLeft: "10px" }}
               />

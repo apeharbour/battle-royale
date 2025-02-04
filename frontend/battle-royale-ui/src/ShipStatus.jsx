@@ -8,6 +8,7 @@ import {
   Typography,
 } from "@mui/material";
 import "./MintShip.css";
+import removeYachtBackground from "./RemoveYachtBackground";
 
 export default function ShipStatus({ ship }) {
   if (!ship)
@@ -24,7 +25,7 @@ export default function ShipStatus({ ship }) {
       <CardMedia
         component="img"
         alt="Ship"
-        image={ship.image}
+        image={removeYachtBackground(ship.image)}
         title={ship.name}
         sx={{
           width: "100%",

@@ -1,16 +1,40 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import CovAbi from "./abis/Cov.json";
-import { useReadContract } from 'wagmi';
+import { useReadContract } from "wagmi";
 
 const COV_ADDRESS = import.meta.env.VITE_COV_ADDRESS;
 const COV_ABI = CovAbi.abi;
 
-
 function FetchNFT({ tokenId }) {
-  const { data: tokenUri, isError, isLoading } = useReadContract({
+  const {
+    data: tokenUri,
+    isError,
+    isLoading,
+  } = useReadContract({
     address: COV_ADDRESS,
     abi: COV_ABI,
-    functionName: 'tokenURI',
+    functionName: "tokenURI",
+    args: [tokenId],
+  });
+
+  const { data: islands } = useReadContract({
+    address: COV_ADDRESS,
+    abi: COV_ABI,
+    functionName: "getIslands",
+    args: [tokenId],
+  });
+
+  const { data: players } = useReadContract({
+    address: COV_ADDRESS,
+    abi: COV_ABI,
+    functionName: "getPlayers",
+    args: [tokenId],
+  });
+
+  const { data: movements } = useReadContract({
+    address: COV_ADDRESS,
+    abi: COV_ABI,
+    functionName: "getMovements",
     args: [tokenId],
   });
 
@@ -18,17 +42,16 @@ function FetchNFT({ tokenId }) {
 
   useEffect(() => {
     if (tokenUri) {
-      fetch(tokenUri)
-        .then((response) => response.json())
-        .then((data) => setMetadata(data))
-        .catch((error) => console.error('Error fetching metadata:', error));
+      console.log("Token URI: ", tokenUri);
 
-        console.log("Token URI: ", tokenUri);
+      const cleanUri = tokenUri.replace("data:application/json;base64,", "");
+      const json = JSON.parse(atob(cleanUri));
+      setMetadata(json);
     }
   }, [tokenUri]);
 
   if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error fetching token URI</div>;
+  if (isError) return <div>Error fetching data</div>;
 
   return (
     <div>
@@ -36,7 +59,6 @@ function FetchNFT({ tokenId }) {
         <div>
           <img src={metadata.image} alt={metadata.name} />
           <h2>{metadata.name}</h2>
-          <p>{metadata.description}</p>
         </div>
       ) : (
         <p>Loading metadata...</p>

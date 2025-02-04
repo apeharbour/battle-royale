@@ -51,6 +51,7 @@ export default function SpectateBoard({
   tempShotEndpoint,
   setTempShotEndpoint,
   round,
+  gameState,
 }) {
   const [shipPathLength, setShipPathLength] = useState(0);
   const [shootPathLength, setShootPathLength] = useState(0);
@@ -122,20 +123,19 @@ export default function SpectateBoard({
   }, [tempTravelEndpoint, tempShotEndpoint]);
 
   useEffect(() => {
-    console.log("Triggering animations", round, ships);
-    if (round !== null) {
-      // Trigger the animations based on the new round
-      setAnimationClass("animation-trigger");
-      setAnimationComplete(false);
+    if (round === null) return;
   
-      const timer = setTimeout(() => {
-        setAnimationClass("");
-        setAnimationComplete(true);
-      }, 1000); // Match the animation duration
+    // Trigger the animation
+    setAnimationClass("animation-trigger");
+    setAnimationComplete(false);
   
-      return () => clearTimeout(timer);
-    }
-  }, [round]);
+    const timer = setTimeout(() => {
+      setAnimationClass("");
+      setAnimationComplete(true);
+    }, 1000);
+  
+    return () => clearTimeout(timer);
+  }, [round, gameState]); 
 
   const layout = new Layout({
     size: hexagonSize,

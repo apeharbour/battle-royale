@@ -8,6 +8,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import { useNavigate } from 'react-router-dom';
 import { useAccount } from "wagmi";
+import removeYachtBackground from "./RemoveYachtBackground";
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
     '& .MuiDialogContent-root': {
@@ -77,9 +78,9 @@ export default function GameStatus({ playerStateDialogOpen, winner, playerState,
                                 </Box>
                                 <Box
                                     component="img"
-                                    src={winner.image}
+                                    src={removeYachtBackground(winner.image)}
                                     alt="Winner's ship"
-                                    sx={{ maxWidth: '10%', height: 'auto' }}
+                                    sx={{ maxWidth: '10%' }}
                                 />
                             </Box>
                             <Divider />

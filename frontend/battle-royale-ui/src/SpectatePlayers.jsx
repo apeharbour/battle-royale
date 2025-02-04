@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import removeYachtBackground from "./RemoveYachtBackground";
 
 const shortenAddress = (address) => {
   return `${address.slice(0, 6)}..${address.slice(-4)}`;
@@ -30,7 +31,6 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
 }));
 
 export default function SpectatePlayers({ ships }) {
-  console.log("ships", ships);
   return (
     <Card elevation={4} sx={{ height: "225px", overflow: "hidden" }}>
       <CardHeader
@@ -44,7 +44,7 @@ export default function SpectatePlayers({ ships }) {
             <Box key={shipIndex} display="flex" alignItems="center" mb={2}>
               <Box
                 component="img"
-                src={ship.image}
+                src={removeYachtBackground(ship.image)}
                 alt="ship image"
                 sx={{
                   width: 70,

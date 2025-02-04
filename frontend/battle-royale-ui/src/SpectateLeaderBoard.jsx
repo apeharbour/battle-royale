@@ -8,6 +8,7 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Card from "@mui/material/Card";
 import { CardHeader } from "@mui/material";
+import removeYachtBackground from "./RemoveYachtBackground";
 
 const shortenAddress = (address) => {
   return `${address.slice(0, 6)}..${address.slice(-4)}`;
@@ -38,7 +39,7 @@ export default function SpectateLeaderBoard({ ships }) {
               >
                 <TableCell component="th" scope="row">
                   <img
-                    src={ship.image}
+                    src={removeYachtBackground(ship.image)}
                     alt="Ship"
                     style={{ width: "50px", height: "50px" }}
                   />

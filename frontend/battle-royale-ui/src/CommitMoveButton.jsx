@@ -169,6 +169,7 @@ export default function CommitMoveButton({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "battleroyale",
         },
         body: JSON.stringify(moveData),
       });

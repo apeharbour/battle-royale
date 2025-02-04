@@ -27,44 +27,20 @@ contract COV is ERC721, Ownable {
     mapping(uint256 => uint256) public tokenGameId;
     mapping(uint256 => mapping(uint32 => bool)) private tokenIslands;
 
-    // Mappings to store movement data
+    // Mappings to store movement data and colors for each cov token
     mapping(uint256 => address[]) private tokenPlayers;
     mapping(uint256 => uint8[]) private tokenMovementQs;
     mapping(uint256 => uint8[]) private tokenMovementRs;
     mapping(uint256 => uint256[]) private tokenMovementIndices;
 
+    mapping(uint256 => uint8[3]) private hullColors;
+    mapping(uint256 => uint8[3]) private windowColors;
+    mapping(uint256 => uint8[3]) private mastColors;
+
     // Define SVG constants
     string constant svgHeader =
         '<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 500 500">';
     string constant svgFooter = "</svg>";
-    string constant svgDefs =
-        "<defs>"
-        '<style type="text/css">'
-        ".hexagon { stroke: rgb(215, 114, 127); fill: none; visibility: hidden; }"
-        ".island { fill: #B95C6E; }"
-        ".background { fill: #202424; visibility: visible; }"
-        ".travel { stroke: #A6D3F2; stroke-width: 2px; fill: none; }"
-        ".travelMarker { stroke: #A6D3F2; fill: #A6D3F2; visibility: hidden; }"
-        ".winner { stroke: #252872; stroke-width: 2px; fill: none; }"
-        ".travelMarkerWinner { stroke: #252872; fill: #252872; visibility: hidden; }"
-        "</style>"
-        '<polygon id="hexagon" points="0,-15 12.99,-7.5 12.99,7.5 0,15 -12.99,7.5 -12.99,-7.5" />'
-        '<rect id="island" x="-7.5" y="-7.5" width="15" height="15" />'
-        '<marker id="shipStart" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="0">'
-        '<rect x="2.5" y="2.5" width="5" height="5" class="travelMarker" />'
-        "</marker>"
-        '<marker id="shipEnd" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="auto">'
-        '<path d="M 2.5,2.5 L 7.5,7.5 M 7.5,2.5 L 2.5,7.5" class="travelMarker" />'
-        "</marker>"
-        '<marker id="shipStartWinner" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="0">'
-        '<rect x="2.5" y="2.5" width="5" height="5" class="travelMarkerWinner" />'
-        "</marker>"
-        '<marker id="shipEndWinner" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="auto">'
-        '<path d="M 2.5,2.5 L 7.5,7.5 M 7.5,2.5 L 2.5,7.5" class="travelMarkerWinner" />'
-        "</marker>"
-        "</defs>";
-    string constant background =
-        '<rect x="0" y="0" width="100%" height="100%" class="background" />';
 
     constructor(
         address initialOwner
@@ -107,22 +83,101 @@ contract COV is ERC721, Ownable {
             );
     }
 
-    // Function to generate the SVG for a given tokenId
     function generateSVG(
         uint256 tokenId
     ) internal view returns (string memory) {
+        // Retrieve colors for the token
+        uint8[3] memory hullColor = hullColors[tokenId];
+        uint8[3] memory windowColor = windowColors[tokenId];
+        uint8[3] memory mastColor = mastColors[tokenId];
+
+        // Dynamically generate the <defs> section with the token's colors
+        string memory dynamicDefs = string(
+            abi.encodePacked(
+                "<defs>",
+                '<style type="text/css">',
+                ".hexagon { stroke: rgb(215, 114, 127); fill: none; visibility: hidden; }",
+                ".island { fill: rgb(",
+                uintToString(hullColor[0]),
+                ",",
+                uintToString(hullColor[1]),
+                ",",
+                uintToString(hullColor[2]),
+                "); }",
+                ".background { fill: #202424; visibility: visible; }",
+                ".travel { stroke: rgb(",
+                uintToString(windowColor[0]),
+                ",",
+                uintToString(windowColor[1]),
+                ",",
+                uintToString(windowColor[2]),
+                "); stroke-width: 2px; fill: none; }",
+                ".travelMarker { stroke: rgb(",
+                uintToString(windowColor[0]),
+                ",",
+                uintToString(windowColor[1]),
+                ",",
+                uintToString(windowColor[2]),
+                "); fill: rgb(",
+                uintToString(windowColor[0]),
+                ",",
+                uintToString(windowColor[1]),
+                ",",
+                uintToString(windowColor[2]),
+                "); visibility: hidden; }",
+                ".winner { stroke: rgb(",
+                uintToString(mastColor[0]),
+                ",",
+                uintToString(mastColor[1]),
+                ",",
+                uintToString(mastColor[2]),
+                "); stroke-width: 2px; fill: none; }",
+                ".travelMarkerWinner { stroke: rgb(",
+                uintToString(mastColor[0]),
+                ",",
+                uintToString(mastColor[1]),
+                ",",
+                uintToString(mastColor[2]),
+                "); fill: rgb(",
+                uintToString(mastColor[0]),
+                ",",
+                uintToString(mastColor[1]),
+                ",",
+                uintToString(mastColor[2]),
+                "); visibility: hidden; }",
+                "</style>",
+                '<polygon id="hexagon" points="0,-15 12.99,-7.5 12.99,7.5 0,15 -12.99,7.5 -12.99,-7.5" />',
+                '<rect id="island" x="-7.5" y="-7.5" width="15" height="15" />',
+                '<marker id="shipStart" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="0">',
+                '<rect x="2.5" y="2.5" width="5" height="5" class="travelMarker" />',
+                "</marker>",
+                '<marker id="shipEnd" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="auto">',
+                '<path d="M 2.5,2.5 L 7.5,7.5 M 7.5,2.5 L 2.5,7.5" class="travelMarker" />',
+                "</marker>",
+                '<marker id="shipStartWinner" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="0">',
+                '<rect x="2.5" y="2.5" width="5" height="5" class="travelMarkerWinner" />',
+                "</marker>",
+                '<marker id="shipEndWinner" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" orient="auto">',
+                '<path d="M 2.5,2.5 L 7.5,7.5 M 7.5,2.5 L 2.5,7.5" class="travelMarkerWinner" />',
+                "</marker>",
+                "</defs>"
+            )
+        );
+
+        // Background rectangle
+        string
+            memory background = '<rect x="0" y="0" width="100%" height="100%" class="background" />';
+
+        // Hexagons and islands group
         string memory hexagonsGroup = '<g id="hexagons">';
         CellData.Cell[] memory cells = CellData.getInitialCells();
 
-        // Generate hexagon and island elements
         for (uint256 i = 0; i < cells.length; i++) {
             CellData.Cell memory cell = cells[i];
 
-            // Convert scaled integer coordinates to string
             string memory x = scaledIntToString(cell.x);
             string memory y = scaledIntToString(cell.y);
 
-            // Generate the <use> element for the hexagon
             hexagonsGroup = string(
                 abi.encodePacked(
                     hexagonsGroup,
@@ -135,8 +190,6 @@ contract COV is ERC721, Ownable {
             );
 
             uint32 cellId = getCellId(cell.q, cell.r);
-
-            // If the cell is an island for this token, add the island SVG element
             if (tokenIslands[tokenId][cellId]) {
                 hexagonsGroup = string(
                     abi.encodePacked(
@@ -152,10 +205,8 @@ contract COV is ERC721, Ownable {
         }
         hexagonsGroup = string(abi.encodePacked(hexagonsGroup, "</g>"));
 
-        // Generate travelsGroup dynamically
+        // Travels group
         string memory travelsGroup = '<g id="travels">';
-
-        // Retrieve movement data for the tokenId
         address[] storage players = tokenPlayers[tokenId];
         uint8[] storage qs = tokenMovementQs[tokenId];
         uint8[] storage rs = tokenMovementRs[tokenId];
@@ -165,17 +216,14 @@ contract COV is ERC721, Ownable {
             uint256 startIndex = indices[i];
             uint256 endIndex = indices[i + 1];
 
-            // Build the path data
             string memory pathData = "M ";
-
             for (uint256 j = startIndex; j < endIndex; j++) {
-                uint8 q = qs[j];
-                uint8 r = rs[j];
+                (uint32 xCoord, uint32 yCoord) = getXYFromQR(
+                    qs[j],
+                    rs[j],
+                    cells
+                );
 
-                // Convert q, r to x, y using getXYFromQR function
-                (uint32 xCoord, uint32 yCoord) = getXYFromQR(q, r, cells);
-
-                // Append the point to the path data
                 pathData = string(
                     abi.encodePacked(
                         pathData,
@@ -187,7 +235,6 @@ contract COV is ERC721, Ownable {
                 );
             }
 
-            // Create the path element
             travelsGroup = string(
                 abi.encodePacked(
                     travelsGroup,
@@ -197,41 +244,27 @@ contract COV is ERC721, Ownable {
                 )
             );
         }
-
         travelsGroup = string(abi.encodePacked(travelsGroup, "</g>"));
 
-        // Generate winnersGroup dynamically
+        // Winner group
         string memory winnersGroup = '<g id="winners">';
-
-        // Retrieve winner's movement data
-        uint256 winnerStartIndex = indices[indices.length - 1]; // Last set of movements
-        uint8[] memory winnerQs = tokenMovementQs[tokenId];
-        uint8[] memory winnerRs = tokenMovementRs[tokenId];
-
-        // Build the path data for the winner
+        uint256 winnerStartIndex = indices[indices.length - 1];
         string memory winnerPathData = "M ";
 
-        for (uint256 j = winnerStartIndex; j < winnerQs.length; j++) {
-            // Convert q, r to x, y using getXYFromQR function
-            (uint32 xCoord, uint32 yCoord) = getXYFromQR(
-                winnerQs[j],
-                winnerRs[j],
-                cells
-            );
+        for (uint256 j = winnerStartIndex; j < qs.length; j++) {
+            (uint32 xCoord, uint32 yCoord) = getXYFromQR(qs[j], rs[j], cells);
 
-            // Append the point to the path data
             winnerPathData = string(
                 abi.encodePacked(
                     winnerPathData,
                     scaledIntToString(xCoord),
                     " ",
                     scaledIntToString(yCoord),
-                    (j < winnerQs.length - 1) ? " L " : ""
+                    (j < qs.length - 1) ? " L " : ""
                 )
             );
         }
 
-        // Create the path element for the winner
         winnersGroup = string(
             abi.encodePacked(
                 winnersGroup,
@@ -240,15 +273,14 @@ contract COV is ERC721, Ownable {
                 '" class="winner" marker-start="url(#shipStartWinner)" marker-end="url(#shipEndWinner)" />'
             )
         );
-
         winnersGroup = string(abi.encodePacked(winnersGroup, "</g>"));
 
-        // Assemble the SVG
+        // Assemble the final SVG
         return
             string(
                 abi.encodePacked(
                     svgHeader,
-                    svgDefs,
+                    dynamicDefs,
                     background,
                     hexagonsGroup,
                     travelsGroup,
@@ -256,6 +288,11 @@ contract COV is ERC721, Ownable {
                     svgFooter
                 )
             );
+    }
+
+    // Helper function to convert uint8 to string
+    function uintToString(uint8 value) internal pure returns (string memory) {
+        return Strings.toString(uint256(value));
     }
 
     // Function to map q and r coordinates to x and y pixel coordinates
@@ -320,7 +357,10 @@ contract COV is ERC721, Ownable {
         uint8[] calldata rsInput,
         uint256[] calldata indicesInput,
         uint8[] calldata winnerQs,
-        uint8[] calldata winnerRs
+        uint8[] calldata winnerRs,
+        uint8[3] calldata hullColor,
+        uint8[3] calldata windowColor,
+        uint8[3] calldata mastColor
     ) external onlyGameContract {
         require(
             islandsQ.length == islandsR.length,
@@ -369,5 +409,75 @@ contract COV is ERC721, Ownable {
             tokenMovementQs[tokenId].push(winnerQs[i]);
             tokenMovementRs[tokenId].push(winnerRs[i]);
         }
+
+        hullColors[tokenId] = hullColor;
+        windowColors[tokenId] = windowColor;
+        mastColors[tokenId] = mastColor;
     }
+
+    function getIslands(
+        uint256 tokenId
+    ) external view returns (uint8[] memory qs, uint8[] memory rs) {
+        uint256 count;
+        CellData.Cell[] memory cells = CellData.getInitialCells();
+
+        // First pass: Count the islands
+        for (uint256 i = 0; i < cells.length; i++) {
+            uint32 cellId = getCellId(cells[i].q, cells[i].r);
+            if (tokenIslands[tokenId][cellId]) {
+                count++;
+            }
+        }
+
+        qs = new uint8[](count);
+        rs = new uint8[](count);
+        uint256 index;
+
+        // Second pass: Populate the q and r arrays
+        for (uint256 i = 0; i < cells.length; i++) {
+            uint32 cellId = getCellId(cells[i].q, cells[i].r);
+            if (tokenIslands[tokenId][cellId]) {
+                require(cells[i].q >= 0 && cells[i].q <= 255, "q out of range");
+                require(cells[i].r >= 0 && cells[i].r <= 255, "r out of range");
+
+                qs[index] = uint8(uint16(cells[i].q));
+                rs[index] = uint8(uint16(cells[i].r));
+                index++;
+            }
+        }
+
+        return (qs, rs);
+    }
+
+    function getPlayers(
+        uint256 tokenId
+    ) external view returns (address[] memory) {
+        return tokenPlayers[tokenId];
+    }
+
+    function getMovements(
+        uint256 tokenId
+    )
+        external
+        view
+        returns (uint8[] memory qs, uint8[] memory rs, uint256[] memory indices)
+    {
+        return (
+            tokenMovementQs[tokenId],
+            tokenMovementRs[tokenId],
+            tokenMovementIndices[tokenId]
+        );
+    }
+
+    function getColors(uint256 tokenId)
+    external
+    view
+    returns (
+        uint8[3] memory hullColor,
+        uint8[3] memory windowColor,
+        uint8[3] memory mastColor
+    )
+{
+    return (hullColors[tokenId], windowColors[tokenId], mastColors[tokenId]);
+}
 }

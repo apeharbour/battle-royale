@@ -10,6 +10,11 @@
         "internalType": "address",
         "name": "_yartsshipsAddress",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_covAddress",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -928,6 +933,30 @@
         "type": "uint256"
       }
     ],
+    "name": "getIslands",
+    "outputs": [
+      {
+        "internalType": "uint8[]",
+        "name": "IslandsQ",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "IslandsR",
+        "type": "uint8[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
+    ],
     "name": "getRadius",
     "outputs": [
       {
@@ -1028,6 +1057,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "kmsPublicAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "components": [
@@ -1114,6 +1156,19 @@
   {
     "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_kmsPublicAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setKmsPublicAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

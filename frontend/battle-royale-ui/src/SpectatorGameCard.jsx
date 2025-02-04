@@ -52,7 +52,7 @@ export default function SpectatorGameCard({
     if (!cells || cells.length === 0) return null;
 
     return (
-      <HexGrid width={220} height={200} viewBox="-10 -30 130 130">
+      <HexGrid width={220} height={200} viewBox="35 -40 135 150">
         <Layout
           size={{ x: 4, y: 3.5 }}
           flat={false}
@@ -91,7 +91,7 @@ export default function SpectatorGameCard({
   }
 
   const handleButtonClick = (gameId) => () => {
-    console.log("Show game", gameId);
+    //console.log("Show game", gameId);
     navigate(`/spectator/${gameId}`);
   };
 

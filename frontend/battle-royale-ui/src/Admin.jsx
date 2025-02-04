@@ -37,8 +37,15 @@ const GAME_ID = 1;
 const MAX_PLAYERS_PER_GAME = 9;
 const RADIUS = 7;
 const MAX_RETRIES = 10;
-const RETRY_DELAY = 3000; 
+const RETRY_DELAY = 3000;
 const SUBGRAPH_POLLING_INTERVAL = 1000; // 1 second
+const API_KEY = "scX42vcQTF6Ic8dxvje657pP57dlRqeK7svOiPDE";
+const START_REGISTRATION_URL =
+  "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/startRegistration";
+const CLOSE_REGISTRATION_URL =
+  "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/closeRegistration";
+const EVENT_BRIDGE_URL =
+  "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated";
 
 // GraphQL Query
 const registrationQuery = gql`
@@ -112,14 +119,17 @@ export default function Admin(props) {
   const [testGameId, setTestGameId] = useState("");
   const [testGameRadius, setTestGameRadius] = useState("");
   const [updateWorldTestId, setUpdateWorldTestId] = useState("");
-  const [mapShrink, setMapShrink] = useState(3);
-  const [isClosingRegistration, setIsClosingRegistration] = useState(false);
+  const [mapShrink, setMapShrink] = useState(null);
   const [lastProcessedPhase, setLastProcessedPhase] = useState(-1);
   const [processingError, setProcessingError] = useState(null);
   const [processedTransactions] = useState(new Set());
   const [gameIdEventBridge, setGameIdEventBridge] = useState(null);
   const [mintAddress, setMintAddress] = useState(null);
   const [mintAmount, setMintAmount] = useState(null);
+  const [radius, setRadius] = useState(null);
+  const [maxPlayers, setMaxPlayers] = useState(null);
+  const [gameKMS, setGameKMS] = useState(null);
+  const [registrationKMS, setRegistrationKMS] = useState(null);
 
   // Hooks
   const { data: closedRegistrations } = useRegistrations(
@@ -149,105 +159,73 @@ export default function Admin(props) {
     data: txData,
   } = useWaitForTransactionReceipt({ hash });
 
-  // Helper Functions
-  const hasNewRegistrationData = (newData, lastPhase) => {
-    if (!newData?.fullData?.length) return false;
-    const currentHighestPhase = Math.max(
-      ...newData.fullData.map((r) => parseInt(r.phase, 10))
-    );
-    return currentHighestPhase > lastPhase;
-  };
-
-  const fetchRegistrationDataWithRetries = async (lastPhase) => {
-    for (let i = 0; i < MAX_RETRIES; i++) {
-      console.log(
-        `Attempt ${i + 1}/${MAX_RETRIES} to fetch updated registration data`
-      );
-
-      const newData = await refetchRegistrationsData();
-
-      if (hasNewRegistrationData(newData.data, lastPhase)) {
-        console.log("Found new registration data:", newData.data);
-        return newData.data;
-      }
-
-      console.log(`No new data found, waiting ${RETRY_DELAY}ms before retry`);
-      await wait(RETRY_DELAY);
-    }
-    throw new Error(
-      "Failed to get updated registration data after maximum retries"
-    );
-  };
-
-  const triggerLambdaFunction = async (gameId) => {
-    const apiEndpoint =
-      "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated";
-    const postData = {
-      gameId: gameId.toString(),
-      scheduleRate: "3 minutes",
-    };
-
+  const startRegistration = async () => {
     try {
-      console.log(`Triggering Lambda for Game ID: ${gameId}`, postData);
+      setProcessingError(null);
 
-      const response = await fetch(apiEndpoint, {
+      const response = await fetch(START_REGISTRATION_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: "battleroyale",
         },
-        body: JSON.stringify(postData),
       });
 
       if (!response.ok) {
-        throw new Error(
-          `Lambda API call failed with status: ${response.status}`
-        );
+        throw new Error(`Error starting registration: ${response.statusText}`);
       }
-
-      const responseData = await response.json();
-      console.log(`Lambda response for Game ID ${gameId}:`, responseData);
-      return true;
-    } catch (error) {
-      console.error(`Lambda error for Game ID ${gameId}:`, error);
-      return false;
-    }
-  };
-
-  // Contract Interaction Functions
-  const startRegistration = async () => {
-    try {
-      await writeContract({
-        abi: REGISTRATION_ABI,
-        address: REGISTRATION_ADDRESS,
-        functionName: "startRegistration",
-      });
     } catch (error) {
       console.error("Error starting registration:", error);
       setProcessingError(error.message);
     }
   };
 
-  const closeRegistration = async () => {
+  const closeRegistration = async (maxPlayers, radius, mapShrink) => {
     try {
-      setIsClosingRegistration(true);
-      setProcessingError(null);
-
-      await writeContract({
-        abi: REGISTRATION_ABI,
-        address: REGISTRATION_ADDRESS,
-        functionName: "closeRegistration",
-        args: [MAX_PLAYERS_PER_GAME, RADIUS, mapShrink],
+      const response = await fetch(CLOSE_REGISTRATION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "battleroyale",
+        },
+        body: JSON.stringify({
+          maxPlayers,
+          radius,
+          mapShrink,
+        }),
       });
 
+      if (!response.ok) {
+        throw new Error(`Error closing registration: ${response.statusText}`);
+      }
+
       console.log("Closing registration with params:", {
-        maxPlayers: MAX_PLAYERS_PER_GAME,
-        radius: RADIUS,
+        maxPlayers,
+        radius,
         mapShrink,
       });
     } catch (error) {
       console.error("Error closing registration:", error);
-      setProcessingError(error.message);
-      setIsClosingRegistration(false);
+    }
+  };
+
+  const triggerLambdaFunction = async (gameId) => {
+    const postData = {
+      gameId: gameId.toString(),
+      scheduleRate: "3 minutes",
+    };
+
+    try {
+      const response = await fetch(EVENT_BRIDGE_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "battleroyale",
+        },
+        body: JSON.stringify(postData),
+      });
+    } catch (error) {
+      console.error("Error triggering lambda function:", error);
     }
   };
 
@@ -307,84 +285,32 @@ export default function Admin(props) {
     }
   };
 
-// Replace the existing transaction confirmation effect with this updated version
-useEffect(() => {
-  const handleTransactionConfirmed = async () => {
-    if (!isTxConfirmed || !hash || !isClosingRegistration) return;
-    
-    // Check if we've already processed this transaction
-    if (processedTransactions.has(hash)) {
-      console.log("Transaction already processed:", hash);
-      return;
-    }
-
-    console.log("Close Registration transaction confirmed:", hash);
-    
+  const gameKMSFunction = async () => {
     try {
-      // Get current phase before fetching new data
-      const currentPhase = registrationData?.highestPhase ?? -1;
-      console.log("Current phase before fetching new data:", currentPhase);
-
-      // Wait for and fetch new registration data
-      const newData = await fetchRegistrationDataWithRetries(currentPhase);
-      
-      if (newData?.highestPhaseGameIds?.length) {
-        console.log("Processing game IDs:", newData.highestPhaseGameIds);
-        
-        const results = await Promise.all(
-          newData.highestPhaseGameIds.map(gameId => triggerLambdaFunction(gameId))
-        );
-
-        const successCount = results.filter(Boolean).length;
-        console.log(`Successfully processed ${successCount} of ${results.length} games`);
-
-        // Update last processed phase
-        const newPhase = Math.max(...newData.fullData.map(r => parseInt(r.phase, 10)));
-        setLastProcessedPhase(newPhase);
-        
-        if (successCount < results.length) {
-          setProcessingError("Some Lambda functions failed to process");
-        }
-        
-        // Add transaction to processed set
-        processedTransactions.add(hash);
-      } else {
-        console.log("No new game IDs to process");
-      }
+      await writeContract({
+        abi: GAME_ABI,
+        address: GAME_ADDRESS,
+        functionName: "setKmsPublicAddress",
+        args: [gameKMS],
+      });
     } catch (error) {
-      console.error("Error processing registration closure:", error);
+      console.error("Error calling setKmsPublicAddress:", error);
       setProcessingError(error.message);
-    } finally {
-      setIsClosingRegistration(false);
     }
   };
 
-  handleTransactionConfirmed();
-}, [isTxConfirmed, hash, isClosingRegistration, registrationData]);
-
-  // Effect for handling transaction errors
-  useEffect(() => {
-    if (isTxError && txError) {
-      console.error("Transaction error:", txError);
-      setProcessingError(txError.message);
-      setIsClosingRegistration(false);
+  const registrationKMSFunction = async () => {
+    try {
+      await writeContract({
+        abi: REGISTRATION_ABI,
+        address: REGISTRATION_ADDRESS,
+        functionName: "setKmsPublicAddress",
+        args: [registrationKMS],
+      });
+    } catch (error) {
+      console.error("Error calling setKmsPublicAddress:", error);
+      setProcessingError(error.message);
     }
-  }, [isTxError, txError]);
-
-  const renderTransactionStatus = () => {
-    if (processingError)
-      return <Typography color="error">Error: {processingError}</Typography>;
-    if (isTxPending)
-      return <Typography color="primary">Transaction pending...</Typography>;
-    if (isTxConfirming)
-      return (
-        <Typography color="secondary">Transaction confirming...</Typography>
-      );
-    if (isTxConfirmed)
-      return <Typography color="success">Transaction confirmed!</Typography>;
-    if (isRegistrationDataLoading)
-      return <Typography>Loading registration data...</Typography>;
-    return null;
   };
 
   return (
@@ -398,7 +324,12 @@ useEffect(() => {
           >
             Start Registration
           </Button>
-          <Button variant="contained" onClick={closeRegistration} color="error">
+          <Button
+            variant="contained"
+            onClick={() => closeRegistration(maxPlayers, radius, mapShrink)}
+            color="error"
+            disabled={!mapShrink || !maxPlayers || !radius}
+          >
             Stop Registration
           </Button>
           <TextField
@@ -407,16 +338,55 @@ useEffect(() => {
             label="Map Shrink"
             onChange={(e) => setMapShrink(e.target.value)}
           />
-           <TextField
+          <TextField
+            variant="outlined"
+            value={maxPlayers}
+            label="Max Players"
+            onChange={(e) => setMaxPlayers(e.target.value)}
+          />
+          <TextField
+            variant="outlined"
+            value={radius}
+            label="Radius"
+            onChange={(e) => setRadius(e.target.value)}
+          />
+          <TextField
             variant="outlined"
             value={gameIdEventBridge}
             label="Event Bridge"
             onChange={(e) => setGameIdEventBridge(e.target.value)}
           />
         </Stack>
-        <Button variant="contained" onClick={()=> {triggerLambdaFunction(gameIdEventBridge)}}>
-            Event Bridge
+        <Button
+          variant="contained"
+          onClick={() => {
+            triggerLambdaFunction(gameIdEventBridge);
+          }}
+        >
+          Event Bridge
+        </Button>
+      </Box>
+      <Box mt={5}>
+        <Stack spacing={2} direction="row">
+          <TextField
+            variant="outlined"
+            value={gameKMS}
+            label="KMS Address"
+            onChange={(e) => setGameKMS(e.target.value)}
+          />
+          <Button variant="contained" onClick={gameKMSFunction}>
+            Set Game KMS
           </Button>
+          <TextField
+            variant="outlined"
+            value={registrationKMS}
+            label="KMS Address"
+            onChange={(e) => setRegistrationKMS(e.target.value)}
+          />
+          <Button variant="contained" onClick={registrationKMSFunction}>
+            Set Registration KMS
+          </Button>
+        </Stack>
       </Box>
       <Box mt={5}>
         <Stack spacing={2} direction="row">
@@ -480,7 +450,7 @@ useEffect(() => {
         </Stack>
       </Box>
       <Box mt={5}>
-        <Timer gameId={22} />
+        <Timer gameId={1} />
       </Box>
 
       <Grid container p={4}>
