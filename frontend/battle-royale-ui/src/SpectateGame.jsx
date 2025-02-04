@@ -11,7 +11,6 @@ import { request, gql } from "graphql-request";
 import { useAccount, useBlockNumber, useWatchContractEvent } from "wagmi";
 import { useWebSocket } from "./contexts/WebSocketContext";
 import { useLocation } from "react-router-dom";
-import { useSnackbar } from "notistack";
 import { Hex, HexUtils, GridGenerator } from "react-hexgrid";
 import Logs from "./Logs";
 import GameInfo from "./GameInfo";
@@ -25,8 +24,6 @@ import SpectateLeaderBoard from "./SpectateLeaderBoard.jsx";
 
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const GAME_ABI = GameAbi.abi;
-
-// const sdk = getBuiltGraphSDK()
 
 const gameQuery = gql`
   query getGame($gameId: BigInt!, $first: Int) {
@@ -240,54 +237,72 @@ export default function SpectateGame() {
     };
   };
 
-  const enrichShip = (ship, movesLastRound) => {
-    const move = movesLastRound.filter(
-      (m) => m.player.address === ship.address
-    )[0];
-
+ const enrichShip = (ship, movesLastRound, address, currentRound) => {
+    const move = movesLastRound.find((m) => m.player.address === ship.address);
+  
     let travel = {};
     let shot = {};
-
-    // Only populate travel and shot if the ship is active
-    if (ship.state === "active") {
-      if (move && move.travel) {
-        travel.origin = new Hex(
-          move.travel.originQ,
-          move.travel.originR,
-          (move.travel.originQ + move.travel.originR) * -1
-        );
-        travel.destination = new Hex(
-          move.travel.destinationQ,
-          move.travel.destinationR,
-          (move.travel.destinationQ + move.travel.destinationR) * -1
-        );
-      }
-
-      if (move && move.shot) {
-        shot.origin = new Hex(
-          move.shot.originQ,
-          move.shot.originR,
-          (move.shot.originQ + move.shot.originR) * -1
-        );
-        shot.destination = new Hex(
-          move.shot.destinationQ,
-          move.shot.destinationR,
-          (move.shot.destinationQ + move.shot.destinationR) * -1
-        );
-      }
+  
+    // 1) Check if active
+    const isActive = !ship.killedInRound && ship.state === "active";
+    
+    // 2) Determine final "state" for our front-end
+    let shipState;
+    if (isActive) {
+      shipState = "active";
+    } else if (ship.state === "won") {
+      // If the subgraph says they've won, we want to preserve that
+      shipState = "won";
     } else {
-      // If the ship is not active, set travel and shot to null or empty objects
-      travel = null;
-      shot = null;
+      // Otherwise, they're destroyed or some other final state
+      shipState = "destroyed";
     }
-
-    const s = (ship.q + ship.r) * -1;
-    const mine = !!address
+  
+    // If there's a travel move, set travel origin/destination
+    if (move && move.travel) {
+      travel.origin = new Hex(
+        move.travel.originQ,
+        move.travel.originR,
+        -move.travel.originQ - move.travel.originR
+      );
+      travel.destination = new Hex(
+        move.travel.destinationQ,
+        move.travel.destinationR,
+        -move.travel.destinationQ - move.travel.destinationR
+      );
+    }
+  
+    // If there's a shot move, set shot origin/destination
+    if (move && move.shot) {
+      shot.origin = new Hex(
+        move.shot.originQ,
+        move.shot.originR,
+        -move.shot.originQ - move.shot.originR
+      );
+      shot.destination = new Hex(
+        move.shot.destinationQ,
+        move.shot.destinationR,
+        -move.shot.destinationQ - move.shot.destinationR
+      );
+    }
+  
+    // Calculate the “s” cube coordinate
+    const s = -ship.q - ship.r;
+  
+    // Determine if this is my ship
+    const mine = address
       ? ship.address.toLowerCase() === address.toLowerCase()
       : false;
-    const newCell = { ...ship, s, travel, shot, mine };
-
-    return newCell;
+  
+    // Return our enriched ship object
+    return {
+      ...ship,
+      s,
+      travel,
+      shot,
+      mine,
+      state: shipState,
+    };
   };
 
   const useGameQuery = (select) =>
@@ -306,14 +321,33 @@ export default function SpectateGame() {
 
   const useShips = () =>
     useGameQuery((data) => {
-      let movesLastRound = [];
       const currentRound = parseInt(data.games[0].currentRound.round);
-      if (currentRound > 1) {
-        movesLastRound = data.games[0].rounds.filter(
-          (r) => parseInt(r.round) === currentRound - 1
-        )[0].moves;
+      const gameState = data.games[0].state;
+  
+      // We'll figure out which round's "moves" we want to animate
+      // Normal case: we animate the "previous round" if the game is still ongoing
+      let roundToAnimate = currentRound > 1 ? currentRound - 1 : currentRound;
+  
+      // If the game is finished, we want to animate the final round itself
+      if (gameState === "finished") {
+        roundToAnimate = currentRound;
       }
-      return data.games[0].players.map((s) => enrichShip(s, movesLastRound));
+  
+      // Grab whichever round we decided to animate
+      const theRound = data.games[0].rounds.find(
+        (r) => parseInt(r.round) === roundToAnimate
+      );
+  
+      let movesForAnimation = [];
+      if (theRound) {
+        movesForAnimation = theRound.moves;
+      }
+  
+      return data.games[0].players
+        .map((player) =>
+          enrichShip(player, movesForAnimation, address, currentRound)
+        )
+        .filter((ship) => ship !== null);
     });
 
   const useMyShip = (address) =>
@@ -416,6 +450,7 @@ export default function SpectateGame() {
             tempShotEndpoint={tempShotEndpoint}
             tempTravelEndpoint={tempTravelEndpoint}
             round={currentRound}
+            gameState={gameState}
           />
         )}
 
@@ -436,11 +471,12 @@ export default function SpectateGame() {
                 </Typography>
               }
             />
-            <Timer gameId={gameId} />
+            <Timer gameId={gameId} gameState={gameState}/>
             <GameInfo
               round={currentRound}
               gameId={gameId}
               mapShrink={mapShrink}
+              gameState={gameState}
             />
           </Stack>
         </Grid>

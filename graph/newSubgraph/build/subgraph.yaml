@@ -6,21 +6,9 @@ dataSources:
     name: Gameyarts
     network: apechain-curtis
     source:
-<<<<<<< Updated upstream
       abi: Gameyarts
-      address: "0x1a42830C037579e9246Eceb5028648c597ea3Df9"
-      startBlock: 13201130
-=======
-<<<<<<< Updated upstream
-      abi: GamePunk
-      address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0"
-      startBlock: 0
-=======
-      abi: Gameyarts
-      address: "0x9Edb867F019dC10E48C49FC8131216B4f5C2eaF3"
-      startBlock: 13653818
->>>>>>> Stashed changes
->>>>>>> Stashed changes
+      address: "0x74e510da39803508f9029c9b7B25B0E54cd3dEA0"
+      startBlock: 14932137
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

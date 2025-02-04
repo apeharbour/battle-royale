@@ -17,6 +17,7 @@ import Backdrop from "./Backdrop";
 import "./MintShip.css";
 import { styled } from "@mui/material/styles";
 import OpenInNewIcon from "@mui/icons-material/OpenInNew";
+import removeYachtBackground from "./RemoveYachtBackground";
 
 const HolographicButtonYellow = styled(Button)(({ theme }) => ({
   position: "relative",
@@ -157,7 +158,7 @@ export default function HallOfFame(props) {
                         </Typography>
                         <Box
                           component="img"
-                          src={winnerData.image}
+                          src={removeYachtBackground(winnerData.image)}
                           alt={winnerData.address}
                           sx={{
                             maxWidth: "80%",

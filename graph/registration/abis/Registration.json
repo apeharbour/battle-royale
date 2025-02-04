@@ -207,6 +207,19 @@
   },
   {
     "inputs": [],
+    "name": "kmsPublicAddress",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "lastGameId",
     "outputs": [
       {
@@ -297,6 +310,19 @@
   {
     "inputs": [],
     "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_kmsPublicAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setKmsPublicAddress",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

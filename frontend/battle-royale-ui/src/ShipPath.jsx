@@ -1,21 +1,32 @@
+// ShipPath.jsx
 import React, { useRef, useEffect, useState } from "react";
 import { HexUtils, Path } from "react-hexgrid";
+import removeYachtBackground from "./RemoveYachtBackground.jsx"; // <-- import your function here
 
 export default function ShipPath({ start, end, ship, size, ...props }) {
-  // Create a ref to hold the SVG <path> element
   const pathRef = useRef(null);
+
+  // We'll keep the processed ship image in state
+  const [processedShip, setProcessedShip] = useState(ship);
+
+  useEffect(() => {
+    if (ship) {
+      // Apply the background-removal here
+      const updatedShipImage = removeYachtBackground(ship);
+      setProcessedShip(updatedShipImage);
+    }
+  }, [ship]);
 
   return (
     <g ref={pathRef}>
       <defs>
-        <marker id="icon" refX="4" refY="4" markerWidth="8" markerHeight="8">
+        <marker id="icon" refX="4" refY="5" markerWidth="8" markerHeight="8">
           <image
-            href={ship}
-            // width="8"
-            // height="8"
-            height="6"
+            href={processedShip}      
+            height="10"
+            width="10"
             filter="url(#grayscale)"
-          ></image>
+          />
         </marker>
         <filter id="grayscale">
           <feColorMatrix type="saturate" values="0.10" />
@@ -25,7 +36,6 @@ export default function ShipPath({ start, end, ship, size, ...props }) {
       <Path
         start={start}
         end={end}
-        // markerMid="url(#icon)"
         markerEnd="url(#icon)"
         className="ship-path"
       />

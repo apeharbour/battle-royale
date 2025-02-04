@@ -18,7 +18,7 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   textAlign: "left",
 }));
 
-export default function GameInfo({ round, gameId, mapShrink }) {
+export default function GameInfo({ round, gameId, mapShrink, gameState }) {
   const roundsUntilShrink = mapShrink - (round % mapShrink);
 
   const shrinkMessage = () => {
@@ -38,13 +38,24 @@ export default function GameInfo({ round, gameId, mapShrink }) {
     }
   };
 
+  // Decide what to show: the shrink message or "Game Over"
+  const content = gameState === "finished" ? (
+    <Typography sx={{ fontSize: "1rem" }} color="error">
+      Game Over
+    </Typography>
+  ) : (
+    shrinkMessage()
+  );
+
   return (
     <Card elevation={4} sx={{ overflow: "hidden" }}>
       <CardHeader
-          title= {`Game ${gameId}`} titleTypographyProps={{ fontSize: "1.25rem", fontWeight: '600' }}/>
+        title={`Game ${gameId}`}
+        titleTypographyProps={{ fontSize: "1.25rem", fontWeight: "600" }}
+      />
       <StyledCardContent>
         <Typography sx={{ fontSize: "1rem" }}>Round: {round}</Typography>
-        {shrinkMessage()}
+        {content}
       </StyledCardContent>
     </Card>
   );

@@ -2,7 +2,7 @@ import { Grid } from "@mui/material";
 import Board from "./Board";
 import { useRef } from "react";
 
-export default function MainBoardArea({center, cells, ships, myShip, endpoints, setEndpoints, showCoordinateField, tempTravelEndpoint, setTempTravelEndpoint, tempShotEndpoint, setTempShotEndpoint, round}) {
+export default function MainBoardArea({center, cells, ships, myShip, endpoints, setEndpoints, showCoordinateField, tempTravelEndpoint, setTempTravelEndpoint, tempShotEndpoint, setTempShotEndpoint, round, gameState}) {
 
     const parentRef = useRef();
 
@@ -22,6 +22,7 @@ export default function MainBoardArea({center, cells, ships, myShip, endpoints, 
         tempShotEndpoint={tempShotEndpoint}
         setTempShotEndpoint={setTempShotEndpoint}
         round={round}
+        gameState={gameState}
       />
     </Grid>
   );

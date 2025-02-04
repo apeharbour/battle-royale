@@ -43,7 +43,7 @@ export default function Spectator() {
     });
 
   const { data: gameData } = useGameQuery((data) => {
-    console.log("Game Data:", data);
+    //console.log("Game Data:", data);
     return data.games;
   });
 

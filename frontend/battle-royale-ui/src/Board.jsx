@@ -57,6 +57,7 @@ export default function Board({
   tempShotEndpoint,
   setTempShotEndpoint,
   round,
+  gameState,
 }) {
   const [shipPathLength, setShipPathLength] = useState(0);
   const [shootPathLength, setShootPathLength] = useState(0);
@@ -142,6 +143,16 @@ export default function Board({
     }
   };
 
+  function handleShipClick(event, { q, r, s }) {
+    // Construct a mock source object that looks like what handleMouseClick expects
+    const mockSource = {
+      state: {
+        hex: { q, r, s },
+      },
+    };
+    handleMouseClick(event, mockSource);  // your existing logic
+  }
+
   useEffect(() => {
     if (dimensions) {
       setHexGridSize(
@@ -173,19 +184,19 @@ export default function Board({
   }, [tempTravelEndpoint, tempShotEndpoint]);
 
   useEffect(() => {
-    if (round !== null) {
-      // Trigger the animations based on the new round
-      setAnimationClass("animation-trigger");
-      setAnimationComplete(false);
-
-      const timer = setTimeout(() => {
-        setAnimationClass("");
-        setAnimationComplete(true);
-      }, 1000); // Match the animation duration
-
-      return () => clearTimeout(timer);
-    }
-  }, [round]);
+    if (round === null) return;
+  
+    // Trigger the animation
+    setAnimationClass("animation-trigger");
+    setAnimationComplete(false);
+  
+    const timer = setTimeout(() => {
+      setAnimationClass("");
+      setAnimationComplete(true);
+    }, 1000);
+  
+    return () => clearTimeout(timer);
+  }, [round, gameState]);  
 
   const layout = new Layout({
     size: hexagonSize,
@@ -366,6 +377,7 @@ export default function Board({
               className={`ship-${ship.address} ${
                 ship.state === "destroyed" ? "explosion" : animationClass
               }`}
+              onShipClick={handleShipClick}
             />
           ))}
         {myShip && myShip.state === "active" && (

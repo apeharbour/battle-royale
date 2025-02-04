@@ -1,4 +1,6 @@
+import React from "react";
 import { Hexagon } from "react-hexgrid";
+import removeYachtBackground from "./RemoveYachtBackground";
 
 const shortenAddress = (address) => {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
@@ -25,7 +27,6 @@ function Tooltip({ q, r, s, range, shotRange, kills, player }) {
         rx="2"
         ry="2"
       />
-
       <text
         x="-8"
         y="-8"
@@ -42,38 +43,51 @@ function Tooltip({ q, r, s, range, shotRange, kills, player }) {
 
 const showTooltip = (event, player) => {
   const tooltip = document.getElementById(`${player}-ship`);
-  tooltip.style.display = "block";
+  if (tooltip) tooltip.style.display = "block";
 };
 
 const hideTooltip = (player) => {
   const tooltip = document.getElementById(`${player}-ship`);
-  tooltip.style.display = "none";
+  if (tooltip) tooltip.style.display = "none";
 };
 
-export default function Ship({ ship, size }) {
+export default function Ship({ ship, size, onShipClick }) {
   const { q, r, s, mine, image, state } = ship;
 
-  const b64Image = image.split(",")[1];
-  const svgString = atob(b64Image);
-  const updatedSvgString = mine
-    ? svgString.replace(
-        /.border { fill: #fff }/g,
-        `.border { animation: colorChange 3s infinite ease-in-out; }
-         @keyframes colorChange { 0% { fill: #fff } 50% { fill: #ff0 } 100% { fill: #fff } }`
-      )
-    : svgString;
-  const b64UpdatedSvgString = btoa(updatedSvgString);
-  const dataURL = `data:image/svg+xml;base64,${b64UpdatedSvgString}`;
+  let processedDataUrl = removeYachtBackground(image);
 
+  // Example: If 'mine' is true, replace the .border fill to animate
+  try {
+    const base64Part = processedDataUrl.split(",")[1];
+    const svgString = atob(base64Part);
+    if (mine) {
+      const animatedSvgString = svgString.replace(
+        /.border\s*\{\s*fill:\s*#fff\s*\}/g,
+        `.border { 
+          animation: colorChange 3s infinite ease-in-out; 
+        }
+        @keyframes colorChange { 
+          0% { fill: #fff } 
+          50% { fill: #ff0 } 
+          100% { fill: #fff } 
+        }`
+      );
+      processedDataUrl = `data:image/svg+xml;base64,${btoa(animatedSvgString)}`;
+    }
+  } catch (error) {
+    console.error("Failed to inject border animation:", error);
+  }
+
+  // Apply destroyed styling if needed
   const imageStyle = {};
-
-  if (ship.state === "destroyed") {
-    imageStyle.filter = "grayscale(100%)";
+  if (state === "destroyed") {
+    imageStyle.filter = "grayscale(80%)";
     imageStyle.opacity = 0.5;
   }
 
   return (
     <g>
+      {/* Tooltip for the ship */}
       <Tooltip
         q={q}
         r={r}
@@ -83,23 +97,33 @@ export default function Ship({ ship, size }) {
         kills={ship.kills}
         player={ship.address}
       />
+
+      {/* The main hexagon representing the ship */}
       <Hexagon
         q={q}
         r={r}
         s={s}
-        key={ship.address}
         fill="none"
-        className={`ship-${ship.address}`}
-        onMouseOver={(event) => showTooltip(event, ship.address)}
+        style={{ pointerEvents: "auto" }} 
+        onMouseOver={(e) => showTooltip(e, ship.address)}
         onMouseOut={() => hideTooltip(ship.address)}
+        // Forward clicks to your board's logic
+        onClick={(e) => onShipClick(e, { q, r, s })}
       >
         <image
-          href={dataURL}
-          height={size.x}
-          transform={`translate(${(-size.x * (4 / 3)) / 2} ${-size.y / 2})`}
-          style={imageStyle}
+          href={processedDataUrl}
+          width={size.x * 2}
+          height={size.y * 2}
+          x={-size.x}
+          y={-size.y}
+          style={{
+            ...imageStyle,
+            pointerEvents: "none", // Only the image ignores clicks/hover
+          }}
         />
       </Hexagon>
+
+      {/* If there's a shot in progress, render the cannonball and explosion */}
       {ship.shot && ship.shot.origin && (
         <g>
           <Hexagon

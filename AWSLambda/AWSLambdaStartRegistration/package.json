@@ -1,7 +1,7 @@
 {
-  "name": "awslambdasubmitmoveupdateworld",
+  "name": "awslambdastartregistration",
   "version": "1.0.0",
-  "description": "Lambda to invoke submit move and update world functions of the contract for battle royale",
+  "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,9 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-kms": "^3.731.1",
-    "@aws-sdk/client-secrets-manager": "^3.521.0",
     "@rumblefishdev/eth-signer-kms": "^3.1.0",
-    "aws-sdk": "^2.1566.0",
+    "aws-sdk": "^2.1692.0",
     "ethers": "^5.7.2"
   }
 }

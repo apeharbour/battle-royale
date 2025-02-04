@@ -55,6 +55,15 @@ contract Registrationyarts is Ownable {
     bool public registrationClosed = true;
     uint256 public lastGameId;
     uint256 public registrationPhase;
+    address public kmsPublicAddress;
+
+    modifier onlyKmsOrOwner() {
+        require(
+            msg.sender == kmsPublicAddress || msg.sender == owner(),
+            "Caller is not owner or KMS"
+        );
+        _;
+    }
 
     struct Player {
         bool registered;
@@ -71,7 +80,12 @@ contract Registrationyarts is Ownable {
 
     fallback() external {}
 
-    function startRegistration() public onlyOwner {
+    // Function to set the KMS public address
+    function setKmsPublicAddress(address _kmsPublicAddress) external onlyOwner {
+        kmsPublicAddress = _kmsPublicAddress;
+    }
+
+    function startRegistration() public onlyKmsOrOwner {
         registrationPhase += 1;
         lastGameId += 1;
         registrationClosed = false;
@@ -100,33 +114,35 @@ contract Registrationyarts is Ownable {
         uint8 _maxPlayersPerGame,
         uint8 _radius,
         uint8 _mapShrink
-    ) public onlyOwner {
+    ) public onlyKmsOrOwner {
         registrationClosed = true;
-        uint8 gamePlayerCount = 0;
+        uint16 totalPlayers = uint16(registeredPlayerAddresses.length);
+        uint16 numberOfFullGames = totalPlayers / _maxPlayersPerGame;
+        uint16 currentIndex = 0;
 
-        for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
-            if (gamePlayerCount == 0) {
-                emit RegistrationClosed(registrationPhase, lastGameId);
-                gameyarts.startNewGame(lastGameId, _radius, _mapShrink);
+        for (uint16 gameCount = 0; gameCount < numberOfFullGames; gameCount++) {
+            emit RegistrationClosed(registrationPhase, lastGameId);
+            gameyarts.startNewGame(lastGameId, _radius, _mapShrink);
+
+            for (uint16 i = 0; i < _maxPlayersPerGame; i++) {
+                address playerAddress = registeredPlayerAddresses[currentIndex];
+                Player storage player = registeredPlayers[playerAddress];
+
+                gameyarts.addShip(
+                    playerAddress,
+                    lastGameId,
+                    player.yartsshipId
+                );
+                emit PlayerAdded(
+                    registrationPhase,
+                    playerAddress,
+                    lastGameId,
+                    player.yartsshipId
+                );
+
+                currentIndex++;
             }
-
-            address playerAddress = registeredPlayerAddresses[i];
-            Player storage player = registeredPlayers[playerAddress];
-
-            gameyarts.addShip(playerAddress, lastGameId, player.yartsshipId);
-            emit PlayerAdded(
-                registrationPhase,
-                playerAddress,
-                lastGameId,
-                player.yartsshipId
-            );
-
-            gamePlayerCount++;
-
-            if (gamePlayerCount == _maxPlayersPerGame) {
-                lastGameId++;
-                gamePlayerCount = 0;
-            }
+            lastGameId++;
         }
     }
 }
