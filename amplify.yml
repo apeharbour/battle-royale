@@ -6,7 +6,7 @@ applications:
       phases:
         preBuild:
           commands:
-            - npm -g install pnpm
+            - npm -g install pnpm@8.15.4
             - pnpm --filter battle-royale-ui install --frozen-lockfile
         build:
           commands:
