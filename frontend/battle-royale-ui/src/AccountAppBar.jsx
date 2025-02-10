@@ -83,13 +83,13 @@ export default function AccountAppBar({ toggleDarkMode }) {
         {address && (
           <Button
             color="inherit"
-            onClick={() => navigate("/listgames")}
+            onClick={() => navigate("/activegames")}
             sx={{
               marginLeft: 2,
               "& .MuiButton-label": {
                 fontSize: "1rem",
               },
-              ...(isActiveRoute("/listgames") ? activeButtonStyle : {}),
+              ...(isActiveRoute("/activegames") ? activeButtonStyle : {}),
             }}
           >
             Active Games

@@ -79,7 +79,7 @@ const registrationQuery = gql`
   }
 `;
 
-export default function ListGames(props) {
+export default function ActiveGames(props) {
   const { address } = useAccount();
   const { data: blockNumber } = useBlockNumber({ watch: true });
 
@@ -117,6 +117,7 @@ export default function ListGames(props) {
           {}
         ),
       select,
+      refetchInterval: 10000,
     });
 
   const useRegiState = () =>
@@ -340,7 +341,7 @@ export default function ListGames(props) {
                       onClick={() => handleButtonClick(game.gameId)}
                       disabled={game.state !== "active"}
                     >
-                      Show
+                      Play
                     </HolographicButtonBlue>
                   </CardActions>
                 </Card>

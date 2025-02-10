@@ -162,7 +162,7 @@ export default function Registration(props) {
       <Grid container spacing={2} p={4}>
         <Grid item size={12}>
           <Grid container justifyContent="center" alignItems="center">
-            <Grid item size={12}>
+            <Grid item size={4}>
               <Box
                 sx={{
                   border: `1px solid ${noteColor}`,

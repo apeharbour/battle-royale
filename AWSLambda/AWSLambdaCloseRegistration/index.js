@@ -66,7 +66,7 @@ async function callAfterGameCreatedAPI(gameId) {
 
   const postData = {
     gameId: gameId.toString(),
-    scheduleRate: "3 minutes",
+    scheduleRate: "2 minutes",
   };
 
   const headers = {

@@ -62,8 +62,15 @@ export default function SpectateBoard({
 
   const { enqueueSnackbar } = useSnackbar();
 
-  // console.log("My ship", myShip);
-  // console.log("Ships", ships);
+  // console.log("Game state: ", gameState);
+  // console.log("Round: ", round);
+  // console.log("Temp travel endpoint: ", tempTravelEndpoint);
+  // console.log("Temp shot endpoint: ", tempShotEndpoint);
+  console.log("Path Length: ", shipPathLength);
+  console.log("Shoot Path Length: ", shootPathLength);
+  console.log("Ship: ", myShip);
+  console.log("All Ships: ", ships);
+
 
   const calcSize = ({ x, y }, radius, maxRadius) => {
     const factor = 0.9;
@@ -92,6 +99,21 @@ export default function SpectateBoard({
     }
   };
 
+  const layout = new Layout({
+    size: hexagonSize,
+    spacing: 1.02,
+    flat: false,
+    origin: { x: 0, y: 0 },
+  });
+  const shift = HexUtils.hexToPixel(center, layout.props.value.layout);
+  shift.x *= -1;
+  shift.y *= -1;
+
+  const lengthOneHex = HexUtils.hexToPixel(
+    new Hex(1, 0, -1),
+    layout.props.value.layout
+  ).x;
+
   useEffect(() => {
     if (dimensions) {
       setHexGridSize(
@@ -112,7 +134,7 @@ export default function SpectateBoard({
       const newLength = HexUtils.distance(myShipHex, endPtHex) * lengthOneHex;
       setShipPathLength(newLength);
     }
-  }, [tempTravelEndpoint]);
+  }, [myShip, tempTravelEndpoint]);
 
   useEffect(() => {
     if (tempTravelEndpoint && tempShotEndpoint) {
@@ -136,21 +158,6 @@ export default function SpectateBoard({
   
     return () => clearTimeout(timer);
   }, [round, gameState]); 
-
-  const layout = new Layout({
-    size: hexagonSize,
-    spacing: 1.02,
-    flat: false,
-    origin: { x: 0, y: 0 },
-  });
-  const shift = HexUtils.hexToPixel(center, layout.props.value.layout);
-  shift.x *= -1;
-  shift.y *= -1;
-
-  const lengthOneHex = HexUtils.hexToPixel(
-    new Hex(1, 0, -1),
-    layout.props.value.layout
-  ).x;
 
   const shipStyles = ships
   .map((ship) => {

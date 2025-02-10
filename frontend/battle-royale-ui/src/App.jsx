@@ -8,7 +8,7 @@ import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
 
 import "./App.css";
 import Homepage from "./Homepage";
-import ListGames from "./ListGames";
+import ActiveGames from "./ActiveGames.jsx";
 import Game from "./Game";
 import Admin from "./Admin";
 import AccountAppBar from "./AccountAppBar";
@@ -77,7 +77,7 @@ function App() {
               <Route path="/:gameId/cov" element={<CoV_Data />} />
               <Route path="/cov/:gameId" element={<Cov />} />
               <Route path="/admin" element={<Admin />} />
-              <Route path="/listgames" element={<ListGames />} />
+              <Route path="/activegames" element={<ActiveGames />} />
               <Route path="/registration" element={<Registration />} />
               <Route path="/halloffame" element={<HallOfFame />} />
               <Route path="/spectator" element={<Spectator />} />

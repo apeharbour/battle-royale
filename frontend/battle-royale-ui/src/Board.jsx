@@ -67,6 +67,15 @@ export default function Board({
 
   const { enqueueSnackbar } = useSnackbar();
 
+  // console.log("Game state: ", gameState);
+  // console.log("Round: ", round);
+  // console.log("Temp travel endpoint: ", tempTravelEndpoint);
+  // console.log("Temp shot endpoint: ", tempShotEndpoint);
+  // console.log("Endpoints: ", endpoints);
+   console.log("Path Length: ", shipPathLength);
+   console.log("Shoot Path Length: ", shootPathLength);
+
+
   const calcSize = ({ x, y }, radius, maxRadius) => {
     const factor = 0.9;
     return {
@@ -153,6 +162,22 @@ export default function Board({
     handleMouseClick(event, mockSource);  // your existing logic
   }
 
+  const layout = new Layout({
+    size: hexagonSize,
+    spacing: 1.02,
+    flat: false,
+    origin: { x: 0, y: 0 },
+  });
+
+  const shift = HexUtils.hexToPixel(center, layout.props.value.layout);
+  shift.x *= -1;
+  shift.y *= -1;
+
+  const lengthOneHex = HexUtils.hexToPixel(
+    new Hex(1, 0, -1),
+    layout.props.value.layout
+  ).x;
+
   useEffect(() => {
     if (dimensions) {
       setHexGridSize(
@@ -173,7 +198,7 @@ export default function Board({
       const newLength = HexUtils.distance(myShipHex, endPtHex) * lengthOneHex;
       setShipPathLength(newLength);
     }
-  }, [tempTravelEndpoint]);
+  }, [myShip, tempTravelEndpoint]);
 
   useEffect(() => {
     if (tempTravelEndpoint && tempShotEndpoint) {
@@ -197,22 +222,6 @@ export default function Board({
   
     return () => clearTimeout(timer);
   }, [round, gameState]);  
-
-  const layout = new Layout({
-    size: hexagonSize,
-    spacing: 1.02,
-    flat: false,
-    origin: { x: 0, y: 0 },
-  });
-
-  const shift = HexUtils.hexToPixel(center, layout.props.value.layout);
-  shift.x *= -1;
-  shift.y *= -1;
-
-  const lengthOneHex = HexUtils.hexToPixel(
-    new Hex(1, 0, -1),
-    layout.props.value.layout
-  ).x;
 
   // Generate styles for ship movements and cannon shots
   useEffect(() => {

@@ -1,11 +1,14 @@
 // ShipPath.jsx
 import React, { useRef, useEffect, useState } from "react";
 import { HexUtils, Path } from "react-hexgrid";
-import removeYachtBackground from "./RemoveYachtBackground.jsx"; // <-- import your function here
+import removeYachtBackground from "./RemoveYachtBackground.jsx";
 
 export default function ShipPath({ start, end, ship, size, ...props }) {
   const pathRef = useRef(null);
 
+  // console.log("Start: ", start);
+  // console.log("End: ", end);
+  // console.log("Ship: ", ship);
   // We'll keep the processed ship image in state
   const [processedShip, setProcessedShip] = useState(ship);
 

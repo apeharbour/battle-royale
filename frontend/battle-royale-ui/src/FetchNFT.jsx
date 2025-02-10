@@ -17,6 +17,8 @@ function FetchNFT({ tokenId }) {
     args: [tokenId],
   });
 
+  console.log("Token Data:", tokenUri);
+
   const { data: islands } = useReadContract({
     address: COV_ADDRESS,
     abi: COV_ABI,

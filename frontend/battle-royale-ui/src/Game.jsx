@@ -21,6 +21,7 @@ import MainBoardArea from "./MainBoardArea.jsx";
 import Timer from "./Timer.jsx";
 import CommitMoveButton from "./CommitMoveButton.jsx";
 import GameStatus from "./GameStatus.jsx";
+import GameStatuss from "./GameStatuss.jsx";
 import LastRoundResults from "./LastRoundResults.jsx";
 
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
@@ -88,6 +89,7 @@ const gameQuery = gql`
         shotRange
         state
         kills
+        tokenId
         image
         killedInRound {
           round
@@ -473,6 +475,7 @@ export default function Game(props) {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            Authorization: "battleroyale",
           },
           body: JSON.stringify({ gameId }),
         }
@@ -554,17 +557,24 @@ export default function Game(props) {
               mapShrink={mapShrink}
               gameState={gameState}
             />
+            {playerStateDialogOpen && (
+            <GameStatuss
+              winner={winner}
+              playerState={playerState}
+              setPlayerStateDialogOpen={setPlayerStateDialogOpen}
+            />
+          )}
           </Stack>
         </Grid>
       </Grid>
-       {playerStateDialogOpen && (
+       {/* {playerStateDialogOpen && (
         <GameStatus
           playerStateDialogOpen={playerStateDialogOpen}
           winner={winner}
           playerState={playerState}
           setPlayerStateDialogOpen={setPlayerStateDialogOpen}
         />
-      )}
+      )}  */}
     </Fragment>
   );
 }

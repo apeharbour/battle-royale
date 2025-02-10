@@ -139,7 +139,7 @@ export default function RegisterShipButton({
       console.log(`Ship ${shipId} registered`, receipt);
       setTxInFlight(false); // Reset after success to prevent re-triggering
       setRegistrationDialogOpen(false);
-      navigate("/listgames");
+      navigate("/activegames");
     }
   }, [isConfirmed, txInFlight]);
 
