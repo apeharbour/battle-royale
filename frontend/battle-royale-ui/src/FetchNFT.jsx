@@ -1,13 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import { Box, Typography } from "@mui/material";
 
-// Replace with your contract address (ensure this matches your network)
 const COV_ADDRESS = import.meta.env.VITE_COV_ADDRESS;
 
-// Minimal ABI that includes tokenURI with its output type defined
-const minimalAbi = [
-  "function tokenURI(uint256 tokenId) view returns (string)"
-];
+const minimalAbi = ["function tokenURI(uint256 tokenId) view returns (string)"];
 
 function FetchNFT({ tokenId }) {
   const [metadata, setMetadata] = useState(null);
@@ -19,22 +16,19 @@ function FetchNFT({ tokenId }) {
       try {
         setLoading(true);
 
-        // Create a provider.
-        // If using an injected provider like MetaMask:
         if (!window.ethereum) {
           throw new Error("No Ethereum provider found");
         }
         const provider = new ethers.BrowserProvider(window.ethereum);
 
-        // Create a contract instance using the minimal ABI
         const contract = new ethers.Contract(COV_ADDRESS, minimalAbi, provider);
 
-        // Call the tokenURI function
         const tokenUri = await contract.tokenURI(tokenId);
-        // console.log("tokenURI:", tokenUri);
-
-        // Remove the prefix and decode the Base64 string
-        const base64Json = tokenUri.replace("data:application/json;base64,", "");
+    
+        const base64Json = tokenUri.replace(
+          "data:application/json;base64,",
+          ""
+        );
         const jsonString = atob(base64Json);
         const data = JSON.parse(jsonString);
 
@@ -57,11 +51,22 @@ function FetchNFT({ tokenId }) {
   if (!metadata) return <div>No metadata found.</div>;
 
   return (
-    <div>
-      <h2>{metadata.name}</h2>
-      <img src={metadata.image} alt={metadata.name} style={{ maxWidth: "300px" }} />
-      <p>{metadata.description}</p>
-    </div>
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      textAlign="center"
+    >
+      <Box
+        component="img"
+        src={metadata.image}
+        alt={metadata.name}
+        sx={{ maxWidth: "600px", mt: 2 }}
+      />
+       <Typography variant="h2">{metadata.name}</Typography>
+    </Box>
+    
   );
 }
 

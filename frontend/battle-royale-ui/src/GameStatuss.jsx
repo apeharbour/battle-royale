@@ -82,7 +82,7 @@ export default function GameStatuss({ winner, playerState, gameId }) {
                 Kills: {winner.kills}
               </Typography>
             </Box>
-            <Box flexGrow={1}>
+            <Box flexGrow={1} display="flex" justifyContent="center" alignItems="center">
               <Button
                 onClick={() => (window.location.href = `/cov/${gameId}`)}
               >
