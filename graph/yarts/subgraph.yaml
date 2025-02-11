@@ -9,8 +9,8 @@ dataSources:
     network: apechain-curtis
     source:
       abi: Yarts
-      address: "0xd4776456963BCBf7471803C7D41bbD32Ee7611C7"
-      startBlock: 14932127
+      address: "0xe52296CfB31C20B7424EA77ece52d415756Ba78b"
+      startBlock: 15623492
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

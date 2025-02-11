@@ -11,368 +11,368 @@ const kmsKeyId =
 
 const REGISTRATION_ABI = [
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "_gameyartsAddress",
-        type: "address",
+        "internalType": "address",
+        "name": "_gameyartsAddress",
+        "type": "address"
       },
       {
-        internalType: "address",
-        name: "_yartsAddress",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "_yartsAddress",
+        "type": "address"
+      }
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
     ],
-    name: "OwnableInvalidOwner",
-    type: "error",
+    "name": "OwnableInvalidOwner",
+    "type": "error"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
-    name: "OwnableUnauthorizedAccount",
-    type: "error",
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
   },
   {
-    inputs: [],
-    name: "PlayerAlreadyRegisteredError",
-    type: "error",
+    "inputs": [],
+    "name": "PlayerAlreadyRegisteredError",
+    "type": "error"
   },
   {
-    inputs: [],
-    name: "PlayerNotOwnerOfShipError",
-    type: "error",
+    "inputs": [],
+    "name": "PlayerNotOwnerOfShipError",
+    "type": "error"
   },
   {
-    inputs: [],
-    name: "RegistrationClosedError",
-    type: "error",
+    "inputs": [],
+    "name": "RegistrationClosedError",
+    "type": "error"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "previousOwner",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
-    name: "OwnershipTransferred",
-    type: "event",
+    "name": "OwnershipTransferred",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "registrationPhase",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "registrationPhase",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "address",
-        name: "player",
-        type: "address",
+        "indexed": false,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "yartsshipId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "yartsshipId",
+        "type": "uint256"
+      }
     ],
-    name: "PlayerAdded",
-    type: "event",
+    "name": "PlayerAdded",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "registrationPhase",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "registrationPhase",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "address",
-        name: "player",
-        type: "address",
+        "indexed": false,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "yartsshipId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "yartsshipId",
+        "type": "uint256"
+      }
     ],
-    name: "PlayerRegistered",
-    type: "event",
+    "name": "PlayerRegistered",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "registrationPhase",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "registrationPhase",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "RegistrationClosed",
-    type: "event",
+    "name": "RegistrationClosed",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "registrationPhase",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "registrationPhase",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "firstGameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "firstGameId",
+        "type": "uint256"
+      }
     ],
-    name: "RegistrationStarted",
-    type: "event",
+    "name": "RegistrationStarted",
+    "type": "event"
   },
   {
-    stateMutability: "nonpayable",
-    type: "fallback",
+    "stateMutability": "nonpayable",
+    "type": "fallback"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint8",
-        name: "_maxPlayersPerGame",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "_maxPlayersPerGame",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "_radius",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "_radius",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "_mapShrink",
-        type: "uint8",
-      },
+        "internalType": "uint8",
+        "name": "_mapShrink",
+        "type": "uint8"
+      }
     ],
-    name: "closeRegistration",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "closeRegistration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "gameyarts",
-    outputs: [
+    "inputs": [],
+    "name": "gameyarts",
+    "outputs": [
       {
-        internalType: "contract IGameyarts",
-        name: "",
-        type: "address",
-      },
+        "internalType": "contract IGameyarts",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "kmsPublicAddress",
-    outputs: [
+    "inputs": [],
+    "name": "kmsPublicAddress",
+    "outputs": [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "lastGameId",
-    outputs: [
+    "inputs": [],
+    "name": "lastGameId",
+    "outputs": [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "owner",
-    outputs: [
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "_yartsshipId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "_yartsshipId",
+        "type": "uint256"
+      }
     ],
-    name: "registerPlayer",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "registerPlayer",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    name: "registeredPlayers",
-    outputs: [
+    "name": "registeredPlayers",
+    "outputs": [
       {
-        internalType: "bool",
-        name: "registered",
-        type: "bool",
+        "internalType": "bool",
+        "name": "registered",
+        "type": "bool"
       },
       {
-        internalType: "uint256",
-        name: "yartsshipId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "yartsshipId",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "registrationClosed",
-    outputs: [
+    "inputs": [],
+    "name": "registrationClosed",
+    "outputs": [
       {
-        internalType: "bool",
-        name: "",
-        type: "bool",
-      },
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "registrationPhase",
-    outputs: [
+    "inputs": [],
+    "name": "registrationPhase",
+    "outputs": [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "renounceOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "_kmsPublicAddress",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "_kmsPublicAddress",
+        "type": "address"
+      }
     ],
-    name: "setKmsPublicAddress",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "setKmsPublicAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "startRegistration",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "inputs": [],
+    "name": "startRegistration",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
-    name: "transferOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "yarts",
-    outputs: [
+    "inputs": [],
+    "name": "yarts",
+    "outputs": [
       {
-        internalType: "contract Iyarts",
-        name: "",
-        type: "address",
-      },
+        "internalType": "contract Iyarts",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
-  },
+    "stateMutability": "view",
+    "type": "function"
+  }
 ];
-const REGISTRATION_ADDRESS = "0x6900587f9f11E558278ADF1CC01Bf975B108Fa10";
+const REGISTRATION_ADDRESS = "0x3849aAE75527d741a68E13EaD42AB32Aba30B2b8";
 
 const rpcUrl = "https://curtis.rpc.caldera.xyz/http";
 

@@ -503,39 +503,6 @@ contract Gameyarts is Ownable {
     function updateWorld(uint256 gameId) public onlyKmsOrOwner {
         require(games[gameId].gameInProgress, "not started");
 
-        // Shrink map every [mapShrink] rounds
-        uint8 currentRadius = map.gameRadii(gameId);
-        if (currentRadius > 1 && (games[gameId].round % games[gameId].mapShrink == 0)) {
-            SharedStructs.Coordinate[] memory deletedCells = map
-                .deleteOutermostRing(gameId);
-            games[gameId].shrinkNo++;
-            emit MapShrink(gameId);
-            for (uint8 i = 0; i < deletedCells.length; i++) {
-                emit CellDeleted(gameId, deletedCells[i].q, deletedCells[i].r);
-            }
-
-            // Sink players outside the invalid map cells
-            uint256 i = games[gameId].players.length;
-            while (i > 0) {
-                i--;
-                address player = games[gameId].players[i];
-                SharedStructs.Coordinate memory shipCoord = games[gameId]
-                    .ships[player]
-                    .coordinate;
-
-                if (isShipOutsideMap(shipCoord, gameId)) {
-                    emit ShipSunkOutOfMap(player, gameId);
-                    sinkShip(player, gameId);
-
-                    // Remove the player from the array
-                    games[gameId].players[i] = games[gameId].players[
-                        games[gameId].players.length - 1
-                    ];
-                    games[gameId].players.pop();
-                }
-            }
-        }
-
         // Initialize shot destinations and active status
         SharedStructs.Coordinate[]
             memory shotDestinations = new SharedStructs.Coordinate[](
@@ -820,6 +787,38 @@ contract Gameyarts is Ownable {
                 mastColor
             );
         } else {
+              // Shrink map every [mapShrink] rounds
+        uint8 currentRadius = map.gameRadii(gameId);
+        if (currentRadius > 1 && (games[gameId].round % games[gameId].mapShrink == 0)) {
+            SharedStructs.Coordinate[] memory deletedCells = map
+                .deleteOutermostRing(gameId);
+            games[gameId].shrinkNo++;
+            emit MapShrink(gameId);
+            for (uint8 i = 0; i < deletedCells.length; i++) {
+                emit CellDeleted(gameId, deletedCells[i].q, deletedCells[i].r);
+            }
+
+            // Sink players outside the invalid map cells
+            uint256 i = games[gameId].players.length;
+            while (i > 0) {
+                i--;
+                address player = games[gameId].players[i];
+                SharedStructs.Coordinate memory shipCoord = games[gameId]
+                    .ships[player]
+                    .coordinate;
+
+                if (isShipOutsideMap(shipCoord, gameId)) {
+                    emit ShipSunkOutOfMap(player, gameId);
+                    sinkShip(player, gameId);
+
+                    // Remove the player from the array
+                    games[gameId].players[i] = games[gameId].players[
+                        games[gameId].players.length - 1
+                    ];
+                    games[gameId].players.pop();
+                }
+            }
+        }
             emit GameUpdated(false, games[gameId].players[0], gameId);
             for (uint256 i = 0; i < games[gameId].players.length; i++) {
                 Ship storage ship = games[gameId].ships[

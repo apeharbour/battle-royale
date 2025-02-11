@@ -7,8 +7,8 @@ dataSources:
     network: apechain-curtis
     source:
       abi: Gameyarts
-      address: "0x74e510da39803508f9029c9b7B25B0E54cd3dEA0"
-      startBlock: 14932137
+      address: "0x499a01c9908CFfA9d29FA36943641c476ed31D57"
+      startBlock: 15623515
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

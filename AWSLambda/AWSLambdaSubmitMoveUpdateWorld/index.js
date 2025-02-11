@@ -20,1326 +20,1326 @@ const apiGwManagementApi = new AWS.ApiGatewayManagementApi({
 
 const contractABI = [
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "_mapAddress",
-        type: "address",
+        "internalType": "address",
+        "name": "_mapAddress",
+        "type": "address"
       },
       {
-        internalType: "address",
-        name: "_yartsshipsAddress",
-        type: "address",
+        "internalType": "address",
+        "name": "_yartsshipsAddress",
+        "type": "address"
       },
       {
-        internalType: "address",
-        name: "_covAddress",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "_covAddress",
+        "type": "address"
+      }
     ],
-    stateMutability: "nonpayable",
-    type: "constructor",
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "player",
-        type: "address",
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "tokenId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
     ],
-    name: "NotOwnerOfShip",
-    type: "error",
+    "name": "NotOwnerOfShip",
+    "type": "error"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "owner",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "owner",
+        "type": "address"
+      }
     ],
-    name: "OwnableInvalidOwner",
-    type: "error",
+    "name": "OwnableInvalidOwner",
+    "type": "error"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "account",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
     ],
-    name: "OwnableUnauthorizedAccount",
-    type: "error",
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "player",
-        type: "address",
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
       },
       {
-        internalType: "uint8",
-        name: "q",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "r",
-        type: "uint8",
-      },
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
+      }
     ],
-    name: "ShipAlreadyAdded",
-    type: "error",
+    "name": "ShipAlreadyAdded",
+    "type": "error"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "q",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "r",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "bool",
-        name: "island",
-        type: "bool",
-      },
+        "indexed": false,
+        "internalType": "bool",
+        "name": "island",
+        "type": "bool"
+      }
     ],
-    name: "Cell",
-    type: "event",
+    "name": "Cell",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "q",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "r",
-        type: "uint8",
-      },
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
+      }
     ],
-    name: "CellDeleted",
-    type: "event",
+    "name": "CellDeleted",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "CommitPhaseStarted",
-    type: "event",
+    "name": "CommitPhaseStarted",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "GameEnded",
-    type: "event",
+    "name": "GameEnded",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "GameStarted",
-    type: "event",
+    "name": "GameStarted",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "bool",
-        name: "gameStatus",
-        type: "bool",
+        "indexed": true,
+        "internalType": "bool",
+        "name": "gameStatus",
+        "type": "bool"
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "winnerAddress",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "winnerAddress",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "GameUpdated",
-    type: "event",
+    "name": "GameUpdated",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "winner",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "winner",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "GameWinner",
-    type: "event",
+    "name": "GameWinner",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "radius",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "radius",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "mapShrink",
-        type: "uint8",
-      },
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "mapShrink",
+        "type": "uint8"
+      }
     ],
-    name: "MapInitialized",
-    type: "event",
+    "name": "MapInitialized",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "MapShrink",
-    type: "event",
+    "name": "MapShrink",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "player",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "bytes32",
-        name: "moveHash",
-        type: "bytes32",
-      },
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "moveHash",
+        "type": "bytes32"
+      }
     ],
-    name: "MoveCommitted",
-    type: "event",
+    "name": "MoveCommitted",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "player",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "roundId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "roundId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "destQ",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "destQ",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "destR",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "destR",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "shotQ",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "shotQ",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "shotR",
-        type: "uint8",
-      },
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "shotR",
+        "type": "uint8"
+      }
     ],
-    name: "MoveSubmitted",
-    type: "event",
+    "name": "MoveSubmitted",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "address[]",
-        name: "players",
-        type: "address[]",
+        "indexed": false,
+        "internalType": "address[]",
+        "name": "players",
+        "type": "address[]"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "MutualShot",
-    type: "event",
+    "name": "MutualShot",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "roundId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "roundId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "radius",
-        type: "uint8",
-      },
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "radius",
+        "type": "uint8"
+      }
     ],
-    name: "NewRound",
-    type: "event",
+    "name": "NewRound",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "previousOwner",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
-    name: "OwnershipTransferred",
-    type: "event",
+    "name": "OwnershipTransferred",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "player",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "yartsshipId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "yartsshipId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "q",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "r",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "speed",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "speed",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "range",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "range",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "string",
-        name: "image",
-        type: "string",
-      },
+        "indexed": false,
+        "internalType": "string",
+        "name": "image",
+        "type": "string"
+      }
     ],
-    name: "PlayerAdded",
-    type: "event",
+    "name": "PlayerAdded",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "player",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "PlayerDefeated",
-    type: "event",
+    "name": "PlayerDefeated",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "captain",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "captain",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "q",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "r",
-        type: "uint8",
-      },
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
+      }
     ],
-    name: "ShipCollidedWithIsland",
-    type: "event",
+    "name": "ShipCollidedWithIsland",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "victim",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "victim",
+        "type": "address"
       },
       {
-        indexed: true,
-        internalType: "address",
-        name: "attacker",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "attacker",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "ShipHit",
-    type: "event",
+    "name": "ShipHit",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "captain",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "captain",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "initialQ",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "initialQ",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "initialR",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "initialR",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "q",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "q",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "r",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "r",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "ShipMoved",
-    type: "event",
+    "name": "ShipMoved",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "captain",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "captain",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "ShipMovedInGame",
-    type: "event",
+    "name": "ShipMovedInGame",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "captain",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "captain",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "fromQ",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "fromQ",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "fromR",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "fromR",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "shotQ",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "shotQ",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint8",
-        name: "shotR",
-        type: "uint8",
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "shotR",
+        "type": "uint8"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "ShipShot",
-    type: "event",
+    "name": "ShipShot",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "captain",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "captain",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "ShipSunk",
-    type: "event",
+    "name": "ShipSunk",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: true,
-        internalType: "address",
-        name: "captain",
-        type: "address",
+        "indexed": true,
+        "internalType": "address",
+        "name": "captain",
+        "type": "address"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "ShipSunkOutOfMap",
-    type: "event",
+    "name": "ShipSunkOutOfMap",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "round",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "round",
+        "type": "uint256"
+      }
     ],
-    name: "SubmitPhaseStarted",
-    type: "event",
+    "name": "SubmitPhaseStarted",
+    "type": "event"
   },
   {
-    anonymous: false,
-    inputs: [
+    "anonymous": false,
+    "inputs": [
       {
-        indexed: false,
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "WorldUpdated",
-    type: "event",
+    "name": "WorldUpdated",
+    "type": "event"
   },
   {
-    stateMutability: "nonpayable",
-    type: "fallback",
+    "stateMutability": "nonpayable",
+    "type": "fallback"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "playerAddress",
-        type: "address",
+        "internalType": "address",
+        "name": "playerAddress",
+        "type": "address"
       },
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
       },
       {
-        internalType: "uint256",
-        name: "_yartsshipId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "_yartsshipId",
+        "type": "uint256"
+      }
     ],
-    name: "addShip",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "addShip",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "bytes32",
-        name: "moveHash",
-        type: "bytes32",
+        "internalType": "bytes32",
+        "name": "moveHash",
+        "type": "bytes32"
       },
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "commitMove",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "commitMove",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "enum SharedStructs.Directions",
-        name: "_travelDirection",
-        type: "uint8",
+        "internalType": "enum SharedStructs.Directions",
+        "name": "_travelDirection",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "_travelDistance",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "_travelDistance",
+        "type": "uint8"
       },
       {
-        internalType: "enum SharedStructs.Directions",
-        name: "_shotDirection",
-        type: "uint8",
+        "internalType": "enum SharedStructs.Directions",
+        "name": "_shotDirection",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "_shotDistance",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "_shotDistance",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "_secret",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "_secret",
+        "type": "uint8"
       },
       {
-        internalType: "address",
-        name: "_playerAddress",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "_playerAddress",
+        "type": "address"
+      }
     ],
-    name: "encodeCommitment",
-    outputs: [
+    "name": "encodeCommitment",
+    "outputs": [
       {
-        internalType: "bytes32",
-        name: "",
-        type: "bytes32",
-      },
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
     ],
-    stateMutability: "pure",
-    type: "function",
+    "stateMutability": "pure",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
     ],
-    name: "games",
-    outputs: [
+    "name": "games",
+    "outputs": [
       {
-        internalType: "uint256",
-        name: "round",
-        type: "uint256",
+        "internalType": "uint256",
+        "name": "round",
+        "type": "uint256"
       },
       {
-        internalType: "uint8",
-        name: "shrinkNo",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "shrinkNo",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "mapShrink",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "mapShrink",
+        "type": "uint8"
       },
       {
-        internalType: "bool",
-        name: "gameInProgress",
-        type: "bool",
+        "internalType": "bool",
+        "name": "gameInProgress",
+        "type": "bool"
       },
       {
-        internalType: "bool",
-        name: "stopAddingShips",
-        type: "bool",
+        "internalType": "bool",
+        "name": "stopAddingShips",
+        "type": "bool"
       },
       {
-        internalType: "bool",
-        name: "letCommitMoves",
-        type: "bool",
+        "internalType": "bool",
+        "name": "letCommitMoves",
+        "type": "bool"
       },
       {
-        internalType: "bool",
-        name: "letSubmitMoves",
-        type: "bool",
-      },
+        "internalType": "bool",
+        "name": "letSubmitMoves",
+        "type": "bool"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        components: [
+        "components": [
           {
-            internalType: "uint8",
-            name: "q",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "q",
+            "type": "uint8"
           },
           {
-            internalType: "uint8",
-            name: "r",
-            type: "uint8",
-          },
+            "internalType": "uint8",
+            "name": "r",
+            "type": "uint8"
+          }
         ],
-        internalType: "struct SharedStructs.Coordinate",
-        name: "_coord",
-        type: "tuple",
+        "internalType": "struct SharedStructs.Coordinate",
+        "name": "_coord",
+        "type": "tuple"
       },
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "getCell",
-    outputs: [
+    "name": "getCell",
+    "outputs": [
       {
-        components: [
+        "components": [
           {
-            internalType: "uint8",
-            name: "q",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "q",
+            "type": "uint8"
           },
           {
-            internalType: "uint8",
-            name: "r",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "r",
+            "type": "uint8"
           },
           {
-            internalType: "bool",
-            name: "island",
-            type: "bool",
+            "internalType": "bool",
+            "name": "island",
+            "type": "bool"
           },
           {
-            internalType: "bool",
-            name: "exists",
-            type: "bool",
-          },
+            "internalType": "bool",
+            "name": "exists",
+            "type": "bool"
+          }
         ],
-        internalType: "struct SharedStructs.Cell",
-        name: "",
-        type: "tuple",
-      },
+        "internalType": "struct SharedStructs.Cell",
+        "name": "",
+        "type": "tuple"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "getCoordinates",
-    outputs: [
+    "name": "getCoordinates",
+    "outputs": [
       {
-        components: [
+        "components": [
           {
-            internalType: "uint8",
-            name: "q",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "q",
+            "type": "uint8"
           },
           {
-            internalType: "uint8",
-            name: "r",
-            type: "uint8",
-          },
+            "internalType": "uint8",
+            "name": "r",
+            "type": "uint8"
+          }
         ],
-        internalType: "struct SharedStructs.Coordinate[]",
-        name: "",
-        type: "tuple[]",
-      },
+        "internalType": "struct SharedStructs.Coordinate[]",
+        "name": "",
+        "type": "tuple[]"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "getIslands",
-    outputs: [
+    "name": "getIslands",
+    "outputs": [
       {
-        internalType: "uint8[]",
-        name: "IslandsQ",
-        type: "uint8[]",
+        "internalType": "uint8[]",
+        "name": "IslandsQ",
+        "type": "uint8[]"
       },
       {
-        internalType: "uint8[]",
-        name: "IslandsR",
-        type: "uint8[]",
-      },
+        "internalType": "uint8[]",
+        "name": "IslandsR",
+        "type": "uint8[]"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "getRadius",
-    outputs: [
+    "name": "getRadius",
+    "outputs": [
       {
-        internalType: "uint8",
-        name: "",
-        type: "uint8",
-      },
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "getShips",
-    outputs: [
+    "name": "getShips",
+    "outputs": [
       {
-        components: [
+        "components": [
           {
-            components: [
+            "components": [
               {
-                internalType: "uint8",
-                name: "q",
-                type: "uint8",
+                "internalType": "uint8",
+                "name": "q",
+                "type": "uint8"
               },
               {
-                internalType: "uint8",
-                name: "r",
-                type: "uint8",
-              },
+                "internalType": "uint8",
+                "name": "r",
+                "type": "uint8"
+              }
             ],
-            internalType: "struct SharedStructs.Coordinate",
-            name: "coordinate",
-            type: "tuple",
+            "internalType": "struct SharedStructs.Coordinate",
+            "name": "coordinate",
+            "type": "tuple"
           },
           {
-            internalType: "enum SharedStructs.Directions",
-            name: "travelDirection",
-            type: "uint8",
+            "internalType": "enum SharedStructs.Directions",
+            "name": "travelDirection",
+            "type": "uint8"
           },
           {
-            internalType: "uint8",
-            name: "travelDistance",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "travelDistance",
+            "type": "uint8"
           },
           {
-            internalType: "enum SharedStructs.Directions",
-            name: "shotDirection",
-            type: "uint8",
+            "internalType": "enum SharedStructs.Directions",
+            "name": "shotDirection",
+            "type": "uint8"
           },
           {
-            internalType: "uint8",
-            name: "shotDistance",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "shotDistance",
+            "type": "uint8"
           },
           {
-            internalType: "bool",
-            name: "publishedMove",
-            type: "bool",
+            "internalType": "bool",
+            "name": "publishedMove",
+            "type": "bool"
           },
           {
-            internalType: "address",
-            name: "captain",
-            type: "address",
+            "internalType": "address",
+            "name": "captain",
+            "type": "address"
           },
           {
-            internalType: "uint8",
-            name: "yachtSpeed",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "yachtSpeed",
+            "type": "uint8"
           },
           {
-            internalType: "uint8",
-            name: "yachtRange",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "yachtRange",
+            "type": "uint8"
           },
           {
-            internalType: "uint256",
-            name: "gameId",
-            type: "uint256",
+            "internalType": "uint256",
+            "name": "gameId",
+            "type": "uint256"
           },
           {
-            internalType: "uint256",
-            name: "yartsshipId",
-            type: "uint256",
-          },
+            "internalType": "uint256",
+            "name": "yartsshipId",
+            "type": "uint256"
+          }
         ],
-        internalType: "struct Gameyarts.Ship[]",
-        name: "",
-        type: "tuple[]",
-      },
+        "internalType": "struct Gameyarts.Ship[]",
+        "name": "",
+        "type": "tuple[]"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "kmsPublicAddress",
-    outputs: [
+    "inputs": [],
+    "name": "kmsPublicAddress",
+    "outputs": [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        components: [
+        "components": [
           {
-            internalType: "uint8",
-            name: "q",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "q",
+            "type": "uint8"
           },
           {
-            internalType: "uint8",
-            name: "r",
-            type: "uint8",
-          },
+            "internalType": "uint8",
+            "name": "r",
+            "type": "uint8"
+          }
         ],
-        internalType: "struct SharedStructs.Coordinate",
-        name: "_start",
-        type: "tuple",
+        "internalType": "struct SharedStructs.Coordinate",
+        "name": "_start",
+        "type": "tuple"
       },
       {
-        internalType: "enum SharedStructs.Directions",
-        name: "_dir",
-        type: "uint8",
+        "internalType": "enum SharedStructs.Directions",
+        "name": "_dir",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "_distance",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "_distance",
+        "type": "uint8"
       },
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "move",
-    outputs: [
+    "name": "move",
+    "outputs": [
       {
-        components: [
+        "components": [
           {
-            internalType: "uint8",
-            name: "q",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "q",
+            "type": "uint8"
           },
           {
-            internalType: "uint8",
-            name: "r",
-            type: "uint8",
-          },
+            "internalType": "uint8",
+            "name": "r",
+            "type": "uint8"
+          }
         ],
-        internalType: "struct SharedStructs.Coordinate",
-        name: "",
-        type: "tuple",
-      },
+        "internalType": "struct SharedStructs.Coordinate",
+        "name": "",
+        "type": "tuple"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "owner",
-    outputs: [
+    "inputs": [],
+    "name": "owner",
+    "outputs": [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "registrationContract",
-    outputs: [
+    "inputs": [],
+    "name": "registrationContract",
+    "outputs": [
       {
-        internalType: "address",
-        name: "",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
     ],
-    stateMutability: "view",
-    type: "function",
+    "stateMutability": "view",
+    "type": "function"
   },
   {
-    inputs: [],
-    name: "renounceOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "_kmsPublicAddress",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "_kmsPublicAddress",
+        "type": "address"
+      }
     ],
-    name: "setKmsPublicAddress",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "setKmsPublicAddress",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "_registrationContract",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "_registrationContract",
+        "type": "address"
+      }
     ],
-    name: "setRegistrationContract",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "setRegistrationContract",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "_gameId",
-        type: "uint256",
+        "internalType": "uint256",
+        "name": "_gameId",
+        "type": "uint256"
       },
       {
-        internalType: "uint8",
-        name: "_radius",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "_radius",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "_mapShrink",
-        type: "uint8",
-      },
+        "internalType": "uint8",
+        "name": "_mapShrink",
+        "type": "uint8"
+      }
     ],
-    name: "startNewGame",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "startNewGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "enum SharedStructs.Directions[]",
-        name: "_travelDirections",
-        type: "uint8[]",
+        "internalType": "enum SharedStructs.Directions[]",
+        "name": "_travelDirections",
+        "type": "uint8[]"
       },
       {
-        internalType: "uint8[]",
-        name: "_travelDistances",
-        type: "uint8[]",
+        "internalType": "uint8[]",
+        "name": "_travelDistances",
+        "type": "uint8[]"
       },
       {
-        internalType: "enum SharedStructs.Directions[]",
-        name: "_shotDirections",
-        type: "uint8[]",
+        "internalType": "enum SharedStructs.Directions[]",
+        "name": "_shotDirections",
+        "type": "uint8[]"
       },
       {
-        internalType: "uint8[]",
-        name: "_shotDistances",
-        type: "uint8[]",
+        "internalType": "uint8[]",
+        "name": "_shotDistances",
+        "type": "uint8[]"
       },
       {
-        internalType: "uint8[]",
-        name: "_secrets",
-        type: "uint8[]",
+        "internalType": "uint8[]",
+        "name": "_secrets",
+        "type": "uint8[]"
       },
       {
-        internalType: "address[]",
-        name: "_playerAddresses",
-        type: "address[]",
+        "internalType": "address[]",
+        "name": "_playerAddresses",
+        "type": "address[]"
       },
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "submitMove",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "submitMove",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "address",
-        name: "newOwner",
-        type: "address",
-      },
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
     ],
-    name: "transferOwnership",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        components: [
+        "components": [
           {
-            internalType: "uint8",
-            name: "q",
-            type: "uint8",
+            "internalType": "uint8",
+            "name": "q",
+            "type": "uint8"
           },
           {
-            internalType: "uint8",
-            name: "r",
-            type: "uint8",
-          },
+            "internalType": "uint8",
+            "name": "r",
+            "type": "uint8"
+          }
         ],
-        internalType: "struct SharedStructs.Coordinate",
-        name: "_startCell",
-        type: "tuple",
+        "internalType": "struct SharedStructs.Coordinate",
+        "name": "_startCell",
+        "type": "tuple"
       },
       {
-        internalType: "enum SharedStructs.Directions",
-        name: "_direction",
-        type: "uint8",
+        "internalType": "enum SharedStructs.Directions",
+        "name": "_direction",
+        "type": "uint8"
       },
       {
-        internalType: "uint8",
-        name: "_distance",
-        type: "uint8",
+        "internalType": "uint8",
+        "name": "_distance",
+        "type": "uint8"
       },
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "travel",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    "name": "travel",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
   },
   {
-    inputs: [
+    "inputs": [
       {
-        internalType: "uint256",
-        name: "gameId",
-        type: "uint256",
-      },
+        "internalType": "uint256",
+        "name": "gameId",
+        "type": "uint256"
+      }
     ],
-    name: "updateWorld",
-    outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
-  },
+    "name": "updateWorld",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
 ];
-const contractAddress = "0x74e510da39803508f9029c9b7B25B0E54cd3dEA0";
+const contractAddress = "0x499a01c9908CFfA9d29FA36943641c476ed31D57";
 const rpcUrl = "https://curtis.rpc.caldera.xyz/http";
 
 exports.handler = async (event) => {
