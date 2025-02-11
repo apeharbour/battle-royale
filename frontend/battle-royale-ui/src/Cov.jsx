@@ -17,7 +17,7 @@ export default function Cov() {
         </Typography>
       </Grid>
       <Grid item size={12}>
-      <FetchNFT tokenId={2} />
+      <FetchNFT tokenId={gameId} />
       </Grid>
     </Grid>
   );

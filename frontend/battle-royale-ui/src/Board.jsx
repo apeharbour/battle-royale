@@ -72,8 +72,8 @@ export default function Board({
   // console.log("Temp travel endpoint: ", tempTravelEndpoint);
   // console.log("Temp shot endpoint: ", tempShotEndpoint);
   // console.log("Endpoints: ", endpoints);
-   console.log("Path Length: ", shipPathLength);
-   console.log("Shoot Path Length: ", shootPathLength);
+  //  console.log("Path Length: ", shipPathLength);
+  //  console.log("Shoot Path Length: ", shootPathLength);
 
 
   const calcSize = ({ x, y }, radius, maxRadius) => {

@@ -1,71 +1,72 @@
-import React, { useEffect, useState } from "react";
-import CovAbi from "./abis/Cov.json";
-import { useReadContract } from "wagmi";
+import React, { useState, useEffect } from "react";
+import { ethers } from "ethers";
+import { Box, Typography } from "@mui/material";
 
 const COV_ADDRESS = import.meta.env.VITE_COV_ADDRESS;
-const COV_ABI = CovAbi.abi;
+
+const minimalAbi = ["function tokenURI(uint256 tokenId) view returns (string)"];
 
 function FetchNFT({ tokenId }) {
-  const {
-    data: tokenUri,
-    isError,
-    isLoading,
-  } = useReadContract({
-    address: COV_ADDRESS,
-    abi: COV_ABI,
-    functionName: "tokenURI",
-    args: [tokenId],
-  });
-
-  console.log("Token Data:", tokenUri);
-
-  const { data: islands } = useReadContract({
-    address: COV_ADDRESS,
-    abi: COV_ABI,
-    functionName: "getIslands",
-    args: [tokenId],
-  });
-
-  const { data: players } = useReadContract({
-    address: COV_ADDRESS,
-    abi: COV_ABI,
-    functionName: "getPlayers",
-    args: [tokenId],
-  });
-
-  const { data: movements } = useReadContract({
-    address: COV_ADDRESS,
-    abi: COV_ABI,
-    functionName: "getMovements",
-    args: [tokenId],
-  });
-
   const [metadata, setMetadata] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (tokenUri) {
-      console.log("Token URI: ", tokenUri);
+    async function loadTokenURI() {
+      try {
+        setLoading(true);
 
-      const cleanUri = tokenUri.replace("data:application/json;base64,", "");
-      const json = JSON.parse(atob(cleanUri));
-      setMetadata(json);
+        if (!window.ethereum) {
+          throw new Error("No Ethereum provider found");
+        }
+        const provider = new ethers.BrowserProvider(window.ethereum);
+
+        const contract = new ethers.Contract(COV_ADDRESS, minimalAbi, provider);
+
+        const tokenUri = await contract.tokenURI(tokenId);
+    
+        const base64Json = tokenUri.replace(
+          "data:application/json;base64,",
+          ""
+        );
+        const jsonString = atob(base64Json);
+        const data = JSON.parse(jsonString);
+
+        setMetadata(data);
+      } catch (err) {
+        console.error("Error fetching tokenURI:", err);
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [tokenUri]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error fetching data</div>;
+    if (tokenId != null) {
+      loadTokenURI();
+    }
+  }, [tokenId]);
+
+  if (loading) return <div>Loading token metadata…</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!metadata) return <div>No metadata found.</div>;
 
   return (
-    <div>
-      {metadata ? (
-        <div>
-          <img src={metadata.image} alt={metadata.name} />
-          <h2>{metadata.name}</h2>
-        </div>
-      ) : (
-        <p>Loading metadata...</p>
-      )}
-    </div>
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      textAlign="center"
+    >
+      <Box
+        component="img"
+        src={metadata.image}
+        alt={metadata.name}
+        sx={{ maxWidth: "600px", mt: 2 }}
+      />
+       <Typography variant="h2">{metadata.name}</Typography>
+    </Box>
+    
   );
 }
 

@@ -8,7 +8,7 @@
             }
 
             .island {
-                fill: #B95C6E;
+                fill: rgb(244, 0, 41);
             }
 
             .background {
@@ -17,26 +17,26 @@
             }
 
             .travel {
-                stroke: #A6D3F2;
+                stroke: rgb(60, 127, 25);
                 stroke-width: 2px;
                 fill: none;
             }
 
             .travelMarker {
-                stroke: #A6D3F2;
-                fill: #A6D3F2;
+                stroke: rgb(60, 127, 25);
+                fill: rgb(60, 127, 25);
                 visibility: hidden;
             }
 
             .winner {
-                stroke: #252872;
+                stroke: rgb(20, 201, 148);
                 stroke-width: 2px;
                 fill: none;
             }
 
             .travelMarkerWinner {
-                stroke: #252872;
-                fill: #252872;
+                stroke: rgb(20, 201, 148);
+                fill: rgb(20, 201, 148);
                 visibility: hidden;
             }
         </style>
@@ -63,6 +63,7 @@
         <use href="#hexagon" class="hexagon" x="83.923048" y="280" />
         <use href="#hexagon" class="hexagon" x="96.91343" y="302.5" />
         <use href="#hexagon" class="hexagon" x="109.903811" y="325" />
+        <use href="#island" class="island" x="109.903811" y="325" />
         <use href="#hexagon" class="hexagon" x="122.894192" y="347.5" />
         <use href="#hexagon" class="hexagon" x="135.884573" y="370" />
         <use href="#hexagon" class="hexagon" x="148.874954" y="392.5" />
@@ -102,6 +103,7 @@
         <use href="#hexagon" class="hexagon" x="226.81724" y="392.5" />
         <use href="#hexagon" class="hexagon" x="239.807621" y="415" />
         <use href="#hexagon" class="hexagon" x="122.894192" y="167.5" />
+        <use href="#island" class="island" x="122.894192" y="167.5" />
         <use href="#hexagon" class="hexagon" x="135.884573" y="190" />
         <use href="#hexagon" class="hexagon" x="148.874954" y="212.5" />
         <use href="#hexagon" class="hexagon" x="161.865335" y="235" />
@@ -109,11 +111,9 @@
         <use href="#island" class="island" x="174.855716" y="257.5" />
         <use href="#hexagon" class="hexagon" x="187.846097" y="280" />
         <use href="#hexagon" class="hexagon" x="200.836478" y="302.5" />
-        <use href="#island" class="island" x="200.836478" y="302.5" />
         <use href="#hexagon" class="hexagon" x="213.826859" y="325" />
         <use href="#hexagon" class="hexagon" x="226.81724" y="347.5" />
         <use href="#hexagon" class="hexagon" x="239.807621" y="370" />
-        <use href="#island" class="island" x="239.807621" y="370" />
         <use href="#hexagon" class="hexagon" x="252.798002" y="392.5" />
         <use href="#hexagon" class="hexagon" x="265.788383" y="415" />
         <use href="#hexagon" class="hexagon" x="135.884573" y="145" />
@@ -124,7 +124,6 @@
         <use href="#hexagon" class="hexagon" x="200.836478" y="257.5" />
         <use href="#island" class="island" x="200.836478" y="257.5" />
         <use href="#hexagon" class="hexagon" x="213.826859" y="280" />
-        <use href="#island" class="island" x="213.826859" y="280" />
         <use href="#hexagon" class="hexagon" x="226.81724" y="302.5" />
         <use href="#hexagon" class="hexagon" x="239.807621" y="325" />
         <use href="#hexagon" class="hexagon" x="252.798002" y="347.5" />
@@ -143,7 +142,6 @@
         <use href="#hexagon" class="hexagon" x="252.798002" y="302.5" />
         <use href="#hexagon" class="hexagon" x="265.788383" y="325" />
         <use href="#hexagon" class="hexagon" x="278.778764" y="347.5" />
-        <use href="#island" class="island" x="278.778764" y="347.5" />
         <use href="#hexagon" class="hexagon" x="291.769145" y="370" />
         <use href="#hexagon" class="hexagon" x="304.759526" y="392.5" />
         <use href="#hexagon" class="hexagon" x="317.749907" y="415" />
@@ -168,18 +166,13 @@
         <use href="#island" class="island" x="200.836478" y="122.5" />
         <use href="#hexagon" class="hexagon" x="213.826859" y="145" />
         <use href="#hexagon" class="hexagon" x="226.81724" y="167.5" />
-        <use href="#island" class="island" x="226.81724" y="167.5" />
         <use href="#hexagon" class="hexagon" x="239.807621" y="190" />
-        <use href="#island" class="island" x="239.807621" y="190" />
         <use href="#hexagon" class="hexagon" x="252.798002" y="212.5" />
-        <use href="#island" class="island" x="252.798002" y="212.5" />
         <use href="#hexagon" class="hexagon" x="265.788383" y="235" />
         <use href="#hexagon" class="hexagon" x="278.778764" y="257.5" />
         <use href="#hexagon" class="hexagon" x="291.769145" y="280" />
-        <use href="#island" class="island" x="291.769145" y="280" />
         <use href="#hexagon" class="hexagon" x="304.759526" y="302.5" />
         <use href="#hexagon" class="hexagon" x="317.749907" y="325" />
-        <use href="#island" class="island" x="317.749907" y="325" />
         <use href="#hexagon" class="hexagon" x="330.740289" y="347.5" />
         <use href="#hexagon" class="hexagon" x="343.73067" y="370" />
         <use href="#hexagon" class="hexagon" x="356.721051" y="392.5" />
@@ -188,14 +181,11 @@
         <use href="#island" class="island" x="226.81724" y="122.5" />
         <use href="#hexagon" class="hexagon" x="239.807621" y="145" />
         <use href="#hexagon" class="hexagon" x="252.798002" y="167.5" />
-        <use href="#island" class="island" x="252.798002" y="167.5" />
         <use href="#hexagon" class="hexagon" x="265.788383" y="190" />
         <use href="#hexagon" class="hexagon" x="278.778764" y="212.5" />
-        <use href="#island" class="island" x="278.778764" y="212.5" />
         <use href="#hexagon" class="hexagon" x="291.769145" y="235" />
         <use href="#hexagon" class="hexagon" x="304.759526" y="257.5" />
         <use href="#hexagon" class="hexagon" x="317.749907" y="280" />
-        <use href="#island" class="island" x="317.749907" y="280" />
         <use href="#hexagon" class="hexagon" x="330.740289" y="302.5" />
         <use href="#hexagon" class="hexagon" x="343.73067" y="325" />
         <use href="#hexagon" class="hexagon" x="356.721051" y="347.5" />
@@ -226,7 +216,6 @@
         <use href="#hexagon" class="hexagon" x="291.769145" y="100" />
         <use href="#hexagon" class="hexagon" x="304.759526" y="122.5" />
         <use href="#hexagon" class="hexagon" x="317.749907" y="145" />
-        <use href="#island" class="island" x="317.749907" y="145" />
         <use href="#hexagon" class="hexagon" x="330.740289" y="167.5" />
         <use href="#hexagon" class="hexagon" x="343.73067" y="190" />
         <use href="#hexagon" class="hexagon" x="356.721051" y="212.5" />
@@ -253,13 +242,12 @@
         <use href="#hexagon" class="hexagon" x="434.663337" y="257.5" />
     </g>
     <g id="travels">
-        <path d="M 161.865335 190 L 174.855716 212.5 L 161.865335 235" class="travel" marker-start="url(#shipStart)"
-            marker-end="url(#shipEnd)" />
-        <path d="M 213.826859 100 L 265.788383 100 L 239.807621 145 L 213.826859 145" class="travel"
+        <path d="M 265.788383 100" class="travel" marker-start="url(#shipStart)" marker-end="url(#shipEnd)" />
+        <path d="M 174.855716 212.5 L 291.769145 145 L 161.865335 235 L 174.855716 212.5" class="travel"
             marker-start="url(#shipStart)" marker-end="url(#shipEnd)" />
     </g>
     <g id="winners">
-        <path d="M 187.846097 280 L 135.884573 280 L 148.874954 257.5 L 187.846097 190" class="winner"
+        <path d="M 135.884573 280 L 148.874954 257.5 L 148.874954 257.5" class="winner"
             marker-start="url(#shipStartWinner)" marker-end="url(#shipEndWinner)" />
     </g>
 </svg>
