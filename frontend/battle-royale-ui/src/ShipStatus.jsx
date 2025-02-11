@@ -12,7 +12,6 @@ import removeYachtBackground from "./RemoveYachtBackground";
 
 export default function ShipStatus({ ship }) {
 
-  console.log(ship);
   if (!ship)
     return (
       <Card elevation={4}>

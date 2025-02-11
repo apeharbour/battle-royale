@@ -562,6 +562,7 @@ export default function Game(props) {
               winner={winner}
               playerState={playerState}
               setPlayerStateDialogOpen={setPlayerStateDialogOpen}
+              gameId={gameId}
             />
           )}
           </Stack>

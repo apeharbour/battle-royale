@@ -1,70 +1,66 @@
-import React, { useEffect, useState } from "react";
-import CovAbi from "./abis/Cov.json";
-import { useReadContract } from "wagmi";
+import React, { useState, useEffect } from "react";
+import { ethers } from "ethers";
 
+// Replace with your contract address (ensure this matches your network)
 const COV_ADDRESS = import.meta.env.VITE_COV_ADDRESS;
-const COV_ABI = CovAbi.abi;
+
+// Minimal ABI that includes tokenURI with its output type defined
+const minimalAbi = [
+  "function tokenURI(uint256 tokenId) view returns (string)"
+];
 
 function FetchNFT({ tokenId }) {
-  const {
-    data: tokenUri,
-    isError,
-    isLoading,
-  } = useReadContract({
-    address: COV_ADDRESS,
-    abi: COV_ABI,
-    functionName: "tokenURI",
-    args: [tokenId],
-  });
-
-  console.log("Token Data:", tokenUri);
-
-  const { data: islands } = useReadContract({
-    address: COV_ADDRESS,
-    abi: COV_ABI,
-    functionName: "getIslands",
-    args: [tokenId],
-  });
-
-  const { data: players } = useReadContract({
-    address: COV_ADDRESS,
-    abi: COV_ABI,
-    functionName: "getPlayers",
-    args: [tokenId],
-  });
-
-  const { data: movements } = useReadContract({
-    address: COV_ADDRESS,
-    abi: COV_ABI,
-    functionName: "getMovements",
-    args: [tokenId],
-  });
-
   const [metadata, setMetadata] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (tokenUri) {
-      console.log("Token URI: ", tokenUri);
+    async function loadTokenURI() {
+      try {
+        setLoading(true);
 
-      const cleanUri = tokenUri.replace("data:application/json;base64,", "");
-      const json = JSON.parse(atob(cleanUri));
-      setMetadata(json);
+        // Create a provider.
+        // If using an injected provider like MetaMask:
+        if (!window.ethereum) {
+          throw new Error("No Ethereum provider found");
+        }
+        const provider = new ethers.BrowserProvider(window.ethereum);
+
+        // Create a contract instance using the minimal ABI
+        const contract = new ethers.Contract(COV_ADDRESS, minimalAbi, provider);
+
+        // Call the tokenURI function
+        const tokenUri = await contract.tokenURI(tokenId);
+        // console.log("tokenURI:", tokenUri);
+
+        // Remove the prefix and decode the Base64 string
+        const base64Json = tokenUri.replace("data:application/json;base64,", "");
+        const jsonString = atob(base64Json);
+        const data = JSON.parse(jsonString);
+
+        setMetadata(data);
+      } catch (err) {
+        console.error("Error fetching tokenURI:", err);
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
     }
-  }, [tokenUri]);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error fetching data</div>;
+    if (tokenId != null) {
+      loadTokenURI();
+    }
+  }, [tokenId]);
+
+  if (loading) return <div>Loading token metadata…</div>;
+  if (error) return <div>Error: {error.message}</div>;
+  if (!metadata) return <div>No metadata found.</div>;
 
   return (
     <div>
-      {metadata ? (
-        <div>
-          <img src={metadata.image} alt={metadata.name} />
-          <h2>{metadata.name}</h2>
-        </div>
-      ) : (
-        <p>Loading metadata...</p>
-      )}
+      <h2>{metadata.name}</h2>
+      <img src={metadata.image} alt={metadata.name} style={{ maxWidth: "300px" }} />
+      <p>{metadata.description}</p>
     </div>
   );
 }

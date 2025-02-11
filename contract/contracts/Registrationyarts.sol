@@ -87,7 +87,6 @@ contract Registrationyarts is Ownable {
 
     function startRegistration() public onlyKmsOrOwner {
         registrationPhase += 1;
-        lastGameId += 1;
         registrationClosed = false;
 
         for (uint i = 0; i < registeredPlayerAddresses.length; i++) {
@@ -121,6 +120,7 @@ contract Registrationyarts is Ownable {
         uint16 currentIndex = 0;
 
         for (uint16 gameCount = 0; gameCount < numberOfFullGames; gameCount++) {
+            lastGameId++;
             emit RegistrationClosed(registrationPhase, lastGameId);
             gameyarts.startNewGame(lastGameId, _radius, _mapShrink);
 
@@ -142,7 +142,6 @@ contract Registrationyarts is Ownable {
 
                 currentIndex++;
             }
-            lastGameId++;
         }
     }
 }

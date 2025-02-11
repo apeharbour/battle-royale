@@ -1,6 +1,7 @@
 import React from "react";
 import {
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
@@ -29,7 +30,7 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   textAlign: "left",
 }));
 
-export default function GameStatuss({ winner, playerState }) {
+export default function GameStatuss({ winner, playerState, gameId }) {
   const navigate = useNavigate();
   const { address } = useAccount();
 
@@ -81,7 +82,13 @@ export default function GameStatuss({ winner, playerState }) {
                 Kills: {winner.kills}
               </Typography>
             </Box>
-            <Divider />
+            <Box flexGrow={1}>
+              <Button
+                onClick={() => (window.location.href = `/cov/${gameId}`)}
+              >
+                Canvas of Victory
+              </Button>
+            </Box>
           </>
         ) : null}
       </StyledCardContent>
