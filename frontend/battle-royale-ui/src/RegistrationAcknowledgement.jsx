@@ -41,7 +41,7 @@ export default function RegistrationAcknowledgementDialog({
         <Box textAlign="center">
           <Typography variant="h6" gutterBottom>
             Please acknowledge that you have read and understood the terms and
-            conditions before registering your ship.
+            conditions before registering your yart.
           </Typography>
           <Box mt={3} textAlign="left">
             <Typography variant="h6" gutterBottom>
@@ -49,12 +49,12 @@ export default function RegistrationAcknowledgementDialog({
             </Typography>
             <Typography variant="body1" gutterBottom>
               1. **Shoot and move according to your ship's stats**: Your actions
-              in the game are governed by your ship's stats. Each ship has
+              in the game are governed by your ship's stats. Each ship type has
               unique movement and shooting capabilities.
             </Typography>
             <Typography variant="body1" gutterBottom>
               2. **Round-based gameplay**: The game is round-based, meaning
-              every player gets one turn per round.
+              every player gets one turn per round and every round lasts 24 hours, as the game starts.
             </Typography>
             <Typography variant="body1" gutterBottom>
               3. **One life per game**: You have only one life in the game. Make
@@ -76,8 +76,11 @@ export default function RegistrationAcknowledgementDialog({
               7. **Last man standing**: The last player remaining in the game
               will receive the "Canvas of Victory."
             </Typography>
+            <Typography variant="body1" gutterBottom>
+              8. **Draw**: In case of draw: Noone wins and no canvas of victory will be rewarded to any player for that game."
+            </Typography>
             <Typography variant="body1" color="error" gutterBottom sx={{fontWeight: 700}}>
-              Note: "Killed" means your punkship is burned.
+              Note: "Killed" means your 'yart' is burned.
             </Typography>
           </Box>
         </Box>
