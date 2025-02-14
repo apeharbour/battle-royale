@@ -285,9 +285,9 @@ export default function Admin(props) {
     }
   };
 
-  const gameKMSFunction = async () => {
+  const gameKMSFunction = () => {
     try {
-      await writeContract({
+       writeContract({
         abi: GAME_ABI,
         address: GAME_ADDRESS,
         functionName: "setKmsPublicAddress",

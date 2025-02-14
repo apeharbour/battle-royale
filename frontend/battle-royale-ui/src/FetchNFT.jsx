@@ -5,6 +5,7 @@ import { Box, Typography } from "@mui/material";
 const COV_ADDRESS = import.meta.env.VITE_COV_ADDRESS;
 
 const minimalAbi = ["function tokenURI(uint256 tokenId) view returns (string)"];
+const RPC_URL = "https://curtis.rpc.caldera.xyz/http";
 
 function FetchNFT({ tokenId }) {
   const [metadata, setMetadata] = useState(null);
@@ -19,7 +20,7 @@ function FetchNFT({ tokenId }) {
         if (!window.ethereum) {
           throw new Error("No Ethereum provider found");
         }
-        const provider = new ethers.BrowserProvider(window.ethereum);
+        const provider = new ethers.JsonRpcProvider(RPC_URL);
 
         const contract = new ethers.Contract(COV_ADDRESS, minimalAbi, provider);
 
