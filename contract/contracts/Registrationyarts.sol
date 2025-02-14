@@ -53,7 +53,7 @@ contract Registrationyarts is Ownable {
     mapping(address => Player) public registeredPlayers;
     address[] private registeredPlayerAddresses;
     bool public registrationClosed = true;
-    uint256 public lastGameId;
+    uint256 public lastGameId = 1;
     uint256 public registrationPhase;
     address public kmsPublicAddress;
 
@@ -120,9 +120,11 @@ contract Registrationyarts is Ownable {
         uint16 currentIndex = 0;
 
         for (uint16 gameCount = 0; gameCount < numberOfFullGames; gameCount++) {
-            lastGameId++;
-            emit RegistrationClosed(registrationPhase, lastGameId);
+
             gameyarts.startNewGame(lastGameId, _radius, _mapShrink);
+            
+            emit RegistrationClosed(registrationPhase, lastGameId);
+            
 
             for (uint16 i = 0; i < _maxPlayersPerGame; i++) {
                 address playerAddress = registeredPlayerAddresses[currentIndex];
@@ -142,6 +144,7 @@ contract Registrationyarts is Ownable {
 
                 currentIndex++;
             }
+            lastGameId++;
         }
     }
 }

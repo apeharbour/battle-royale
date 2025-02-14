@@ -27,18 +27,18 @@
       "startBlock": 14154342
     }
   },
-  "apechain-curtis": {
+ "apechain-curtis": {
     "Gameyarts": {
-      "address": "0x499a01c9908CFfA9d29FA36943641c476ed31D57",
-      "startBlock": 15623515
+      "address": "0x1Bd24db02530910A0e05Cb65F4EC3450e48CE3A4",
+      "startBlock": 15872281
     },
     "Yarts": {
-      "address": "0xe52296CfB31C20B7424EA77ece52d415756Ba78b",
-      "startBlock": 15623492
+      "address": "0xD45f3343FA0C2B7f35C03Ab8308ac7138924505f",
+      "startBlock": 15872271
     },
     "Registration": {
-      "address": "0x3849aAE75527d741a68E13EaD42AB32Aba30B2b8",
-      "startBlock":	15623521
+      "address": "0x2b0c396E6B313AA3b8927d55774109B677276690",
+      "startBlock":	15872288
     }
   },
   "localhost": {
