@@ -17,9 +17,6 @@ function FetchNFT({ tokenId }) {
       try {
         setLoading(true);
 
-        if (!window.ethereum) {
-          throw new Error("No Ethereum provider found");
-        }
         const provider = new ethers.JsonRpcProvider(RPC_URL);
 
         const contract = new ethers.Contract(COV_ADDRESS, minimalAbi, provider);
