@@ -305,8 +305,8 @@ export function handlePlayerAdded(event: PlayerAddedEvent): void {
   player.address = event.params.player;
   player.q = event.params.q
   player.r = event.params.r
-  player.range = event.params.range
-  player.shotRange = event.params.speed
+  player.range = event.params.speed
+  player.shotRange = event.params.range
   player.tokenId = event.params.yartsshipId
   player.image = event.params.image
   player.game = gameId

@@ -29,16 +29,16 @@
   },
   "apechain-curtis": {
     "Gameyarts": {
-      "address": "0x1Bd24db02530910A0e05Cb65F4EC3450e48CE3A4",
-      "startBlock": 15872281
+      "address": "0x1756a712Dca2075786Ffb31739c91Af0d6BeF881",
+      "startBlock": 16088719
     },
     "Yarts": {
-      "address": "0xD45f3343FA0C2B7f35C03Ab8308ac7138924505f",
-      "startBlock": 15872271
+      "address": "0xbb738B8c0059D3220072489adD1007006929B503",
+      "startBlock": 16088706
     },
     "Registration": {
-      "address": "0x2b0c396E6B313AA3b8927d55774109B677276690",
-      "startBlock":	15872288
+      "address": "0x4E665E50883c547DB7A0be155700AadBe8Fe42C4",
+      "startBlock":	16088729
     }
   },
   "localhost": {

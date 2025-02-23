@@ -24,7 +24,7 @@ export default function SpectateLeaderBoard({ ships }) {
             <TableRow>
               <TableCell>Image</TableCell>
               <TableCell>Address</TableCell>
-              <TableCell align="center">Range</TableCell>
+              <TableCell align="center">Movement Range</TableCell>
               <TableCell align="center">Shot Range</TableCell>
               <TableCell align="center">Current Position</TableCell>
               <TableCell align="center">State</TableCell>

@@ -203,9 +203,7 @@ contract Gameyarts is Ownable {
     }
 
     // Function to set the KMS public address
-    function setKmsPublicAddress(
-        address _kmsPublicAddress
-    ) external onlyOwner {
+    function setKmsPublicAddress(address _kmsPublicAddress) external onlyOwner {
         kmsPublicAddress = _kmsPublicAddress;
     }
 
@@ -214,10 +212,7 @@ contract Gameyarts is Ownable {
         uint8 _radius,
         uint8 _mapShrink
     ) public onlyRegistrationContractOrOwner {
-        require(
-            !games[_gameId].gameInProgress,
-            "GameID already progress"
-        );
+        require(!games[_gameId].gameInProgress, "GameID already progress");
         games[_gameId].gameInProgress = true;
         initGame(_radius, _gameId, _mapShrink);
         allowCommitMoves(_gameId);
@@ -229,10 +224,7 @@ contract Gameyarts is Ownable {
         uint256 _gameId,
         uint8 _mapShrink
     ) internal {
-        require(
-            games[_gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[_gameId].gameInProgress == true, "not started");
 
         // Reset ships for the game
         for (uint256 i = 0; i < games[_gameId].players.length; i++) {
@@ -265,20 +257,14 @@ contract Gameyarts is Ownable {
 
     //function to let players commit moves
     function allowCommitMoves(uint256 gameId) internal {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
         games[gameId].letCommitMoves = true;
         emit CommitPhaseStarted(gameId);
     }
 
     //commit moves
     function commitMove(bytes32 moveHash, uint256 gameId) public {
-        require(
-            games[gameId].letCommitMoves == true,
-            "not started"
-        );
+        require(games[gameId].letCommitMoves == true, "not started");
         games[gameId].moveHashes[msg.sender] = moveHash;
         emit MoveCommitted(msg.sender, gameId, moveHash);
     }
@@ -313,10 +299,7 @@ contract Gameyarts is Ownable {
         address[] memory _playerAddresses,
         uint256 gameId
     ) public onlyKmsOrOwner {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
         require(
             _playerAddresses.length == _travelDirections.length,
             "same length"
@@ -325,14 +308,8 @@ contract Gameyarts is Ownable {
             _travelDirections.length == _travelDistances.length,
             "same length"
         );
-        require(
-            _shotDirections.length == _shotDistances.length,
-            "same length"
-        );
-        require(
-            _secrets.length == _playerAddresses.length,
-            "same length"
-        );
+        require(_shotDirections.length == _shotDistances.length, "same length");
+        require(_secrets.length == _playerAddresses.length, "same length");
 
         for (uint i = 0; i < _playerAddresses.length; i++) {
             // Calculate move hash
@@ -346,11 +323,11 @@ contract Gameyarts is Ownable {
             );
 
             // Initialize variables for destination coordinates
+            Ship storage ship = games[gameId].ships[_playerAddresses[i]];
             SharedStructs.Coordinate memory dest;
 
             // Check if moveHash matches the stored hash for this player
             if (games[gameId].moveHashes[_playerAddresses[i]] == moveHash) {
-                Ship storage ship = games[gameId].ships[_playerAddresses[i]];
                 ship.travelDirection = _travelDirections[i];
                 ship.travelDistance = _travelDistances[i] > ship.yachtSpeed
                     ? ship.yachtSpeed
@@ -383,6 +360,8 @@ contract Gameyarts is Ownable {
                     shotDestination.q,
                     shotDestination.r
                 );
+            } else {
+                dest = ship.coordinate;
             }
 
             MovementData memory movement = MovementData({
@@ -399,10 +378,7 @@ contract Gameyarts is Ownable {
         uint256 gameId,
         uint256 _yartsshipId
     ) public onlyRegistrationContractOrOwner {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
 
         if (yartsships.ownerOf(_yartsshipId) != playerAddress) {
             revert NotOwnerOfShip(playerAddress, _yartsshipId);
@@ -483,10 +459,7 @@ contract Gameyarts is Ownable {
     }
 
     function sinkShip(address captain, uint256 gameId) internal {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
         emit PlayerDefeated(captain, gameId);
         yartsships.burnByGameContract(games[gameId].ships[captain].yartsshipId);
         delete games[gameId].ships[captain];
@@ -787,38 +760,45 @@ contract Gameyarts is Ownable {
                 mastColor
             );
         } else {
-              // Shrink map every [mapShrink] rounds
-        uint8 currentRadius = map.gameRadii(gameId);
-        if (currentRadius > 1 && (games[gameId].round % games[gameId].mapShrink == 0)) {
-            SharedStructs.Coordinate[] memory deletedCells = map
-                .deleteOutermostRing(gameId);
-            games[gameId].shrinkNo++;
-            emit MapShrink(gameId);
-            for (uint8 i = 0; i < deletedCells.length; i++) {
-                emit CellDeleted(gameId, deletedCells[i].q, deletedCells[i].r);
-            }
+            // Shrink map every [mapShrink] rounds
+            uint8 currentRadius = map.gameRadii(gameId);
+            if (
+                currentRadius > 1 &&
+                (games[gameId].round % games[gameId].mapShrink == 0)
+            ) {
+                SharedStructs.Coordinate[] memory deletedCells = map
+                    .deleteOutermostRing(gameId);
+                games[gameId].shrinkNo++;
+                emit MapShrink(gameId);
+                for (uint8 i = 0; i < deletedCells.length; i++) {
+                    emit CellDeleted(
+                        gameId,
+                        deletedCells[i].q,
+                        deletedCells[i].r
+                    );
+                }
 
-            // Sink players outside the invalid map cells
-            uint256 i = games[gameId].players.length;
-            while (i > 0) {
-                i--;
-                address player = games[gameId].players[i];
-                SharedStructs.Coordinate memory shipCoord = games[gameId]
-                    .ships[player]
-                    .coordinate;
+                // Sink players outside the invalid map cells
+                uint256 i = games[gameId].players.length;
+                while (i > 0) {
+                    i--;
+                    address player = games[gameId].players[i];
+                    SharedStructs.Coordinate memory shipCoord = games[gameId]
+                        .ships[player]
+                        .coordinate;
 
-                if (isShipOutsideMap(shipCoord, gameId)) {
-                    emit ShipSunkOutOfMap(player, gameId);
-                    sinkShip(player, gameId);
+                    if (isShipOutsideMap(shipCoord, gameId)) {
+                        emit ShipSunkOutOfMap(player, gameId);
+                        sinkShip(player, gameId);
 
-                    // Remove the player from the array
-                    games[gameId].players[i] = games[gameId].players[
-                        games[gameId].players.length - 1
-                    ];
-                    games[gameId].players.pop();
+                        // Remove the player from the array
+                        games[gameId].players[i] = games[gameId].players[
+                            games[gameId].players.length - 1
+                        ];
+                        games[gameId].players.pop();
+                    }
                 }
             }
-        }
             emit GameUpdated(false, games[gameId].players[0], gameId);
             for (uint256 i = 0; i < games[gameId].players.length; i++) {
                 Ship storage ship = games[gameId].ships[
@@ -876,10 +856,7 @@ contract Gameyarts is Ownable {
     }
 
     function getShips(uint256 gameId) public view returns (Ship[] memory) {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
         Ship[] memory returnShips = new Ship[](games[gameId].players.length);
 
         for (uint256 i = 0; i < games[gameId].players.length; i++) {
@@ -889,10 +866,7 @@ contract Gameyarts is Ownable {
     }
 
     function getRadius(uint256 gameId) public view returns (uint8) {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
         return map.gameRadii(gameId);
     }
 
@@ -900,10 +874,7 @@ contract Gameyarts is Ownable {
         SharedStructs.Coordinate memory _coord,
         uint256 gameId
     ) public view returns (SharedStructs.Cell memory) {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
         return map.getCell(_coord, gameId);
     }
 
@@ -913,10 +884,7 @@ contract Gameyarts is Ownable {
         uint8 _distance,
         uint256 gameId
     ) external view returns (SharedStructs.Coordinate memory) {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
         return map.move(_start, _dir, _distance);
     }
 
@@ -926,10 +894,7 @@ contract Gameyarts is Ownable {
         uint8 _distance,
         uint256 gameId
     ) external {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
         (bool dies, SharedStructs.Coordinate memory dest) = map.travel(
             _startCell,
             _direction,
@@ -948,10 +913,7 @@ contract Gameyarts is Ownable {
     function getCoordinates(
         uint256 gameId
     ) public view returns (SharedStructs.Coordinate[] memory) {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
         uint8 radius = map.gameRadii(gameId);
         uint256 numberOfCells = 1 + 3 * radius * (radius + 1);
         SharedStructs.Coordinate[]
@@ -971,10 +933,7 @@ contract Gameyarts is Ownable {
     function getIslands(
         uint256 gameId
     ) public view returns (uint8[] memory IslandsQ, uint8[] memory IslandsR) {
-        require(
-            games[gameId].gameInProgress == true,
-            "not started"
-        );
+        require(games[gameId].gameInProgress == true, "not started");
 
         uint256 islandCount = gameIslands[gameId].length;
         IslandsQ = new uint8[](islandCount);

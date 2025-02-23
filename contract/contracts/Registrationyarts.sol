@@ -86,6 +86,7 @@ contract Registrationyarts is Ownable {
     }
 
     function startRegistration() public onlyKmsOrOwner {
+        require(registrationClosed, "Registration already started");
         registrationPhase += 1;
         registrationClosed = false;
 
@@ -114,6 +115,7 @@ contract Registrationyarts is Ownable {
         uint8 _radius,
         uint8 _mapShrink
     ) public onlyKmsOrOwner {
+        require(!registrationClosed, "Registration already closed");
         registrationClosed = true;
         uint16 totalPlayers = uint16(registeredPlayerAddresses.length);
         uint16 numberOfFullGames = totalPlayers / _maxPlayersPerGame;

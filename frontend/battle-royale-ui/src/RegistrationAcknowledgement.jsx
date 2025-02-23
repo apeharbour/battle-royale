@@ -62,15 +62,14 @@ export default function RegistrationAcknowledgementDialog({
             </Typography>
             <Typography variant="body1" gutterBottom>
               4. **Colliding with an island**: If your ship collides with an
-              island, you will be killed (ship burned).
+              island, you will be killed.
             </Typography>
             <Typography variant="body1" gutterBottom>
               5. **Sailing outside the map**: Moving outside the map boundaries
-              will result in your ship being killed (ship burned).
+              will result in your ship being killed.
             </Typography>
             <Typography variant="body1" gutterBottom>
-              6. **Shooting another player**: If you shoot another player, both
-              you and your opponent will be killed (both ships burned).
+              6. **Shooting another player**: If you shoot another player, the other player will be killed. 
             </Typography>
             <Typography variant="body1" gutterBottom>
               7. **Last man standing**: The last player remaining in the game
@@ -80,7 +79,7 @@ export default function RegistrationAcknowledgementDialog({
               8. **Draw**: In case of draw: Noone wins and no canvas of victory will be rewarded to any player for that game."
             </Typography>
             <Typography variant="body1" color="error" gutterBottom sx={{fontWeight: 700}}>
-              Note: "Killed" means your 'yart' is burned.
+              Note: "Killed" means your 'yart' NFT is burned, please be careful!
             </Typography>
           </Box>
         </Box>

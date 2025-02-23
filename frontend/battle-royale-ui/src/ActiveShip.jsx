@@ -11,7 +11,7 @@ import {
 import removeYachtBackground from "./RemoveYachtBackground";
 
 export default function ActiveShip({ ship, handleCardClick, selectedYacht }) {
-
+  console.log("ActiveShip -> ship", ship);
   return (
     <Card
       sx={{
@@ -34,7 +34,7 @@ export default function ActiveShip({ ship, handleCardClick, selectedYacht }) {
       />
       <CardContent sx={{ flex: "1 0 auto" }}>
         <Typography gutterBottom sx={{ fontSize: "1rem", textAlign: "center" }}>
-          {ship.name} {ship.tokenId}
+          yart #{ship.tokenId}
         </Typography>
         <Box
           sx={{

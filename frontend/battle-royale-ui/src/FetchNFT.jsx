@@ -62,7 +62,7 @@ function FetchNFT({ tokenId }) {
         alt={metadata.name}
         sx={{ maxWidth: "600px", mt: 2 }}
       />
-       <Typography variant="h2">{metadata.name}</Typography>
+       <Typography variant="h5">{metadata.name}</Typography>
     </Box>
     
   );

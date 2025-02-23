@@ -11,7 +11,6 @@ import "./MintShip.css";
 import removeYachtBackground from "./RemoveYachtBackground";
 
 export default function ShipStatus({ ship }) {
-
   if (!ship)
     return (
       <Card elevation={4}>
