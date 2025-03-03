@@ -11,7 +11,7 @@ import {
 import removeYachtBackground from "./RemoveYachtBackground";
 
 export default function ActiveShip({ ship, handleCardClick, selectedYacht }) {
-  console.log("ActiveShip -> ship", ship);
+
   return (
     <Card
       sx={{

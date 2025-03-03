@@ -66,10 +66,10 @@ export default function SpectateBoard({
   // console.log("Round: ", round);
   // console.log("Temp travel endpoint: ", tempTravelEndpoint);
   // console.log("Temp shot endpoint: ", tempShotEndpoint);
-  console.log("Path Length: ", shipPathLength);
-  console.log("Shoot Path Length: ", shootPathLength);
-  console.log("Ship: ", myShip);
-  console.log("All Ships: ", ships);
+  // console.log("Path Length: ", shipPathLength);
+  // console.log("Shoot Path Length: ", shootPathLength);
+  // console.log("Ship: ", myShip);
+  // console.log("All Ships: ", ships);
 
 
   const calcSize = ({ x, y }, radius, maxRadius) => {

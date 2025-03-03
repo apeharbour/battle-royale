@@ -21,6 +21,7 @@ import Timer from "./Timer.jsx";
 import LastRoundResults from "./LastRoundResults.jsx";
 import SpectatePlayers from "./SpectatePlayers.jsx";
 import SpectateLeaderBoard from "./SpectateLeaderBoard.jsx";
+import GameStatuss from "./GameStatuss.jsx";
 
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const GAME_ABI = GameAbi.abi;
@@ -237,15 +238,15 @@ export default function SpectateGame() {
     };
   };
 
- const enrichShip = (ship, movesLastRound, address, currentRound) => {
+  const enrichShip = (ship, movesLastRound, address, currentRound) => {
     const move = movesLastRound.find((m) => m.player.address === ship.address);
-  
+
     let travel = {};
     let shot = {};
-  
+
     // 1) Check if active
     const isActive = !ship.killedInRound && ship.state === "active";
-    
+
     // 2) Determine final "state" for our front-end
     let shipState;
     if (isActive) {
@@ -257,7 +258,7 @@ export default function SpectateGame() {
       // Otherwise, they're destroyed or some other final state
       shipState = "destroyed";
     }
-  
+
     // If there's a travel move, set travel origin/destination
     if (move && move.travel) {
       travel.origin = new Hex(
@@ -271,7 +272,7 @@ export default function SpectateGame() {
         -move.travel.destinationQ - move.travel.destinationR
       );
     }
-  
+
     // If there's a shot move, set shot origin/destination
     if (move && move.shot) {
       shot.origin = new Hex(
@@ -285,15 +286,15 @@ export default function SpectateGame() {
         -move.shot.destinationQ - move.shot.destinationR
       );
     }
-  
+
     // Calculate the “s” cube coordinate
     const s = -ship.q - ship.r;
-  
+
     // Determine if this is my ship
     const mine = address
       ? ship.address.toLowerCase() === address.toLowerCase()
       : false;
-  
+
     // Return our enriched ship object
     return {
       ...ship,
@@ -323,26 +324,26 @@ export default function SpectateGame() {
     useGameQuery((data) => {
       const currentRound = parseInt(data.games[0].currentRound.round);
       const gameState = data.games[0].state;
-  
+
       // We'll figure out which round's "moves" we want to animate
       // Normal case: we animate the "previous round" if the game is still ongoing
       let roundToAnimate = currentRound > 1 ? currentRound - 1 : currentRound;
-  
+
       // If the game is finished, we want to animate the final round itself
       if (gameState === "finished") {
         roundToAnimate = currentRound;
       }
-  
+
       // Grab whichever round we decided to animate
       const theRound = data.games[0].rounds.find(
         (r) => parseInt(r.round) === roundToAnimate
       );
-  
+
       let movesForAnimation = [];
       if (theRound) {
         movesForAnimation = theRound.moves;
       }
-  
+
       return data.games[0].players
         .map((player) =>
           enrichShip(player, movesForAnimation, address, currentRound)
@@ -431,8 +432,8 @@ export default function SpectateGame() {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             <SpectatePlayers ships={ships} />
-            <Logs gameId={id} rounds={rounds} />
             <LastRoundResults rounds={rounds} />
+            <Logs gameId={id} rounds={rounds} />
           </Stack>
         </Grid>
 
@@ -456,7 +457,7 @@ export default function SpectateGame() {
 
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
-          <FormControlLabel
+            <FormControlLabel
               control={
                 <Switch
                   checked={showCoordinateField}
@@ -471,12 +472,16 @@ export default function SpectateGame() {
                 </Typography>
               }
             />
-            <Timer gameId={gameId} gameState={gameState}/>
+            <Timer gameId={gameId} gameState={gameState} />
             <GameInfo
               round={currentRound}
               gameId={gameId}
               mapShrink={mapShrink}
               gameState={gameState}
+            />
+            <GameStatuss
+              winner={winner}
+              gameId={gameId}
             />
           </Stack>
         </Grid>

@@ -496,8 +496,8 @@ export default function Game(props) {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             <ShipStatus ship={myShip} />
-            <Logs gameId={id} rounds={rounds} />
             <LastRoundResults rounds={rounds} />
+            <Logs gameId={id} rounds={rounds} />
           </Stack>
         </Grid>
 
@@ -558,7 +558,7 @@ export default function Game(props) {
             {playerStateDialogOpen && (
               <GameStatuss
                 winner={winner}
-                playerState={playerState}
+               
                 setPlayerStateDialogOpen={setPlayerStateDialogOpen}
                 gameId={gameId}
               />

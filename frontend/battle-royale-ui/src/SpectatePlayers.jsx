@@ -23,7 +23,6 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   },
   "&::-webkit-scrollbar-thumb": {
     backgroundColor: "#000000",
-    borderRadius: "4px",
   },
   "&::-webkit-scrollbar-track": {
     backgroundColor: "#808080",

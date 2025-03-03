@@ -82,7 +82,7 @@ export default function Ship({ ship, size, onShipClick }) {
   const imageStyle = {};
   if (state === "destroyed") {
     imageStyle.filter = "grayscale(80%)";
-    imageStyle.opacity = 0.5;
+    imageStyle.opacity = 0.2;
   }
 
   return (

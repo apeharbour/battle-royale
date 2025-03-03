@@ -35,7 +35,7 @@ export default function ShipStatus({ ship }) {
       />
       <CardContent sx={{ flex: "1 0 auto" }}>
       <Stack spacing={1} direction="row" justifyContent="center">
-          <Chip label={`Yart Id: ${ship.tokenId}`} />
+          <Chip label={`yart  #${ship.tokenId}`} />
         </Stack>
         <Stack spacing={1} direction="row" justifyContent="center" mt={2}>
           <Chip label={`Movement: ${ship.range}`} />

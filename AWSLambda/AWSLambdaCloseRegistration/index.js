@@ -6,7 +6,7 @@ const { JsonRpcProvider } = providers;
 const axios = require("axios");
 
 const SUBGRAPH_URL =
-  "https://subgraph.satsuma-prod.com/2d81d4e429e1/jayants-team--699829/registration/api";
+  "https://subgraph.satsuma-prod.com/cbc4c5f8e956/nicos-team--278739/registration/api";
 
 async function fetchGameIdsFromSubgraph() {
   // 3a) GraphQL query

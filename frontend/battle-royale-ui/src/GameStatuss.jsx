@@ -10,7 +10,7 @@ import {
   Typography,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAccount } from "wagmi";
 import removeYachtBackground from "./RemoveYachtBackground";
 
@@ -30,8 +30,9 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
   textAlign: "left",
 }));
 
-export default function GameStatuss({ winner, playerState, gameId }) {
+export default function GameStatuss({ winner, gameId }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { address } = useAccount();
 
   const isWinner =
@@ -40,16 +41,20 @@ export default function GameStatuss({ winner, playerState, gameId }) {
     address &&
     address.toLowerCase() === winner.address.toLowerCase();
 
+  const isSpectator = location.pathname.includes("/spectator");
+
   return (
     <Card elevation={4} sx={{ overflow: "hidden" }}>
-      <CardHeader
-        title={isWinner ? "Game Over -> You Won!" : "Game Over -> You Lost!"}
-        titleTypographyProps={{
-          fontSize: "1.25rem",
-          fontWeight: "600",
-          color: isWinner ? "green" : "red",
-        }}
-      />
+      {!isSpectator && (
+        <CardHeader
+          title={isWinner ? "Game Over -> You Won!" : "Game Over -> You Lost!"}
+          titleTypographyProps={{
+            fontSize: "1.25rem",
+            fontWeight: "600",
+            color: isWinner ? "green" : "red",
+          }}
+        />
+      )}
       <StyledCardContent>
         {winner ? (
           <>
@@ -82,15 +87,20 @@ export default function GameStatuss({ winner, playerState, gameId }) {
                 Kills: {winner.kills}
               </Typography>
             </Box>
-            <Box flexGrow={1} display="flex" justifyContent="center" alignItems="center">
-              <Button
-                onClick={() => (window.location.href = `/cov/${gameId}`)}
-              >
+            <Box
+              flexGrow={1}
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+            >
+              <Button onClick={() => (window.location.href = `/cov/${gameId}`)}>
                 Canvas of Victory
               </Button>
             </Box>
           </>
-        ) : null}
+        ) : (
+          <Typography variant="h5">Game is still in progress</Typography>
+        )}
       </StyledCardContent>
     </Card>
   );
