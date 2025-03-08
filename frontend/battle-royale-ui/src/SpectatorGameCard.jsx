@@ -114,12 +114,12 @@ export default function SpectatorGameCard({
           >
             Game {gameId}
           </Typography>
-          <Typography sx={{ fontSize: "1rem" }} color="textSecondary">
+          <Typography sx={{ fontSize: "1rem" }} color={state === "active" ? "success.main" : "error.main"}>
             {state}
           </Typography>
         </Box>
         <Box ml={2}>{renderHexGrid(cells)}</Box>
-        <Typography>
+        {/* <Typography>
           <Typography component="span" sx={{ fontSize: "1rem" }}>
             Map:{" "}
           </Typography>
@@ -129,7 +129,7 @@ export default function SpectatorGameCard({
           >
             {radius} rings
           </Typography>
-        </Typography>
+        </Typography> */}
         <Box>
           {mapShrink && mapShrink === 1 && (
             <Typography>

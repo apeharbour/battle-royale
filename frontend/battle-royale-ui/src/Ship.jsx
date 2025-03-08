@@ -51,7 +51,7 @@ const hideTooltip = (player) => {
   if (tooltip) tooltip.style.display = "none";
 };
 
-export default function Ship({ ship, size, onShipClick }) {
+export default function Ship({ ship, size, onShipClick, className }) {
   const { q, r, s, mine, image, state } = ship;
 
   let processedDataUrl = removeYachtBackground(image);
@@ -86,7 +86,7 @@ export default function Ship({ ship, size, onShipClick }) {
   }
 
   return (
-    <g>
+    <g >
       {/* Tooltip for the ship */}
       <Tooltip
         q={q}
@@ -109,6 +109,7 @@ export default function Ship({ ship, size, onShipClick }) {
         onMouseOut={() => hideTooltip(ship.address)}
         // Forward clicks to your board's logic
         onClick={(e) => onShipClick(e, { q, r, s })}
+        className={className}
       >
         <image
           href={processedDataUrl}

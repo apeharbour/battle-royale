@@ -74,7 +74,7 @@ export default function Board({
   // console.log("Endpoints: ", endpoints);
   //  console.log("Path Length: ", shipPathLength);
   //  console.log("Shoot Path Length: ", shootPathLength);
-
+  //    console.log("ships: ", ships);
 
   const calcSize = ({ x, y }, radius, maxRadius) => {
     const factor = 0.9;
@@ -159,7 +159,7 @@ export default function Board({
         hex: { q, r, s },
       },
     };
-    handleMouseClick(event, mockSource);  // your existing logic
+    handleMouseClick(event, mockSource); // your existing logic
   }
 
   const layout = new Layout({
@@ -210,18 +210,18 @@ export default function Board({
 
   useEffect(() => {
     if (round === null) return;
-  
+
     // Trigger the animation
     setAnimationClass("animation-trigger");
     setAnimationComplete(false);
-  
+
     const timer = setTimeout(() => {
       setAnimationClass("");
       setAnimationComplete(true);
     }, 1000);
-  
+
     return () => clearTimeout(timer);
-  }, [round, gameState]);  
+  }, [round, gameState]);
 
   // Generate styles for ship movements and cannon shots
   useEffect(() => {
@@ -248,6 +248,14 @@ export default function Board({
             from { transform: translate(${origin.x}px, ${origin.y}px); } 
             to { transform: translate(${destination.x}px, ${destination.y}px); } 
           }`;
+          console.log(
+            "Ship",
+            ship.address,
+            ship.travel.origin,
+            ship.travel.destination,
+            styles,
+            keyFrames
+          );
           return [styles, keyFrames].join("\n");
         } else {
           return `.ship-${ship.address} { animation: none; }`;
@@ -380,11 +388,11 @@ export default function Board({
           .filter((ship) => ship !== null)
           .map((ship, index) => (
             <Ship
-              key={index}
+              key={`${ship.address}-${round}`}
               ship={ship}
               size={hexagonSize}
               className={`ship-${ship.address} ${
-                ship.state === "destroyed" ? "explosion" : animationClass
+                ship.state === "destroyed" ? "destroyed-ship" : animationClass
               }`}
               onShipClick={handleShipClick}
             />

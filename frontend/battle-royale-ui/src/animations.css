@@ -34,6 +34,12 @@
   animation: fade-out 5s ease-in forwards;
 }
 
+.destroyed-ship {
+  filter: grayscale(60%);
+  opacity: 1;
+}
+
+
 @keyframes explode {
   0% {
       transform: scale(0.1);

@@ -424,7 +424,7 @@ export default function SpectateGame() {
   return (
     <Fragment>
       <Grid mt={1}>
-        <Typography variant="h2" component="h1" align="center" gutterBottom>
+        <Typography variant="h4" component="h1" align="center" sx={{fontWeight: 500}} gutterBottom>
           Spectator Mode
         </Typography>
       </Grid>

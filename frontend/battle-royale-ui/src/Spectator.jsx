@@ -50,7 +50,7 @@ export default function Spectator() {
   return (
     <Grid container spacing={2}>
       {gameData &&
-        gameData.map((game) => (
+        gameData.slice().reverse().map((game) => (
           <Grid item size={2} key={game.gameId} mt={5}>
             <SpectatorGameCard
               gameId={game.gameId}

@@ -269,7 +269,7 @@ export default function ActiveGames(props) {
                     </Box>
                     <Box ml={-3}>{renderHexGrid(game.cells)}</Box>
                     <Box>
-                      <Typography>
+                      {/* <Typography>
                         <Typography component="span" sx={{ fontSize: "1rem" }}>
                           Map:{" "}
                         </Typography>
@@ -279,7 +279,7 @@ export default function ActiveGames(props) {
                         >
                           {game.radius} rings
                         </Typography>
-                      </Typography>
+                      </Typography> */}
                       {game.mapShrink && game.mapShrink === 1 && (
                         <Typography>
                           <Typography
