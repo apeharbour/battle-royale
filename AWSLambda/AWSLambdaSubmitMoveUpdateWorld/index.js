@@ -1339,7 +1339,7 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0x1756a712Dca2075786Ffb31739c91Af0d6BeF881";
+const contractAddress = "0xBc4a54b2290F9cBcbCA629D3977e499AFEdBb237";
 const rpcUrl = "https://curtis.rpc.caldera.xyz/http";
 
 exports.handler = async (event) => {

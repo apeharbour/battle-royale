@@ -157,7 +157,7 @@ contract Mapyarts {
                 i
             );
             for (uint8 c = 0; c < currentRing.length; c++) {
-                bool island = Random.getRandomValue(rnd, 100) < 16;
+                bool island = Random.getRandomValue(rnd, 100) < 14;
                 initCell(currentRing[c], gameId, island);
                 cells[start + c] = gameHexCells[gameId][currentRing[c].r][
                     currentRing[c].q

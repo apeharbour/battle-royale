@@ -372,7 +372,7 @@ const kmsKeyId =
       "type": "function"
     }
   ];
-  const REGISTRATION_ADDRESS = "0x4E665E50883c547DB7A0be155700AadBe8Fe42C4";
+  const REGISTRATION_ADDRESS = "0x9f6B8fB16545878d8711F3E7e8fd9B6C570F2FcC";
 
 const rpcUrl = "https://curtis.rpc.caldera.xyz/http";
 

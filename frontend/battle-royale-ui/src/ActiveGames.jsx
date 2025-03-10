@@ -98,6 +98,7 @@ export default function ActiveGames(props) {
           first: 1000,
         }),
       select,
+      refetchInterval: 10000,
     });
 
   const useGameData = () =>
