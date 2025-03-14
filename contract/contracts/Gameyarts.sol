@@ -550,34 +550,33 @@ contract Gameyarts is Ownable {
         }
 
         // Handle ship collisions
+        bool[] memory collided = new bool[](games[gameId].players.length);
         for (uint256 i = 0; i < games[gameId].players.length; i++) {
             if (!isActive[i]) continue;
-
+            address playerI = games[gameId].players[i];
+            Ship storage shipI = games[gameId].ships[playerI];
             for (uint256 j = i + 1; j < games[gameId].players.length; j++) {
                 if (!isActive[j]) continue;
-
-                Ship storage shipI = games[gameId].ships[
-                    games[gameId].players[i]
-                ];
-                Ship storage shipJ = games[gameId].ships[
-                    games[gameId].players[j]
-                ];
-
+                address playerJ = games[gameId].players[j];
+                Ship storage shipJ = games[gameId].ships[playerJ];
                 if (
                     shipI.coordinate.q == shipJ.coordinate.q &&
                     shipI.coordinate.r == shipJ.coordinate.r
                 ) {
-                    // Collision occurred
-                    isActive[i] = false;
-                    isActive[j] = false;
-                    emit ShipSunk(games[gameId].players[i], gameId);
-                    emit ShipSunk(games[gameId].players[j], gameId);
-                    sinkShip(games[gameId].players[i], gameId);
-                    sinkShip(games[gameId].players[j], gameId);
+                    collided[i] = true;
+                    collided[j] = true;
                 }
             }
         }
-
+        // Now sink every ship that was marked as collided
+        for (uint256 i = 0; i < games[gameId].players.length; i++) {
+            if (collided[i]) {
+                emit ShipSunk(games[gameId].players[i], gameId);
+                sinkShip(games[gameId].players[i], gameId);
+                isActive[i] = false;
+            }
+        }
+        
         // Track which ships have been shot and by whom
         bool[] memory isShot = new bool[](games[gameId].players.length);
         uint256[] memory shotBy = new uint256[](games[gameId].players.length);

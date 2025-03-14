@@ -434,30 +434,42 @@ export function handleShipSunk(event: ShipSunkEvent): void {
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
-  const game = Game.load(gameId)
-
-  if (game) {
-    let player = new Player(playerId)
-    player.state = PlayerState.CRASHED
-    player.killedInRound = game.currentRound
-    player.save()
+  let player = Player.load(playerId)
+  if (!player) {
+    player = new Player(playerId)
+    player.kills = 0 
   }
+  
+  player.state = PlayerState.CRASHED
+  
+  let game = Game.load(gameId)
+  if (game) {
+    player.killedInRound = game.currentRound
+  }
+  player.save()
 }
+
 
 export function handleShipSunkOutOfMap(event: ShipSunkOutOfMapEvent): void {
   log.info('Ship of {} dropped from map in game {}', [shortenAddress(event.params.captain), event.params.gameId.toString()])
   const gameId = Bytes.fromI32(event.params.gameId.toI32())
   const playerId = gameId.concat(event.params.captain)
 
-  const game = Game.load(gameId)
-
-  if (game) {
-    let player = new Player(playerId)
-    player.state = PlayerState.DROPPED
-    player.killedInRound = game.currentRound
-    player.save()
+  let player = Player.load(playerId)
+  if (!player) {
+    player = new Player(playerId)
+    player.kills = 0
   }
+  
+  player.state = PlayerState.DROPPED
+
+  let game = Game.load(gameId)
+  if (game) {
+    player.killedInRound = game.currentRound
+  }
+  player.save()
 }
+
 
 export function handleSubmitPhaseStarted(event: SubmitPhaseStartedEvent): void {
   log.info('Submit phase started for game {}', [event.params.gameId.toString()])

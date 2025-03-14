@@ -59,25 +59,46 @@ function getEndTime(scheduleRate) {
   
 
   async function setupEventBridgeRule(ruleName, scheduleRate, gameId) {
-    // Convert scheduleRate to a cron or rate expression as needed
-    // Example uses rate expression directly
+    // Check if rule exists
+    let ruleExists = false;
+    try {
+      await eventbridge.describeRule({ Name: ruleName }).promise();
+      ruleExists = true;
+    } catch (err) {
+      // If the error is that the rule doesn't exist, continue to create it.
+      if (err.code !== 'ResourceNotFoundException') {
+        throw err;
+      }
+    }
+  
+    // If the rule exists, remove existing targets to avoid duplicates.
+    if (ruleExists) {
+      await eventbridge.removeTargets({
+        Rule: ruleName,
+        Ids: ['TargetFunction']
+      }).promise();
+    }
+  
+    // Create or update the rule.
     await eventbridge.putRule({
       Name: ruleName,
       ScheduleExpression: `rate(${scheduleRate})`,
       State: 'ENABLED'
     }).promise();
   
-    // Set the target as your smart contract interaction Lambda function
+    // Add the target.
     await eventbridge.putTargets({
-        Rule: ruleName,
-            Targets: [
-                {
-                    Id: 'TargetFunction',
-                    Arn: 'arn:aws:lambda:eu-north-1:959450033266:function:submitMoveAndUpdateWorldBattleRoyale',
-                    Input: JSON.stringify({ gameId, scheduleRate })
-                }
-            ]
-        }).promise();
+      Rule: ruleName,
+      Targets: [
+        {
+          Id: 'TargetFunction',
+          Arn: 'arn:aws:lambda:eu-north-1:959450033266:function:submitMoveAndUpdateWorldBattleRoyale',
+          Input: JSON.stringify({ gameId, scheduleRate })
+        }
+      ]
+    }).promise();
+
+    await logCurrentTargets(ruleName);
   }
   
   async function broadcastInitialCountdown(endTime, gameId) {
@@ -119,4 +140,10 @@ function getEndTime(scheduleRate) {
       console.error(`Error updating countdown state for game ${gameId}:`, error);
     }
   }
+
+  async function logCurrentTargets(ruleName) {
+    const targets = await eventbridge.listTargetsByRule({ Rule: ruleName }).promise();
+    console.log(`Current targets for rule ${ruleName}:`, JSON.stringify(targets, null, 2));
+  }
+  
   

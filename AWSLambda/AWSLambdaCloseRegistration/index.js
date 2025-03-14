@@ -509,14 +509,15 @@ exports.handler = async (event) => {
     // (F) Fetch gameIds from the highest phase & call REST API for each
     try {
       const gameIds = await fetchGameIdsFromSubgraph();
-      for (const gameId of gameIds) {
+      // Deduplicate game IDs in case of duplicates in the subgraph response
+      const uniqueGameIds = [...new Set(gameIds)];
+      console.log("Unique game IDs in highest phase:", uniqueGameIds);
+      
+      for (const gameId of uniqueGameIds) {
         await callAfterGameCreatedAPI(gameId);
       }
     } catch (err) {
-      console.error(
-        "Error while fetching or calling subgraph-based game IDs:",
-        err
-      );
+      console.error("Error while fetching or calling subgraph-based game IDs:", err);
     }
 
     return {
