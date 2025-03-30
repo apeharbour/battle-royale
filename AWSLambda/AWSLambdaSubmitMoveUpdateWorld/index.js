@@ -1344,8 +1344,10 @@ const rpcUrl = "https://curtis.rpc.caldera.xyz/http";
 
 exports.handler = async (event) => {
   try {
-    const { gameId, scheduleRate } = event;
+    const { gameId, scheduleRate, ruleName } = event;
     const numericGameId = Number(gameId);
+
+    console.log("Received event:", event);
 
     const provider = new JsonRpcProvider(rpcUrl, {
       chainId: 33111,

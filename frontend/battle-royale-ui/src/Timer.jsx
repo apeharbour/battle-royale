@@ -84,15 +84,15 @@ export default function Timer({ gameId, gameState }) {
     const now = Date.now();
     const distance = new Date(endTime).getTime() - now;
 
-    // Check if endTime is not yet available or countdown has not started
     if (!endTime || distance < 0) {
       setTimeLeft("Waiting for transaction to complete...");
-      return true; // Indicates no active countdown
+      return true; // No active countdown
     } else {
-      // Update countdown time
+      // Calculate total hours, remaining minutes and seconds
+      const hours = Math.floor(distance / (1000 * 60 * 60));
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-      setTimeLeft(`${minutes}m ${seconds}s`);
+      setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
       return false; // Countdown is active
     }
   };
