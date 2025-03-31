@@ -1339,12 +1339,12 @@ const contractABI = [
     "type": "function"
   }
 ];
-const contractAddress = "0xBc4a54b2290F9cBcbCA629D3977e499AFEdBb237";
+const contractAddress = "0xc9054895d92a16F2FB8E5b1e146Ad84FF19341CA";
 const rpcUrl = "https://curtis.rpc.caldera.xyz/http";
 
 exports.handler = async (event) => {
   try {
-    const { gameId, scheduleRate, ruleName } = event;
+    const { gameId, ruleName } = event;
     const numericGameId = Number(gameId);
 
     console.log("Received event:", event);
@@ -1368,7 +1368,7 @@ exports.handler = async (event) => {
       };
     }
 
-    const endTime = getEndTime(scheduleRate);
+    const endTime = getNext6pm();
 
     const {
       travelDirections,
@@ -1445,9 +1445,18 @@ exports.handler = async (event) => {
   }
 };
 
-function getEndTime(scheduleRate) {
-  const durationInMinutes = parseInt(scheduleRate.split(" ")[0], 10);
-  return new Date(Date.now() + durationInMinutes * 60_000).getTime();
+function getNext6pm() {
+  const now = new Date();
+  // Get the current time in Europe/Stockholm
+  const timeString = now.toLocaleTimeString("en-US", { timeZone: "Europe/Stockholm", hour12: false });
+  const [hours, minutes] = timeString.split(':').map(Number);
+  const currentMinutes = hours * 60 + minutes;
+  const targetMinutes = 18 * 60; // 6pm in minutes
+  let diffMinutes = targetMinutes - currentMinutes;
+  if (diffMinutes <= 0) {
+    diffMinutes += 24 * 60; // schedule for the next day if 6pm has passed
+  }
+  return now.getTime() + diffMinutes * 60000;
 }
 
 async function fetchPlayerMoves(gameId) {
