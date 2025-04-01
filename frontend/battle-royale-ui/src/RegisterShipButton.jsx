@@ -4,6 +4,7 @@ import {
   useAccount,
   useWriteContract,
   useWaitForTransactionReceipt,
+  useReadContract,
 } from "wagmi";
 import { useSnackbar } from "notistack";
 import { Box, DialogActions, Stack, Typography } from "@mui/material";
@@ -93,8 +94,25 @@ export default function RegisterShipButton({
 
   const { enqueueSnackbar } = useSnackbar();
   const { address, isConnected } = useAccount();
-
   const navigate = useNavigate();
+
+  const {
+    data: registrationStatus,
+    isPending: isCheckingRegistration,
+    error: readError,
+  } = useReadContract({
+    address: REGISTRATION_ADDRESS,
+    abi: REGISTRATION_ABI,
+    functionName: "registeredPlayers",
+    args: [address],
+    query: {
+      enabled: !!address,
+    },
+  });
+
+  const isAlreadyRegistered =
+    registrationStatus &&
+    (registrationStatus.registered || registrationStatus[0]);
 
   const { data: hash, writeContract, error: writeError } = useWriteContract();
 
@@ -137,7 +155,7 @@ export default function RegisterShipButton({
     if (isConfirmed && txInFlight) {
       enqueueSnackbar(`Ship ${shipId} registered`, { variant: "success" });
       console.log(`Ship ${shipId} registered`, receipt);
-      setTxInFlight(false); // Reset after success to prevent re-triggering
+      setTxInFlight(false);
       setRegistrationDialogOpen(false);
       navigate("/activegames");
     }
@@ -146,10 +164,8 @@ export default function RegisterShipButton({
   useEffect(() => {
     if (writeError) {
       if (writeError.code === 4001) {
-        // User rejected the transaction
         enqueueSnackbar("Transaction rejected by user", { variant: "error" });
       } else {
-        // Other errors
         enqueueSnackbar("An error occurred during the transaction", {
           variant: "error",
         });
@@ -164,16 +180,21 @@ export default function RegisterShipButton({
     onCancel();
   };
 
-  const handleAgree = () => {
-    setAcknowledgementDialogOpen(false);
-    registerShip();
-  };
-
+  // When the user clicks register, check if they are already registered.
   const handleRegisterClick = () => {
+    if (isAlreadyRegistered) {
+      enqueueSnackbar("Account already registered", { variant: "info" });
+      return;
+    }
     enqueueSnackbar("Please acknowledge the terms and conditions", {
       variant: "info",
     });
     setAcknowledgementDialogOpen(true);
+  };
+
+  const handleAgree = () => {
+    setAcknowledgementDialogOpen(false);
+    registerShip();
   };
 
   const handleAcknowledgementClose = () => {
@@ -188,7 +209,6 @@ export default function RegisterShipButton({
     return null;
   }
 
-  // Only call the background-removal if shipData is available
   const modifiedImage = removeYachtBackground(shipData.image);
 
   return (
@@ -248,9 +268,20 @@ export default function RegisterShipButton({
               </HolographicButtonRed>
               <HolographicButtonGreen
                 onClick={handleRegisterClick}
-                disabled={!shipId || isConfirming || !isConnected || burned}
+                disabled={
+                  !shipId ||
+                  isConfirming ||
+                  !isConnected ||
+                  burned ||
+                  isAlreadyRegistered ||
+                  isCheckingRegistration
+                }
               >
-                {isConfirming ? "Confirming..." : "Register"}
+                {isAlreadyRegistered
+                  ? "Already Registered"
+                  : isConfirming
+                  ? "Confirming..."
+                  : "Register"}
               </HolographicButtonGreen>
             </Stack>
           </DialogActions>

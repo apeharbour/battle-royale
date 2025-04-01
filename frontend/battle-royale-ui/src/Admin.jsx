@@ -4,7 +4,6 @@ import {
   useAccount,
   useWriteContract,
   useWaitForTransactionReceipt,
-  useWatchContractEvent,
 } from "wagmi";
 import { useQuery } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
