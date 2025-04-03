@@ -248,14 +248,6 @@ export default function Board({
             from { transform: translate(${origin.x}px, ${origin.y}px); } 
             to { transform: translate(${destination.x}px, ${destination.y}px); } 
           }`;
-          console.log(
-            "Ship",
-            ship.address,
-            ship.travel.origin,
-            ship.travel.destination,
-            styles,
-            keyFrames
-          );
           return [styles, keyFrames].join("\n");
         } else {
           return `.ship-${ship.address} { animation: none; }`;

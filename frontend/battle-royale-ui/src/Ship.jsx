@@ -153,7 +153,6 @@ export default function Ship({ ship, size, onShipClick, className }) {
             <path
               className="explosion"
               d="M -1 -2 l 1 -4 l 1 3 l 4 -1 l -3 3 l 4 2 l -4 0 l 2 4 l -3 -3 l -2 3 l 0 -3 l -2 1 l 1 -3 l -2 -2 z"
-              visibility="hidden"
             />
           </Hexagon>
         </g>

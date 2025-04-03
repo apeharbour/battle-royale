@@ -19,9 +19,20 @@ const StyledCardContent = styled(CardContent)(({ theme }) => ({
 }));
 
 export default function GameInfo({ round, gameId, mapShrink, gameState }) {
+
+  const maxShrinks = 6;
+  const currentShrinkCount = Math.floor(round / mapShrink);
   const roundsUntilShrink = mapShrink - (round % mapShrink);
 
+
   const shrinkMessage = () => {
+    if (currentShrinkCount >= maxShrinks) {
+      return (
+        <Typography sx={{ fontSize: "1rem" }} color="error">
+          No more shrinking
+        </Typography>
+      );
+    }
     if (roundsUntilShrink === mapShrink) {
       return (
         <Typography sx={{ fontSize: "1rem" }} color="error">
@@ -38,14 +49,15 @@ export default function GameInfo({ round, gameId, mapShrink, gameState }) {
     }
   };
 
-  // Decide what to show: the shrink message or "Game Over"
-  const content = gameState === "finished" ? (
-    <Typography sx={{ fontSize: "1rem" }} color="error">
-      Game Over
-    </Typography>
-  ) : (
-    shrinkMessage()
-  );
+  // Show either the shrink message or "Game Over" when finished.
+  const content =
+    gameState === "finished" ? (
+      <Typography sx={{ fontSize: "1rem" }} color="error">
+        Game Over
+      </Typography>
+    ) : (
+      shrinkMessage()
+    );
 
   return (
     <Card elevation={4} sx={{ overflow: "hidden" }}>

@@ -20,7 +20,7 @@
 
 .explosion {
   animation: explode 0.5s ease-in forwards;
-  animation-delay: 3.5s;
+  animation-delay: 4.4s;
   stroke-linejoin: round;
   stroke-linecap: round;
   stroke-width: 0.1;

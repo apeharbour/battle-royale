@@ -62,9 +62,8 @@ export default function GameStatuss({ winner, gameId }) {
               <Box flexGrow={1}>
                 <Tooltip title={winner.address} arrow>
                   <Typography
-                    variant="h6"
                     gutterBottom
-                    sx={{ cursor: "pointer" }}
+                    sx={{ cursor: "pointer", fontSize: "1rem" }}
                   >
                     Winner:{" "}
                     {winner.address
@@ -83,7 +82,7 @@ export default function GameStatuss({ winner, gameId }) {
               />
             </Box>
             <Box flexGrow={1}>
-              <Typography variant="h6" gutterBottom>
+              <Typography gutterBottom sx={{ fontSize: "1rem" }}>
                 Kills: {winner.kills}
               </Typography>
             </Box>
@@ -99,7 +98,9 @@ export default function GameStatuss({ winner, gameId }) {
             </Box>
           </>
         ) : (
-          <Typography variant="h5">Game is still in progress</Typography>
+          <Typography sx={{ fontSize: "1rem" }}>
+            Game is still in progress
+          </Typography>
         )}
       </StyledCardContent>
     </Card>
