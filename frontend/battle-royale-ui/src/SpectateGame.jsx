@@ -22,6 +22,7 @@ import LastRoundResults from "./LastRoundResults.jsx";
 import SpectatePlayers from "./SpectatePlayers.jsx";
 import SpectateLeaderBoard from "./SpectateLeaderBoard.jsx";
 import GameStatuss from "./GameStatuss.jsx";
+import SpectatorTitle from "./SpectatorTitle.jsx";
 
 const GAME_ADDRESS = import.meta.env.VITE_GAME_ADDRESS;
 const GAME_ABI = GameAbi.abi;
@@ -423,11 +424,11 @@ export default function SpectateGame() {
 
   return (
     <Fragment>
-      <Grid mt={1}>
+      {/* <Grid mt={1}>
         <Typography variant="h4" component="h1" align="center" sx={{fontWeight: 500}} gutterBottom>
           Spectator Mode
         </Typography>
-      </Grid>
+      </Grid> */}
       <Grid container spacing={2} p={4}>
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
@@ -457,6 +458,7 @@ export default function SpectateGame() {
 
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
+            <SpectatorTitle />
             <FormControlLabel
               control={
                 <Switch
@@ -479,10 +481,7 @@ export default function SpectateGame() {
               mapShrink={mapShrink}
               gameState={gameState}
             />
-            <GameStatuss
-              winner={winner}
-              gameId={gameId}
-            />
+            <GameStatuss winner={winner} gameId={gameId} />
           </Stack>
         </Grid>
       </Grid>

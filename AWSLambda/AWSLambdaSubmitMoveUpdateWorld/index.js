@@ -1446,18 +1446,11 @@ exports.handler = async (event) => {
 };
 
 function getNext6pm() {
-  const now = new Date();
-  // Get the current time in Europe/Stockholm
-  const timeString = now.toLocaleTimeString("en-US", { timeZone: "Europe/Stockholm", hour12: false });
-  const [hours, minutes] = timeString.split(':').map(Number);
-  const currentMinutes = hours * 60 + minutes;
-  const targetMinutes = 18 * 60; // 6pm in minutes
-  let diffMinutes = targetMinutes - currentMinutes;
-  if (diffMinutes <= 0) {
-    diffMinutes += 24 * 60; // schedule for the next day if 6pm has passed
-  }
-  return now.getTime() + diffMinutes * 60000;
+  // Instead of calculating 6pm, just add 2 minutes to the current time.
+  const durationInMinutes = 2;
+  return Date.now() + durationInMinutes * 60000;
 }
+
 
 async function fetchPlayerMoves(gameId) {
   const params = {

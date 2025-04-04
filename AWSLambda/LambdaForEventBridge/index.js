@@ -20,11 +20,13 @@ exports.handler = async (event) => {
     };
   }
 
+  const scheduleRate = "2 minutes";
+
   // Schedule future actions with EventBridge using a fixed cron expression
   const ruleName = `TriggerContractFunctionForGame_${gameId}`;
   try {
     console.log(`Setting up EventBridge rule: ${ruleName}`);
-    await setupEventBridgeRule(ruleName, gameId);
+    await setupEventBridgeRule(ruleName, scheduleRate ,gameId);
     console.log('EventBridge rule created/updated successfully');
   } catch (error) {
     console.error('Error creating/updating EventBridge rule:', error);
@@ -33,10 +35,10 @@ exports.handler = async (event) => {
 
   // Calculate next 6pm countdown end time and broadcast it
   try {
-    const endTime = getNext6pm(); 
-    console.log(`Calculated endTime: ${endTime} for gameId: ${gameId}`);
+    const endTime = getEndTime(scheduleRate); 
+
     await updateCountdownState(numericGameId, endTime);
-    console.log(`Countdown state updated for gameId: ${gameId}`);
+
     await broadcastInitialCountdown(endTime, gameId);
     console.log('Initial countdown broadcasted successfully');
   } catch (error) {
@@ -56,67 +58,59 @@ exports.handler = async (event) => {
 };
 
 // This function calculates the timestamp for the next occurrence of 6pm in Europe/Stockholm.
-function getNext6pm() {
-  const now = new Date();
-  // Get the current time in Europe/Stockholm (formatted as HH:mm:ss)
-  const timeString = now.toLocaleTimeString("en-US", { timeZone: "Europe/Stockholm", hour12: false });
-  const [hours, minutes, seconds] = timeString.split(':').map(Number);
-  const currentMinutes = hours * 60 + minutes;
-  const targetMinutes = 18 * 60; // 6pm in minutes
-  let diffMinutes = targetMinutes - currentMinutes;
-  if (diffMinutes <= 0) {
-    diffMinutes += 24 * 60; // If 6pm has passed, schedule for the next day.
-  }
-  return now.getTime() + diffMinutes * 60000;
+function getEndTime(scheduleRate) {
+  // Example assumes scheduleRate is like "5 minutes"
+  const durationInMinutes = parseInt(scheduleRate.split(" ")[0], 10);
+  return new Date(new Date().getTime() + durationInMinutes * 60000).getTime();
+
+
+
+
+
+
+
 }
 
-async function setupEventBridgeRule(ruleName, gameId) {
-  console.log(`Checking if rule ${ruleName} exists...`);
+
+async function setupEventBridgeRule(ruleName, scheduleRate, gameId) {
+  // Check if rule exists
   let ruleExists = false;
   try {
     await eventbridge.describeRule({ Name: ruleName }).promise();
     ruleExists = true;
-    console.log(`Rule ${ruleName} exists.`);
   } catch (err) {
+    // If the error is that the rule doesn't exist, continue to create it.
     if (err.code !== 'ResourceNotFoundException') {
-      console.error(`Error describing rule ${ruleName}:`, err);
       throw err;
     }
-    console.log(`Rule ${ruleName} does not exist and will be created.`);
   }
 
   // If the rule exists, remove existing targets to avoid duplicates.
   if (ruleExists) {
-    console.log(`Removing existing targets for rule ${ruleName}...`);
     await eventbridge.removeTargets({
       Rule: ruleName,
       Ids: ['TargetFunction']
     }).promise();
-    console.log(`Existing targets removed for rule ${ruleName}.`);
   }
 
-  // Create or update the rule with a fixed cron expression for 6pm European time (Europe/Stockholm)
-  console.log(`Creating/updating rule ${ruleName} with fixed cron schedule for 6pm European time`);
+  // Create or update the rule.
   await eventbridge.putRule({
     Name: ruleName,
-    ScheduleExpression: `cron(0 16 * * ? *)`, // 16:00 UTC corresponds to 18:00 Stockholm (UTC+2) during summer
+    ScheduleExpression: `rate(${scheduleRate})`,
     State: 'ENABLED'
-  }).promise();  
-  console.log(`Rule ${ruleName} created/updated.`);
+  }).promise();
 
-  // Add the target with the ruleName parameter included in the Input (scheduleRate is removed)
-  console.log(`Adding target to rule ${ruleName} with gameId: ${gameId}, ruleName: ${ruleName}`);
+  // Add the target.
   await eventbridge.putTargets({
     Rule: ruleName,
     Targets: [
       {
         Id: 'TargetFunction',
         Arn: 'arn:aws:lambda:eu-north-1:959450033266:function:submitMoveAndUpdateWorldBattleRoyale',
-        Input: JSON.stringify({ gameId, ruleName })
+        Input: JSON.stringify({ gameId, scheduleRate })
       }
     ]
   }).promise();
-  console.log(`Target added to rule ${ruleName}.`);
 
   await logCurrentTargets(ruleName);
 }
