@@ -548,13 +548,13 @@ export default function Game(props) {
                 </Typography>
               }
             />
-            <Timer gameId={gameId} gameState={gameState} />
             <GameInfo
               round={currentRound}
               gameId={gameId}
               mapShrink={mapShrink}
               gameState={gameState}
             />
+              <Timer gameId={gameId} gameState={gameState} />
             {playerStateDialogOpen && (
               <GameStatuss
                 winner={winner}

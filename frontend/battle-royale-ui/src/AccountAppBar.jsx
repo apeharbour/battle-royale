@@ -48,7 +48,7 @@ export default function AccountAppBar({ toggleDarkMode }) {
             justifyContent: "center",
             cursor: "pointer",
             width: "auto",
-            height: "auto", 
+            height: "auto",
             overflow: "hidden",
           }}
           onClick={handleLogoClick}
@@ -67,19 +67,21 @@ export default function AccountAppBar({ toggleDarkMode }) {
         {/* <Typography variant="h6" component="div" sx={{ marginLeft: 1 }}>
           PUNKSHIPS
         </Typography> */}
-        <Button
-          color="inherit"
-          onClick={() => navigate("/registration")}
-          sx={{
-            marginLeft: 4,
-            ...(isActiveRoute("/registration") ? activeButtonStyle : {}),
-            "& .MuiButton-label": {
-              fontSize: "1rem",
-            },
-          }}
-        >
-          Registration
-        </Button>
+        {address && (
+          <Button
+            color="inherit"
+            onClick={() => navigate("/registration")}
+            sx={{
+              marginLeft: 4,
+              ...(isActiveRoute("/registration") ? activeButtonStyle : {}),
+              "& .MuiButton-label": {
+                fontSize: "1rem",
+              },
+            }}
+          >
+            Registration
+          </Button>
+        )}
         {address && (
           <Button
             color="inherit"
@@ -110,21 +112,19 @@ export default function AccountAppBar({ toggleDarkMode }) {
             Hall of Fame
           </Button>
         )}
-        {address && (
-          <Button
-            color="inherit"
-            onClick={() => navigate("/spectator")}
-            sx={{
-              marginLeft: 2,
-              "& .MuiButton-label": {
-                fontSize: "1rem",
-              },
-              ...(isActiveRoute("/spectator") ? activeButtonStyle : {}),
-            }}
-          >
-            Spectate
-          </Button>
-        )}
+        <Button
+          color="inherit"
+          onClick={() => navigate("/spectator")}
+          sx={{
+            marginLeft: 2,
+            "& .MuiButton-label": {
+              fontSize: "1rem",
+            },
+            ...(isActiveRoute("/spectator") ? activeButtonStyle : {}),
+          }}
+        >
+          Spectate
+        </Button>
         {address &&
           address === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" && (
             <Button

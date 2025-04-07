@@ -102,12 +102,12 @@ export default function Timer({ gameId, gameState }) {
 
   return (
     <Card elevation={4}>
-      {/* <CardHeader
+       <CardHeader
         title="Next Move Timer"
         titleTypographyProps={{ fontSize: "1.25rem", fontWeight: "600" }}
-      /> */}
+      />
       <CardContent sx={{ flex: "1 0 auto" }}>
-        <Typography color="warning.main" sx={{ fontSize: "1.25rem", fontWeight: "600" }}>
+        <Typography color="warning.main" sx={{ fontSize: "1rem" }}>
           {displayTime}
         </Typography>
       </CardContent>

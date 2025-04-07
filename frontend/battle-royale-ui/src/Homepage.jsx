@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ConnectKitButton } from "connectkit";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Link, Stack, Typography } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import yartsLogoTransparent from "./images/yartsLogoTransparent.svg";
 import Master1 from "./images/Master1.svg";
@@ -96,36 +96,60 @@ export default function Homepage() {
 
       {/* ConnectKit Button */}
       <Grid item xs={12}>
-        <ConnectKitButton.Custom>
-          {({ isConnected, show }) => {
-            if (isConnected && !walletConnected) {
-              setWalletConnected(true);
-            }
+        <Stack
+          direction="row"
+          spacing={2}
+          justifyContent="center"
+          alignItems="center"
+        >
+          <ConnectKitButton.Custom>
+            {({ isConnected, show }) => {
+              if (isConnected && !walletConnected) {
+                setWalletConnected(true);
+              }
 
-            return (
-              <Button
-                onClick={show}
-                sx={{
-                  fontSize: "1.35rem",
-                  fontWeight: 700,
-                  backgroundColor: "transparent",
-                  color: "inherit",
-                  border: "none",
-                  "&:hover": {
+              return (
+                <Button
+                  onClick={show}
+                  sx={{
+                    fontSize: "1.35rem",
+                    fontWeight: 700,
+                    backgroundColor: "transparent",
+                    color: "inherit",
                     border: "1px solid currentColor",
-                  },
-                  "&:focus": {
-                    outline: "none",
-                  },
-                  textTransform: "none",
-                  padding: "9px 18px",
-                }}
-              >
-                {isConnected ? "Connected" : "Connect"}
-              </Button>
-            );
-          }}
-        </ConnectKitButton.Custom>
+                    textTransform: "none",
+                    padding: "9px 18px",
+                    "&:hover": {
+                      transform: "scale(1.05)",
+                      transition: "transform 0.2s ease-in-out",
+                    },
+                  }}
+                >
+                  {isConnected ? "Connected" : "Connect"}
+                </Button>
+              );
+            }}
+          </ConnectKitButton.Custom>
+          <Link href="/spectator" underline="none" color="inherit">
+            <Button
+              sx={{
+                fontSize: "1.35rem",
+                fontWeight: 700,
+                backgroundColor: "transparent",
+                color: "inherit",
+                border: "1px solid currentColor",
+                textTransform: "none",
+                padding: "9px 18px",
+                "&:hover": {
+                  transform: "scale(1.05)",
+                  transition: "transform 0.2s ease-in-out",
+                },
+              }}
+            >
+              Spectate
+            </Button>
+          </Link>
+        </Stack>
       </Grid>
     </Grid>
   );

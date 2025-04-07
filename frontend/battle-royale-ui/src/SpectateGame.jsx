@@ -474,13 +474,14 @@ export default function SpectateGame() {
                 </Typography>
               }
             />
-            <Timer gameId={gameId} gameState={gameState} />
+
             <GameInfo
               round={currentRound}
               gameId={gameId}
               mapShrink={mapShrink}
               gameState={gameState}
             />
+            <Timer gameId={gameId} gameState={gameState} />
             <GameStatuss winner={winner} gameId={gameId} />
           </Stack>
         </Grid>

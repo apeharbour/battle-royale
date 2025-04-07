@@ -37,13 +37,11 @@ export default function Spectator() {
           first: 1000,
         }),
       select,
-      enabled: !!blockNumber,
       refetchOnWindowFocus: false,
-      refetchOnReconnect: false,
     });
 
   const { data: gameData } = useGameQuery((data) => {
-    //console.log("Game Data:", data);
+    console.log("Game Data:", data);
     return data.games;
   });
 
