@@ -1,3 +1,23 @@
+import React from "react";
+import { Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { styled } from "@mui/material/styles";
+
+const StyledCardContent = styled(CardContent)(({ theme }) => ({
+  height: "calc(100% - 64px)",
+  overflowY: "auto",
+  "&::-webkit-scrollbar": {
+    width: "0.5rem",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: theme.palette.primary.main,
+    borderRadius: "4px",
+  },
+  "&::-webkit-scrollbar-track": {
+    backgroundColor: theme.palette.background.paper,
+  },
+  textAlign: "left",
+}));
+
 export default function GameInfo({ round, gameId, mapShrink, gameState }) {
   const maxShrinks = 6;
   // Subtract 1 so that shrink count starts at 0 in round 1
