@@ -387,6 +387,7 @@ export default function Board({
                 ship.state === "destroyed" ? "destroyed-ship" : animationClass
               }`}
               onShipClick={handleShipClick}
+              animationRound={round > 1 ? round - 1 : round}
             />
           ))}
         {myShip && myShip.state === "active" && (

@@ -1,4 +1,5 @@
-import React from "react";
+import skullImage from "./images/skull.jpg";
+import React, { useEffect, useState } from "react";
 import { Hexagon } from "react-hexgrid";
 import removeYachtBackground from "./RemoveYachtBackground";
 
@@ -53,10 +54,11 @@ const hideTooltip = (player) => {
 
 export default function Ship({ ship, size, onShipClick, className }) {
   const { q, r, s, mine, image, state } = ship;
+  const [isDestroyedDelayed, setIsDestroyedDelayed] = useState(false);
+  const [showSkull, setShowSkull] = useState(false);
 
   let processedDataUrl = removeYachtBackground(image);
 
-  // Example: If 'mine' is true, replace the .border fill to animate
   try {
     const base64Part = processedDataUrl.split(",")[1];
     const svgString = atob(base64Part);
@@ -78,16 +80,38 @@ export default function Ship({ ship, size, onShipClick, className }) {
     console.error("Failed to inject border animation:", error);
   }
 
-  // Apply destroyed styling if needed
+  // Only trigger the sequence if this is the first time the ship becomes destroyed.
+  useEffect(() => {
+    if (state === "destroyed" && !isDestroyedDelayed) {
+      let skullTimer, grayscaleTimer;
+      // Wait 4 seconds after the ship gets destroyed to show the skull overlay.
+      skullTimer = setTimeout(() => {
+        setShowSkull(true);
+        // After 1 second of showing the skull, remove it and set the final grayscale state.
+        grayscaleTimer = setTimeout(() => {
+          setShowSkull(false);
+          setIsDestroyedDelayed(true);
+        }, 1000);
+      }, 4000);
+      return () => {
+        clearTimeout(skullTimer);
+        clearTimeout(grayscaleTimer);
+      };
+    } else if (state !== "destroyed") {
+      // Reset if ship is not destroyed.
+      setShowSkull(false);
+      setIsDestroyedDelayed(false);
+    }
+  }, [state, isDestroyedDelayed]);
+
   const imageStyle = {};
-  if (state === "destroyed") {
+  if (state === "destroyed" && isDestroyedDelayed) {
     imageStyle.filter = "grayscale(80%)";
     imageStyle.opacity = 0.2;
   }
 
   return (
-    <g >
-      {/* Tooltip for the ship */}
+    <g>
       <Tooltip
         q={q}
         r={r}
@@ -98,16 +122,14 @@ export default function Ship({ ship, size, onShipClick, className }) {
         player={ship.address}
       />
 
-      {/* The main hexagon representing the ship */}
       <Hexagon
         q={q}
         r={r}
         s={s}
         fill="none"
-        style={{ pointerEvents: "auto" }} 
+        style={{ pointerEvents: "auto" }}
         onMouseOver={(e) => showTooltip(e, ship.address)}
         onMouseOut={() => hideTooltip(ship.address)}
-        // Forward clicks to your board's logic
         onClick={(e) => onShipClick(e, { q, r, s })}
         className={className}
       >
@@ -119,12 +141,23 @@ export default function Ship({ ship, size, onShipClick, className }) {
           y={-size.y}
           style={{
             ...imageStyle,
-            pointerEvents: "none", // Only the image ignores clicks/hover
+            pointerEvents: "none",
           }}
         />
+
+        {/* Display imported skull image on top if required */}
+        {state === "destroyed" && showSkull && (
+          <image
+            href={skullImage}
+            width={size.x * 2}
+            height={size.y * 2}
+            x={-size.x}
+            y={-size.y}
+            style={{ pointerEvents: "none" }}
+          />
+        )}
       </Hexagon>
 
-      {/* If there's a shot in progress, render the cannonball and explosion */}
       {ship.shot && ship.shot.origin && (
         <g>
           <Hexagon
