@@ -1,4 +1,4 @@
-import skullImage from "./images/skull.jpg";
+import skullImage from "./images/skull.png";
 import React, { useEffect, useState } from "react";
 import { Hexagon } from "react-hexgrid";
 import removeYachtBackground from "./RemoveYachtBackground";
@@ -149,10 +149,10 @@ export default function Ship({ ship, size, onShipClick, className }) {
         {state === "destroyed" && showSkull && (
           <image
             href={skullImage}
-            width={size.x * 2}
-            height={size.y * 2}
-            x={-size.x}
-            y={-size.y}
+            width={size.x * 1.5}
+            height={size.y * 1.5}
+            x={-size.x + 0.8}
+            y={-size.y + 0.5}
             style={{ pointerEvents: "none" }}
           />
         )}
