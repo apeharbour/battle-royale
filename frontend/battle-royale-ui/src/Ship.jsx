@@ -91,8 +91,8 @@ export default function Ship({ ship, size, onShipClick, className }) {
         grayscaleTimer = setTimeout(() => {
           setShowSkull(false);
           setIsDestroyedDelayed(true);
-        }, 1000);
-      }, 4000);
+        }, 3000);
+      }, 4500);
       return () => {
         clearTimeout(skullTimer);
         clearTimeout(grayscaleTimer);
