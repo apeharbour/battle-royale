@@ -111,6 +111,7 @@ export default function Game(props) {
   const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
   const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
   // const [randomInt, setRandomInt] = useState(generateRandomInt());
+  const [deadPlayers, setDeadPlayers] = useState({});
 
   const [endpoints, setEndpoints] = useState({
     travel: undefined,
@@ -461,6 +462,26 @@ export default function Game(props) {
     }
   }, [playerState]);
 
+  useEffect(() => {
+    if (ships && currentRound) {
+      setDeadPlayers((prevDead) => {
+        // Copy previous state to avoid overwriting
+        const updatedDead = { ...prevDead };
+        ships.forEach((ship) => {
+          // If a ship has a kill round and it’s lower than the current round,
+          // mark that ship as already dead.
+          if (ship.killedInRound) {
+            const deathRound = parseInt(ship.killedInRound.round);
+            if (currentRound > deathRound && !updatedDead[ship.address]) {
+              updatedDead[ship.address] = deathRound;
+            }
+          }
+        });
+        return updatedDead;
+      });
+    }
+  }, [ships, currentRound]);  
+
   const clearTravelAndShotEndpoints = () => {
     setEndpoints({ travel: undefined, shot: undefined });
   };
@@ -516,6 +537,7 @@ export default function Game(props) {
             tempTravelEndpoint={tempTravelEndpoint}
             round={currentRound}
             gameState={gameState}
+            deadPlayers={deadPlayers}
           />
         )}
 

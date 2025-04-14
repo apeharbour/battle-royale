@@ -58,6 +58,7 @@ export default function Board({
   setTempShotEndpoint,
   round,
   gameState,
+  deadPlayers,
 }) {
   const [shipPathLength, setShipPathLength] = useState(0);
   const [shootPathLength, setShootPathLength] = useState(0);
@@ -388,6 +389,8 @@ export default function Board({
               }`}
               onShipClick={handleShipClick}
               animationRound={round > 1 ? round - 1 : round}
+              deadPlayers={deadPlayers}
+              currentRound={round}
             />
           ))}
         {myShip && myShip.state === "active" && (

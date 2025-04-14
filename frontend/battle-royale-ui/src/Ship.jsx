@@ -52,12 +52,24 @@ const hideTooltip = (player) => {
   if (tooltip) tooltip.style.display = "none";
 };
 
-export default function Ship({ ship, size, onShipClick, className }) {
+export default function Ship({
+  ship,
+  size,
+  onShipClick,
+  className,
+  deadPlayers,
+  currentRound,
+}) {
   const { q, r, s, mine, image, state } = ship;
   const [isDestroyedDelayed, setIsDestroyedDelayed] = useState(false);
   const [showSkull, setShowSkull] = useState(false);
 
   let processedDataUrl = removeYachtBackground(image);
+
+  const wasDeadPreviously =
+    deadPlayers &&
+    deadPlayers[ship.address] &&
+    currentRound > deadPlayers[ship.address];
 
   try {
     const base64Part = processedDataUrl.split(",")[1];
@@ -80,14 +92,12 @@ export default function Ship({ ship, size, onShipClick, className }) {
     console.error("Failed to inject border animation:", error);
   }
 
-  // Only trigger the sequence if this is the first time the ship becomes destroyed.
   useEffect(() => {
-    if (state === "destroyed" && !isDestroyedDelayed) {
+    // Only start the destruction animation if the ship's state is "destroyed" and it's not already marked as dead (previous round)
+    if (state === "destroyed" && !wasDeadPreviously && !isDestroyedDelayed) {
       let skullTimer, grayscaleTimer;
-      // Wait 4 seconds after the ship gets destroyed to show the skull overlay.
       skullTimer = setTimeout(() => {
         setShowSkull(true);
-        // After 1 second of showing the skull, remove it and set the final grayscale state.
         grayscaleTimer = setTimeout(() => {
           setShowSkull(false);
           setIsDestroyedDelayed(true);
@@ -97,12 +107,13 @@ export default function Ship({ ship, size, onShipClick, className }) {
         clearTimeout(skullTimer);
         clearTimeout(grayscaleTimer);
       };
-    } else if (state !== "destroyed") {
-      // Reset if ship is not destroyed.
-      setShowSkull(false);
-      setIsDestroyedDelayed(false);
     }
-  }, [state, isDestroyedDelayed]);
+    // If the ship was already dead in an earlier round, immediately mark it so that it doesn't animate
+    if (state === "destroyed" && wasDeadPreviously) {
+      setIsDestroyedDelayed(true);
+      setShowSkull(false);
+    }
+  }, [state, wasDeadPreviously, isDestroyedDelayed]);
 
   const imageStyle = {};
   if (state === "destroyed" && isDestroyedDelayed) {
