@@ -52,6 +52,7 @@ export default function SpectateBoard({
   setTempShotEndpoint,
   round,
   gameState,
+  deadPlayers,
 }) {
   const [shipPathLength, setShipPathLength] = useState(0);
   const [shootPathLength, setShootPathLength] = useState(0);
@@ -319,6 +320,8 @@ const canonStyles = ships
               ship={ship}
               size={hexagonSize}
               className={`ship-${ship.address} ${animationClass}`}
+              deadPlayers={deadPlayers}
+              currentRound={round}
             />
           </React.Fragment>
         ))}

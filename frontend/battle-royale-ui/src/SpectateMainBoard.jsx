@@ -2,7 +2,7 @@ import { Grid } from "@mui/material";
 import SpectateBoard from "./SpectateBoard";
 import { useRef } from "react";
 
-export default function SpectateMainBoard({center, cells, ships, myShip, endpoints, setEndpoints, showCoordinateField, tempTravelEndpoint, setTempTravelEndpoint, tempShotEndpoint, setTempShotEndpoint, round, gameState}) {
+export default function SpectateMainBoard({center, cells, ships, myShip, endpoints, setEndpoints, showCoordinateField, tempTravelEndpoint, setTempTravelEndpoint, tempShotEndpoint, setTempShotEndpoint, round, gameState, deadPlayers}) {
 
     const parentRef = useRef();
 
@@ -23,6 +23,7 @@ export default function SpectateMainBoard({center, cells, ships, myShip, endpoin
         setTempShotEndpoint={setTempShotEndpoint}
         round={round}
         gameState={gameState}
+        deadPlayers={deadPlayers}
       />
     </Grid>
   );
