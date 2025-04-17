@@ -75,14 +75,14 @@ export default function AccountAppBar({ toggleDarkMode }) {
     {
       image: Master4,
       name: "Royal Five Mast",
-      movement: "5",
-      shoot: "3",
+      movement: "3",
+      shoot: "5",
     },
     {
       image: Master5,
       name: "Grand Yacht",
-      movement: "6",
-      shoot: "2",
+      movement: "2",
+      shoot: "6",
     },
   ];
 
