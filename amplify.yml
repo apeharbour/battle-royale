@@ -7,7 +7,7 @@ applications:
         preBuild:
           commands:
             - npm -g install pnpm@8.15.4
-            - pnpm --filter battle-royale-ui install --frozen-lockfile
+            - pnpm --filter battle-royale-ui install --no-frozen-lockfile
         build:
           commands:
             - pnpm --filter battle-royale-ui build
@@ -26,7 +26,7 @@ applications:
         preBuild:
           commands:
             - npm -g install pnpm
-            - pnpm --filter punkships-ui install --frozen-lockfile
+            - pnpm --filter punkships-ui install --no-frozen-lockfile
         build:
           commands:
             - pnpm --filter punkships-ui build
