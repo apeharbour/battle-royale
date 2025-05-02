@@ -437,19 +437,19 @@ export default function Game(props) {
   //console.log("Cells2: ", cells2);
 
   useEffect(() => {
-    //console.log("Game State: ", gameState);
+    console.log("Game State: for disabling eventbridge ", gameState);
     if (gameState === "finished") {
       disableEventBridgeRule(gameId);
     }
   }, [gameState, gameId]);
 
   useEffect(() => {
-    //console.log("Clearing endpoints for new round");
+    console.log("Clearing endpoints for new round dependency array: currentRound: ", currentRound);
     setEndpoints({ travel: undefined, shot: undefined });
   }, [currentRound]);
 
   useEffect(() => {
-    //console.log("Player State: ", playerState);
+    console.log("Player State: for playerStateDialogBox to show playerState once, they are dead ");
     if (
       playerState === "dropped" ||
       playerState === "beached" ||
@@ -462,25 +462,26 @@ export default function Game(props) {
     }
   }, [playerState]);
 
-  useEffect(() => {
-    if (ships && currentRound) {
-      setDeadPlayers((prevDead) => {
-        // Copy previous state to avoid overwriting
-        const updatedDead = { ...prevDead };
-        ships.forEach((ship) => {
-          // If a ship has a kill round and it’s lower than the current round,
-          // mark that ship as already dead.
-          if (ship.killedInRound) {
-            const deathRound = parseInt(ship.killedInRound.round);
-            if (currentRound > deathRound && !updatedDead[ship.address]) {
-              updatedDead[ship.address] = deathRound;
-            }
-          }
-        });
-        return updatedDead;
-      });
-    }
-  }, [ships, currentRound]);  
+  // useEffect(() => {
+  //   console.log("UseEffect for dead players for dead animation to work");
+  //   if (ships && currentRound) {
+  //     setDeadPlayers((prevDead) => {
+  //       // Copy previous state to avoid overwriting
+  //       const updatedDead = { ...prevDead };
+  //       ships.forEach((ship) => {
+  //         // If a ship has a kill round and it’s lower than the current round,
+  //         // mark that ship as already dead.
+  //         if (ship.killedInRound) {
+  //           const deathRound = parseInt(ship.killedInRound.round);
+  //           if (currentRound > deathRound && !updatedDead[ship.address]) {
+  //             updatedDead[ship.address] = deathRound;
+  //           }
+  //         }
+  //       });
+  //       return updatedDead;
+  //     });
+  //   }
+  // }, [ships, currentRound]);  
 
   const clearTravelAndShotEndpoints = () => {
     setEndpoints({ travel: undefined, shot: undefined });
@@ -576,7 +577,7 @@ export default function Game(props) {
               mapShrink={mapShrink}
               gameState={gameState}
             />
-              <Timer gameId={gameId} gameState={gameState} />
+               <Timer gameId={gameId} gameState={gameState} /> 
             {playerStateDialogOpen && (
               <GameStatuss
                 winner={winner}

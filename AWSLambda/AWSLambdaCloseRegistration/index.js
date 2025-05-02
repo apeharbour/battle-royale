@@ -460,7 +460,7 @@ const REGISTRATION_ABI = [
     "type": "function"
   }
 ];
-const REGISTRATION_ADDRESS = "0xaa6c23604abD2fFEe32E48b2dB60fd5550578c3f";
+const REGISTRATION_ADDRESS = "0x6b115250Af2037433b1c87005910cAD8ade9fa45";
 
 // 4d) RPC URL
 const rpcUrl = "https://curtis.rpc.caldera.xyz/http";

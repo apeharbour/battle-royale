@@ -1,4 +1,4 @@
-import skullImage from "./images/skull.png";
+// import skullImage from "./images/skull.png";
 import React, { useEffect, useState } from "react";
 import { Hexagon } from "react-hexgrid";
 import removeYachtBackground from "./RemoveYachtBackground";
@@ -62,7 +62,7 @@ export default function Ship({
 }) {
   const { q, r, s, mine, image, state } = ship;
   const [isDestroyedDelayed, setIsDestroyedDelayed] = useState(false);
-  const [showSkull, setShowSkull] = useState(false);
+  /* const [showSkull, setShowSkull] = useState(false); */
 
   let processedDataUrl = removeYachtBackground(image);
 
@@ -93,25 +93,34 @@ export default function Ship({
   }
 
   useEffect(() => {
-    // Only start the destruction animation if the ship's state is "destroyed" and it's not already marked as dead (previous round)
+    // Only start the (now-commented) skull animation if destroyed and not already dead
     if (state === "destroyed" && !wasDeadPreviously && !isDestroyedDelayed) {
-      let skullTimer, grayscaleTimer;
-      skullTimer = setTimeout(() => {
+     /* skullTimer, grayscaleTimer */;
+
+      /* skullTimer = setTimeout(() => {
         setShowSkull(true);
         grayscaleTimer = setTimeout(() => {
           setShowSkull(false);
           setIsDestroyedDelayed(true);
         }, 3000);
+      }, 4500); */
+
+      // Instead, just wait then mark destroyed
+      const timer = setTimeout(() => {
+        setIsDestroyedDelayed(true);
       }, 4500);
+
       return () => {
-        clearTimeout(skullTimer);
-        clearTimeout(grayscaleTimer);
+        // clearTimeout(skullTimer);
+        // clearTimeout(grayscaleTimer);
+        clearTimeout(timer);
       };
     }
-    // If the ship was already dead in an earlier round, immediately mark it so that it doesn't animate
+
+    // If already dead, instantly mark (no animation)
     if (state === "destroyed" && wasDeadPreviously) {
       setIsDestroyedDelayed(true);
-      setShowSkull(false);
+      /* setShowSkull(false); */
     }
   }, [state, wasDeadPreviously, isDestroyedDelayed]);
 
@@ -156,7 +165,8 @@ export default function Ship({
           }}
         />
 
-        {/* Display imported skull image on top if required */}
+        {/* Commented out skull overlay */}
+        {/*
         {state === "destroyed" && showSkull && (
           <image
             href={skullImage}
@@ -167,6 +177,7 @@ export default function Ship({
             style={{ pointerEvents: "none" }}
           />
         )}
+        */}
       </Hexagon>
 
       {ship.shot && ship.shot.origin && (

@@ -1,23 +1,15 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { WagmiProvider, createConfig, http, fallback, webSocket } from "wagmi";
-import {
-  mainnet,
-  localhost,
-  optimismSepolia,
-  sepolia,
-  optimism,
-  baseSepolia,
-} from "wagmi/chains";
+// src/Web3Provider.jsx
+"use client";
+
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { WagmiProvider, createConfig, http } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import punkLogo from "./images/punkLogo.png";
 import yartsLogo from "./images/yartsLogo.png";
+import Web3Context from "./contexts/Web3Context";
 
-const Web3Context = createContext();
-
-export const useWeb3 = () => useContext(Web3Context);
-
+// 1. Define your custom CurtisChain
 const curtisChain = {
   id: 33111,
   name: "CurtisChain",
@@ -28,12 +20,8 @@ const curtisChain = {
     decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ["https://curtis.rpc.caldera.xyz/http"],
-    },
-    public: {
-      http: ["wss://curtis.rpc.caldera.xyz/ws"],
-    },
+    default: { http: ["https://curtis.rpc.caldera.xyz/http"] },
+    public: { http: ["wss://curtis.rpc.caldera.xyz/ws"] },
   },
   blockExplorers: {
     default: {
@@ -43,28 +31,13 @@ const curtisChain = {
   },
 };
 
-const config = createConfig(
+// 2. Create the Wagmi config with explicit transport
+const wagmiConfig = createConfig(
   getDefaultConfig({
-    chains: [curtisChain,baseSepolia, sepolia, localhost, mainnet, optimism],
-    // transports: {
-    //   [localhost.id]: webSocket("ws://localhost:8545"),
-    //   [sepolia.id]: fallback([
-    //     http(import.meta.env.VITE_SEPOLIA_RPC_URL),
-    //     http("https://sepolia-rpc.wagmi.io"),
-    //   ]),
-    //   [mainnet.id]: fallback([
-    //     http(import.meta.env.VITE_MAINNET_RPC_URL),
-    //     http("https://mainnet-rpc.wagmi.io"),
-    //   ]),
-    //   [optimism.id]: fallback([
-    //     http(import.meta.env.VITE_OPTIMISM_RPC_URL),
-    //     http("https://optimism-rpc.wagmi.io"),
-    //   ]),
-    //   [baseSepolia.id]: fallback([
-    //     http(import.meta.env.VITE_BASE_SEPOLIA_RPC_URL),
-    //     http("https://base-sepolia-rpc.wagmi.io"),
-    //   ]),
-    // },
+    chains: [curtisChain],
+    transports: {
+      [curtisChain.id]: http(curtisChain.rpcUrls.default.http[0]),
+    },
     walletConnectProjectId: import.meta.env.VITE_WALLET_CONNECT_PROJECT_ID,
     appName: "Battle Royale",
     appDescription: "A battle royale game on the blockchain.",
@@ -73,40 +46,52 @@ const config = createConfig(
   })
 );
 
+// 3. Single QueryClient instance - IMPORTANT: Create this outside component to avoid recreation on each render
 const queryClient = new QueryClient();
 
-export const Web3Provider = ({ theme, children }) => {
+// 5. Provider component
+export function Web3Provider({ theme, children }) {
   const [isConnected, setIsConnected] = useState(false);
 
+  // only run on mount
   useEffect(() => {
-    const storedConnection = localStorage.getItem("walletConnected");
-    if (storedConnection) {
-      setIsConnected(true);
-    }
+    const isWalletConnected =
+      localStorage.getItem("walletConnected") === "true";
+    setIsConnected(isWalletConnected);
   }, []);
 
-  const connectWallet = () => {
+  // stable connect/disconnect callbacks
+  const connectWallet = useCallback(() => {
     localStorage.setItem("walletConnected", "true");
     setIsConnected(true);
-  };
+  }, []);
 
-  const disconnectWallet = () => {
+  const disconnectWallet = useCallback(() => {
     localStorage.removeItem("walletConnected");
     setIsConnected(false);
-  };
+  }, []);
+
+  // memoize context value
+  const contextValue = useMemo(
+    () => ({ isConnected, connectWallet, disconnectWallet }),
+    [isConnected, connectWallet, disconnectWallet]
+  );
 
   return (
-    <Web3Context.Provider
-      value={{ isConnected, connectWallet, disconnectWallet }}
-    >
-      <WagmiProvider config={config}>
+    <Web3Context.Provider value={contextValue}>
+      <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <ReactQueryDevtools initialIsOpen={false} />
-          <ConnectKitProvider theme="auto" mode={theme.palette.mode}>
+          <ConnectKitProvider
+            theme="auto"
+            mode={theme?.palette?.mode || "light"}
+          >
             {children}
           </ConnectKitProvider>
         </QueryClientProvider>
       </WagmiProvider>
     </Web3Context.Provider>
   );
-};
+}
+
+export default Web3Provider;

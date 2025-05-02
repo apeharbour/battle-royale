@@ -65,7 +65,7 @@ export default function Timer({ gameId, gameState }) {
 
     // Clean up
     return () => ws?.removeEventListener("message", onMessage);
-  }, [ws, gameId]);
+  }, []);
 
   const startTimer = (endTime) => {
     updateCountdown(endTime);

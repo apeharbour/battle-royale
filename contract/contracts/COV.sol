@@ -131,7 +131,7 @@ contract COV is ERC721, Ownable {
                 uintToString(mastColor[1]),
                 ",",
                 uintToString(mastColor[2]),
-                "); stroke-width: 2px; fill: none; }",
+                "); stroke-width: 4px; fill: none; }",
                 ".travelMarkerWinner { stroke: rgb(",
                 uintToString(mastColor[0]),
                 ",",
