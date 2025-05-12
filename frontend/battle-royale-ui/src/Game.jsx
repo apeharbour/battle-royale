@@ -444,12 +444,17 @@ export default function Game(props) {
   }, [gameState, gameId]);
 
   useEffect(() => {
-    console.log("Clearing endpoints for new round dependency array: currentRound: ", currentRound);
+    console.log(
+      "Clearing endpoints for new round dependency array: currentRound: ",
+      currentRound
+    );
     setEndpoints({ travel: undefined, shot: undefined });
   }, [currentRound]);
 
   useEffect(() => {
-    console.log("Player State: for playerStateDialogBox to show playerState once, they are dead ");
+    console.log(
+      "Player State: for playerStateDialogBox to show playerState once, they are dead "
+    );
     if (
       playerState === "dropped" ||
       playerState === "beached" ||
@@ -481,7 +486,7 @@ export default function Game(props) {
   //       return updatedDead;
   //     });
   //   }
-  // }, [ships, currentRound]);  
+  // }, [ships, currentRound]);
 
   const clearTravelAndShotEndpoints = () => {
     setEndpoints({ travel: undefined, shot: undefined });
@@ -518,7 +523,7 @@ export default function Game(props) {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             <ShipStatus ship={myShip} />
-            <LastRoundResults rounds={rounds} />
+            <LastRoundResults ships={ships} />
             <Logs gameId={id} rounds={rounds} />
           </Stack>
         </Grid>
@@ -566,8 +571,8 @@ export default function Game(props) {
               label={
                 <Typography style={{ fontSize: "1.25rem" }}>
                   {showCoordinateField
-                    ? "Hide Coordinates"
-                    : "Show Coordinates"}
+                    ? "hide coordinates"
+                    : "show coordinates"}
                 </Typography>
               }
             />
@@ -577,11 +582,10 @@ export default function Game(props) {
               mapShrink={mapShrink}
               gameState={gameState}
             />
-               <Timer gameId={gameId} gameState={gameState} /> 
+            <Timer gameId={gameId} gameState={gameState} />
             {playerStateDialogOpen && (
               <GameStatuss
                 winner={winner}
-               
                 setPlayerStateDialogOpen={setPlayerStateDialogOpen}
                 gameId={gameId}
               />
