@@ -1,0 +1,50 @@
+/* Green Button */
+.holographic-button {
+    position: relative;
+    padding: 16px 27px; /* 10% reduction */
+    background: black;
+    font-family: 'Montserrat Variable', sans-serif;
+    color: #00ffcc;
+    border: 1.8px solid #00ffcc; /* 10% reduction */
+    border-radius: 27px; /* 10% reduction */
+    font-size: 1rem; /* 10% reduction */
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+  
+  .holographic-button:hover {
+    transform: scale(1.05);
+  }
+  
+  .holographic-button:disabled {
+    cursor: not-allowed;
+    border-color: #555;
+    color: #777;
+    background: #333;
+  }
+  
+  /* Red Button */
+  .holographic2-button {
+    position: relative;
+    padding: 13.5px 27px; /* 10% reduction */
+    background: black;
+    color: #ff3366; /* Brighter red */
+    border: 1.8px solid #ff3366; /* 10% reduction, Brighter red */
+    border-radius: 27px; /* 10% reduction */
+    font-size: 16.2px; /* 10% reduction */
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.2s ease;
+  }
+  
+  .holographic2-button:hover {
+    transform: scale(1.05);
+  }
+  
+  .holographic2-button:disabled {
+    cursor: not-allowed;
+    border-color: #555;
+    color: #777;
+    background: #333;
+  }

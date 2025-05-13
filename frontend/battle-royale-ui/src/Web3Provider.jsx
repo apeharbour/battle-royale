@@ -1,15 +1,39 @@
-// src/Web3Provider.jsx
-"use client";
-
 import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { WagmiProvider, createConfig, http } from "wagmi";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+// import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
 import yartsLogo from "./images/yartsLogo.png";
 import Web3Context from "./contexts/Web3Context";
 
-// 1. Define your custom CurtisChain
+
+
+// Define ApeChain
+const apeChain = {
+  id: 33139,
+  name: 'ApeChain',
+  network: 'apechain',
+  nativeCurrency: {
+    name: 'ApeCoin',
+    symbol: 'APE',
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.apechain.com/http'],
+    },
+    public: {
+      http: ['https://rpc.apechain.com/http'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'ApeChain Explorer',
+      url: 'https://apescan.io',
+    },
+  },
+};
+
 const curtisChain = {
   id: 33111,
   name: "CurtisChain",
@@ -31,7 +55,6 @@ const curtisChain = {
   },
 };
 
-// 2. Create the Wagmi config with explicit transport
 const wagmiConfig = createConfig(
   getDefaultConfig({
     chains: [curtisChain],
@@ -46,10 +69,8 @@ const wagmiConfig = createConfig(
   })
 );
 
-// 3. Single QueryClient instance - IMPORTANT: Create this outside component to avoid recreation on each render
 const queryClient = new QueryClient();
 
-// 5. Provider component
 export function Web3Provider({ theme, children }) {
   const [isConnected, setIsConnected] = useState(false);
 
@@ -81,7 +102,7 @@ export function Web3Provider({ theme, children }) {
     <Web3Context.Provider value={contextValue}>
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
-          <ReactQueryDevtools initialIsOpen={false} />
+          {/* <ReactQueryDevtools initialIsOpen={false} /> */}
           <ConnectKitProvider
             theme="auto"
             mode={theme?.palette?.mode || "light"}

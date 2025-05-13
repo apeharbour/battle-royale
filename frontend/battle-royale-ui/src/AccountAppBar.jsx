@@ -1,5 +1,4 @@
 import * as React from "react";
-import { useTheme } from "@emotion/react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   AppBar,
@@ -13,34 +12,23 @@ import {
 import InfoIcon from "@mui/icons-material/Info";
 import yartsLogo from "./images/yartsLogoTransparent.svg";
 import { useAccount } from "wagmi";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import { Avatar, ConnectKitButton } from "connectkit";
+import { ConnectKitButton } from "connectkit";
 import Master1 from "./images/Master1.svg";
 import Master2 from "./images/Master2.svg";
 import Master5 from "./images/Master3.svg";
 import Master3 from "./images/Master9.svg";
 import Master4 from "./images/Master5.svg";
 
-export default function AccountAppBar({ toggleDarkMode }) {
-  const theme = useTheme();
-  const isDarkMode = theme.palette.mode === "dark";
+export default function AccountAppBar() {
   const navigate = useNavigate();
   const { address } = useAccount();
   const location = useLocation();
-
-  const handleLogoClick = () => {
-    if (!address) {
-      navigate("/");
-    } else {
-      navigate("/registration");
-    }
-  };
+  const [walletConnected, setWalletConnected] = React.useState(false);
 
   const isActiveRoute = (path) => location.pathname === path;
   const activeButtonStyle = {
-    backgroundColor: theme.palette.primary.light,
-    color: theme.palette.primary.contrastText,
+    backgroundColor: "gray",
+    color: "white",
   };
 
   // Use click to open/close popover
@@ -86,8 +74,13 @@ export default function AccountAppBar({ toggleDarkMode }) {
     },
   ];
 
+  function shortenAddress(addr) {
+    if (!addr) return "";
+    return addr.slice(0, 6) + "…" + addr.slice(-4);
+  }
+
   return (
-    <AppBar position="sticky">
+    <AppBar position="absolute" sx={{ backgroundColor: "black" }}>
       <Toolbar>
         <Box
           sx={{
@@ -99,12 +92,12 @@ export default function AccountAppBar({ toggleDarkMode }) {
             height: "auto",
             overflow: "hidden",
           }}
-          onClick={handleLogoClick}
+          onClick={() => navigate("/")}
         >
           <Box
             component="img"
             src={yartsLogo}
-            alt="Punkships Logo"
+            alt="yarts logo"
             sx={{
               maxWidth: "100%",
               height: "60px",
@@ -119,11 +112,12 @@ export default function AccountAppBar({ toggleDarkMode }) {
             onClick={() => navigate("/registration")}
             sx={{
               marginLeft: 4,
+              textTransform: "none",
               ...(isActiveRoute("/registration") ? activeButtonStyle : {}),
               "& .MuiButton-label": { fontSize: "1rem" },
             }}
           >
-            Registration
+            registration
           </Button>
         )}
         {address && (
@@ -132,11 +126,12 @@ export default function AccountAppBar({ toggleDarkMode }) {
             onClick={() => navigate("/activegames")}
             sx={{
               marginLeft: 2,
+              textTransform: "none",
               "& .MuiButton-label": { fontSize: "1rem" },
               ...(isActiveRoute("/activegames") ? activeButtonStyle : {}),
             }}
           >
-            Active Games
+            active games
           </Button>
         )}
         {address && (
@@ -145,24 +140,28 @@ export default function AccountAppBar({ toggleDarkMode }) {
             onClick={() => navigate("/halloffame")}
             sx={{
               marginLeft: 2,
+              textTransform: "none",
               "& .MuiButton-label": { fontSize: "1rem" },
               ...(isActiveRoute("/halloffame") ? activeButtonStyle : {}),
             }}
           >
-            Hall of Fame
+            hall of fame
           </Button>
         )}
-        <Button
-          color="inherit"
-          onClick={() => navigate("/spectator")}
-          sx={{
-            marginLeft: 2,
-            "& .MuiButton-label": { fontSize: "1rem" },
-            ...(isActiveRoute("/spectator") ? activeButtonStyle : {}),
-          }}
-        >
-          Spectate
-        </Button>
+        {address && (
+          <Button
+            color="inherit"
+            onClick={() => navigate("/spectator")}
+            sx={{
+              marginLeft: 2,
+              textTransform: "none",
+              "& .MuiButton-label": { fontSize: "1rem" },
+              ...(isActiveRoute("/spectator") ? activeButtonStyle : {}),
+            }}
+          >
+            spectate
+          </Button>
+        )}
         {address &&
           address === "0xCd9680dd8318b0df924f0bD47a407c05B300e36f" && (
             <Button
@@ -170,11 +169,12 @@ export default function AccountAppBar({ toggleDarkMode }) {
               onClick={() => navigate("/admin")}
               sx={{
                 marginLeft: 2,
+                textTransform: "none",
                 "& .MuiButton-label": { fontSize: "1rem" },
                 ...(isActiveRoute("/admin") ? activeButtonStyle : {}),
               }}
             >
-              Admin
+              admin
             </Button>
           )}
         <Box sx={{ flexGrow: 1 }} />
@@ -198,8 +198,12 @@ export default function AccountAppBar({ toggleDarkMode }) {
               horizontal: "right",
             }}
           >
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}>
-            <Typography variant="subtitle1">Different types of yarts in the game:</Typography>
+            <Box
+              sx={{ display: "flex", flexDirection: "column", gap: 2, p: 2 }}
+            >
+              <Typography variant="subtitle1">
+                different types of yarts in the game:
+              </Typography>
               {ships.map((ship, index) => (
                 <Box
                   key={index}
@@ -208,7 +212,7 @@ export default function AccountAppBar({ toggleDarkMode }) {
                     alignItems: "center",
                     gap: 1,
                     border: "1px solid",
-                    borderColor: theme.palette.divider,
+                    borderColor: "black",
                     borderRadius: 1,
                     p: 1,
                   }}
@@ -220,23 +224,40 @@ export default function AccountAppBar({ toggleDarkMode }) {
                     sx={{ width: 60, height: 60 }}
                   />
                   <Box>
-                    <Typography variant="body2">Name: {ship.name}</Typography>
+                    <Typography variant="body2">name: {ship.name}</Typography>
                     <Typography variant="body2">
-                      Movement: {ship.movement}
+                      movement: {ship.movement}
                     </Typography>
-                    <Typography variant="body2">
-                      Shoot: {ship.shoot}
-                    </Typography>
+                    <Typography variant="body2">shoot: {ship.shoot}</Typography>
                   </Box>
                 </Box>
               ))}
             </Box>
           </Popover>
         </Box>
-        <IconButton aria-label="darkmode" onClick={toggleDarkMode}>
-          {isDarkMode ? <LightModeIcon /> : <DarkModeIcon />}
-        </IconButton>
-        {location.pathname !== "/" && <ConnectKitButton />}
+        {location.pathname !== "/" && (
+          <ConnectKitButton.Custom>
+            {({ isConnected, show }) => (
+              <Button
+                onClick={show}
+                sx={{
+                  "& .MuiButton-label": { fontSize: "1rem" },
+                  backgroundColor: "transparent",
+                  color: "inherit",
+                  border: "1px solid currentColor",
+                  textTransform: "none",
+                  padding: "6px 18px",
+                  "&:hover": {
+                    transform: "scale(1.05)",
+                    transition: "transform 0.2s ease-in-out",
+                  },
+                }}
+              >
+                {isConnected && address ? shortenAddress(address) : "connect"}
+              </Button>
+            )}
+          </ConnectKitButton.Custom>
+        )}
       </Toolbar>
     </AppBar>
   );

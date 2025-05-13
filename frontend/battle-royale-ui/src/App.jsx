@@ -1,66 +1,66 @@
-import { useState, useEffect } from "react";
-import { Route, Routes, useNavigate, useLocation } from "react-router-dom";
-import "@fontsource-variable/pixelify-sans";
-import "@fontsource/vt323";
-import '@fontsource/fira-mono';
-import '@fontsource-variable/montserrat';
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
-
-import "./App.css";
-import Homepage from "./Homepage";
-import ActiveGames from "./ActiveGames.jsx";
-import Game from "./Game";
-import Admin from "./Admin";
-import AccountAppBar from "./AccountAppBar";
-import BackdropComponent from "./Backdrop";
-import Cov from "./Cov.jsx";
-import HallOfFame from "./HallOfFame";
-import Registration from "./Registration";
-import Spectator from "./Spectator";
-import SpectateGame from "./SpectateGame";
-import FinalArtData from "./FinalArtData.jsx";
+// App.jsx
+import React from "react";
+import { Route, Routes, useMatch } from "react-router-dom";
 import { Web3Provider } from "./Web3Provider";
-import { SnackbarProvider } from "notistack";
-import useLocalStorageState from "use-local-storage-state";
 import { WebSocketProvider } from "./contexts/WebSocketContext";
-import CoV_Data from "./CoV_Data";
+import useLocalStorageState from "use-local-storage-state";
+import { SnackbarProvider } from "notistack";
+import "@fontsource-variable/montserrat";
+import { CssBaseline, ThemeProvider, createTheme, Box } from "@mui/material";
+import "./App.css";
+
+// battle-royale page components
+import Layout from "./Layout";
+import About from "./About";
+import Yarts from "./Yarts";
+import TandC from "./TandC";
+import Imprint from "./Imprint";
+import Gallery from "./Gallery";
+import Homepage from "./Homepage";
+import Registration from "./BattleRoyale/Registration";
+import ActiveGames from "./BattleRoyale/ActiveGames";
+import HallOfFame from "./BattleRoyale/HallOfFame";
+import Cov from "./BattleRoyale/Cov";
+import Spectator from "./BattleRoyale/Spectator";
+import SpectateGame from "./BattleRoyale/SpectateGame";
+import Admin from "./BattleRoyale/Admin";
+import Game from "./BattleRoyale/Game";
 
 function App() {
-  const [darkMode, setDarkMode] = useLocalStorageState("darkMode", {
-    defaultValue: true,
-  });
-
+  // dark/light toggle
+  const [darkMode] = useLocalStorageState("darkMode", { defaultValue: true });
   const theme = createTheme({
-    palette: {
-      mode: darkMode ? "dark" : "light",
-    },
-    typography: {
-      fontFamily: "'Montserrat Variable', sans-serif",
-    },
-    shape: {
-      borderRadius: 30,
-    },
+    palette: { mode: darkMode ? "dark" : "light" },
+    typography: { fontFamily: "'Montserrat Variable', sans-serif" },
+    shape: { borderRadius: 30 },
   });
 
-  const toggleDarkMode = () => {
-    setDarkMode(!darkMode);
-  };
+  // match the two “fullscreen” routes
+  const matchSpectatorGame = useMatch({
+    path: "/spectator/:gameId",
+    end: true,
+  });
+  const matchGame = useMatch({ path: "/:gameId", end: true });
 
-  const [loading, setLoading] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+  // list out all your single-segment “static” pages so we can ignore them
+  const staticPages = new Set([
+    "gallery",
+    "yarts",
+    "tandc",
+    "about",
+    "imprint",
+    "registration",
+    "activegames",
+    "halloffame",
+    "cov",
+    "spectator",
+    "admin",
+  ]);
 
-  useEffect(() => {
-    setLoading(true);
-    const timeoutId = setTimeout(() => setLoading(false), 3000);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [location]);
-
-  const isSpectateGameRoute = location.pathname.startsWith("/spectator/");
-  const isHomepage = location.pathname === "/";
+  // only treat /:gameId as a game if it’s not one of the above
+  const isGameScreen =
+    Boolean(matchGame) && !staticPages.has(matchGame.params.gameId);
+  const isFullscreen = Boolean(matchSpectatorGame) || isGameScreen;
 
   return (
     <WebSocketProvider>
@@ -68,21 +68,28 @@ function App() {
         <ThemeProvider theme={theme}>
           <CssBaseline />
           <Web3Provider theme={theme}>
-            {!isHomepage && <AccountAppBar toggleDarkMode={toggleDarkMode} />}
-            {!isSpectateGameRoute && <BackdropComponent open={loading} />}
-            <Routes>
-              <Route path="/" element={<Homepage />} />
-              <Route path="/:gameId" element={<Game />} />
-              <Route path="/:gameId/finalart" element={<FinalArtData />} />
-              <Route path="/:gameId/cov" element={<CoV_Data />} />
-              <Route path="/cov/:gameId" element={<Cov />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/activegames" element={<ActiveGames />} />
-              <Route path="/registration" element={<Registration />} />
-              <Route path="/halloffame" element={<HallOfFame />} />
-              <Route path="/spectator" element={<Spectator />} />
-              <Route path="/spectator/:gameId" element={<SpectateGame />} />
-            </Routes>
+            <Box
+              className={`app-container${isFullscreen ? " fullscreen" : ""}`}
+            >
+              <Routes>
+                <Route element={<Layout />}>
+                  <Route path="/gallery" element={<Gallery />} />
+                  <Route path="/yarts" element={<Yarts />} />
+                  <Route path="/tandc" element={<TandC />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/imprint" element={<Imprint />} />
+                  <Route path="/registration" element={<Registration />} />
+                  <Route path="/activegames" element={<ActiveGames />} />
+                  <Route path="/halloffame" element={<HallOfFame />} />
+                  <Route path="/cov/:gameId" element={<Cov />} />
+                  <Route path="/spectator" element={<Spectator />} />
+                  <Route path="/spectator/:gameId" element={<SpectateGame />} />
+                  <Route path="/admin" element={<Admin />} />
+                  <Route path="/:gameId" element={<Game />} />
+                </Route>
+                <Route path="/" element={<Homepage />} />
+              </Routes>
+            </Box>
           </Web3Provider>
         </ThemeProvider>
       </SnackbarProvider>

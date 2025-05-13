@@ -1,14 +1,16 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import { BrowserRouter } from 'react-router-dom';
-
-// Supports weights 400-700
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
 import App from "./App.jsx";
+import { BrowserRouter } from "react-router-dom";
+import { SnackbarProvider } from "notistack";
 
-ReactDOM.createRoot(document.getElementById("root")).render(
-  <React.StrictMode>
+createRoot(document.getElementById("root")).render(
+  <StrictMode>
     <BrowserRouter>
+    <SnackbarProvider maxSnack={3} autoHideDuration={2000}>
+
       <App />
+    </SnackbarProvider>
     </BrowserRouter>
-  </React.StrictMode>
+  </StrictMode>
 );
