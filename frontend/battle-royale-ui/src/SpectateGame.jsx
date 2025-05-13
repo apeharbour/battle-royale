@@ -455,7 +455,7 @@ export default function SpectateGame() {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             <SpectatePlayers ships={ships} />
-            <LastRoundResults rounds={rounds} />
+            <LastRoundResults ships={ships} />
             <Logs gameId={id} rounds={rounds} />
           </Stack>
         </Grid>
