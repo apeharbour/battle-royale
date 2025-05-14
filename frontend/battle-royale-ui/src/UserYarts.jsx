@@ -206,13 +206,13 @@ export default function Homepage() {
         alignItems="center"
         justifyContent="center"
         sx={{
-          minHeight: "100vh",
-          boxSizing: "border-box",
-          padding: "1rem",
+          minHeight: "30vh",
+         
         }}
         spacing={4}
       >
-        <Grid xs={12}>
+        {/* <Grid xs={12}>
+        <Link to="/" style={{ textDecoration: "none" }}>
           <Box
             component="img"
             src={yartsLogoTransparent}
@@ -224,23 +224,24 @@ export default function Homepage() {
               margin: "0 auto",
             }}
           />
-        </Grid>
+          </Link>
+        </Grid> */}
         <Grid xs={12}>
-      <Box
-        component="img"
-        src={svgArray[currentSvgIndex]}
-        alt={`Master ${currentSvgIndex + 1}`}
-        sx={{
-          width: "80%",
-          maxWidth: "180px",
-          height: "auto",
-          display: "block",
-          margin: "0 auto",
-          cursor: "pointer"
-        }}
-        onClick={() => navigate('/')}
-      />
-    </Grid>
+          <Box
+            component="img"
+            src={svgArray[currentSvgIndex]}
+            alt={`Master ${currentSvgIndex + 1}`}
+            sx={{
+              width: "80%",
+              maxWidth: "180px",
+              height: "auto",
+              display: "block",
+              margin: "0 auto",
+              cursor: "pointer",
+            }}
+            onClick={() => navigate("/")}
+          />
+        </Grid>
         {/* Typography */}
         <Grid xs={12}>
           <Typography
@@ -248,7 +249,7 @@ export default function Homepage() {
             align="center"
             fontWeight={700}
           >
-             onchain art on apechain.
+            onchain art on apechain.
           </Typography>
         </Grid>
 
@@ -285,132 +286,7 @@ export default function Homepage() {
             }}
           </ConnectKitButton.Custom>
         </Grid>
-
-        <Grid xs={12}>
-          <Paper
-            sx={{
-              padding: "2rem",
-              width: "100%",
-              maxWidth: { xs: "100%", sm: "600px", md: "800px" },
-              margin: "0 auto",
-            }}
-            elevation={1}
-          >
-            <Stack
-              spacing={3}
-              direction={{ xs: "column", sm: "row" }}
-              alignItems="center"
-              justifyContent="center"
-            >
-              <TextField
-                variant="outlined"
-                value={numYarts}
-                label="number of yarts"
-                type="number"
-                onChange={(e) => {
-                  const value = Math.max(1, Number(e.target.value));
-                  setNumYarts(value);
-                }}
-                inputProps={{ min: 1 }}
-                sx={{ width: { xs: "100%", sm: "200px" } }}
-              />
-              <HolographicButton
-                onClick={handleMintClick}
-                disabled={!isConnected || isConfirming}
-                sx={{
-                  width: { xs: "100%", sm: "200px" },
-                  marginLeft: { xs: 0, sm: "1rem" },
-                }}
-              >
-                {isConfirming ? "Confirming..." : "Mint Yart"}
-              </HolographicButton>
-            </Stack>
-            {!isMintCountLoading && mintCount !== undefined && (
-              <Stack
-                spacing={2}
-                direction={{ xs: "column", sm: "row" }}
-                justifyContent="center"
-                alignItems="center"
-                sx={{ flexWrap: "wrap", mt: 4 }}
-              >
-                <Typography sx={{ fontSize: "1rem" }}>
-                  price: {Number(PRICE) / 1e18} APE
-                </Typography>
-                {/* <Typography sx={{ fontSize: "1rem" }}>
-                      minted: {MINT_COUNT.toString()}
-                    </Typography> */}
-                <Typography sx={{ fontSize: "1rem" }}>
-                  remaining:{" "}
-                  {(OPEN_MINT_AMOUNT + RESERVED_MINTED - MINT_COUNT).toString()}
-                </Typography>
-                <Typography
-                  sx={{
-                    fontSize: "1rem",
-                    display: "inline-flex",
-                    alignItems: "center",
-                  }}
-                >
-                  max supply: {MAX_SUPPLY.toString()}
-                  <Tooltip
-                    title={
-                      <Box
-                        sx={{
-                          textAlign: "center",
-                          width: "100%",
-                        }}
-                      >
-                        the total supply of yarts is 42,000, with 18,000
-                        distributed via airdrop and 24,000 available for public
-                        minting.
-                      </Box>
-                    }
-                  >
-                    <Box
-                      component="span"
-                      sx={{
-                        ml: 1,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <InfoOutlinedIcon
-                        sx={{ fontSize: "1rem", color: "gray" }}
-                      />
-                    </Box>
-                  </Tooltip>
-                </Typography>
-              </Stack>
-            )}
-            <Stack
-              spacing={3}
-              direction={{ xs: "column", sm: "row" }}
-              alignItems="center"
-              justifyContent="center"
-              mt={2}
-            >
-              <Button
-                variant="text"
-                component={Link}
-                to="/"
-                sx={{
-                  color: "text.primary",
-                  fontSize: "1rem",
-                  textTransform: "none",
-                  fontWeight: 300,
-                }}
-              >
-                gallery
-              </Button>
-            </Stack>
-          </Paper>
         </Grid>
-        <MintAcknowledgement
-          open={acknowledgementDialogOpen}
-          onClose={handleAcknowledgementClose}
-          onAgree={handleAgree}
-        />
-      </Grid>
       {isConnected && <Yarts />}
     </Fragment>
   );
