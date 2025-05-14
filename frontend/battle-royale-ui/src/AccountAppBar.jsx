@@ -89,7 +89,6 @@ export default function AccountAppBar() {
             <ListItemButton onClick={() => navigate(path)}>
               <ListItemText
                 primary={label}
-                primaryTypographyProps={{ textTransform: "capitalize" }}
               />
             </ListItemButton>
           </ListItem>
