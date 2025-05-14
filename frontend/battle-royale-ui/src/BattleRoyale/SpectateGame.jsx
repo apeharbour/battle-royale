@@ -5,6 +5,8 @@ import {
   Switch,
   FormControlLabel,
   Typography,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
@@ -104,7 +106,7 @@ export default function SpectateGame() {
   const [showCoordinateField, setShowCoordinateField] = useState(false);
   const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
   const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
-   const [deadPlayers, setDeadPlayers] = useState({});
+  const [deadPlayers, setDeadPlayers] = useState({});
 
   const [endpoints, setEndpoints] = useState({
     travel: undefined,
@@ -112,6 +114,9 @@ export default function SpectateGame() {
   });
 
   const gameId = id;
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { ws } = useWebSocket();
   const queryClient = useQueryClient();
@@ -419,26 +424,25 @@ export default function SpectateGame() {
     setEndpoints({ travel: undefined, shot: undefined });
   }, [currentRound]);
 
-  
-    // useEffect(() => {
-    //   if (ships && currentRound) {
-    //     setDeadPlayers((prevDead) => {
-    //       // Copy previous state to avoid overwriting
-    //       const updatedDead = { ...prevDead };
-    //       ships.forEach((ship) => {
-    //         // If a ship has a kill round and it’s lower than the current round,
-    //         // mark that ship as already dead.
-    //         if (ship.killedInRound) {
-    //           const deathRound = parseInt(ship.killedInRound.round);
-    //           if (currentRound > deathRound && !updatedDead[ship.address]) {
-    //             updatedDead[ship.address] = deathRound;
-    //           }
-    //         }
-    //       });
-    //       return updatedDead;
-    //     });
-    //   }
-    // }, [ships, currentRound]);  
+  // useEffect(() => {
+  //   if (ships && currentRound) {
+  //     setDeadPlayers((prevDead) => {
+  //       // Copy previous state to avoid overwriting
+  //       const updatedDead = { ...prevDead };
+  //       ships.forEach((ship) => {
+  //         // If a ship has a kill round and it’s lower than the current round,
+  //         // mark that ship as already dead.
+  //         if (ship.killedInRound) {
+  //           const deathRound = parseInt(ship.killedInRound.round);
+  //           if (currentRound > deathRound && !updatedDead[ship.address]) {
+  //             updatedDead[ship.address] = deathRound;
+  //           }
+  //         }
+  //       });
+  //       return updatedDead;
+  //     });
+  //   }
+  // }, [ships, currentRound]);
 
   const clearTravelAndShotEndpoints = () => {
     setEndpoints({ travel: undefined, shot: undefined });
@@ -455,12 +459,49 @@ export default function SpectateGame() {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             <SpectatePlayers ships={ships} />
+            {isMobile && cells && (
+              <SpectateMainBoard
+                center={center}
+                cells={cells}
+                ships={ships}
+                myShip={myShip}
+                endpoints={endpoints}
+                setEndpoints={setEndpoints}
+                showCoordinateField={showCoordinateField}
+                setTempTravelEndpoint={setTempTravelEndpoint}
+                setTempShotEndpoint={setTempShotEndpoint}
+                tempShotEndpoint={tempShotEndpoint}
+                tempTravelEndpoint={tempTravelEndpoint}
+                round={currentRound}
+                gameState={gameState}
+                deadPlayers={deadPlayers}
+              />
+            )}
+            {isMobile && (
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showCoordinateField}
+                    onChange={() =>
+                      setShowCoordinateField(!showCoordinateField)
+                    }
+                  />
+                }
+                label={
+                  <Typography style={{ fontSize: "1.25rem" }}>
+                    {showCoordinateField
+                      ? "hide coordinates"
+                      : "show coordinates"}
+                  </Typography>
+                }
+              />
+            )}
             <LastRoundResults ships={ships} />
             <Logs gameId={id} rounds={rounds} />
           </Stack>
         </Grid>
 
-        {cells && (
+        {!isMobile && cells && (
           <SpectateMainBoard
             center={center}
             cells={cells}
@@ -482,22 +523,25 @@ export default function SpectateGame() {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             <SpectatorTitle />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showCoordinateField}
-                  onChange={() => setShowCoordinateField(!showCoordinateField)}
-                />
-              }
-              label={
-                <Typography style={{ fontSize: "1.25rem", fontWeight: "600" }}>
-                  {showCoordinateField
-                    ? "hide coordinates"
-                    : "show coordinates"}
-                </Typography>
-              }
-            />
-
+            {!isMobile && (
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showCoordinateField}
+                    onChange={() =>
+                      setShowCoordinateField(!showCoordinateField)
+                    }
+                  />
+                }
+                label={
+                  <Typography style={{ fontSize: "1.25rem" }}>
+                    {showCoordinateField
+                      ? "hide coordinates"
+                      : "show coordinates"}
+                  </Typography>
+                }
+              />
+            )}
             <GameInfo
               round={currentRound}
               gameId={gameId}

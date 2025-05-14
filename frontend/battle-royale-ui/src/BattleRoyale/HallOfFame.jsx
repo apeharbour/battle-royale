@@ -136,7 +136,7 @@ export default function HallOfFame(props) {
   return (
     <Fragment>
       {account?.address ? (
-        <Grid container spacing={2} p={4}>
+        <Grid container spacing={2} p={2}>
           {gameData &&
             gameData.map((game, index) => {
               const winnerGameData = winnerQueries[index]?.data?.games[0];

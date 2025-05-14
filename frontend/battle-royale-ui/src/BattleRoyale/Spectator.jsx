@@ -46,10 +46,10 @@ export default function Spectator() {
   });
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={2} p={2}>
       {gameData &&
         gameData.slice().reverse().map((game) => (
-          <Grid item size={{ xs: 12, md: 3 }} key={game.gameId} mt={5}>
+          <Grid item size={{ xs: 12, md: 3 }} key={game.gameId}>
             <SpectatorGameCard
               gameId={game.gameId}
               totalPlayers={game.totalPlayers}

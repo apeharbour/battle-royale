@@ -5,6 +5,8 @@ import {
   Switch,
   FormControlLabel,
   Typography,
+  useTheme,
+  useMediaQuery,
 } from "@mui/material";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
@@ -110,7 +112,6 @@ export default function Game(props) {
   const [showCoordinateField, setShowCoordinateField] = useState(false);
   const [tempTravelEndpoint, setTempTravelEndpoint] = useState(undefined);
   const [tempShotEndpoint, setTempShotEndpoint] = useState(undefined);
-  // const [randomInt, setRandomInt] = useState(generateRandomInt());
   const [deadPlayers, setDeadPlayers] = useState({});
 
   const [endpoints, setEndpoints] = useState({
@@ -119,6 +120,9 @@ export default function Game(props) {
   });
 
   const gameId = id;
+
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const { ws } = useWebSocket();
   const queryClient = useQueryClient();
@@ -523,12 +527,49 @@ export default function Game(props) {
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
             <ShipStatus ship={myShip} />
+            {isMobile && cells && (
+              <MainBoardArea
+                center={center}
+                cells={cells}
+                ships={ships}
+                myShip={myShip}
+                endpoints={endpoints}
+                setEndpoints={setEndpoints}
+                showCoordinateField={showCoordinateField}
+                setTempTravelEndpoint={setTempTravelEndpoint}
+                setTempShotEndpoint={setTempShotEndpoint}
+                tempShotEndpoint={tempShotEndpoint}
+                tempTravelEndpoint={tempTravelEndpoint}
+                round={currentRound}
+                gameState={gameState}
+                deadPlayers={deadPlayers}
+              />
+            )}
+            {isMobile && (
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showCoordinateField}
+                    onChange={() =>
+                      setShowCoordinateField(!showCoordinateField)
+                    }
+                  />
+                }
+                label={
+                  <Typography style={{ fontSize: "1.25rem" }}>
+                    {showCoordinateField
+                      ? "hide coordinates"
+                      : "show coordinates"}
+                  </Typography>
+                }
+              />
+            )}
             <LastRoundResults ships={ships} />
             <Logs gameId={id} rounds={rounds} />
           </Stack>
         </Grid>
 
-        {cells && (
+        {!isMobile && cells && (
           <MainBoardArea
             center={center}
             cells={cells}
@@ -561,21 +602,25 @@ export default function Game(props) {
               setTempShotEndpoint={setTempShotEndpoint}
             />
             {/* <PlayerStatus ships={ships} /> */}
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={showCoordinateField}
-                  onChange={() => setShowCoordinateField(!showCoordinateField)}
-                />
-              }
-              label={
-                <Typography style={{ fontSize: "1.25rem" }}>
-                  {showCoordinateField
-                    ? "hide coordinates"
-                    : "show coordinates"}
-                </Typography>
-              }
-            />
+            {!isMobile && (
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={showCoordinateField}
+                    onChange={() =>
+                      setShowCoordinateField(!showCoordinateField)
+                    }
+                  />
+                }
+                label={
+                  <Typography style={{ fontSize: "1.25rem" }}>
+                    {showCoordinateField
+                      ? "hide coordinates"
+                      : "show coordinates"}
+                  </Typography>
+                }
+              />
+            )}
             <GameInfo
               round={currentRound}
               gameId={gameId}

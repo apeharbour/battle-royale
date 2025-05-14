@@ -198,7 +198,7 @@ export default function ActiveGames(props) {
   return (
     <Fragment>
       {account?.address ? (
-        <Grid container spacing={2} p={4}>
+        <Grid container spacing={2} p={2}>
           <BackdropComponent open={loading} />
           {showRegisteredMessage && (
             <Grid

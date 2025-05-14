@@ -162,7 +162,7 @@ export default function Registration(props) {
   return (
     <Fragment>
       {account?.address ? (
-        <Grid container spacing={2} p={4}>
+        <Grid container spacing={2} p={2}>
           <Grid item size={12}>
             <Grid container justifyContent="center" alignItems="center">
               <Grid item size={{ xs: 12, md: 6 }}>
@@ -218,7 +218,7 @@ export default function Registration(props) {
                 </Box>
               </Grid>
             </Grid>
-            <Grid size={12} mt={2} mb={1}>
+            <Grid size={12}>
               <Grid container spacing={2} justifyContent="center">
                 <Grid item size={12}>
                   <RegisterShipButton
