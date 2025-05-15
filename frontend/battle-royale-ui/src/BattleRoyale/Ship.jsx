@@ -71,33 +71,56 @@ export default function Ship({
     deadPlayers[ship.address] &&
     currentRound > deadPlayers[ship.address];
 
-  try {
-    const base64Part = processedDataUrl.split(",")[1];
-    const svgString = atob(base64Part);
-    if (mine) {
-      const animatedSvgString = svgString.replace(
-        /.border\s*\{\s*fill:\s*#fff\s*\}/g,
-        `.border { 
-          animation: colorChange 3s infinite ease-in-out; 
-        }
-        @keyframes colorChange { 
-          0% { fill: #fff } 
-          50% { fill: #ff0 } 
-          100% { fill: #fff } 
-        }`
-      );
-      processedDataUrl = `data:image/svg+xml;base64,${btoa(animatedSvgString)}`;
+  if (mine) {
+    // Chrome/Firefox: Base64-encoded SVG
+    if (processedDataUrl.startsWith("data:image/svg+xml;base64,")) {
+      try {
+        const [, base64Data] = processedDataUrl.split(",");
+        const svgText = atob(base64Data);
+        const animatedSvg = svgText.replace(
+          /\.border\s*\{\s*fill:\s*#fff\s*\}/g,
+          `.border {
+           animation: colorChange 3s infinite ease-in-out;
+         }
+         @keyframes colorChange {
+           0%   { fill: #fff }
+           50%  { fill: #ff0  }
+           100% { fill: #fff }
+         }`
+        );
+        processedDataUrl = "data:image/svg+xml;base64," + btoa(animatedSvg);
+      } catch (e) {
+        console.error("Animation injection failed (Base64):", e);
+      }
     }
-  } catch (error) {
-    console.error("Failed to inject border animation:", error);
+    // Safari: URI-encoded SVG
+    else if (processedDataUrl.startsWith("data:image/svg+xml;charset=utf-8,")) {
+      try {
+        const [, encodedData] = processedDataUrl.split(",");
+        const svgText = decodeURIComponent(encodedData);
+        const animatedSvg = svgText.replace(
+          /\.border\s*\{\s*fill:\s*#fff\s*\}/g,
+          `.border {
+           animation: colorChange 3s infinite ease-in-out;
+         }
+         @keyframes colorChange {
+           0%   { fill: #fff }
+           50%  { fill: #ff0  }
+           100% { fill: #fff }
+         }`
+        );
+        processedDataUrl =
+          "data:image/svg+xml;charset=utf-8," + encodeURIComponent(animatedSvg);
+      } catch (e) {
+        console.error("Animation injection failed (URI):", e);
+      }
+    }
   }
 
   useEffect(() => {
     // Only start the (now-commented) skull animation if destroyed and not already dead
     if (state === "destroyed" && !wasDeadPreviously && !isDestroyedDelayed) {
-     /* skullTimer, grayscaleTimer */;
-
-      /* skullTimer = setTimeout(() => {
+      /* skullTimer, grayscaleTimer */ /* skullTimer = setTimeout(() => {
         setShowSkull(true);
         grayscaleTimer = setTimeout(() => {
           setShowSkull(false);
