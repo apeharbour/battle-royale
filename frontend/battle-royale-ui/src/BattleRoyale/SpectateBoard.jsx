@@ -11,7 +11,7 @@ import * as images from "../assets/tiles/clean/index.js";
 import { useSnackbar } from "notistack";
 import Ship from "./Ship.jsx";
 import useResizeObserver from "../utils/useResizeObserver.jsx";
-import "./animations.css"; // Import the CSS file
+import "./animations.css";
 
 const TRAVELLING = 0;
 const SHOOTING = 1;

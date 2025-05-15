@@ -311,6 +311,7 @@ export default function Board({
         "--shoot-path-dashoffset": shootPathLength,
         "--shoot-path-dashoffset-reverse": -shootPathLength,
       }}
+      xmlnsXlink="http://www.w3.org/1999/xlink"
     >
       <Layout size={hexagonSize} spacing={1.02} flat={false} origin={shift}>
         {/* cells */}

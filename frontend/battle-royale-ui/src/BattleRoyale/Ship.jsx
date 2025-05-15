@@ -155,6 +155,7 @@ export default function Ship({
       >
         <image
           href={processedDataUrl}
+          xlinkHref={processedDataUrl}
           width={size.x * 2}
           height={size.y * 2}
           x={-size.x}
