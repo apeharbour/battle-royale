@@ -163,6 +163,8 @@ export default function Ship({
           style={{
             ...imageStyle,
             pointerEvents: "none",
+            willChange: "transform",
+            backfaceVisibility: "hidden",
           }}
         />
 

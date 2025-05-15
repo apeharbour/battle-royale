@@ -1,52 +1,49 @@
+// RemoveYachtBackground.jsx
 export default function removeYachtBackground(base64Svg) {
   try {
     // 1. Decode the Base64 SVG
-    const svgString = atob(base64Svg.split(",")[1]);
+    const svgString = atob(base64Svg.split(',')[1]);
     const parser = new DOMParser();
-    const svgDoc = parser.parseFromString(svgString, "image/svg+xml");
+    const doc = parser.parseFromString(svgString, 'image/svg+xml');
+    const svg = doc.documentElement;
 
-    // 2. Force transparency on the root SVG element (important for Safari)
-    svgDoc.documentElement.setAttribute(
-      "style",
-      "background-color: transparent;"
-    );
+    // 2. Ensure the core SVG namespaces are declared
+    svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+    svg.setAttribute('xmlns:xlink', 'http://www.w3.org/1999/xlink');
 
-    // 3. Find the <rect> with the "background" class and set its fill to "none" and opacity to 0
-    const backgroundRect = svgDoc.querySelector(".background");
-    if (backgroundRect) {
-      backgroundRect.setAttribute("fill", "none");
-      backgroundRect.setAttribute("fill-opacity", "0");
+    // 3. If there's no viewBox, infer one from width/height
+    if (
+      !svg.hasAttribute('viewBox') &&
+      svg.hasAttribute('width') &&
+      svg.hasAttribute('height')
+    ) {
+      svg.setAttribute(
+        'viewBox',
+        `0 0 ${svg.getAttribute('width')} ${svg.getAttribute('height')}`
+      );
     }
 
-    // 4. Find the <style> block and modify the .background class
-    const styleElement = svgDoc.querySelector("style");
-    if (styleElement) {
-      const styleContent = styleElement.textContent;
-      const modifiedStyleContent = styleContent.replace(
-        /\.background\s*{[^}]*fill:[^;]*;/,
-        ".background { fill: none !important; fill-opacity: 0 !important;"
-      );
-      styleElement.textContent = modifiedStyleContent;
-    } else {
-      // 5. If no <style> element exists, create one and append it
-      const overrideStyle = svgDoc.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "style"
-      );
-      overrideStyle.textContent =
-        ".background { fill: none !important; fill-opacity: 0 !important; }";
-      svgDoc.documentElement.appendChild(overrideStyle);
-    }
+    // 4. Remove any <rect> that was serving as a white/opaque background
+    doc.querySelectorAll('rect').forEach((r) => {
+      const fill = r.getAttribute('fill')?.trim().toLowerCase();
+      if (
+        fill === '#fff' ||
+        fill === 'white' ||
+        r.classList.contains('background')
+      ) {
+        r.remove();
+      }
+    });
 
-    // 6. Serialize the modified SVG back to a string
-    const serializer = new XMLSerializer();
-    const modifiedSvgString = serializer.serializeToString(svgDoc);
+    // 5. Serialize back to a string
+    const cleanedSvg = new XMLSerializer().serializeToString(svg);
 
-    // 7. Re-encode the SVG to Base64
-    return `data:image/svg+xml;base64,${btoa(modifiedSvgString)}`;
+    // 6. URI-encode instead of Base64-encode
+    return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(
+      cleanedSvg
+    )}`;
   } catch (error) {
-    console.error("Failed to modify SVG background:", error);
-    // If anything goes wrong, return the original image string
+    console.error('Failed to strip SVG background:', error);
     return base64Svg;
   }
 }
