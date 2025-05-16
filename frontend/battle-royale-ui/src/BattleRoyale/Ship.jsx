@@ -1,11 +1,10 @@
-// import skullImage from "./images/skull.png";
 import React, { useEffect, useState } from "react";
 import { Hexagon } from "react-hexgrid";
 import removeYachtBackground from "./RemoveYachtBackground";
 
-const shortenAddress = (address) => {
+function shortenAddress(address) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
-};
+}
 
 function Tooltip({ q, r, s, range, shotRange, kills, player }) {
   return (
@@ -28,11 +27,7 @@ function Tooltip({ q, r, s, range, shotRange, kills, player }) {
         rx="2"
         ry="2"
       />
-      <text
-        x="-8"
-        y="-8"
-        style={{ fill: "white", fillOpacity: 1, fontSize: "0.15em" }}
-      >
+      <text x="-8" y="-8" style={{ fill: "white", fontSize: "0.15em" }}>
         <tspan fontWeight="bold">Player {shortenAddress(player)}</tspan>
         <tspan x="-8" dy="1.2em">
           Movement: {range}, Shot: {shotRange}
@@ -42,15 +37,15 @@ function Tooltip({ q, r, s, range, shotRange, kills, player }) {
   );
 }
 
-const showTooltip = (event, player) => {
-  const tooltip = document.getElementById(`${player}-ship`);
-  if (tooltip) tooltip.style.display = "block";
-};
+function showTooltip(event, player) {
+  const tip = document.getElementById(`${player}-ship`);
+  if (tip) tip.style.display = "block";
+}
 
-const hideTooltip = (player) => {
-  const tooltip = document.getElementById(`${player}-ship`);
-  if (tooltip) tooltip.style.display = "none";
-};
+function hideTooltip(player) {
+  const tip = document.getElementById(`${player}-ship`);
+  if (tip) tip.style.display = "none";
+}
 
 export default function Ship({
   ship,
@@ -60,93 +55,41 @@ export default function Ship({
   deadPlayers,
   currentRound,
 }) {
-  const { q, r, s, mine, image, state } = ship;
-  const [isDestroyedDelayed, setIsDestroyedDelayed] = useState(false);
-  /* const [showSkull, setShowSkull] = useState(false); */
+  const { q, r, s, mine, image, state, range, shotRange } = ship;
+  const [processedDataUrl, setProcessedDataUrl] = useState(null);
 
-  let processedDataUrl = removeYachtBackground(image);
+  // Load the transparent PNG version of the yacht
+  useEffect(() => {
+    let cancelled = false;
+    removeYachtBackground(image).then((url) => {
+      if (!cancelled) setProcessedDataUrl(url);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [image]);
 
+  // Figure out if this ship was destroyed in a previous round
   const wasDeadPreviously =
     deadPlayers &&
     deadPlayers[ship.address] &&
     currentRound > deadPlayers[ship.address];
 
-  if (mine) {
-    // Chrome/Firefox: Base64-encoded SVG
-    if (processedDataUrl.startsWith("data:image/svg+xml;base64,")) {
-      try {
-        const [, base64Data] = processedDataUrl.split(",");
-        const svgText = atob(base64Data);
-        const animatedSvg = svgText.replace(
-          /\.border\s*\{\s*fill:\s*#fff\s*\}/g,
-          `.border {
-           animation: colorChange 3s infinite ease-in-out;
-         }
-         @keyframes colorChange {
-           0%   { fill: #fff }
-           50%  { fill: #ff0  }
-           100% { fill: #fff }
-         }`
-        );
-        processedDataUrl = "data:image/svg+xml;base64," + btoa(animatedSvg);
-      } catch (e) {
-        console.error("Animation injection failed (Base64):", e);
-      }
-    }
-    // Safari: URI-encoded SVG
-    else if (processedDataUrl.startsWith("data:image/svg+xml;charset=utf-8,")) {
-      try {
-        const [, encodedData] = processedDataUrl.split(",");
-        const svgText = decodeURIComponent(encodedData);
-        const animatedSvg = svgText.replace(
-          /\.border\s*\{\s*fill:\s*#fff\s*\}/g,
-          `.border {
-           animation: colorChange 3s infinite ease-in-out;
-         }
-         @keyframes colorChange {
-           0%   { fill: #fff }
-           50%  { fill: #ff0  }
-           100% { fill: #fff }
-         }`
-        );
-        processedDataUrl =
-          "data:image/svg+xml;charset=utf-8," + encodeURIComponent(animatedSvg);
-      } catch (e) {
-        console.error("Animation injection failed (URI):", e);
-      }
-    }
-  }
-
+  // Delay the final “destroyed” styling
+  const [isDestroyedDelayed, setIsDestroyedDelayed] = useState(false);
   useEffect(() => {
-    // Only start the (now-commented) skull animation if destroyed and not already dead
     if (state === "destroyed" && !wasDeadPreviously && !isDestroyedDelayed) {
-      /* skullTimer, grayscaleTimer */ /* skullTimer = setTimeout(() => {
-        setShowSkull(true);
-        grayscaleTimer = setTimeout(() => {
-          setShowSkull(false);
-          setIsDestroyedDelayed(true);
-        }, 3000);
-      }, 4500); */
-
-      // Instead, just wait then mark destroyed
       const timer = setTimeout(() => {
         setIsDestroyedDelayed(true);
       }, 4500);
-
-      return () => {
-        // clearTimeout(skullTimer);
-        // clearTimeout(grayscaleTimer);
-        clearTimeout(timer);
-      };
+      return () => clearTimeout(timer);
     }
-
-    // If already dead, instantly mark (no animation)
     if (state === "destroyed" && wasDeadPreviously) {
       setIsDestroyedDelayed(true);
-      /* setShowSkull(false); */
     }
   }, [state, wasDeadPreviously, isDestroyedDelayed]);
 
+  // Apply grayscale and lower opacity when destroyed
   const imageStyle = {};
   if (state === "destroyed" && isDestroyedDelayed) {
     imageStyle.filter = "grayscale(80%)";
@@ -159,8 +102,8 @@ export default function Ship({
         q={q}
         r={r}
         s={s}
-        range={ship.range}
-        shotRange={ship.shotRange}
+        range={range}
+        shotRange={shotRange}
         kills={ship.kills}
         player={ship.address}
       />
@@ -176,34 +119,22 @@ export default function Ship({
         onClick={(e) => onShipClick(e, { q, r, s })}
         className={className}
       >
-        <image
-          href={processedDataUrl}
-          xlinkHref={processedDataUrl}
-          width={size.x * 2}
-          height={size.y * 2}
-          x={-size.x}
-          y={-size.y}
-          style={{
-            ...imageStyle,
-            pointerEvents: "none",
-            willChange: "transform",
-            backfaceVisibility: "hidden",
-          }}
-        />
-
-        {/* Commented out skull overlay */}
-        {/*
-        {state === "destroyed" && showSkull && (
+        {processedDataUrl && (
           <image
-            href={skullImage}
-            width={size.x * 1.5}
-            height={size.y * 1.5}
-            x={-size.x + 0.8}
-            y={-size.y + 0.5}
-            style={{ pointerEvents: "none" }}
+            href={processedDataUrl}
+            xlinkHref={processedDataUrl}
+            width={size.x * 2}
+            height={size.y * 2}
+            x={-size.x}
+            y={-size.y}
+            style={{
+              ...imageStyle,
+              pointerEvents: "none",
+              willChange: "transform",
+              backfaceVisibility: "hidden",
+            }}
           />
         )}
-        */}
       </Hexagon>
 
       {ship.shot && ship.shot.origin && (
