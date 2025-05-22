@@ -414,10 +414,13 @@ export default function Game(props) {
       data.games[0].players.find((p) => p.state === "won")
     );
 
+  const useRawShips = () => useGameQuery((data) => data.games[0].players);
+
   const { data: result } = useGameQuery();
 
   const { data: currentRound } = useCurrentRound();
   const { data: ships } = useShips();
+  const { data: rawShips } = useRawShips();
   const { data: myShip } = useMyShip(address);
   const { data: cells } = useCells();
   const { data: rounds } = useRounds();
@@ -439,6 +442,7 @@ export default function Game(props) {
   // console.log("Game Winner: ", winner);
   //console.log("Result: ", result);
   //console.log("Cells2: ", cells2);
+  // console.log("Raw Ships: ", rawShips);
 
   useEffect(() => {
     // console.log("Game State: for disabling eventbridge ", gameState);
@@ -640,7 +644,7 @@ export default function Game(props) {
       </Grid>
       <Grid container alignItems="center" justifyContent="center">
         <Grid item xs={8} ml={5} mr={5} mb={5}>
-          <SpectateLeaderBoard ships={ships} />
+          <SpectateLeaderBoard ships={rawShips} />
         </Grid>
       </Grid>
     </Fragment>

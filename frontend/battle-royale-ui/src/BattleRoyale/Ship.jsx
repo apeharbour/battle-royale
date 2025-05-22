@@ -56,24 +56,33 @@ export default function Ship({
   currentRound,
 }) {
   const { q, r, s, mine, image, state, range, shotRange } = ship;
-  const [processedDataUrl, setProcessedDataUrl] = useState(null);
+  let processedDataUrl = removeYachtBackground(image);
 
-  // Load the transparent PNG version of the yacht
-  useEffect(() => {
-    let cancelled = false;
-    removeYachtBackground(image).then((url) => {
-      if (!cancelled) setProcessedDataUrl(url);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [image]);
-
-  // Figure out if this ship was destroyed in a previous round
   const wasDeadPreviously =
     deadPlayers &&
     deadPlayers[ship.address] &&
     currentRound > deadPlayers[ship.address];
+
+  try {
+    const base64Part = processedDataUrl.split(",")[1];
+    const svgString = atob(base64Part);
+    if (mine) {
+      const animatedSvgString = svgString.replace(
+        /.border\s*\{\s*fill:\s*#fff\s*\}/g,
+        `.border { 
+          animation: colorChange 3s infinite ease-in-out; 
+        }
+        @keyframes colorChange { 
+          0% { fill: #fff } 
+          50% { fill: #ff0 } 
+          100% { fill: #fff } 
+        }`
+      );
+      processedDataUrl = `data:image/svg+xml;base64,${btoa(animatedSvgString)}`;
+    }
+  } catch (error) {
+    console.error("Failed to inject border animation:", error);
+  }
 
   // Delay the final “destroyed” styling
   const [isDestroyedDelayed, setIsDestroyedDelayed] = useState(false);

@@ -406,10 +406,12 @@ export default function SpectateGame() {
       data.games[0].players.find((p) => p.state === "won")
     );
 
-  const { data: result } = useGameQuery();
+  const useRawShips = () => useGameQuery((data) => data.games[0].players);
 
+  const { data: result } = useGameQuery();
   const { data: currentRound } = useCurrentRound();
   const { data: ships } = useShips();
+  const { data: rawShips } = useRawShips();
   const { data: myShip } = useMyShip(address);
   const { data: cells } = useCells();
   const { data: rounds } = useRounds();
@@ -555,7 +557,7 @@ export default function SpectateGame() {
       </Grid>
       <Grid container alignItems="center" justifyContent="center">
         <Grid item xs={8} ml={5} mr={5} mb={5}>
-          <SpectateLeaderBoard ships={ships} />
+          <SpectateLeaderBoard ships={rawShips} />
         </Grid>
       </Grid>
     </Fragment>

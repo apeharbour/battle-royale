@@ -15,6 +15,7 @@ const shortenAddress = (address) => {
 };
 
 export default function SpectateLeaderBoard({ ships }) {
+
   return (
     <Card>
       <CardHeader title="leaderboard" />

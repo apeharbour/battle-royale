@@ -8,6 +8,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { request, gql } from "graphql-request";
 import {
+  Alert,
   Box,
   TextField,
   Button,
@@ -45,6 +46,7 @@ const CLOSE_REGISTRATION_URL =
   "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/closeRegistration";
 const EVENT_BRIDGE_URL =
   "https://0fci0zsi30.execute-api.eu-north-1.amazonaws.com/prod/afterGameCreated";
+const AUTH_HEADER = "battleroyale";
 
 // GraphQL Query
 const registrationQuery = gql`
@@ -129,6 +131,10 @@ export default function Admin(props) {
   const [maxPlayers, setMaxPlayers] = useState(null);
   const [gameKMS, setGameKMS] = useState(null);
   const [registrationKMS, setRegistrationKMS] = useState(null);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [schedule, setSchedule] = useState("");
 
   // Hooks
   const { data: closedRegistrations } = useRegistrations(
@@ -159,52 +165,49 @@ export default function Admin(props) {
   } = useWaitForTransactionReceipt({ hash });
 
   const startRegistration = async () => {
-    try {
-      setProcessingError(null);
+    setError(null);
+    setSuccess(null);
 
-      const response = await fetch(START_REGISTRATION_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: "battleroyale",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Error starting registration: ${response.statusText}`);
-      }
-    } catch (error) {
-      console.error("Error starting registration:", error);
-      setProcessingError(error.message);
+    // Basic front-end validation
+    if (!maxPlayers || !radius || !mapShrink || !schedule) {
+      setError("All fields are required");
+      return;
     }
-  };
 
-  const closeRegistration = async (maxPlayers, radius, mapShrink) => {
+    // Build the EventBridge 'at(...)' expression
+    // Append ":00" to get full seconds
+    const atExpression = `at(${schedule}:00)`;
+
+    setLoading(true);
     try {
-      const response = await fetch(CLOSE_REGISTRATION_URL, {
+      const res = await fetch(START_REGISTRATION_URL, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: "battleroyale",
+          Authorization: AUTH_HEADER,
         },
         body: JSON.stringify({
-          maxPlayers,
-          radius,
-          mapShrink,
+          maxPlayers: Number(maxPlayers),
+          radius: Number(radius),
+          mapShrink: Number(mapShrink),
+          scheduleExpression: atExpression,
         }),
       });
 
-      if (!response.ok) {
-        throw new Error(`Error closing registration: ${response.statusText}`);
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || res.statusText);
       }
 
-      console.log("Closing registration with params:", {
-        maxPlayers,
-        radius,
-        mapShrink,
-      });
-    } catch (error) {
-      console.error("Error closing registration:", error);
+      const { ruleName } = await res.json();
+      setSuccess(
+        `Registration opened. Scheduled to close at ${schedule} (rule: ${ruleName}).`
+      );
+    } catch (err) {
+      console.error(err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -225,6 +228,20 @@ export default function Admin(props) {
       });
     } catch (error) {
       console.error("Error triggering lambda function:", error);
+    }
+  };
+
+    const closeRegistration = async () => {
+    try {
+      await writeContract({
+        abi: REGISTRATION_ABI,
+        address: REGISTRATION_ADDRESS,
+        functionName: "closeRegistration",
+        args: [maxPlayers, radius, mapShrink],
+      });
+    } catch (error) {
+      console.error("Error calling close registration", error);
+      setProcessingError(error.message);
     }
   };
 
@@ -319,6 +336,8 @@ export default function Admin(props) {
         <Fragment>
           <Box mt={2}>
             <Stack spacing={2} direction="row">
+              {error && <Alert severity="error">{error}</Alert>}
+              {success && <Alert severity="success">{success}</Alert>}
               <Button
                 variant="contained"
                 color="success"
@@ -351,6 +370,13 @@ export default function Admin(props) {
                 value={radius}
                 label="Radius"
                 onChange={(e) => setRadius(e.target.value)}
+              />
+              <TextField
+                label="Close at"
+                type="datetime-local"
+                value={schedule}
+                onChange={(e) => setSchedule(e.target.value)}
+                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 variant="outlined"

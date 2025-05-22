@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-kms": "^3.731.1",
+    "@aws-sdk/client-scheduler": "^3.812.0",
     "@rumblefishdev/eth-signer-kms": "^3.1.0",
     "aws-sdk": "^2.1692.0",
     "ethers": "^5.7.2"
