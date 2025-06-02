@@ -225,12 +225,14 @@ export default function CommitMoveButton({
 
     console.log("Move Hash: ", moveHash);
 
+    const gameIdBigInt = BigInt(gameId);
+
     try {
       writeContract({
         abi: GAME_ABI,
         address: GAME_ADDRESS,
         functionName: "commitMove",
-        args: [moveHash, BigInt(gameId)],
+        args: [moveHash, gameIdBigInt],
       });
 
       await storePlayerMove({
