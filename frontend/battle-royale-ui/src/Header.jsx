@@ -1,18 +1,48 @@
 import React from "react";
-import punkShips from "./images/punkshipsLogo.png";
-import "./App.css";
-import VolumeUpRoundedIcon from '@mui/icons-material/VolumeUpRounded';
-import { Button } from '@mui/material';
+import Grid from "@mui/material/Grid2";
+import Box from "@mui/material/Box";
+import { Link, useLocation } from "react-router-dom";
+import yartsLogoTransparent from "./images/yartsLogoTransparent.svg";
+import SearchYart from "./SearchYart";
 
-export default function Header() {
-    return (
-        <div className="headerContainer">
-            <VolumeUpRoundedIcon fontSize="large" color="primary" className='volumeIcon' />
-            <a href="/">
-                <img src={punkShips} className="punkShipsLogo" alt="Punk Ships Logo" />
-            </a>
-            <Button variant="contained" href="/admin">Admin</Button>
-            <Button variant="contained" className="connectButton">Connect</Button>
-        </div>
-    );
+function Header() {
+  const location = useLocation();
+  // const destination = location.pathname === "/youryarts" ? "/" : "/youryarts";
+  const headerHeight = location.pathname === "/" ? "230px" : "150px";
+
+  return (
+    <Grid
+      container
+      sx={{
+        height: headerHeight,
+        alignItems: "center",
+      }}
+    >
+      <Grid
+        item
+        size={12}
+      >
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <Box
+            component="img"
+            src={yartsLogoTransparent}
+            alt="Yarts Logo"
+            sx={{
+              display: "block",
+              maxWidth: "100%",
+              height: "auto",
+              cursor: "pointer",
+            }}
+          />
+        </Link>
+      </Grid>
+      {location.pathname === "/gallery" && (
+        <Grid item size={12} mt={-5}>
+          <SearchYart />
+        </Grid>
+      )}
+    </Grid>
+  );
 }
+
+export default Header;
