@@ -460,6 +460,7 @@ export default function SpectateGame() {
       <Grid container spacing={2} p={4}>
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
+            {isMobile && <SpectatorTitle />}
             <SpectatePlayers ships={ships} />
             {isMobile && cells && (
               <SpectateMainBoard
@@ -524,7 +525,7 @@ export default function SpectateGame() {
 
         <Grid item xs={12} sm={4} md={2}>
           <Stack spacing={2}>
-            <SpectatorTitle />
+            {!isMobile && <SpectatorTitle />}
             {!isMobile && (
               <FormControlLabel
                 control={
